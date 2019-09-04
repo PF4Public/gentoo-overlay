@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">FontManager/font-manager</remote-id>
+		<bugs-to>https://github.com/FontManager/font-manager/issues</bugs-to>
+		<doc>http://fontmanager.github.io/</doc>
+	</upstream>
+	<longdescription>
+		A simple font management application for GTK Desktop Environments
+	</longdescription>
+	<use>
+		<flag name="nautilus">Build Nautilus extension</flag>
+		<flag name="nemo">Build Nemo extension</flag>
+	</use>
+</pkgmetadata>
