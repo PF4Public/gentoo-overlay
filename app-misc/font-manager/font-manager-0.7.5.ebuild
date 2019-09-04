@@ -12,7 +12,7 @@ if [[ ${PV} = *9999* ]]; then
 	KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI="https://github.com/FontManager/font-manager/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
 DESCRIPTION="A simple font management application for Gtk+ Desktop Environments"
