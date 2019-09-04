@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">Eloston/ungoogled-chromium</remote-id>
+		<bugs-to>https://github.com/Eloston/ungoogled-chromium/issues</bugs-to>
+		<doc>https://ungoogled-software.github.io/ungoogled-chromium-wiki/</doc>
+	</upstream>
+	<longdescription>
+		ungoogled-chromium is Google Chromium, sans integration with Google.
+		It also features some tweaks to enhance privacy, control, and
+		transparency (almost all of which require manual activation or enabling).
+
+		ungoogled-chromium retains the default Chromium experience as closely as
+		possible. Unlike other Chromium forks that have their own visions of a
+		web browser, ungoogled-chromium is essentially a drop-in replacement for
+		Chromium.
+	</longdescription>
+	<use>
+		<flag name="closure-compile">
+			Enable closure type-checking for Chrome's web technology-based UI.
+			Requires Java and bundled binary compiler.jar
+		</flag>
+		<flag name="gnome">Improve integration with GIO (libgio).</flag>
+		<flag name="gold">Use GNU's gold linker.</flag>
+		<flag name="jumbo-build">
+			Coalesce translation units together, making builds faster on single
+			machines, at the expense of more memory during build time. This flag
+			is not automatically tested by Chromium developers, so it may not
+			work all the time.
+		</flag>
+		<flag name="libcxx">
+			Build against <pkg>sys-devel/libcxx</pkg>, which requires that all
+			C++ dependencies must be built with '-stdlib=libc++' (EXPERIMENTAL).
+		</flag>
+		<flag name="lld">
+			LLD is a linker from the LLVM project. That is a drop-in replacement
+			for system linkers and runs much faster than them (recommended).
+		</flag>
+		<flag name="new-tcmalloc">Use the soon-to-be default tcmalloc.</flag>
+		<flag name="optimize-thinlto">
+			Whether to enable ThinLTO optimizations. Turning ThinLTO
+			optimizations on can substantially increase link time and binary
+			size, but they generally also make binaries a fair bit faster.
+		</flag>
+		<flag name="optimize-webui">
+			Optimize parts of Chromium's UI written with web technologies
+			(HTML/CSS/JS) for runtime performance purposes. This does more
+			work at compile time for speed benefits at runtime.
+		</flag>
+		<flag name="pdf">Enable the built-in PDF viewer</flag>
+		<flag name="proprietary-codecs">
+			Enable proprietary codecs like H.264, MP3.
+		</flag>
+		<flag name="suid">
+			Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n
+			kernels.
+		</flag>
+		<flag name="system-ffmpeg">
+			Use the system <pkg>media-video/ffmpeg</pkg> instead of bundled.
+		</flag>
+		<flag name="system-harfbuzz">
+			Use the system <pkg>media-libs/harfbuzz</pkg> instead of bundled.
+		</flag>
+		<flag name="system-icu">
+			Use the system <pkg>dev-libs/icu</pkg> instead of bundled.
+		</flag>
+		<flag name="system-jsoncpp">
+			Use the system <pkg>dev-libs/jsoncpp</pkg> instead of bundled.
+		</flag>
+		<flag name="system-libevent">
+			Use the system <pkg>dev-libs/libevent</pkg> instead of bundled.
+		</flag>
+		<flag name="system-libvpx">
+			Use the system <pkg>media-libs/libvpx</pkg> instead of bundled.
+		</flag>
+		<flag name="system-openh264">
+			Use the system <pkg>media-libs/openh264</pkg> instead of bundled.
+			If disabled, it will restrict USE=bindist.
+		</flag>
+		<flag name="system-openjpeg">
+			Use the system-wide <pkg>media-libs/openjpeg</pkg> instead of
+			bundled. OpenJPEG use are exclusively for Chromium's PDF viewer.
+		</flag>
+		<flag name="tcmalloc">
+			Use bundled tcmalloc instead of system malloc.
+		</flag>
+		<flag name="thinlto">
+			Build with ThinLTO support. LTO (Link Time Optimization) achieves
+			better runtime performance through whole-program analysis and
+			cross-module optimization (highly recommended).
+		</flag>
+		<flag name="widevine">
+			Unsupported closed-source DRM capability (required by Netflix VOD).
+		</flag>
+	</use>
+</pkgmetadata>
