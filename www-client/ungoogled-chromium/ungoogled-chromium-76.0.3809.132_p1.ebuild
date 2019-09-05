@@ -134,9 +134,9 @@ BDEPEND="
 	dev-vcs/git
 	sys-apps/hwids[usb(+)]
 	>=sys-devel/bison-2.4.3
-	>=sys-devel/clang-7.0.0
+	>=sys-devel/clang-8.0.0
 	sys-devel/flex
-	>=sys-devel/llvm-7.0.0[gold?]
+	>=sys-devel/llvm-8.0.0[gold?]
 
 	virtual/libusb:1
 	virtual/pkgconfig
@@ -144,21 +144,9 @@ BDEPEND="
 		sys-libs/libcxx
 		sys-libs/libcxxabi
 	)
-	lld? ( >=sys-devel/lld-7.0.0 )
+	lld? ( >=sys-devel/lld-8.0.0 )
 	optimize-webui? ( >=net-libs/nodejs-7.6.0[inspector] )
 "
-# which one?
-#
-#lld? ( >=sys-devel/lld-7.0.0 )
-# 
-#lld? (
-#	jumbo-build? (
-#		>=sys-devel/lld-8.0.0
-#	)
-#	!jumbo-build? (
-#		>=sys-devel/lld-7.0.0
-#	)
-#)
 
 # shellcheck disable=SC2086
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
