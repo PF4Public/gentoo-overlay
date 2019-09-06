@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">Eloston/ungoogled-chromium</remote-id>
+		<bugs-to>https://github.com/Eloston/ungoogled-chromium/issues</bugs-to>
+		<doc>https://ungoogled-software.github.io/ungoogled-chromium-wiki/</doc>
+	</upstream>
+	<longdescription>
+		ungoogled-chromium is Google Chromium, sans integration with Google.
+		It also features some tweaks to enhance privacy, control, and
+		transparency (almost all of which require manual activation or enabling).
+
+		ungoogled-chromium retains the default Chromium experience as closely as
+		possible. Unlike other Chromium forks that have their own visions of a
+		web browser, ungoogled-chromium is essentially a drop-in replacement for
+		Chromium.
+	</longdescription>
+	<use>
+		<flag name="haswell">
+			Pull in a binary, built for haswell.
+		</flag>
+		<flag name="core2">
+			Pull in a binary, built for core2.
+		</flag>
+		<flag name="generic">
+			Pull in a binary, built for a generic x86-64.
+		</flag>
+		<flag name="widevine">
+			Unsupported closed-source DRM capability (required by Netflix VOD).
+		</flag>
+		<flag name="suid">
+			Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n
+			kernels.
+		</flag>
+	</use>
+</pkgmetadata>
