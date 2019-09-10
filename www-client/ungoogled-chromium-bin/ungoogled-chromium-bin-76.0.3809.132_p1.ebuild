@@ -34,7 +34,7 @@ RESTRICT="mirror"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="core2 +generic haswell suid widevine"
 
 REQUIRED_USE="|| ( core2 generic haswell )"
