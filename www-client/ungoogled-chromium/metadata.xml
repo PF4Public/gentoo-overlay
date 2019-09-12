@@ -20,6 +20,9 @@
 		Chromium.
 	</longdescription>
 	<use>
+		<flag name="cfi">
+			Build with CFI (Control Flow Integrity) enabled (recommended).
+		</flag>
 		<flag name="closure-compile">
 			Enable closure type-checking for Chrome's web technology-based UI.
 			Requires Java and bundled binary compiler.jar

@@ -29,7 +29,7 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 ~x86"
 IUSE="
-	closure-compile cups custom-cflags gnome gold jumbo-build kerberos libcxx
+	+cfi closure-compile cups custom-cflags gnome gold jumbo-build kerberos libcxx
 	+lld new-tcmalloc optimize-thinlto optimize-webui pdf +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx +system-openh264
@@ -39,6 +39,7 @@ REQUIRED_USE="
 	^^ ( gold lld )
 	|| ( $(python_gen_useflags 'python3*') )
 	|| ( $(python_gen_useflags 'python2*') )
+	cfi? ( thinlto )
 	libcxx? ( new-tcmalloc )
 	new-tcmalloc? ( tcmalloc )
 	optimize-thinlto? ( thinlto )
@@ -140,6 +141,7 @@ BDEPEND="
 
 	virtual/libusb:1
 	virtual/pkgconfig
+	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 	libcxx? (
 		sys-libs/libcxx
 		sys-libs/libcxxabi
@@ -188,7 +190,7 @@ S="${WORKDIR}/chromium-${PV/_*}"
 pre_build_checks() {
 	# Check build requirements (Bug #541816)
 	CHECKREQS_MEMORY="3G"
-	CHECKREQS_DISK_BUILD="5G"
+	CHECKREQS_DISK_BUILD="6G"
 	if use custom-cflags && ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
 		CHECKREQS_DISK_BUILD="25G"
 	fi
@@ -577,6 +579,7 @@ src_configure() {
 
 	local myconf_gn=(
 		# Clang features
+		"is_cfi=$(usetf cfi)" # Implies use_cfi_icall=true
 		"is_clang=true"
 		"clang_use_chrome_plugins=false"
 		"thin_lto_enable_optimizations=$(usetf optimize-thinlto)"
@@ -658,6 +661,9 @@ src_configure() {
 		# It is relevant only when use_allocator == "tcmalloc"
 		"use_new_tcmalloc=$(usetf new-tcmalloc)"
 	)
+
+	# use_cfi_icall only works with LLD
+	use cfi && myconf_gn+=( "use_cfi_icall=$(usetf lld)" )
 
 	setup_compile_flags
 
