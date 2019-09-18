@@ -180,8 +180,8 @@ PATCHES=(
 	# Gentoo patches
 	"${FILESDIR}/${PN}-unbundle-zlib.patch"
 	"${FILESDIR}/${PN}-77-system-icu.patch"
-	"${FILESDIR}/${PN}-77-system-hb.patch"
 	"${FILESDIR}/${PN}-77-blink-include.patch"
+	"${FILESDIR}/${PN}-77-fix-gn-gen.patch"
 	# Debian patches
 	"${FILESDIR}/${PN}-disable-installer.patch"
 	# Extra patches taken from openSUSE
@@ -222,6 +222,10 @@ src_prepare() {
 	python_setup 'python3*'
 
 	default
+
+	if use "system-harfbuzz" ; then
+		eapply "${FILESDIR}/${PN}-77-system-hb.patch" || die
+	fi
 
 	if use "system-jsoncpp" ; then
 		eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch" || die
