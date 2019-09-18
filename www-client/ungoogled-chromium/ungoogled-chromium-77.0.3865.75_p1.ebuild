@@ -379,6 +379,7 @@ src_prepare() {
 		third_party/modp_b64
 		third_party/nasm
 		third_party/openscreen
+		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
 		third_party/perfetto
 		third_party/pffft
@@ -393,10 +394,10 @@ src_prepare() {
 		third_party/sfntly
 		third_party/simplejson
 		third_party/skia
-		third_party/skia/third_party/gif
-		third_party/skia/third_party/skcms
 		third_party/skia/include/third_party/skcms
 		third_party/skia/include/third_party/vulkan
+		third_party/skia/third_party/gif
+		third_party/skia/third_party/skcms
 		third_party/skia/third_party/vulkan
 		third_party/smhasher
 		third_party/speech-dispatcher
