@@ -236,7 +236,7 @@ src_prepare() {
 	fi
 
 	if use "system-libvpx" ; then
-		eapply "${FILESDIR}/${PN}-system-vpx-r0.patch" || die
+		eapply "${FILESDIR}/${PN}-system-vpx-r1.patch" || die
 	fi
 
 	if use "optimize-webui"; then
