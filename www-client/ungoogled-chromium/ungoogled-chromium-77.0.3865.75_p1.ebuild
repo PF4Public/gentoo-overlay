@@ -177,6 +177,11 @@ GTK+ icon theme.
 
 PATCHES=(
 	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
+	# Gentoo patches
+	"${FILESDIR}/${PN}-unbundle-zlib.patch"
+	"${FILESDIR}/${PN}-77-system-icu.patch"
+	"${FILESDIR}/${PN}-77-system-hb.patch"
+	"${FILESDIR}/${PN}-77-blink-include.patch"
 	# Debian patches
 	"${FILESDIR}/${PN}-disable-installer.patch"
 	# Extra patches taken from openSUSE
@@ -219,7 +224,7 @@ src_prepare() {
 	default
 
 	if use "system-jsoncpp" ; then
-		eapply "${FILESDIR}/${PN}-system-jsoncpp-r0.patch" || die
+		eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch" || die
 	fi
 
 	if use "system-openjpeg" ; then
