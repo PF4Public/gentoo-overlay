@@ -196,9 +196,11 @@ pre_build_checks() {
 	# Check build requirements (Bug #541816)
 	CHECKREQS_MEMORY="3G"
 	CHECKREQS_DISK_BUILD="6G"
+
 	if use custom-cflags && ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
 		CHECKREQS_DISK_BUILD="25G"
 	fi
+
 	check-reqs_pkg_setup
 }
 
@@ -209,6 +211,7 @@ pkg_pretend() {
 		ewarn "Expect build failures. Don't file bugs using that unsupported USE flag!"
 		ewarn
 	fi
+
 	pre_build_checks
 }
 
@@ -223,23 +226,12 @@ src_prepare() {
 
 	default
 
-	if use "system-harfbuzz" ; then
-		eapply "${FILESDIR}/${PN}-77-system-hb.patch" || die
-	fi
+	use system-harfbuzz && eapply "${FILESDIR}/${PN}-77-system-hb.patch"
+	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
+	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
+	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r0.patch"
 
-	if use "system-jsoncpp" ; then
-		eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch" || die
-	fi
-
-	if use "system-openjpeg" ; then
-		eapply "${FILESDIR}/${PN}-system-openjpeg-r0.patch" || die
-	fi
-
-	if use "system-libvpx" ; then
-		eapply "${FILESDIR}/${PN}-system-vpx-r1.patch" || die
-	fi
-
-	if use "optimize-webui"; then
+	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
 		ln -s "${EPREFIX}/usr/bin/node" \
 			third_party/node/linux/node-linux-x64/bin/node || die
@@ -441,10 +433,12 @@ src_prepare() {
 	use closure-compile && keeplibs+=(
 		third_party/closure_compiler
 	)
+
 	use optimize-webui && keeplibs+=(
 		third_party/node
 		third_party/node/node_modules/polymer-bundler/lib/third_party/UglifyJS2
 	)
+
 	use pdf && keeplibs+=(
 		third_party/pdfium
 		third_party/pdfium/third_party/agg23
@@ -455,22 +449,32 @@ src_prepare() {
 		third_party/pdfium/third_party/libtiff
 		third_party/pdfium/third_party/skia_shared
 	)
-	use system-openjpeg || keeplibs+=(
-		third_party/pdfium/third_party/libopenjpeg20
+
+	use system-ffmpeg || keeplibs+=(
+		third_party/ffmpeg
+		third_party/opus
 	)
-	use system-ffmpeg || keeplibs+=( third_party/ffmpeg third_party/opus )
+
 	use system-harfbuzz || keeplibs+=(
 		third_party/freetype
 		third_party/harfbuzz-ng
 	)
+
 	use system-icu || keeplibs+=( third_party/icu )
 	use system-jsoncpp || keeplibs+=( third_party/jsoncpp )
 	use system-libevent || keeplibs+=( base/third_party/libevent )
+
 	use system-libvpx || keeplibs+=(
 		third_party/libvpx
 		third_party/libvpx/source/libvpx/third_party/x86inc
 	)
+
 	use system-openh264 || keeplibs+=( third_party/openh264 )
+
+	use system-openjpeg || keeplibs+=(
+		third_party/pdfium/third_party/libopenjpeg20
+	)
+
 	use tcmalloc && keeplibs+=( third_party/tcmalloc )
 
 	# Remove most bundled libraries, some are still needed
