@@ -182,6 +182,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-77-system-icu.patch"
 	"${FILESDIR}/${PN}-77-blink-include.patch"
 	"${FILESDIR}/${PN}-77-fix-gn-gen.patch"
+	"${FILESDIR}/${PN}-77-gcc-include.patch"
 	# Debian patches
 	"${FILESDIR}/${PN}-disable-installer.patch"
 	# Extra patches taken from openSUSE
@@ -229,7 +230,7 @@ src_prepare() {
 	use system-harfbuzz && eapply "${FILESDIR}/${PN}-77-system-hb.patch"
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
-	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r0.patch"
+	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
@@ -313,7 +314,7 @@ src_prepare() {
 		third_party/boringssl
 		third_party/boringssl/src/third_party/fiat
 		third_party/boringssl/src/third_party/sike
-		third_party/boringssl/linux-x86_64/crypto/third_party/sike/asm/
+		third_party/boringssl/linux-x86_64/crypto/third_party/sike
 		third_party/breakpad
 		third_party/breakpad/breakpad/src/third_party/curl
 		third_party/brotli
@@ -378,6 +379,7 @@ src_prepare() {
 		third_party/metrics_proto
 		third_party/modp_b64
 		third_party/nasm
+		third_party/one_euro_filter
 		third_party/openscreen
 		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
@@ -404,6 +406,11 @@ src_prepare() {
 		third_party/spirv-headers
 		third_party/SPIRV-Tools
 		third_party/sqlite
+		third_party/swiftshader
+		third_party/swiftshader/third_party/llvm-7.0
+		third_party/swiftshader/third_party/llvm-subzero
+		third_party/swiftshader/third_party/subzero
+		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/ungoogled
 		third_party/usb_ids
 		third_party/usrsctp
