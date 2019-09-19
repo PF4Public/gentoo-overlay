@@ -786,7 +786,7 @@ src_install() {
 
 	# Install icons and desktop entry
 	local branding size
-	for size in 16 22 24 32 48 64 128 256; do
+	for size in 16 24 32 48 64 128 256; do
 		case ${size} in
 			16|32) branding="chrome/app/theme/default_100_percent/chromium" ;;
 				*) branding="chrome/app/theme/chromium" ;;
