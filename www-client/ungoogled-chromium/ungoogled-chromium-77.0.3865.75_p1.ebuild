@@ -29,10 +29,10 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="
-	+cfi closure-compile cups custom-cflags gnome gold jumbo-build kerberos libcxx
-	+lld new-tcmalloc optimize-thinlto optimize-webui pdf +proprietary-codecs
-	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
-	+system-jsoncpp +system-libevent +system-libvpx +system-openh264
+	+cfi closure-compile convert-dict cups custom-cflags gnome gold jumbo-build
+	kerberos libcxx +lld new-tcmalloc optimize-thinlto optimize-webui pdf
+	+proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz
+	+system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264
 	system-openjpeg +tcmalloc +thinlto vaapi widevine
 "
 REQUIRED_USE="
@@ -227,6 +227,7 @@ src_prepare() {
 
 	default
 
+	use convert-dict && eapply "${FILESDIR}/${PN}-ucf-dict-utility.patch"
 	use system-harfbuzz && eapply "${FILESDIR}/${PN}-77-system-hb.patch"
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
@@ -714,6 +715,8 @@ src_compile() {
 	has ccache ${FEATURES} && \
 		export CCACHE_SLOPPINESS="${CCACHE_SLOPPINESS:-time_macros}"
 
+	use convert-dict && eninja -C out/Release convert_dict
+
 	# Build mksnapshot and pax-mark it
 	local x
 	for x in mksnapshot v8_context_snapshot_generator; do
@@ -737,6 +740,11 @@ src_install() {
 	CHROMIUM_HOME="/usr/$(get_libdir)/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
 	doexe out/Release/chrome
+
+	if use convert-dict; then
+		newexe "${FILESDIR}/${PN}-update-dicts.sh" ungoogled-chromium-update-dicts.sh
+		doexe out/Release/convert_dict
+	fi
 
 	if use suid; then
 		newexe out/Release/chrome_sandbox chrome-sandbox

@@ -27,6 +27,10 @@
 			Enable closure type-checking for Chrome's web technology-based UI.
 			Requires Java and bundled binary compiler.jar
 		</flag>
+		<flag name="convert-dict">
+			Patch and build the convert_dict utility
+			More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907
+		</flag>
 		<flag name="gnome">Improve integration with GIO (libgio).</flag>
 		<flag name="gold">Use GNU's gold linker.</flag>
 		<flag name="jumbo-build">
