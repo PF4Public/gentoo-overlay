@@ -23,6 +23,10 @@
 		<flag name="haswell">
 			Pull in a binary, built for haswell.
 		</flag>
+		<flag name="convert-dict">
+			Install also the convert_dict utility
+			More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907
+		</flag>
 		<flag name="core2">
 			Pull in a binary, built for core2.
 		</flag>
