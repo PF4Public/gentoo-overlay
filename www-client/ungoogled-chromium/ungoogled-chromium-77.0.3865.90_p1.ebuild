@@ -174,21 +174,21 @@ GTK+ icon theme.
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
-	# Gentoo patches
-	"${FILESDIR}/${PN}-unbundle-zlib.patch"
-	"${FILESDIR}/${PN}-77-system-icu.patch"
+	"${FILESDIR}/${PN}-fix-wrong-string-initialization-in-LinkedHashSet.patch"
 	"${FILESDIR}/${PN}-77-blink-include.patch"
 	"${FILESDIR}/${PN}-77-fix-gn-gen.patch"
 	"${FILESDIR}/${PN}-77-gcc-include.patch"
-	# Debian patches
 	"${FILESDIR}/${PN}-disable-installer.patch"
-	# Extra patches taken from openSUSE
+	"${FILESDIR}/${PN}-disable-font-tests.patch"
+	"${FILESDIR}/${PN}-disable-swiftshader.patch"
+	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
+	"${FILESDIR}/${PN}-system-convertutf.patch"
 	"${FILESDIR}/${PN}-system-libusb-r0.patch"
 	"${FILESDIR}/${PN}-system-nspr-r0.patch"
 	"${FILESDIR}/${PN}-system-fix-shim-headers-r0.patch"
-	# Arch patches
-	"${FILESDIR}/${PN}-fix-wrong-string-initialization-in-LinkedHashSet.patch"
+	"${FILESDIR}/${PN}-77-system-icu.patch"
+	"${FILESDIR}/${PN}-unbundle-zlib.patch"
+	"${FILESDIR}/${PN}-skia-harmony.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -233,6 +233,7 @@ src_prepare() {
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
 	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
+	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
