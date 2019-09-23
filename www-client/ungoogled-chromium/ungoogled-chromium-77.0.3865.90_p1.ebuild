@@ -1,17 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 2009-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_COMPAT=( python{2_7,3_{5,6,7}} )
 
-CHROMIUM_LANGS="
-	am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he hi hr hu id
-	it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr sv sw ta te
-	th tr uk vi zh-CN zh-TW
-"
+CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
+	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
+	sv sw ta te th tr uk vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
@@ -642,6 +640,7 @@ src_configure() {
 		"proprietary_codecs=$(usetf proprietary-codecs)"
 		"safe_browsing_mode=0"
 		"symbol_level=0"
+		"blink_symbol_level=0"
 		"treat_warnings_as_errors=false"
 		"use_gnome_keyring=false" # Deprecated by libsecret
 		"use_jumbo_build=$(usetf jumbo-build)"
