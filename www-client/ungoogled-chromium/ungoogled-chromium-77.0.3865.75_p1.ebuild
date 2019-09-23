@@ -1,17 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 2009-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_COMPAT=( python{2_7,3_{5,6,7}} )
 
-CHROMIUM_LANGS="
-	am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he hi hr hu id
-	it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr sv sw ta te
-	th tr uk vi zh-CN zh-TW
-"
+CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
+	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
+	sv sw ta te th tr uk vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
@@ -29,9 +27,9 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="
-	+cfi closure-compile convert-dict cups custom-cflags gnome gold jumbo-build
-	kerberos libcxx +lld new-tcmalloc optimize-thinlto optimize-webui pdf
-	+proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz
+	+cfi closure-compile convert-dict cups custom-cflags gnome gnome-keyring gold
+	jumbo-build kerberos libcxx +lld new-tcmalloc optimize-thinlto optimize-webui
+	pdf +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz
 	+system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264
 	system-openjpeg +tcmalloc +thinlto vaapi widevine
 "
@@ -51,26 +49,41 @@ RESTRICT="
 	!system-openh264? ( bindist )
 "
 
-CDEPEND="
+COMMON_DEPEND="
 	>=app-accessibility/at-spi2-atk-2.26:2
-	app-arch/snappy:=
+	cups? ( >=net-print/cups-1.3.11:= )
 	>=dev-libs/atk-2.26
 	dev-libs/expat:=
 	dev-libs/glib:2
+	system-icu? ( >=dev-libs/icu-64:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/libxslt:=
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
-	>=dev-libs/re2-0.2018.10.01:=
+	>=dev-libs/re2-0.2016.11.01:=
+	gnome-keyring? ( >=gnome-base/libgnome-keyring-3.12:= )
 	>=media-libs/alsa-lib-1.0.19:=
-	media-libs/flac:=
 	media-libs/fontconfig:=
+	system-harfbuzz? (
+		media-libs/freetype:=
+		>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
+	)
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
-	>=media-libs/libwebp-0.4.0:=
+	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
+	>=media-libs/openh264-1.6.0:=
+	pulseaudio? ( media-sound/pulseaudio:= )
+	system-ffmpeg? (
+		>=media-video/ffmpeg-4:=
+		|| (
+			media-video/ffmpeg[-samba]
+			>=net-fs/samba-4.5.10-r1[-debug(-)]
+		)
+		!=net-fs/samba-4.5.12-r0
+		media-libs/opus:=
+	)
 	sys-apps/dbus:=
 	sys-apps/pciutils:=
-	sys-libs/zlib:=[minizip]
 	virtual/udev
 	x11-libs/cairo:=
 	x11-libs/gdk-pixbuf:2
@@ -87,67 +100,58 @@ CDEPEND="
 	x11-libs/libXScrnSaver:=
 	x11-libs/libXtst:=
 	x11-libs/pango:=
-	closure-compile? ( virtual/jre:* )
-	cups? ( >=net-print/cups-1.3.11:= )
+	app-arch/snappy:=
+	media-libs/flac:=
+	>=media-libs/libwebp-0.4.0:=
+	sys-libs/zlib:=[minizip]
 	kerberos? ( virtual/krb5 )
 	pdf? ( media-libs/lcms:= )
-	pulseaudio? ( media-sound/pulseaudio:= )
-	system-ffmpeg? (
-		>=media-video/ffmpeg-3.4.5:=
-		|| (
-			media-video/ffmpeg[-samba]
-	>=net-fs/samba-4.5.16[-debug(-)]
-		)
-		media-libs/opus:=
-	)
-	system-harfbuzz? (
-		media-libs/freetype:=
-		>=media-libs/harfbuzz-2.0.0:0=[icu(-)]
-	)
-	system-icu? ( >=dev-libs/icu-58.2:= )
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
-	system-libvpx? ( >=media-libs/libvpx-1.7.0:=[postproc,svc] )
-	system-openh264? ( >=media-libs/openh264-1.6.0:= )
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	vaapi? ( x11-libs/libva:= )
 "
-RDEPEND="${CDEPEND}
+# For nvidia-drivers blocker, see bug #413637 .
+RDEPEND="${COMMON_DEPEND}
+	!<www-plugins/chrome-binary-plugins-57
+	x11-misc/xdg-utils
 	virtual/opengl
 	virtual/ttf-fonts
-	x11-misc/xdg-utils
 	selinux? ( sec-policy/selinux-chromium )
+	tcmalloc? ( !<x11-drivers/nvidia-drivers-331.20 )
 	widevine? ( !x86? ( www-plugins/chrome-binary-plugins[widevine(-)] ) )
 	!www-client/chromium
+	!www-client/chromium-bin
 	!www-client/ungoogled-chromium-bin
 "
-# dev-vcs/git (Bug #593476)
-# sys-apps/sandbox - https://crbug.com/586444
-DEPEND="${CDEPEND}"
+DEPEND="${COMMON_DEPEND}
+"
+# dev-vcs/git - https://bugs.gentoo.org/593476
 BDEPEND="
+	${PYTHON_DEPS}
 	app-arch/bzip2:=
 	>=app-arch/gzip-1.7
-	dev-lang/perl
 	dev-lang/yasm
+	dev-lang/perl
 	dev-util/gn
+	dev-vcs/git
 	>=dev-util/gperf-3.0.3
 	>=dev-util/ninja-1.7.2
-	dev-vcs/git
+	optimize-webui? ( >=net-libs/nodejs-7.6.0[inspector] )
 	sys-apps/hwids[usb(+)]
 	>=sys-devel/bison-2.4.3
-	>=sys-devel/clang-8.0.0
 	sys-devel/flex
-	>=sys-devel/llvm-8.0.0[gold?]
-
-	virtual/libusb:1
+	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
+	>=sys-devel/clang-8.0.0
+	>=sys-devel/llvm-8.0.0[gold?]
+	lld? ( >=sys-devel/lld-8.0.0 )
+	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 	libcxx? (
 		sys-libs/libcxx
 		sys-libs/libcxxabi
 	)
-	lld? ( >=sys-devel/lld-8.0.0 )
-	optimize-webui? ( >=net-libs/nodejs-7.6.0[inspector] )
 "
 
 # shellcheck disable=SC2086
@@ -171,24 +175,28 @@ are not displayed properly:
 - media-fonts/wqy-zenhei
 
 To fix broken icons on the Downloads page, you should install an icon
-heme that covers the appropriate MIME types, and configure this as your
+theme that covers the appropriate MIME types, and configure this as your
 GTK+ icon theme.
+
+For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
-	# Gentoo patches
-	"${FILESDIR}/${PN}-unbundle-zlib.patch"
-	"${FILESDIR}/${PN}-77-system-icu.patch"
+	"${FILESDIR}/${PN}-fix-wrong-string-initialization-in-LinkedHashSet.patch"
 	"${FILESDIR}/${PN}-77-blink-include.patch"
 	"${FILESDIR}/${PN}-77-fix-gn-gen.patch"
 	"${FILESDIR}/${PN}-77-gcc-include.patch"
-	# Debian patches
 	"${FILESDIR}/${PN}-disable-installer.patch"
-	# Extra patches taken from openSUSE
+	"${FILESDIR}/${PN}-disable-font-tests.patch"
+	"${FILESDIR}/${PN}-disable-swiftshader.patch"
+	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
+	"${FILESDIR}/${PN}-system-convertutf.patch"
 	"${FILESDIR}/${PN}-system-libusb-r0.patch"
 	"${FILESDIR}/${PN}-system-nspr-r0.patch"
 	"${FILESDIR}/${PN}-system-fix-shim-headers-r0.patch"
+	"${FILESDIR}/${PN}-77-system-icu.patch"
+	"${FILESDIR}/${PN}-unbundle-zlib.patch"
+	"${FILESDIR}/${PN}-skia-harmony.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -219,6 +227,7 @@ pkg_pretend() {
 
 pkg_setup() {
 	pre_build_checks
+
 	chromium_suid_sandbox_check_kernel_config
 }
 
@@ -233,11 +242,12 @@ src_prepare() {
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
 	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
+	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi.patch"
+	use widevine && eapply "${FILESDIR}/${PN}-widevine.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
-		ln -s "${EPREFIX}/usr/bin/node" \
-			third_party/node/linux/node-linux-x64/bin/node || die
+		ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 	fi
 
 	# Hack for libusb stuff (taken from openSUSE)
@@ -295,7 +305,6 @@ src_prepare() {
 		net/third_party/quic
 		net/third_party/uri_template
 		third_party/abseil-cpp
-		third_party/adobe
 		third_party/angle
 		third_party/angle/src/common/third_party/base
 		third_party/angle/src/common/third_party/smhasher
@@ -371,7 +380,6 @@ src_prepare() {
 		third_party/libsrtp
 		third_party/libsync
 		third_party/libudev
-		third_party/libusb
 		third_party/libwebm
 		third_party/libxml/chromium
 		third_party/libyuv
@@ -404,7 +412,6 @@ src_prepare() {
 		third_party/skia/third_party/skcms
 		third_party/skia/third_party/vulkan
 		third_party/smhasher
-		third_party/speech-dispatcher
 		third_party/spirv-headers
 		third_party/SPIRV-Tools
 		third_party/sqlite
@@ -414,7 +421,6 @@ src_prepare() {
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/ungoogled
-		third_party/usb_ids
 		third_party/usrsctp
 		third_party/vulkan
 		third_party/web-animations-js
@@ -429,15 +435,21 @@ src_prepare() {
 		third_party/webrtc/rtc_base/third_party/sigslot
 		third_party/widevine
 		third_party/woff2
-		third_party/xdg-utils
-		third_party/yasm/run_yasm.py
 		third_party/zlib/google
 		url/third_party/mozilla
 		v8/src/third_party/siphash
 		v8/src/third_party/valgrind
 		v8/src/third_party/utf8-decoder
-		v8/third_party/v8
 		v8/third_party/inspector_protocol
+		v8/third_party/v8
+
+		third_party/adobe
+		third_party/speech-dispatcher
+		third_party/usb_ids
+		third_party/xdg-utils
+		third_party/yasm/run_yasm.py
+
+		third_party/libusb
 	)
 
 	use closure-compile && keeplibs+=(
@@ -494,7 +506,6 @@ src_prepare() {
 	eend $? || die
 }
 
-# Handle all CFLAGS/CXXFLAGS/etc... munging here.
 setup_compile_flags() {
 	# Avoid CFLAGS problems (Bug #352457, #390147)
 	if ! use custom-cflags; then
@@ -641,7 +652,7 @@ src_configure() {
 		"safe_browsing_mode=0"
 		"symbol_level=0"
 		"treat_warnings_as_errors=false"
-		"use_gnome_keyring=false" # Deprecated by libsecret
+		"use_gnome_keyring=$(usetf gnome-keyring)" # Deprecated by libsecret
 		"use_jumbo_build=$(usetf jumbo-build)"
 		"use_official_google_api_keys=false"
 		"use_ozone=false"
@@ -671,6 +682,7 @@ src_configure() {
 		"use_system_harfbuzz=$(usetf system-harfbuzz)"
 		"use_system_lcms2=$(usetf pdf)"
 		"use_system_libjpeg=true"
+		"use_system_libopenjpeg2=$(usetf system-openjpeg)"
 		"use_system_zlib=true"
 		"use_vaapi=$(usetf vaapi)"
 
@@ -729,16 +741,21 @@ src_compile() {
 	eninja -C out/Release gen/ui/accessibility/ax_enums.mojom{,-shared}.h
 
 	# Even though ninja autodetects number of CPUs, we respect
-	# user's options, for debugging with -j 1 or any other reason
+	# user's options, for debugging with -j 1 or any other reason.
 	eninja -C out/Release chrome chromedriver
 	use suid && eninja -C out/Release chrome_sandbox
 
 	pax-mark m out/Release/chrome
+
+	# Build manpage; bug #684550
+	sed -e 's|@@PACKAGE@@|chromium-browser|g;
+		s|@@MENUNAME@@|Chromium|g;' \
+		chrome/app/resources/manpage.1.in > \
+		out/Release/chromium-browser.1 || die
 }
 
 src_install() {
-	local CHROMIUM_HOME # SC2155
-	CHROMIUM_HOME="/usr/$(get_libdir)/chromium-browser"
+	local CHROMIUM_HOME="/usr/$(get_libdir)/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
 	doexe out/Release/chrome
 
@@ -759,20 +776,20 @@ src_install() {
 		"${ED}${CHROMIUM_HOME}/chromium-launcher.sh" || die
 
 	# It is important that we name the target "chromium-browser",
-	# xdg-utils expect it (Bug #355517)
+	# xdg-utils expect it; bug #355517.
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
 
 	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
-	# Allow users to override command-line options (Bug #357629)
+	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
 	newins "${FILESDIR}/${PN}.default" "default"
 
 	pushd out/Release/locales > /dev/null || die
 	chromium_remove_language_paks
-	popd > /dev/null || die
+	popd
 
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
@@ -786,29 +803,34 @@ src_install() {
 
 	# Install icons and desktop entry
 	local branding size
-	for size in 16 24 32 48 64 128 256; do
+	for size in 16 24 32 48 64 128 256 ; do
 		case ${size} in
 			16|32) branding="chrome/app/theme/default_100_percent/chromium" ;;
 				*) branding="chrome/app/theme/chromium" ;;
 		esac
-		newicon -s ${size} "${branding}/product_logo_${size}.png" chromium-browser.png
+		newicon -s ${size} "${branding}/product_logo_${size}.png" \
+			chromium-browser.png
 	done
 
 	local mime_types="text/html;text/xml;application/xhtml+xml;"
-	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # Bug #360797
-	mime_types+="x-scheme-handler/ftp;" # Bug #412185
-	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # Bug #416393
+	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
+	mime_types+="x-scheme-handler/ftp;" # bug #412185
+	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
 	make_desktop_entry \
 		chromium-browser \
 		"Chromium" \
 		chromium-browser \
 		"Network;WebBrowser" \
-		"MimeType=${mime_types}\\nStartupWMClass=chromium-browser"
-	sed -i "/^Exec/s/$/ %U/" "${ED}"/usr/share/applications/*.desktop || die
+		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
+	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
 
-	# Install GNOME default application entry (Bug #303100)
+	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
-	doins "${FILESDIR}/chromium-browser.xml"
+	newins "${FILESDIR}"/chromium-browser.xml chromium-browser.xml
+
+	# Install manpage; bug #684550
+	doman out/Release/chromium-browser.1
+	dosym chromium-browser.1 /usr/share/man/man1/chromium.1
 
 	readme.gentoo_create_doc
 }
@@ -817,20 +839,13 @@ usetf() {
 	usex "$1" true false
 }
 
-update_caches() {
-	if type gtk-update-icon-cache &>/dev/null; then
-		ebegin "Updating GTK icon cache"
-		gtk-update-icon-cache "${EROOT}/usr/share/icons/hicolor"
-		eend $? || die
-	fi
+pkg_postrm() {
+	xdg_icon_cache_update
 	xdg_desktop_database_update
 }
 
-pkg_postrm() {
-	update_caches
-}
-
 pkg_postinst() {
-	update_caches
+	xdg_icon_cache_update
+	xdg_desktop_database_update
 	readme.gentoo_print_elog
 }
