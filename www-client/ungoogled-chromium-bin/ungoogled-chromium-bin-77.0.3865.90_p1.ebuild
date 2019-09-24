@@ -175,7 +175,6 @@ src_install() {
 	doins ./usr/lib64/chromium-browser/*.bin
 	doins ./usr/lib64/chromium-browser/*.pak
 	doins ./usr/lib64/chromium-browser/*.so
-	doins ./usr/lib64/chromium-browser/icudtl.dat
 
 	doins -r ./usr/lib64/chromium-browser/locales
 	doins -r ./usr/lib64/chromium-browser/resources
