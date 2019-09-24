@@ -3,11 +3,9 @@
 
 EAPI=7
 
-CHROMIUM_LANGS="
-	am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he hi hr hu id
-	it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr sv sw ta te
-	th tr uk vi zh-CN zh-TW
-"
+CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
+	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
+	sv sw ta te th tr uk vi zh-CN zh-TW"
 
 inherit chromium-2 desktop readme.gentoo-r1 xdg-utils
 
@@ -100,6 +98,7 @@ RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
 	widevine? ( !x86? ( www-plugins/chrome-binary-plugins[widevine(-)] ) )
 	!www-client/chromium
+	!www-client/chromium-bin
 	!www-client/ungoogled-chromium
 "
 
@@ -119,8 +118,10 @@ are not displayed properly:
 - media-fonts/wqy-zenhei
 
 To fix broken icons on the Downloads page, you should install an icon
-heme that covers the appropriate MIME types, and configure this as your
+theme that covers the appropriate MIME types, and configure this as your
 GTK+ icon theme.
+
+For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 pkg_setup() {
@@ -155,26 +156,26 @@ src_install() {
 	doexe ./usr/lib64/chromium-browser/chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
-	# xdg-utils expect it (bug #355517)
+	# xdg-utils expect it; bug #355517.
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
 
 	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
-	# Allow users to override command-line options (bug #357629)
+	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
 	doins ./etc/chromium/default
 
 	pushd ./usr/lib64/chromium-browser/locales > /dev/null || die
 	chromium_remove_language_paks
-	popd > /dev/null || die
+	popd
 
 	insinto "${CHROMIUM_HOME}"
 	doins ./usr/lib64/chromium-browser/*.bin
 	doins ./usr/lib64/chromium-browser/*.pak
 	doins ./usr/lib64/chromium-browser/*.so
-	#doins ./usr/lib64/chromium-browser/icudtl.dat
+	doins ./usr/lib64/chromium-browser/icudtl.dat
 
 	doins -r ./usr/lib64/chromium-browser/locales
 	doins -r ./usr/lib64/chromium-browser/resources
@@ -186,36 +187,28 @@ src_install() {
 	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
 	mime_types+="x-scheme-handler/ftp;" # bug #412185
 	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
-	# shellcheck disable=SC1117
 	make_desktop_entry \
 		chromium-browser \
 		"Chromium" \
 		chromium-browser \
 		"Network;WebBrowser" \
 		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
-	sed -i "/^Exec/s/$/ %U/" "${ED}"/usr/share/applications/*.desktop || die
+	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
 
-	# Install GNOME default application entry (bug #303100)
+	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
 	doins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml
 
 	readme.gentoo_create_doc
 }
 
-update_caches() {
-	if type gtk-update-icon-cache &>/dev/null; then
-		ebegin "Updating GTK icon cache"
-		gtk-update-icon-cache "${EROOT}/usr/share/icons/hicolor"
-		eend $? || die
-	fi
+pkg_postrm() {
+	xdg_icon_cache_update
 	xdg_desktop_database_update
 }
 
-pkg_postrm() {
-	update_caches
-}
-
 pkg_postinst() {
-	update_caches
+	xdg_icon_cache_update
+	xdg_desktop_database_update
 	readme.gentoo_print_elog
 }
