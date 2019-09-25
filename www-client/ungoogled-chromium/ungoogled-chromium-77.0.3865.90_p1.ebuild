@@ -242,6 +242,7 @@ src_prepare() {
 	use system-icu && eapply "${FILESDIR}/${PN}-77-system-icu.patch"
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
+	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/${PN}-vpx-1.7-compatibility-r0.patch"
 	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi.patch"
