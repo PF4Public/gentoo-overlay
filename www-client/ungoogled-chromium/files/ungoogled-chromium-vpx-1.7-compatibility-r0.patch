@@ -2,21 +2,6 @@ description: compatibility with vpx 1.7
 
 --- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
 +++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
-@@ -31,10 +31,10 @@
- #include "rtc_base/time_utils.h"
- #include "rtc_base/trace_event.h"
- #include "system_wrappers/include/field_trial.h"
--#include "vpx/vp8cx.h"
--#include "vpx/vp8dx.h"
--#include "vpx/vpx_decoder.h"
--#include "vpx/vpx_encoder.h"
-+#include <vpx/vp8cx.h>
-+#include <vpx/vp8dx.h>
-+#include <vpx/vpx_decoder.h>
-+#include <vpx/vpx_encoder.h>
- 
- namespace webrtc {
- 
 @@ -679,59 +679,12 @@
                      inst->VP9().adaptiveQpMode ? 3 : 0);
  
