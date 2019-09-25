@@ -10,7 +10,7 @@ diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0
          SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedVideoDecode),
      },
  #if defined(OS_WIN)
-@@ -1882,12 +1882,12 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2039,10 +2039,10 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_VALUE_TYPE(service_manager::features::kXRSandbox)},
  #endif  // ENABLE_ISOLATED_XR_SERVICE
  #endif  // ENABLE_VR
