@@ -10,7 +10,7 @@ diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0
          SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedVideoDecode),
      },
  #if defined(OS_WIN)
-@@ -2039,10 +2039,10 @@
+@@ -2039,12 +2039,12 @@
       FEATURE_VALUE_TYPE(service_manager::features::kXRSandbox)},
  #endif  // !defined(OS_ANDROID)
  #endif  // ENABLE_VR
@@ -23,9 +23,9 @@ diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedMjpegDecode)},
 -#endif  // OS_CHROMEOS
 +#endif  // OS_CHROMEOS // OS_LINUX
-    {"system-keyboard-lock", flag_descriptions::kSystemKeyboardLockName,
-     flag_descriptions::kSystemKeyboardLockDescription, kOsDesktop,
-     FEATURE_VALUE_TYPE(features::kSystemKeyboardLock)},
+     {"system-keyboard-lock", flag_descriptions::kSystemKeyboardLockName,
+      flag_descriptions::kSystemKeyboardLockDescription, kOsDesktop,
+      FEATURE_VALUE_TYPE(features::kSystemKeyboardLock)},
 diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc
 --- chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi	2019-06-05 11:26:46.473753026 -0400
 +++ chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc	2019-06-05 11:29:28.039397479 -0400
