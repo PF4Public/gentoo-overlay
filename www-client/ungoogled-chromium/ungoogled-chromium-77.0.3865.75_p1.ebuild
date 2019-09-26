@@ -182,6 +182,7 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
+	"${FILESDIR}/${PN}-fix-wrong-string-initialization-in-LinkedHashSet.patch"
 	"${FILESDIR}/${PN}-77-blink-include.patch"
 	"${FILESDIR}/${PN}-77-fix-gn-gen.patch"
 	"${FILESDIR}/${PN}-77-gcc-include.patch"
