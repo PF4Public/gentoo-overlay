@@ -143,14 +143,23 @@ BDEPEND="
 	sys-devel/flex
 	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
-	>=sys-devel/clang-8.0.0
-	>=sys-devel/llvm-8.0.0[gold?]
-	lld? ( >=sys-devel/lld-8.0.0 )
 	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 	libcxx? (
 		sys-libs/libcxx
 		sys-libs/libcxxabi
+	)
+	|| (
+		(
+			sys-devel/clang:8
+			sys-devel/llvm:8[gold?]
+			lld? ( =sys-devel/lld-8* )
+		)
+		(
+			sys-devel/clang:9
+			sys-devel/llvm:9[gold?]
+			lld? ( =sys-devel/lld-9* )
+		)
 	)
 "
 
