@@ -184,7 +184,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-78-icon.patch"
 	"${FILESDIR}/${PN}-78-pm-crash.patch"
 	"${FILESDIR}/${PN}-78-protobuf-export.patch"
-	"${FILESDIR}/${PN}-disable-installer.patch"
+	"${FILESDIR}/${PN}-disable-installer-r1.patch"
 	"${FILESDIR}/${PN}-disable-font-tests.patch"
 	"${FILESDIR}/${PN}-disable-swiftshader.patch"
 	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
