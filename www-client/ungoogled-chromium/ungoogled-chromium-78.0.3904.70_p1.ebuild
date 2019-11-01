@@ -180,7 +180,6 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-fix-wrong-string-initialization-in-LinkedHashSet.patch"
 	"${FILESDIR}/${PN}-78-gcc-include.patch"
 	"${FILESDIR}/${PN}-78-icon.patch"
 	"${FILESDIR}/${PN}-78-pm-crash.patch"
