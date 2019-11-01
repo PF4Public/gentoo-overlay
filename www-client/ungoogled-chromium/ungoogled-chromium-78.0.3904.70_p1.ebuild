@@ -435,6 +435,7 @@ src_prepare() {
 		third_party/webrtc/modules/third_party/g722
 		third_party/webrtc/rtc_base/third_party/base64
 		third_party/webrtc/rtc_base/third_party/sigslot
+		third_party/widevine
 		third_party/woff2
 		third_party/zlib/google
 		tools/grit/third_party/six
@@ -500,8 +501,6 @@ src_prepare() {
 	)
 
 	use tcmalloc && keeplibs+=( third_party/tcmalloc )
-
-	use widevine && keeplibs+=( third_party/widevine )
 
 	# Remove most bundled libraries, some are still needed
 	ebegin "Removing unneeded bundled libraries"
