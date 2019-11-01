@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">StevenBlack/hosts</remote-id>
+		<bugs-to>https://github.com/StevenBlack/hosts/issues</bugs-to>
+		<doc>https://github.com/StevenBlack/hosts/wiki</doc>
+	</upstream>
+	<longdescription>
+		A hosts file from several well-curated sources
+	</longdescription>
+	<use>
+		<flag name="fakenews">Add fake news sites</flag>
+		<flag name="gambling">Add common online betting sites</flag>
+		<flag name="porn">Add porn sites</flag>
+		<flag name="social">Add social media sites</flag>
+	</use>
+</pkgmetadata>
