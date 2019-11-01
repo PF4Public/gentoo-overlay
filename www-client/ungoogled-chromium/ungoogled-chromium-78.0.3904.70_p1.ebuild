@@ -194,6 +194,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-system-fix-shim-headers-r0.patch"
 	"${FILESDIR}/${PN}-unbundle-zlib-r1.patch"
 	"${FILESDIR}/${PN}-skia-harmony.patch"
+	"${FILESDIR}/${PN}-fix-dns_util.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -235,15 +236,14 @@ src_prepare() {
 	default
 
 	use convert-dict && eapply "${FILESDIR}/${PN}-ucf-dict-utility.patch"
-	use system-harfbuzz && eapply "${FILESDIR}/${PN}-77-system-hb.patch"
 	use system-icu && eapply "${FILESDIR}/${PN}-system-icu.patch"
 	use system-icu && eapply "${FILESDIR}/${PN}-77-system-icu.patch"
 	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
 	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/${PN}-vpx-1.7-compatibility-r0.patch"
-	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
-	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi.patch"
-	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi.patch"
+	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r2.patch"
+	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi-r1.patch"
+	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi-r1.patch"
 	use widevine && eapply "${FILESDIR}/${PN}-widevine-r1.patch"
 
 	if use optimize-webui; then
