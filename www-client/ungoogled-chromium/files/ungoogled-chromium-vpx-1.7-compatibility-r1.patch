@@ -2,6 +2,22 @@ description: compatibility with vpx 1.7
 
 --- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
 +++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
+@@ -401,15 +401,6 @@
+   }
+   RTC_DCHECK_GT(num_active_spatial_layers_, 0);
+ 
+-  if (higher_layers_enabled && !force_key_frame_) {
+-    // Prohibit drop of all layers for the next frame, so newly enabled
+-    // layer would have a valid spatial reference.
+-    for (size_t i = 0; i < num_spatial_layers_; ++i) {
+-      svc_drop_frame_.framedrop_thresh[i] = 0;
+-    }
+-    force_all_active_layers_ = true;
+-  }
+-
+   current_bitrate_allocation_ = bitrate_allocation;
+   return true;
+ }
 @@ -727,63 +727,12 @@
                      inst->VP9().adaptiveQpMode ? 3 : 0);
  
@@ -177,3 +193,13 @@ description: compatibility with vpx 1.7
  
      codec_specific_.codecSpecific.VP9.end_of_picture = end_of_picture;
  
+--- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.h
++++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.h
+@@ -128,7 +128,6 @@
+   const bool dynamic_rate_settings_;
+   bool layer_buffering_;
+   const bool full_superframe_drop_;
+-  vpx_svc_frame_drop_t svc_drop_frame_;
+   bool first_frame_in_picture_;
+   VideoBitrateAllocation current_bitrate_allocation_;
+   bool ss_info_needed_;

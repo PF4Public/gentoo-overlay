@@ -340,12 +340,14 @@ src_prepare() {
 		third_party/catapult/third_party/six
 		third_party/catapult/tracing/third_party/d3
 		third_party/catapult/tracing/third_party/gl-matrix
+		third_party/catapult/tracing/third_party/jpeg-js
 		third_party/catapult/tracing/third_party/jszip
 		third_party/catapult/tracing/third_party/mannwhitneyu
 		third_party/catapult/tracing/third_party/oboe
 		third_party/catapult/tracing/third_party/pako
 		third_party/ced
 		third_party/cld_3
+		third_party/closure_compiler
 		third_party/crashpad
 		third_party/crashpad/crashpad/third_party/lss
 		third_party/crashpad/crashpad/third_party/zlib
@@ -454,10 +456,6 @@ src_prepare() {
 		third_party/yasm/run_yasm.py
 
 		third_party/libusb
-	)
-
-	use closure-compile && keeplibs+=(
-		third_party/closure_compiler
 	)
 
 	use optimize-webui && keeplibs+=(
