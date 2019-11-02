@@ -353,6 +353,7 @@ src_prepare() {
 		third_party/cros_system_api
 		third_party/dav1d
 		third_party/dawn
+		third_party/depot_tools
 		third_party/devscripts
 		third_party/dom_distiller_js
 		third_party/emoji-segmenter
