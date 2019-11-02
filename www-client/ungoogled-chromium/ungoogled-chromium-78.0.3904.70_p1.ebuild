@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="
 	+cfi closure-compile convert-dict cups custom-cflags gnome gnome-keyring gold
 	jumbo-build kerberos libcxx +lld new-tcmalloc optimize-thinlto optimize-webui
