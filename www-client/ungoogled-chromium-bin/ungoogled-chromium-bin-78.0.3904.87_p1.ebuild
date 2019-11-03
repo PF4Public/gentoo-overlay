@@ -96,7 +96,6 @@ RDEPEND="${CDEPEND}
 	virtual/opengl
 	virtual/ttf-fonts
 	x11-misc/xdg-utils
-	widevine? ( !x86? ( www-plugins/chrome-binary-plugins ) )
 	!www-client/chromium
 	!www-client/chromium-bin
 	!www-client/ungoogled-chromium
