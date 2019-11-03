@@ -71,7 +71,7 @@ COMMON_DEPEND="
 	media-libs/libpng:=
 	system-libvpx? (
 		media-libs/libvpx:=[postproc,svc]
-		!!~media-libs/libvpx-1.8
+		!!=media-libs/libvpx-1.8*
 	)
 	>=media-libs/openh264-1.6.0:=
 	pulseaudio? ( media-sound/pulseaudio:= )
