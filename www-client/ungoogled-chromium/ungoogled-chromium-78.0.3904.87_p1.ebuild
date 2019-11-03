@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="
 	+cfi closure-compile convert-dict cups custom-cflags gnome gnome-keyring gold
 	jumbo-build kerberos libcxx +lld new-tcmalloc optimize-thinlto optimize-webui
@@ -69,7 +69,10 @@ COMMON_DEPEND="
 	)
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
-	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
+	system-libvpx? (
+		media-libs/libvpx:=[postproc,svc]
+		!!~media-libs/libvpx-1.8
+	)
 	>=media-libs/openh264-1.6.0:=
 	pulseaudio? ( media-sound/pulseaudio:= )
 	system-ffmpeg? (
