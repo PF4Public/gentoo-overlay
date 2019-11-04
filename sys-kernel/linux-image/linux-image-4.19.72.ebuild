@@ -6,7 +6,7 @@ EAPI=7
 inherit savedconfig toolchain-funcs
 
 DESCRIPTION="linux-image ebuild is used to build linux kernel image using savedconfig"
-HOMEPAGE="https://github.com/PF4Public/gentoo-overlay/sys-kernel/linux-image"
+HOMEPAGE="https://github.com/PF4Public/gentoo-overlay/tree/master/sys-kernel/linux-image"
 SRC_URI=""
 
 LICENSE="BSD"
