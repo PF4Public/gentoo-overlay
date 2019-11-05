@@ -89,8 +89,8 @@ src_install()
 		emake modules_install ${xmakeopts} INSTALL_MOD_PATH="${D}";
 	fi
 
-	einfo "Don't forget to update grub configuration using"
-	einfo "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
+	elog "Don't forget to update grub configuration using"
+	elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
 }
 
 #modified version from kernel-2.eclass
