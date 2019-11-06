@@ -275,7 +275,7 @@ src_prepare() {
 	done
 
 	if use closure-compile; then
-		ewarn "Keeping binary compiler.jar for closure-compile"
+		ewarn "Keeping binary compiler.jar in sources tree for closure-compile"
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
 
