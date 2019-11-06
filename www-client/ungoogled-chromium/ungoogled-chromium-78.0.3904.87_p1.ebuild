@@ -198,6 +198,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-unbundle-zlib-r1.patch"
 	"${FILESDIR}/${PN}-skia-harmony.patch"
 	"${FILESDIR}/${PN}-fix-dns_util.patch"
+	"${FILESDIR}/${PN}-79-icu-65.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -247,7 +248,6 @@ src_prepare() {
 	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r2.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi-r1.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi-r1.patch"
-	use widevine && eapply "${FILESDIR}/${PN}-widevine-r1.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die

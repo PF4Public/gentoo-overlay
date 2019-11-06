@@ -245,7 +245,6 @@ src_prepare() {
 	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r1.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi.patch"
 	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi.patch"
-	use widevine && eapply "${FILESDIR}/${PN}-widevine.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
