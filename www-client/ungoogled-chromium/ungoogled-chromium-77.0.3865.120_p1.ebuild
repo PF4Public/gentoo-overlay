@@ -205,9 +205,6 @@ pre_build_checks() {
 	CHECKREQS_DISK_BUILD="7G"
 	if ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
 		CHECKREQS_DISK_BUILD="25G"
-		if ! use component-build; then
-			CHECKREQS_MEMORY="16G"
-		fi
 	fi
 	check-reqs_pkg_setup
 }
