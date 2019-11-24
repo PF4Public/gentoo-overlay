@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">PF4Public/gb-chroot</remote-id>
+		<bugs-to>https://github.com/PF4Public/gb-chroot/issues</bugs-to>
+		<doc>https://pf4public.github.io/gb-chroot/</doc>
+	</upstream>
+	<longdescription>
+		Gentoo Build Chroot is a collection of scripts, that ease managing chroot environments for building Gentoo's binpkgs.
+	</longdescription>
+	<use>
+		<flag name="host">Enable this on a chroot host</flag>
+	</use>
+</pkgmetadata>
