@@ -38,12 +38,14 @@ src_install()
 	then
 		doconfd config/gb-chroot
 		doinitd scripts/gb-chroot
-		dobin scripts/gb-all scripts/gb-enter scripts/gb-mount scripts/gb-install scripts/gb-update-host
+		dobin scripts/host/*
 		keepdir /var/lib/gb-chroot
 		insinto /usr/share/gb-chroot
 		doins templates/*
 	else
-		dobin scripts/gb-update-chroot
-		dobin scripts/gb-update-target
+		dobin scripts/target/*
+		dobin scripts/chroot/*
+		insinto /etc
+		newins config/gb-chroot-target gb-chroot.conf
 	fi
 }
