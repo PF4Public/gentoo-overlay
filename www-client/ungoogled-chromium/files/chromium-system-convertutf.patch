@@ -236,3 +236,4 @@ author: Michael Gilbert <mgilbert@debian.org>
      result = mdstring->CopyIndexAfterObject(out_idx, out, out_size);
      out_idx += out_count;
    }
+

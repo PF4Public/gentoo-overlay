@@ -26,10 +26,11 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="
-	cfi +clang closure-compile convert-dict cups custom-cflags enable-driver gnome
-	gnome-keyring hangouts jumbo-build kerberos libcxx optimize-thinlto
-	optimize-webui pdf +proprietary-codecs pulseaudio selinux suid +system-ffmpeg
-	+system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx
+	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
+	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
+	kerberos libcxx optimize-thinlto optimize-webui pdf +proprietary-codecs
+	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
+	+system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
 "
 RESTRICT="
@@ -188,6 +189,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-78-pm-crash.patch"
 	"${FILESDIR}/chromium-78-protobuf-export.patch"
 	"${FILESDIR}/chromium-disable-installer-r1.patch"
+	"${FILESDIR}/chromium-disable-chromeos.patch"
 	"${FILESDIR}/chromium-disable-font-tests.patch"
 	"${FILESDIR}/chromium-disable-swiftshader.patch"
 	"${FILESDIR}/chromium-disable-third-party-lzma-sdk-r0.patch"
@@ -245,9 +247,16 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use system-icu && eapply "${FILESDIR}/chromium-system-icu.patch"
-	use system-icu && eapply "${FILESDIR}/chromium-77-system-icu.patch"
-	use system-icu && eapply "${FILESDIR}/chromium-system-convertutf.patch"
+	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch"
+	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch"
+
+	if use system-icu
+	then
+		eapply "${FILESDIR}/chromium-system-icu.patch"
+		eapply "${FILESDIR}/chromium-77-system-icu.patch"
+		eapply "${FILESDIR}/chromium-system-convertutf.patch"
+	fi
+
 	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
 	use system-libvpx && eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
 	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r1.patch"

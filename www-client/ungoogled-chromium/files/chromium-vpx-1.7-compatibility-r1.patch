@@ -1,8 +1,9 @@
-description: compatibility with vpx 1.7
+description: maintain compatibility with vpx 1.7
+author: Michael Gilbert <mgilbert@debian.org>
 
 --- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
 +++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
-@@ -401,15 +401,6 @@
+@@ -401,15 +401,6 @@ bool VP9EncoderImpl::SetSvcRates(
    }
    RTC_DCHECK_GT(num_active_spatial_layers_, 0);
  
@@ -18,7 +19,7 @@ description: compatibility with vpx 1.7
    current_bitrate_allocation_ = bitrate_allocation;
    return true;
  }
-@@ -727,63 +727,12 @@
+@@ -727,63 +718,12 @@ int VP9EncoderImpl::InitAndSetControlSet
                      inst->VP9().adaptiveQpMode ? 3 : 0);
  
    vpx_codec_control(encoder_, VP9E_SET_FRAME_PARALLEL_DECODING, 0);
@@ -82,7 +83,7 @@ description: compatibility with vpx 1.7
    // Register callback for getting each spatial layer.
    vpx_codec_priv_output_cx_pkt_cb_pair_t cbp = {
        VP9EncoderImpl::EncoderOutputCodedPacketCallback,
-@@ -918,22 +867,8 @@
+@@ -918,22 +858,12 @@ int VP9EncoderImpl::Encode(const VideoFr
      }
    }
  
@@ -90,10 +91,10 @@ description: compatibility with vpx 1.7
 -    layer_id.temporal_layer_id_per_spatial[sl_idx] = layer_id.temporal_layer_id;
 -  }
 -
--  if (layer_id.spatial_layer_id < first_active_layer_) {
--    layer_id.spatial_layer_id = first_active_layer_;
--  }
--
+   if (layer_id.spatial_layer_id < first_active_layer_) {
+     layer_id.spatial_layer_id = first_active_layer_;
+   }
+ 
    vpx_codec_control(encoder_, VP9E_SET_SVC_LAYER_ID, &layer_id);
  
 -  if (num_spatial_layers_ > 1) {
@@ -105,7 +106,7 @@ description: compatibility with vpx 1.7
    if (vpx_codec_enc_config_set(encoder_, config_)) {
      return WEBRTC_VIDEO_CODEC_ERROR;
    }
-@@ -996,21 +931,6 @@
+@@ -996,21 +926,6 @@ int VP9EncoderImpl::Encode(const VideoFr
      flags = VPX_EFLAG_FORCE_KF;
    }
  
@@ -127,7 +128,7 @@ description: compatibility with vpx 1.7
    first_frame_in_picture_ = true;
  
    // TODO(ssilkin): Frame duration should be specified per spatial layer
-@@ -1115,9 +1035,7 @@
+@@ -1115,9 +1030,7 @@ void VP9EncoderImpl::PopulateCodecSpecif
    vp9_info->num_spatial_layers = num_active_spatial_layers_;
  
    vp9_info->num_ref_pics = 0;
@@ -138,7 +139,7 @@ description: compatibility with vpx 1.7
      vp9_info->gof_idx = kNoGofIdx;
    } else {
      vp9_info->gof_idx =
-@@ -1162,6 +1080,7 @@
+@@ -1162,6 +1075,7 @@ void VP9EncoderImpl::PopulateCodecSpecif
    first_frame_in_picture_ = false;
  }
  
@@ -146,15 +147,7 @@ description: compatibility with vpx 1.7
  void VP9EncoderImpl::FillReferenceIndices(const vpx_codec_cx_pkt& pkt,
                                            const size_t pic_num,
                                            const bool inter_layer_predicted,
-@@ -1281,6 +1200,7 @@
-        static_cast<size_t>(layer_id.temporal_layer_id));
- }
- 
-+
- void VP9EncoderImpl::UpdateReferenceBuffers(const vpx_codec_cx_pkt& pkt,
-                                             const size_t pic_num) {
-   vpx_svc_layer_id_t layer_id = {0};
-@@ -1417,6 +1337,7 @@
+@@ -1417,6 +1331,7 @@ vpx_svc_ref_frame_config_t VP9EncoderImp
  
    return ref_config;
  }
@@ -162,7 +155,7 @@ description: compatibility with vpx 1.7
  
  int VP9EncoderImpl::GetEncodedLayerFrame(const vpx_codec_cx_pkt* pkt) {
    RTC_DCHECK_EQ(pkt->kind, VPX_CODEC_CX_FRAME_PKT);
-@@ -1459,14 +1380,10 @@
+@@ -1459,14 +1374,10 @@ int VP9EncoderImpl::GetEncodedLayerFrame
                          input_image_->timestamp());
    encoded_image_.SetSpatialIndex(spatial_index);
  
@@ -179,7 +172,7 @@ description: compatibility with vpx 1.7
    int qp = -1;
    vpx_codec_control(encoder_, VP8E_GET_LAST_QUANTIZER, &qp);
    encoded_image_.qp_ = qp;
-@@ -1482,13 +1399,6 @@
+@@ -1482,14 +1393,6 @@ int VP9EncoderImpl::GetEncodedLayerFrame
  
  void VP9EncoderImpl::DeliverBufferedFrame(bool end_of_picture) {
    if (encoded_image_.size() > 0) {
@@ -190,12 +183,13 @@ description: compatibility with vpx 1.7
 -        svc_drop_frame_.framedrop_thresh[i] = config_->rc_dropframe_thresh;
 -      }
 -    }
- 
+-
      codec_specific_.codecSpecific.VP9.end_of_picture = end_of_picture;
  
+     // No data partitioning in VP9, so 1 partition only.
 --- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.h
 +++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.h
-@@ -128,7 +128,6 @@
+@@ -128,7 +128,6 @@ class VP9EncoderImpl : public VP9Encoder
    const bool dynamic_rate_settings_;
    bool layer_buffering_;
    const bool full_superframe_drop_;
@@ -203,3 +197,4 @@ description: compatibility with vpx 1.7
    bool first_frame_in_picture_;
    VideoBitrateAllocation current_bitrate_allocation_;
    bool ss_info_needed_;
+

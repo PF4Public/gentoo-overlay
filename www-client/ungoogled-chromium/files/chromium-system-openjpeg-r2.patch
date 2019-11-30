@@ -1,8 +1,9 @@
 description: build using system openjpeg
+author: Michael Gilbert <mgilbert@debian.org>
 
 --- a/third_party/pdfium/core/fpdfapi/render/BUILD.gn
 +++ b/third_party/pdfium/core/fpdfapi/render/BUILD.gn
-@@ -49,6 +49,7 @@ jumbo_source_set("render") {
+@@ -43,6 +43,7 @@ jumbo_source_set("render") {
    ]
    configs += [ "../../../:pdfium_core_config" ]
    deps = [
@@ -10,24 +11,17 @@ description: build using system openjpeg
      "../../../constants",
      "../../fxcodec",
      "../../fxcrt",
---- a/third_party/pdfium/core/fpdfapi/page/BUILD.gn
-+++ b/third_party/pdfium/core/fpdfapi/page/BUILD.gn
-@@ -97,6 +97,7 @@
-   ]
-   configs += [ "../../../:pdfium_core_config" ]
-   deps = [
-+    "../../../third_party:libopenjpeg2",
-     "../../../constants",
-     "../../fdrm",
-     "../../fxcodec",
---- a/third_party/pdfium/pdfium.gni
-+++ b/third_party/pdfium/pdfium.gni
-@@ -63,7 +63,7 @@
-   use_system_lcms2 = false
+--- a/third_party/pdfium/core/fxcodec/jpx/cjpx_decoder.h
++++ b/third_party/pdfium/core/fxcodec/jpx/cjpx_decoder.h
+@@ -13,8 +13,8 @@
+ #include "core/fxcrt/unowned_ptr.h"
+ #include "third_party/base/span.h"
  
-   # Don't build against bundled libopenjpeg2.
--  use_system_libopenjpeg2 = false
-+  use_system_libopenjpeg2 = true
- 
-   # Don't build against bundled libpng.
-   use_system_libpng = false
+-#if defined(USE_SYSTEM_LIBOPENJPEG2)
+-#include <openjpeg.h>
++#if 1
++#include <openjpeg-2.3/openjpeg.h>
+ #else
+ #include "third_party/libopenjpeg20/openjpeg.h"
+ #endif
+
