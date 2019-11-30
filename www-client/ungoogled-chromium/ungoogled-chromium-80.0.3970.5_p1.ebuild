@@ -19,12 +19,13 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
-	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
 "
+#	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
+#"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+#KEYWORDS="~amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
 	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
@@ -53,7 +54,7 @@ COMMON_DEPEND="
 	>=dev-libs/atk-2.26
 	dev-libs/expat:=
 	dev-libs/glib:2
-	system-icu? ( >=dev-libs/icu-64:= )
+	system-icu? ( >=dev-libs/icu-65:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/libxslt:=
 	dev-libs/nspr:=
@@ -183,23 +184,16 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/chromium-78-gcc-include.patch"
-	"${FILESDIR}/chromium-78-gcc-enum-range.patch"
-	"${FILESDIR}/chromium-78-icon.patch"
-	"${FILESDIR}/chromium-78-pm-crash.patch"
-	"${FILESDIR}/chromium-78-protobuf-export.patch"
-	"${FILESDIR}/chromium-disable-installer-r1.patch"
-	"${FILESDIR}/chromium-disable-chromeos.patch"
-	"${FILESDIR}/chromium-disable-font-tests.patch"
-	"${FILESDIR}/chromium-disable-swiftshader.patch"
-	"${FILESDIR}/chromium-disable-third-party-lzma-sdk-r0.patch"
-	"${FILESDIR}/chromium-system-libusb-r0.patch"
-	"${FILESDIR}/chromium-system-nspr-r0.patch"
-	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
+	"${FILESDIR}/chromium-compiler-r10.patch"
+	"${FILESDIR}/chromium-fix-char_traits.patch"
 	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
-	"${FILESDIR}/chromium-skia-harmony.patch"
-	"${FILESDIR}/chromium-fix-dns_util.patch"
-	"${FILESDIR}/chromium-79-icu-65.patch"
+	"${FILESDIR}/chromium-78-protobuf-export.patch"
+	"${FILESDIR}/chromium-79-gcc-alignas.patch"
+	"${FILESDIR}/chromium-80-unbundle-libxml.patch"
+	"${FILESDIR}/chromium-80-include.patch"
+	"${FILESDIR}/chromium-80-gcc-noexcept.patch"
+	"${FILESDIR}/chromium-80-gcc-quiche.patch"
+	"${FILESDIR}/chromium-80-gcc-blink.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -337,8 +331,6 @@ src_prepare() {
 		third_party/blink
 		third_party/boringssl
 		third_party/boringssl/src/third_party/fiat
-		third_party/boringssl/src/third_party/sike
-		third_party/boringssl/linux-x86_64/crypto/third_party/sike
 		third_party/breakpad
 		third_party/breakpad/breakpad/src/third_party/curl
 		third_party/brotli
@@ -362,6 +354,8 @@ src_prepare() {
 		third_party/dawn
 		third_party/depot_tools
 		third_party/devscripts
+		third_party/devtools-frontend
+		third_party/devtools-frontend/src/third_party
 		third_party/dom_distiller_js
 		third_party/emoji-segmenter
 		third_party/flatbuffers
@@ -427,6 +421,7 @@ src_prepare() {
 		third_party/swiftshader
 		third_party/swiftshader/third_party/llvm-7.0
 		third_party/swiftshader/third_party/llvm-subzero
+		third_party/swiftshader/third_party/marl
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/ungoogled
@@ -444,6 +439,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/third_party/sigslot
 		third_party/widevine
 		third_party/woff2
+		third_party/wuffs
 		third_party/zlib/google
 		tools/grit/third_party/six
 		url/third_party/mozilla
@@ -553,7 +549,6 @@ src_configure() {
 		myconf_gn+=" is_clang=true clang_use_chrome_plugins=false"
 	else
 		myconf_gn+=" is_clang=false"
-		append-cxxflags -fpermissive
 	fi
 
 	# Define a custom toolchain for GN
@@ -771,6 +766,11 @@ src_configure() {
 		chromium/scripts/copy_config.sh || die
 		chromium/scripts/generate_gn.py || die
 		popd > /dev/null || die
+	fi
+
+	# Explicitly disable ICU data file support for system-icu builds.
+	if use system-icu; then
+		myconf_gn+=" icu_use_data_file=false"
 	fi
 
 	if tc-is-clang; then

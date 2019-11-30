@@ -19,12 +19,13 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
-	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
 "
+#	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
+#"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+#KEYWORDS="~amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
 	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
@@ -53,7 +54,7 @@ COMMON_DEPEND="
 	>=dev-libs/atk-2.26
 	dev-libs/expat:=
 	dev-libs/glib:2
-	system-icu? ( >=dev-libs/icu-64:= )
+	system-icu? ( >=dev-libs/icu-65:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/libxslt:=
 	dev-libs/nspr:=
@@ -183,11 +184,16 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/chromium-78-gcc-include.patch"
-	"${FILESDIR}/chromium-78-gcc-enum-range.patch"
-	"${FILESDIR}/chromium-78-icon.patch"
-	"${FILESDIR}/chromium-78-pm-crash.patch"
+	"${FILESDIR}/chromium-compiler-r10.patch"
+	"${FILESDIR}/chromium-fix-char_traits.patch"
+	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
 	"${FILESDIR}/chromium-78-protobuf-export.patch"
+	"${FILESDIR}/chromium-79-include.patch"
+	"${FILESDIR}/chromium-79-icu-65.patch"
+	"${FILESDIR}/chromium-79-gcc-ambiguous-nodestructor.patch"
+	"${FILESDIR}/chromium-79-gcc-name-clash.patch"
+	"${FILESDIR}/chromium-79-gcc-permissive.patch"
+	"${FILESDIR}/chromium-79-gcc-alignas.patch"
 	"${FILESDIR}/chromium-disable-installer-r1.patch"
 	"${FILESDIR}/chromium-disable-chromeos.patch"
 	"${FILESDIR}/chromium-disable-font-tests.patch"
@@ -196,10 +202,8 @@ PATCHES=(
 	"${FILESDIR}/chromium-system-libusb-r0.patch"
 	"${FILESDIR}/chromium-system-nspr-r0.patch"
 	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
-	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
 	"${FILESDIR}/chromium-skia-harmony.patch"
 	"${FILESDIR}/chromium-fix-dns_util.patch"
-	"${FILESDIR}/chromium-79-icu-65.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -249,6 +253,7 @@ src_prepare() {
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch"
 	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch"
+	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
 
 	if use system-icu
 	then
@@ -427,6 +432,7 @@ src_prepare() {
 		third_party/swiftshader
 		third_party/swiftshader/third_party/llvm-7.0
 		third_party/swiftshader/third_party/llvm-subzero
+		third_party/swiftshader/third_party/marl
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/ungoogled
@@ -553,7 +559,6 @@ src_configure() {
 		myconf_gn+=" is_clang=true clang_use_chrome_plugins=false"
 	else
 		myconf_gn+=" is_clang=false"
-		append-cxxflags -fpermissive
 	fi
 
 	# Define a custom toolchain for GN
@@ -773,6 +778,11 @@ src_configure() {
 		popd > /dev/null || die
 	fi
 
+	# Explicitly disable ICU data file support for system-icu builds.
+	if use system-icu; then
+		myconf_gn+=" icu_use_data_file=false"
+	fi
+
 	if tc-is-clang; then
 	# Don't complain if Chromium uses a diagnostic option that is not yet
 	# implemented in the compiler version used by the user. This is only
@@ -798,7 +808,7 @@ src_configure() {
 }
 
 src_compile() {
-	# Final link uses lots of file descriptors
+	# Final link uses lots of file descriptors.
 	ulimit -n 4096
 
 	# Calling this here supports resumption via FEATURES=keepwork
