@@ -186,21 +186,21 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-78-gcc-include.patch"
-	"${FILESDIR}/${PN}-78-icon.patch"
-	"${FILESDIR}/${PN}-78-pm-crash.patch"
-	"${FILESDIR}/${PN}-78-protobuf-export.patch"
-	"${FILESDIR}/${PN}-disable-installer-r1.patch"
-	"${FILESDIR}/${PN}-disable-font-tests.patch"
-	"${FILESDIR}/${PN}-disable-swiftshader.patch"
-	"${FILESDIR}/${PN}-disable-third-party-lzma-sdk-r0.patch"
-	"${FILESDIR}/${PN}-system-libusb-r0.patch"
-	"${FILESDIR}/${PN}-system-nspr-r0.patch"
-	"${FILESDIR}/${PN}-system-fix-shim-headers-r0.patch"
-	"${FILESDIR}/${PN}-unbundle-zlib-r1.patch"
-	"${FILESDIR}/${PN}-skia-harmony.patch"
-	"${FILESDIR}/${PN}-fix-dns_util.patch"
-	"${FILESDIR}/${PN}-79-icu-65.patch"
+	"${FILESDIR}/chromium-78-gcc-include.patch"
+	"${FILESDIR}/chromium-78-icon.patch"
+	"${FILESDIR}/chromium-78-pm-crash.patch"
+	"${FILESDIR}/chromium-78-protobuf-export.patch"
+	"${FILESDIR}/chromium-disable-installer-r1.patch"
+	"${FILESDIR}/chromium-disable-font-tests.patch"
+	"${FILESDIR}/chromium-disable-swiftshader.patch"
+	"${FILESDIR}/chromium-disable-third-party-lzma-sdk-r0.patch"
+	"${FILESDIR}/chromium-system-libusb-r0.patch"
+	"${FILESDIR}/chromium-system-nspr-r0.patch"
+	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
+	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
+	"${FILESDIR}/chromium-skia-harmony.patch"
+	"${FILESDIR}/chromium-fix-dns_util.patch"
+	"${FILESDIR}/chromium-79-icu-65.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -238,16 +238,16 @@ src_prepare() {
 
 	default
 
-	use convert-dict && eapply "${FILESDIR}/${PN}-ucf-dict-utility.patch"
-	use system-icu && eapply "${FILESDIR}/${PN}-system-icu.patch"
-	use system-icu && eapply "${FILESDIR}/${PN}-77-system-icu.patch"
-	use system-icu && eapply "${FILESDIR}/${PN}-system-convertutf.patch"
-	use system-jsoncpp && eapply "${FILESDIR}/${PN}-system-jsoncpp-r1.patch"
-	use system-libvpx && eapply "${FILESDIR}/${PN}-system-vpx-r1.patch"
-	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/${PN}-vpx-1.7-compatibility-r1.patch"
-	use system-openjpeg && eapply "${FILESDIR}/${PN}-system-openjpeg-r2.patch"
-	use vaapi && eapply "${FILESDIR}/${PN}-enable-vaapi-r1.patch"
-	use vaapi && eapply "${FILESDIR}/${PN}-fix-vaapi-r1.patch"
+	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+	use system-icu && eapply "${FILESDIR}/chromium-system-icu.patch"
+	use system-icu && eapply "${FILESDIR}/chromium-77-system-icu.patch"
+	use system-icu && eapply "${FILESDIR}/chromium-system-convertutf.patch"
+	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
+	use system-libvpx && eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
+	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r1.patch"
+	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
+	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r1.patch"
+	use vaapi && eapply "${FILESDIR}/chromium-fix-vaapi-r1.patch"
 
 	if use optimize-webui; then
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
@@ -763,7 +763,7 @@ src_install() {
 	doexe out/Release/chrome
 
 	if use convert-dict; then
-		newexe "${FILESDIR}/${PN}-update-dicts.sh" ungoogled-chromium-update-dicts.sh
+		newexe "${FILESDIR}/update-dicts.sh" update-dicts.sh
 		doexe out/Release/convert_dict
 	fi
 
@@ -774,9 +774,9 @@ src_install() {
 
 	doexe out/Release/chromedriver
 
-	newexe "${FILESDIR}/${PN}-launcher-r3.sh" chromium-launcher.sh
-	sed -i "s:/usr/lib/:/usr/$(get_libdir)/:g" \
-		"${ED}${CHROMIUM_HOME}/chromium-launcher.sh" || die
+	local sedargs=( -e "s:/usr/lib/:/usr/$(get_libdir)/:g" )
+	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r3.sh" > chromium-launcher.sh || die
+	doexe chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
 	# xdg-utils expect it; bug #355517.
@@ -788,7 +788,7 @@ src_install() {
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
-	newins "${FILESDIR}/${PN}.default" "default"
+	newins "${FILESDIR}/chromium.default" "default"
 
 	pushd out/Release/locales > /dev/null || die
 	chromium_remove_language_paks
