@@ -148,6 +148,7 @@ BDEPEND="
 	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
 	clang? ( >=sys-devel/clang-8.0.0 )
+	thinlto? ( >=sys-devel/lld-8.0.0 )
 	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 	libcxx? (
@@ -281,15 +282,15 @@ src_prepare() {
 	fi
 
 	ebegin "Pruning binaries"
-	"${UGC_WD}/utils/prune_binaries.py" "-q" . "${UGC_WD}/pruning.list"
+	"${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
 	eend $? || die
 
 	ebegin "Applying ungoogled-chromium patches"
-	"${UGC_WD}/utils/patches.py" "-q" apply . "${UGC_WD}/patches"
+	"${UGC_WD}/utils/patches.py" -q apply . "${UGC_WD}/patches"
 	eend $? || die
 
 	ebegin "Applying domain substitution"
-	"${UGC_WD}/utils/domain_substitution.py" "-q" apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
+	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
 	eend $? || die
 
 	local keeplibs=(
@@ -504,10 +505,13 @@ src_prepare() {
 
 	use tcmalloc && keeplibs+=( third_party/tcmalloc )
 
+	ebegin "Removing unneeded bundled libraries"
 	python_setup 'python2*'
 
 	# Remove most bundled libraries. Some are still needed.
-	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
+	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
+
+	eend $? || die
 }
 
 src_configure() {
@@ -734,6 +738,7 @@ src_configure() {
 		#use lld && thinlto_ldflag+=( "-Wl,--thinlto-jobs=$(makeopts_jobs)" )
 
 		append-ldflags "${thinlto_ldflag[*]}"
+		myconf_gn+=" use_lld=true"
 	#else
 		#use gold && append-ldflags "-Wl,--threads -Wl,--thread-count=$(makeopts_jobs)"
 	fi
