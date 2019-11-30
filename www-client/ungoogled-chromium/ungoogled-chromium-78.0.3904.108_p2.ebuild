@@ -183,6 +183,7 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 
 PATCHES=(
 	"${FILESDIR}/${PN}-78-gcc-include.patch"
+	"${FILESDIR}/${PN}-78-gcc-enum-range.patch"
 	"${FILESDIR}/${PN}-78-icon.patch"
 	"${FILESDIR}/${PN}-78-pm-crash.patch"
 	"${FILESDIR}/${PN}-78-protobuf-export.patch"
