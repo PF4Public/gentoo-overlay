@@ -605,9 +605,8 @@ src_configure() {
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
 	if use cfi
 	then
-		myconf_gn+=
-		" use_cfi_icall=true"
-		" use_cfi_cast=true"
+		myconf_gn+=" use_cfi_icall=true"
+		myconf_gn+=" use_cfi_cast=true"
 	fi
 
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
@@ -623,35 +622,33 @@ src_configure() {
 	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
 
 	# Ungoogled flags
-	myconf_gn+=
-		" enable_hevc_demuxing=true"
-		" enable_mdns=false"
-		" enable_mse_mpeg2ts_stream_parser=true"
-		" enable_nacl_nonsfi=false"
-		" enable_one_click_signin=false"
-		" enable_reading_list=false"
-		" enable_remoting=false"
-		" enable_reporting=false"
-		" enable_service_discovery=false"
-		" exclude_unwind_tables=true"
-		" use_official_google_api_keys=false"
-		" google_api_key=\"\""
-		" google_default_client_id=\"\""
-		" google_default_client_secret=\"\""
-		" safe_browsing_mode=0"
-		" use_unofficial_version_number=false"
-		" blink_symbol_level=0"
-		" symbol_level=0"
-		" enable_ac3_eac3_audio_demuxing=true"
-		" enable_iterator_debugging=false"
-		" enable_swiftshader=false"
-		" is_official_build=true"
+	myconf_gn+=" enable_hevc_demuxing=true"
+	myconf_gn+=" enable_mdns=false"
+	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=true"
+	myconf_gn+=" enable_nacl_nonsfi=false"
+	myconf_gn+=" enable_one_click_signin=false"
+	myconf_gn+=" enable_reading_list=false"
+	myconf_gn+=" enable_remoting=false"
+	myconf_gn+=" enable_reporting=false"
+	myconf_gn+=" enable_service_discovery=false"
+	myconf_gn+=" exclude_unwind_tables=true"
+	myconf_gn+=" use_official_google_api_keys=false"
+	myconf_gn+=" google_api_key=\"\""
+	myconf_gn+=" google_default_client_id=\"\""
+	myconf_gn+=" google_default_client_secret=\"\""
+	myconf_gn+=" safe_browsing_mode=0"
+	myconf_gn+=" use_unofficial_version_number=false"
+	myconf_gn+=" blink_symbol_level=0"
+	myconf_gn+=" symbol_level=0"
+	myconf_gn+=" enable_ac3_eac3_audio_demuxing=true"
+	myconf_gn+=" enable_iterator_debugging=false"
+	myconf_gn+=" enable_swiftshader=false"
+	myconf_gn+=" is_official_build=true"
 
 	# Additional flags
-	myconf_gn+=
-		" use_system_libjpeg=true"
-		" use_system_zlib=true"
-		" rtc_build_examples=false"
+	myconf_gn+=" use_system_libjpeg=true"
+	myconf_gn+=" use_system_zlib=true"
+	myconf_gn+=" rtc_build_examples=false"
 
 	myconf_gn+=" fieldtrial_testing_like_official_build=true"
 
