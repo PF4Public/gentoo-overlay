@@ -766,6 +766,13 @@ src_configure() {
 		popd > /dev/null || die
 	fi
 
+	if tc-is-clang; then
+	# Don't complain if Chromium uses a diagnostic option that is not yet
+	# implemented in the compiler version used by the user. This is only
+	# supported by Clang.
+	append-flags -Wno-unknown-warning-option
+	fi
+
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
 	append-cflags -Wno-builtin-macro-redefined
 	append-cxxflags -Wno-builtin-macro-redefined
