@@ -27,7 +27,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags enable-driver gnome
-	gnome-keyring hangouts jumbo-build kerberos libcxx new-tcmalloc	optimize-thinlto
+	gnome-keyring hangouts jumbo-build kerberos libcxx optimize-thinlto
 	optimize-webui pdf +proprietary-codecs pulseaudio selinux suid +system-ffmpeg
 	+system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
@@ -41,8 +41,6 @@ REQUIRED_USE="
 	|| ( $(python_gen_useflags 'python2*') )
 	thinlto? ( clang )
 	cfi? ( clang thinlto )
-	libcxx? ( new-tcmalloc )
-	new-tcmalloc? ( tcmalloc )
 	optimize-thinlto? ( thinlto )
 	system-openjpeg? ( pdf )
 	x86? ( !thinlto !cfi )
@@ -607,10 +605,9 @@ src_configure() {
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
 	if use cfi
 	then
-		myconf_gn+=(
+		myconf_gn+=
 		" use_cfi_icall=true"
 		" use_cfi_cast=true"
-		)
 	fi
 
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
@@ -624,10 +621,9 @@ src_configure() {
 	myconf_gn+=" enable_pdf=$(usex pdf true false)"
 	myconf_gn+=" use_system_lcms2=$(usex pdf true false)"
 	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
-	myconf_gn+=" use_new_tcmalloc=$(usex new-tcmalloc true false)"
 
 	# Ungoogled flags
-	myconf_gn+=(
+	myconf_gn+=
 		" enable_hevc_demuxing=true"
 		" enable_mdns=false"
 		" enable_mse_mpeg2ts_stream_parser=true"
@@ -650,14 +646,12 @@ src_configure() {
 		" enable_iterator_debugging=false"
 		" enable_swiftshader=false"
 		" is_official_build=true"
-	)
 
 	# Additional flags
-	myconf_gn+=(
+	myconf_gn+=
 		" use_system_libjpeg=true"
 		" use_system_zlib=true"
 		" rtc_build_examples=false"
-	)
 
 	myconf_gn+=" fieldtrial_testing_like_official_build=true"
 
