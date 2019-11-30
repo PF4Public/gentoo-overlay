@@ -613,7 +613,7 @@ src_configure() {
 	myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 	myconf_gn+=" optimize_webui=$(usex optimize-webui true false)"
 	myconf_gn+=" use_gio=$(usex gnome true false)"
-	myconf_gn+=" use_openh264=$(usex system-openh26 false true)"
+	myconf_gn+=" use_openh264=$(usex system-openh264 false true)"
 	myconf_gn+=" use_system_freetype=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libopenjpeg2=$(usex system-openjpeg true false)"
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
