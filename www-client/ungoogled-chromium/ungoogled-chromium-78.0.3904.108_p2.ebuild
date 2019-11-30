@@ -230,8 +230,6 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	pre_build_checks
-
 	chromium_suid_sandbox_check_kernel_config
 }
 
