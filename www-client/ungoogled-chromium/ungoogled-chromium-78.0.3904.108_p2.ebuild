@@ -726,6 +726,10 @@ src_configure() {
 		fi
 	fi
 
+	# 'gcc_s' is still required if 'compiler-rt' is Clang's default rtlib
+	has_version 'sys-devel/clang[default-compiler-rt]' && \
+		append-ldflags "-Wl,-lgcc_s"
+
 	if use thinlto; then
 		# We need to change the default value of import-instr-limit in
 		# LLVM to limit the text size increase. The default value is
