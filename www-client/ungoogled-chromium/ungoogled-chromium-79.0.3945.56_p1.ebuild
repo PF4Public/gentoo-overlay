@@ -19,7 +19,7 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
-https://github.com/Eloston/ungoogled-chromium/archive/master.zip"
+"
 #	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
 #"
 
@@ -244,11 +244,6 @@ src_prepare() {
 	python_setup 'python3*'
 
 	default
-
-	if use optimize-webui; then
-	mkdir -p third_party/node/linux/node-linux-x64/bin || die
-	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
-	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch"
