@@ -29,7 +29,7 @@ SLOT="0"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
 	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
-	kerberos libcxx optimize-thinlto optimize-webui pdf +proprietary-codecs
+	kerberos optimize-thinlto optimize-webui pdf +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
@@ -151,10 +151,6 @@ BDEPEND="
 	thinlto? ( >=sys-devel/lld-8.0.0 )
 	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
-	libcxx? (
-		sys-libs/libcxx
-		sys-libs/libcxxabi
-	)
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
@@ -714,16 +710,6 @@ src_configure() {
 		ffmpeg_target_arch=$(usex cpu_flags_arm_neon arm-neon arm)
 	else
 		die "Failed to determine target arch, got '$myarch'."
-	fi
-
-	if use libcxx; then
-		append-cxxflags "-stdlib=libc++"
-		append-ldflags "-stdlib=libc++ -Wl,-lc++abi"
-	else
-		if has_version 'sys-devel/clang[default-libcxx]'; then
-			append-cxxflags "-stdlib=libstdc++"
-			append-ldflags "-stdlib=libstdc++"
-		fi
 	fi
 
 	if use thinlto; then
