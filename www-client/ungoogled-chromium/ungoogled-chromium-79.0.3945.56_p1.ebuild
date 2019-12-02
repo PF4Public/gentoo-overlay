@@ -723,8 +723,6 @@ src_configure() {
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
-	else
-		append-ldflags "-Wl,--threads -Wl,--thread-count=$(makeopts_jobs)"
 	fi
 
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
