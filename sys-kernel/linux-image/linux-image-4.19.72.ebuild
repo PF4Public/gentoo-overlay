@@ -79,7 +79,9 @@ src_install()
 
 	env_setup_xmakeopts
 
-	save_config .config
+	if [[ ${MERGE_TYPE} = binary ]]; then
+		save_config .config
+	fi
 
 	mkdir "${D}/boot"
 
