@@ -87,11 +87,15 @@ src_install()
 		emake modules_install ${xmakeopts} INSTALL_MOD_PATH="${D}";
 	fi
 
-	if [[ ${MERGE_TYPE} == binary ]]; then
-		elog "Don't forget to update grub configuration using"
-		elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
-		elog "and inspect newly created config in /boot"
-	fi
+	rm ${D}/lib/modules/*/build ${D}/lib/modules/*/source
+}
+
+pkg_postinst() {
+    if [[ ${MERGE_TYPE} == binary ]]; then
+        elog "Don't forget to update grub configuration using"
+        elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
+        elog "and inspect newly created config in /boot"
+    fi
 }
 
 #modified version from kernel-2.eclass
