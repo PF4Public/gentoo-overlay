@@ -190,16 +190,15 @@ PATCHES=(
 	"${FILESDIR}/chromium-79-gcc-name-clash.patch"
 	"${FILESDIR}/chromium-79-gcc-permissive.patch"
 	"${FILESDIR}/chromium-79-gcc-alignas.patch"
-	"${FILESDIR}/chromium-disable-installer-r1.patch"
+	"${FILESDIR}/chromium-disable-installer-r2.patch"
 	"${FILESDIR}/chromium-disable-chromeos.patch"
 	"${FILESDIR}/chromium-disable-font-tests.patch"
 	"${FILESDIR}/chromium-disable-swiftshader.patch"
 	"${FILESDIR}/chromium-disable-third-party-lzma-sdk-r0.patch"
 	"${FILESDIR}/chromium-system-libusb-r0.patch"
-	"${FILESDIR}/chromium-system-nspr-r0.patch"
+	"${FILESDIR}/chromium-system-nspr-r1.patch"
 	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
 	"${FILESDIR}/chromium-skia-harmony.patch"
-	"${FILESDIR}/chromium-fix-dns_util.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -242,8 +241,8 @@ src_prepare() {
 	default
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch"
-	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch"
+	#use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch" #FAILS
+	#use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch" #FAILS
 	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
 
 	if use system-icu
