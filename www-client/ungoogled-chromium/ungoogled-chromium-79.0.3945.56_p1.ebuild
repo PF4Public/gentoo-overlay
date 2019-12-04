@@ -240,9 +240,14 @@ src_prepare() {
 
 	default
 
+	if use optimize-webui; then
+	mkdir -p third_party/node/linux/node-linux-x64/bin || die
+	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
+	fi
+
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	#use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch" #FAILS
-	#use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch" #FAILS
+	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto.patch" #FAILS
+	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing.patch" #FAILS
 	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
 
 	if use system-icu
