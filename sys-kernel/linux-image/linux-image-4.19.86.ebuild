@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
 
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
@@ -91,11 +91,9 @@ src_install()
 }
 
 pkg_postinst() {
-    if [[ ${MERGE_TYPE} == binary ]]; then
         elog "Don't forget to update grub configuration using"
         elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
-        elog "and inspect newly created config in /boot"
-    fi
+	elog "and inspect newly created config in /boot"
 }
 
 #modified version from kernel-2.eclass

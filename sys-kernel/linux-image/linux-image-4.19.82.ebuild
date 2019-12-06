@@ -91,11 +91,9 @@ src_install()
 }
 
 pkg_postinst() {
-    if [[ ${MERGE_TYPE} == binary ]]; then
         elog "Don't forget to update grub configuration using"
         elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
-        elog "and inspect newly created config in /boot"
-    fi
+	elog "and inspect newly created config in /boot"
 }
 
 #modified version from kernel-2.eclass
