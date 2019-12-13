@@ -254,8 +254,13 @@ src_prepare() {
 	fi
 
 	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
-	use system-libvpx && eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
-	has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r1.patch"
+
+	if use system-libvpx
+	then
+		eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
+		has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r1.patch"
+	fi
+
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r1.patch"
 	use vaapi && eapply "${FILESDIR}/chromium-fix-vaapi-r1.patch"
