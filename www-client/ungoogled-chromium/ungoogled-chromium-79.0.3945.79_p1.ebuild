@@ -670,7 +670,6 @@ src_configure() {
 	myconf_gn+=" use_unofficial_version_number=false"
 	myconf_gn+=" blink_symbol_level=0"
 	myconf_gn+=" symbol_level=0"
-	myconf_gn+=" enable_ac3_eac3_audio_demuxing=true"
 	myconf_gn+=" enable_iterator_debugging=false"
 	myconf_gn+=" enable_swiftshader=false"
 	myconf_gn+=" is_official_build=true"
