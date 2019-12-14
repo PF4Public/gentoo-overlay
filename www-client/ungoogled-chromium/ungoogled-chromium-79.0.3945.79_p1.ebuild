@@ -233,7 +233,7 @@ pkg_pretend() {
 		ewarn
 	fi
 
-	if use thinlto; then
+	if ! has_version ">=sys-devel/lld-9.0.0" && use thinlto; then
 		ewarn
 		ewarn "thinlto fails compilation on clang/lld 8,"
 		ewarn "therefore it is only enabled on >8"
@@ -640,17 +640,19 @@ src_configure() {
 	myconf_gn+=" link_pulseaudio=$(usex pulseaudio true false)"
 
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
+
 	if use cfi
 	then
 		myconf_gn+=" use_cfi_icall=true"
 		myconf_gn+=" use_cfi_cast=true"
 	fi
 
-	if has_version ">sys-devel/lld-8.0.0"
+	if has_version ">=sys-devel/lld-9.0.0"
 	then
 		myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
 		myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 	fi
+
 	myconf_gn+=" optimize_webui=$(usex optimize-webui true false)"
 	myconf_gn+=" use_gio=$(usex gnome true false)"
 	myconf_gn+=" use_openh264=$(usex system-openh264 false true)"
@@ -740,7 +742,7 @@ src_configure() {
 		die "Failed to determine target arch, got '$myarch'."
 	fi
 
-	if has_version ">sys-devel/lld-8.0.0" && use thinlto; then
+	if has_version ">=sys-devel/lld-9.0.0" && use thinlto; then
 		# We need to change the default value of import-instr-limit in
 		# LLVM to limit the text size increase. The default value is
 		# 100, and we change it to 30 to reduce the text size increase
