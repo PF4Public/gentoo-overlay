@@ -634,7 +634,6 @@ src_configure() {
 	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
 
 	# Ungoogled flags
-	myconf_gn+=" enable_hevc_demuxing=true"
 	myconf_gn+=" enable_mdns=false"
 	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=true"
 	myconf_gn+=" enable_nacl_nonsfi=false"
