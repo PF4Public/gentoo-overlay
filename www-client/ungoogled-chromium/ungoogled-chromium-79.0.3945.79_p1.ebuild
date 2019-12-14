@@ -195,7 +195,6 @@ PATCHES=(
 	"${FILESDIR}/chromium-disable-swiftshader.patch"
 	"${FILESDIR}/chromium-disable-third-party-lzma-sdk-r0.patch"
 	"${FILESDIR}/chromium-system-libusb-r0.patch"
-	"${FILESDIR}/chromium-system-nspr-r1.patch"
 	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
 	"${FILESDIR}/chromium-skia-harmony.patch"
 )
@@ -318,6 +317,7 @@ src_prepare() {
 		base/third_party/double_conversion
 		base/third_party/dynamic_annotations
 		base/third_party/icu
+		base/third_party/nspr
 		base/third_party/superfasthash
 		base/third_party/symbolize
 		base/third_party/valgrind
