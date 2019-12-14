@@ -871,7 +871,7 @@ src_install() {
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
 
-	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
+	use enable-driver && dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
