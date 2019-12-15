@@ -697,9 +697,6 @@ src_configure() {
 	# Trying to use gold results in linker crash.
 	myconf_gn+=" use_gold=false use_sysroot=false linux_use_bundled_binutils=false use_custom_libcxx=false"
 
-	# Disable forced lld, bug 641556
-	myconf_gn+=" use_lld=false"
-
 	ffmpeg_branding="$(usex proprietary-codecs Chrome Chromium)"
 	myconf_gn+=" proprietary_codecs=$(usex proprietary-codecs true false)"
 	myconf_gn+=" ffmpeg_branding=\"${ffmpeg_branding}\""
@@ -753,6 +750,9 @@ src_configure() {
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
+	else
+		# Disable forced lld, bug 641556
+		myconf_gn+=" use_lld=false"
 	fi
 
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
