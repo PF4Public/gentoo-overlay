@@ -87,7 +87,7 @@ src_install()
 		emake modules_install ${xmakeopts} INSTALL_MOD_PATH="${D}";
 	fi
 
-	rm ${D}/lib/modules/*/build ${D}/lib/modules/*/source
+	rm "${D}/lib/modules/*/build ${D}/lib/modules/*/source"
 }
 
 pkg_postinst() {
