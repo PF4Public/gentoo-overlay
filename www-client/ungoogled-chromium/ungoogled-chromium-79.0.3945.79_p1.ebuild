@@ -690,6 +690,9 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" rtc_build_examples=false"
 
+	# default (50) breaks compiling 79; setting 8 here (goma default)
+	use jumbo-build && myconf_gn+=" jumbo_file_merge_limit=8"
+
 	myconf_gn+=" fieldtrial_testing_like_official_build=true"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
@@ -904,7 +907,6 @@ src_install() {
 
 	doins -r out/Release/locales
 	doins -r out/Release/resources
-
 
 	# Install icons and desktop entry.
 	local branding size
