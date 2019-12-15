@@ -53,7 +53,7 @@ COMMON_DEPEND="
 	>=dev-libs/atk-2.26
 	dev-libs/expat:=
 	dev-libs/glib:2
-	system-icu? ( >=dev-libs/icu-65:= )
+	system-icu? ( >=dev-libs/icu-64:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/libxslt:=
 	dev-libs/nspr:=
