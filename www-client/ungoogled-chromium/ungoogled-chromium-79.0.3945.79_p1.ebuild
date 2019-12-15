@@ -374,6 +374,18 @@ src_prepare() {
 		third_party/catapult/third_party/html5lib-python
 		third_party/catapult/third_party/polymer
 		third_party/catapult/third_party/six
+	)
+	#use disable-tracing ||
+	keeplibs+=(
+		third_party/catapult/tracing/third_party/d3
+		third_party/catapult/tracing/third_party/gl-matrix
+		third_party/catapult/tracing/third_party/jpeg-js
+		third_party/catapult/tracing/third_party/jszip
+		third_party/catapult/tracing/third_party/mannwhitneyu
+		third_party/catapult/tracing/third_party/oboe
+		third_party/catapult/tracing/third_party/pako
+	)
+	keeplibs+=(
 		third_party/ced
 		third_party/cld_3
 		third_party/closure_compiler
@@ -390,6 +402,12 @@ src_prepare() {
 		third_party/emoji-segmenter
 		third_party/flatbuffers
 		third_party/flot
+	)
+	use system-harfbuzz || keeplibs+=(
+		third_party/freetype
+		third_party/harfbuzz-ng
+	)
+	keeplibs+=(
 		third_party/glslang
 		third_party/google_input_tools
 		third_party/google_input_tools/third_party/closure_library
@@ -399,6 +417,11 @@ src_prepare() {
 		third_party/iccjpeg
 		third_party/inspector_protocol
 		third_party/jinja2
+	)
+	use system-jsoncpp || keeplibs+=(
+		third_party/jsoncpp
+	)
+	keeplibs+=(
 		third_party/jstemplate
 		third_party/khronos
 		third_party/leveldatabase
@@ -422,10 +445,38 @@ src_prepare() {
 		third_party/metrics_proto
 		third_party/modp_b64
 		third_party/nasm
+	)
+	use optimize-webui && keeplibs+=(
+		third_party/node
+		third_party/node/node_modules/polymer-bundler/lib/third_party/UglifyJS2
+	)
+	keeplibs+=(
 		third_party/one_euro_filter
 		third_party/openscreen
 		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
+	)
+	use pdf && keeplibs+=(
+		third_party/pdfium
+		third_party/pdfium/third_party/agg23
+		third_party/pdfium/third_party/base
+		third_party/pdfium/third_party/bigint
+		third_party/pdfium/third_party/freetype
+		third_party/pdfium/third_party/lcms
+	)
+	use system-openjpeg || keeplibs+=(
+		third_party/pdfium/third_party/libopenjpeg20
+	)
+	use pdf && keeplibs+=(
+		third_party/pdfium/third_party/libpng16
+		third_party/pdfium/third_party/libtiff
+		third_party/pdfium/third_party/skia_shared
+	)
+	#use disable-perfetto ||
+	keeplibs+=(
+		third_party/perfetto
+	)
+	keeplibs+=(
 		third_party/pffft
 		third_party/ply
 		third_party/polymer
@@ -477,7 +528,11 @@ src_prepare() {
 		v8/src/third_party/utf8-decoder
 		v8/third_party/inspector_protocol
 		v8/third_party/v8
-
+	)
+	use system-libevent || keeplibs+=(
+		base/third_party/libevent
+	)
+	keeplibs+=(
 		third_party/adobe
 		third_party/speech-dispatcher
 		third_party/usb_ids
@@ -486,64 +541,22 @@ src_prepare() {
 
 		third_party/libusb
 	)
-
-	#use disable-perfetto ||
-	keeplibs+=( third_party/perfetto )
-
-	#use disable-tracing ||
-	keeplibs+=(
-		third_party/catapult/tracing/third_party/d3
-		third_party/catapult/tracing/third_party/gl-matrix
-		third_party/catapult/tracing/third_party/jpeg-js
-		third_party/catapult/tracing/third_party/jszip
-		third_party/catapult/tracing/third_party/mannwhitneyu
-		third_party/catapult/tracing/third_party/oboe
-		third_party/catapult/tracing/third_party/pako
-	)
-
-	use optimize-webui && keeplibs+=(
-		third_party/node
-		third_party/node/node_modules/polymer-bundler/lib/third_party/UglifyJS2
-	)
-
-	use pdf && keeplibs+=(
-		third_party/pdfium
-		third_party/pdfium/third_party/agg23
-		third_party/pdfium/third_party/base
-		third_party/pdfium/third_party/bigint
-		third_party/pdfium/third_party/freetype
-		third_party/pdfium/third_party/lcms
-		third_party/pdfium/third_party/libtiff
-		third_party/pdfium/third_party/skia_shared
-	)
-
-	use system-ffmpeg || keeplibs+=(
-		third_party/ffmpeg
-		third_party/opus
-	)
-
-	use system-harfbuzz || keeplibs+=(
-		third_party/freetype
-		third_party/harfbuzz-ng
-	)
-
-	use system-icu || keeplibs+=( third_party/icu )
-	use system-jsoncpp || keeplibs+=( third_party/jsoncpp )
-	use system-libevent || keeplibs+=( base/third_party/libevent )
-
-	use system-libvpx || keeplibs+=(
-		third_party/libvpx
-		third_party/libvpx/source/libvpx/third_party/x86inc
-	)
-
-	use system-openh264 || keeplibs+=( third_party/openh264 )
-
-	use system-openjpeg || keeplibs+=(
-		third_party/pdfium/third_party/libopenjpeg20
-	)
-
-	use tcmalloc && keeplibs+=( third_party/tcmalloc )
-
+	if ! use system-ffmpeg; then
+		keeplibs+=( third_party/ffmpeg third_party/opus )
+	fi
+	if ! use system-icu; then
+		keeplibs+=( third_party/icu )
+	fi
+	if ! use system-libvpx; then
+		keeplibs+=( third_party/libvpx )
+		keeplibs+=( third_party/libvpx/source/libvpx/third_party/x86inc )
+	fi
+	if use tcmalloc; then
+		keeplibs+=( third_party/tcmalloc )
+	fi
+	if ! use system-openh264; then
+		keeplibs+=( third_party/openh264 )
+	fi
 	ebegin "Removing unneeded bundled libraries"
 	python_setup 'python2*'
 
@@ -607,6 +620,7 @@ src_configure() {
 	local gn_system_libraries=(
 		flac
 		fontconfig
+		freetype
 		libdrm
 		libjpeg
 		libpng
@@ -614,19 +628,31 @@ src_configure() {
 		libwebp
 		libxml
 		libxslt
+	)
+	use system-openh264 && gn_system_libraries+=(
+		openh264
+	)
+	gn_system_libraries+=(
 		re2
 		snappy
 		yasm
 		zlib
 	)
-
-	use system-ffmpeg && gn_system_libraries+=( ffmpeg opus )
-	use system-harfbuzz && gn_system_libraries+=( freetype harfbuzz-ng )
-	use system-icu && gn_system_libraries+=( icu )
-	use system-libevent && gn_system_libraries+=( libevent )
-	use system-libvpx && gn_system_libraries+=( libvpx )
-	use system-openh264 && gn_system_libraries+=( openh264 )
-
+	if use system-ffmpeg; then
+		gn_system_libraries+=( ffmpeg opus )
+	fi
+	if use system-icu; then
+		gn_system_libraries+=( icu )
+	fi
+	if use system-libvpx; then
+		gn_system_libraries+=( libvpx )
+	fi
+	if use system-harfbuzz; then
+		gn_system_libraries+=( freetype harfbuzz-ng )
+	fi
+	if use system-libevent; then
+		gn_system_libraries+=( libevent )
+	fi
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
 	# See dependency logic in third_party/BUILD.gn
@@ -644,8 +670,7 @@ src_configure() {
 
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
 
-	if use cfi
-	then
+	if use cfi; then
 		myconf_gn+=" use_cfi_icall=true"
 		myconf_gn+=" use_cfi_cast=true"
 	fi
@@ -793,10 +818,10 @@ src_configure() {
 	fi
 
 	if tc-is-clang; then
-	# Don't complain if Chromium uses a diagnostic option that is not yet
-	# implemented in the compiler version used by the user. This is only
-	# supported by Clang.
-	append-flags -Wno-unknown-warning-option
+		# Don't complain if Chromium uses a diagnostic option that is not yet
+		# implemented in the compiler version used by the user. This is only
+		# supported by Clang.
+		append-flags -Wno-unknown-warning-option
 	fi
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
