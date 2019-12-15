@@ -905,10 +905,6 @@ src_install() {
 	doins -r out/Release/locales
 	doins -r out/Release/resources
 
-	if [[ -d out/Release/swiftshader ]]; then
-		insinto "${CHROMIUM_HOME}/swiftshader"
-		doins out/Release/swiftshader/*.so
-	fi
 
 	# Install icons and desktop entry.
 	local branding size
