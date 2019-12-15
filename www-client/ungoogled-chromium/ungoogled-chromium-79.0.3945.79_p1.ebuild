@@ -750,10 +750,11 @@ src_configure() {
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
+	elif has_version ">=sys-devel/lld-9.0.0"; then
+		myconf_gn+=" use_lld=true"
 	else
-		# Disable forced lld, bug 641556
 		myconf_gn+=" use_lld=false"
-	fi
+	fi	
 
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
 	# Depending on GCC version the warnings are different and we don't want
