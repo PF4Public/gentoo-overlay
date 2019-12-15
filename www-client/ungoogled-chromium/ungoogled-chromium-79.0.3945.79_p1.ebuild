@@ -226,6 +226,13 @@ pkg_pretend() {
 		ewarn
 	fi
 
+	if use jumbo-build && [[ "${MERGE_TYPE}" != binary ]]; then
+		ewarn
+		ewarn "Jumbo is no longer supported by Google; you are on your own."
+		ewarn "Expect build failures. Don't file bugs using that unsupported USE flag!"
+		ewarn
+	fi
+
 	if use disable-perfetto || use disable-tracing; then
 		ewarn
 		ewarn "disable-perfetto and disable-tracing patches are not yet updated to this"
@@ -689,9 +696,6 @@ src_configure() {
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" rtc_build_examples=false"
-
-	# default (50) breaks compiling 79; setting 8 here (goma default)
-	use jumbo-build && myconf_gn+=" jumbo_file_merge_limit=8"
 
 	myconf_gn+=" fieldtrial_testing_like_official_build=true"
 
