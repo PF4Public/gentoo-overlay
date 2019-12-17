@@ -612,6 +612,9 @@ src_configure() {
 	# https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
 	myconf_gn+=" use_jumbo_build=$(usex jumbo-build true false)"
 
+	# default (50) breaks often; setting 8 here (goma default)
+	use jumbo-build && myconf_gn+=" jumbo_file_merge_limit=8"
+
 	myconf_gn+=" use_allocator=$(usex tcmalloc \"tcmalloc\" \"none\")"
 
 	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
