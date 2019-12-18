@@ -224,15 +224,16 @@ pre_build_checks() {
 pkg_pretend() {
 	if use custom-cflags && [[ "${MERGE_TYPE}" != binary ]]; then
 		ewarn
-		ewarn "USE=custom-cflags bypass strip-flags; you are on your own."
-		ewarn "Expect build failures. Don't file bugs using that unsupported USE flag!"
+		ewarn "USE=custom-cflags bypasses strip-flags"
+		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
 
 	if use jumbo-build && [[ "${MERGE_TYPE}" != binary ]]; then
 		ewarn
-		ewarn "Jumbo is no longer supported by Google; you are on your own."
-		ewarn "Expect build failures. Don't file bugs using that unsupported USE flag!"
+		ewarn "Jumbo is no longer supported by Google, but it might still work"
+		ewarn "jumbo_file_merge_limit was lowered to 8 just in case"
+		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
 
