@@ -41,8 +41,8 @@ REQUIRED_USE="
 	|| ( $(python_gen_useflags 'python3*') )
 	|| ( $(python_gen_useflags 'python2*') )
 	thinlto? ( clang )
-	cfi? ( clang thinlto )
 	optimize-thinlto? ( thinlto )
+	cfi? ( thinlto )
 	system-openjpeg? ( pdf )
 	x86? ( !thinlto !cfi )
 "
@@ -147,10 +147,7 @@ BDEPEND="
 	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
 	clang? ( >=sys-devel/clang-8.0.0 )
-	thinlto? (
-		>=sys-devel/lld-9.0.0
-		>=sys-devel/clang-9.0.0
-	)
+	thinlto? ( >=sys-devel/lld-8.0.0 )
 	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 "
