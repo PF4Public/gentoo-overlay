@@ -578,12 +578,14 @@ src_configure() {
 		einfo "Enforcing the use of clang due to USE=clang ..."
 		CC=${CHOST}-clang
 		CXX=${CHOST}-clang++
+		AR=llvm-ar #thinlto fails otherwise
 		strip-unsupported-flags
 	elif ! use clang && ! tc-is-gcc ; then
 		# Force gcc
 		einfo "Enforcing the use of gcc due to USE=-clang ..."
 		CC=${CHOST}-gcc
 		CXX=${CHOST}-g++
+		AR=gcc-ar #just in case
 		strip-unsupported-flags
 	fi
 
