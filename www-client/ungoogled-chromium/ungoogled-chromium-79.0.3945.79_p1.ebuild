@@ -832,8 +832,8 @@ src_configure() {
 
 	local flags
 	einfo "Building with following compiler settings:"
-	for flags in {C,CXX,CPP,LD}FLAGS; do
-		einfo "  ${flags} = ${!flags}"
+	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS; do
+		einfo "  ${flags} = \"${!flags}\""
 	done
 
 	einfo "Configuring Chromium..."
