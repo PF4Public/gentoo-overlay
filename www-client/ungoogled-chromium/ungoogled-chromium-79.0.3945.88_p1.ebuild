@@ -254,8 +254,8 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto-r1.patch"
 	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing-r1.patch"
+	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto-r1.patch"
 	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
 
 	if use system-icu
