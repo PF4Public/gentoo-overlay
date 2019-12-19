@@ -32,9 +32,9 @@ author: Michael Gilbert <mgilbert@debian.org>
      "ui_element.h",
      "ui_element_delegate.h",
 @@ -121,7 +118,6 @@ component("ui_devtools") {
+     "//services/service_manager/public/cpp",
      "//services/network/public/cpp",
      "//services/network/public/mojom",
-     "//services/service_manager/public/cpp",
 -    "//third_party/perfetto/gn:default_deps",
    ]
  }
