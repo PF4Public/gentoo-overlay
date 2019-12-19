@@ -1,0 +1,38 @@
+description: avoid building the swiftshader library
+author: Michael Gilbert <mgilbert@debian.org>
+
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -475,7 +475,7 @@ group("gn_all") {
+     ]
+   }
+ 
+-  if ((is_win || is_mac || is_linux || is_chromeos || is_fuchsia) &&
++  if (false &&
+       (target_cpu == "x86" || target_cpu == "x64")) {
+     deps += [ "//third_party/swiftshader" ]
+   }
+--- a/gpu/vulkan/x/BUILD.gn
++++ b/gpu/vulkan/x/BUILD.gn
+@@ -37,10 +37,4 @@ component("x") {
+     "//base",
+     "//gpu/vulkan",
+   ]
+-
+-  # Vulkan Swiftshader can only be built on Linux.
+-  # TODO(samans): Support more platforms. https://crbug.com/963988
+-  data_deps = [
+-    "//third_party/swiftshader/src/Vulkan:swiftshader_libvulkan",
+-  ]
+ }
+--- a/third_party/angle/src/libANGLE/renderer/vulkan/BUILD.gn
++++ b/third_party/angle/src/libANGLE/renderer/vulkan/BUILD.gn
+@@ -19,7 +19,7 @@ declare_args() {
+   # Currently SwiftShader's Vulkan front-end doesn't build on Android.
+   # SwiftShader is not needed on Fuchsia because Vulkan is supported on all
+   # devices that run Fuchsia.
+-  angle_swiftshader = !is_android && !is_fuchsia
++  angle_swiftshader = false
+ }
+ 
+ _vulkan_backend_sources = [
