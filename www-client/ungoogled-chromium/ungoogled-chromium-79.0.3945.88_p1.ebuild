@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
 	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
@@ -44,7 +44,7 @@ REQUIRED_USE="
 	optimize-thinlto? ( thinlto )
 	cfi? ( thinlto )
 	system-openjpeg? ( pdf )
-	x86? ( !thinlto !cfi )
+	x86? ( !thinlto )
 "
 
 COMMON_DEPEND="
