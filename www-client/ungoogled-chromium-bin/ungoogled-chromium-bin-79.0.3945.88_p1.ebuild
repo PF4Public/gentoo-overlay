@@ -19,8 +19,14 @@ SRC_URI="
 		-> ${P}-core2.tar.bz2
 	)
 	generic? (
+		amd64? (
 		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/x86-64.tar.bz2
-		-> ${P}-generic.tar.bz2
+		-> ${P}-x86-64.tar.bz2
+		)
+		x86? (
+		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/x86-64.tar.bz2
+		-> ${P}-i686.tar.bz2
+		)
 	)
 	haswell? (
 		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/haswell.tar.bz2
@@ -32,10 +38,13 @@ RESTRICT="mirror"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 x86"
 IUSE="convert-dict core2 +generic haswell suid widevine"
 
-REQUIRED_USE="|| ( core2 generic haswell )"
+REQUIRED_USE="
+	|| ( core2 generic haswell )
+	x86? ( !core2 !haswell )
+"
 
 CDEPEND="
 	>=app-accessibility/at-spi2-atk-2.26:2
