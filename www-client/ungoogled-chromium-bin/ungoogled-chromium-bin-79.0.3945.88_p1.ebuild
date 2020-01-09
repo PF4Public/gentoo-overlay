@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -159,8 +159,6 @@ src_install() {
 			"${CHROMIUM_HOME}/libwidevinecdm.so"
 	fi
 
-	doexe ./usr/lib64/chromium-browser/chromedriver
-
 	doexe ./usr/lib64/chromium-browser/chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
@@ -168,8 +166,6 @@ src_install() {
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
-
-	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
