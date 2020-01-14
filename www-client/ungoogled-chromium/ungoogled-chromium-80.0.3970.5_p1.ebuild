@@ -246,8 +246,6 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use disable-tracing && eapply "${FILESDIR}/chromium-disable-tracing-r1.patch"
-	use disable-perfetto && eapply "${FILESDIR}/chromium-disable-perfetto-r1.patch"
 	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
 
 	if use system-icu
@@ -356,8 +354,6 @@ src_prepare() {
 		third_party/catapult/third_party/html5lib-python
 		third_party/catapult/third_party/polymer
 		third_party/catapult/third_party/six
-	)
-	use disable-tracing || keeplibs+=(
 		third_party/catapult/tracing/third_party/d3
 		third_party/catapult/tracing/third_party/gl-matrix
 		third_party/catapult/tracing/third_party/jpeg-js
@@ -365,8 +361,6 @@ src_prepare() {
 		third_party/catapult/tracing/third_party/mannwhitneyu
 		third_party/catapult/tracing/third_party/oboe
 		third_party/catapult/tracing/third_party/pako
-	)
-	keeplibs+=(
 		third_party/ced
 		third_party/cld_3
 		third_party/closure_compiler
@@ -455,10 +449,8 @@ src_prepare() {
 		third_party/pdfium/third_party/libtiff
 		third_party/pdfium/third_party/skia_shared
 	)
-	use disable-perfetto || keeplibs+=(
-		third_party/perfetto
-	)
 	keeplibs+=(
+		third_party/perfetto
 		third_party/pffft
 		third_party/ply
 		third_party/polymer
