@@ -32,8 +32,6 @@
 			Patch and build the convert_dict utility. The script will be installed into /usr/lib64/chromium-browser/ungoogled-chromium-update-dicts.sh
 			More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907
 		</flag>
-		<flag name="disable-perfetto">Disable dependencies on third_party/perfetto</flag>
-		<flag name="disable-tracing">Disable tracing (chrome://tracing/)</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="gnome">Improve integration with GIO (libgio).</flag>
 		<flag name="gold">Use GNU's gold linker.</flag>

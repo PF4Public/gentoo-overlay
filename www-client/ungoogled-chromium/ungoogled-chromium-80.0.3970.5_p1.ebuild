@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Gentoo Authors
+# Copyright 2009-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -27,8 +27,8 @@ LICENSE="BSD"
 SLOT="0"
 #KEYWORDS="~amd64 ~x86"
 IUSE="
-	cfi +clang closure-compile convert-dict cups custom-cflags disable-perfetto
-	disable-tracing enable-driver gnome gnome-keyring hangouts jumbo-build
+	cfi +clang closure-compile convert-dict cups custom-cflags
+	enable-driver gnome gnome-keyring hangouts jumbo-build
 	kerberos optimize-thinlto optimize-webui pdf +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx
