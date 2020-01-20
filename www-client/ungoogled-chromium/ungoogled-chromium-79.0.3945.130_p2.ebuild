@@ -179,7 +179,6 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/chromium-compiler-r10.patch"
 	"${FILESDIR}/chromium-fix-char_traits.patch"
 	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
 	"${FILESDIR}/chromium-78-protobuf-export.patch"
@@ -247,6 +246,8 @@ src_prepare() {
 	python_setup 'python3*'
 
 	default
+
+	use custom-cflags && eapply "${FILESDIR}/chromium-compiler-r10.patch"
 
 	if use optimize-webui; then
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
@@ -720,7 +721,7 @@ src_configure() {
 
 	# Avoid CFLAGS problems, bug #352457, bug #390147.
 	if ! use custom-cflags; then
-		replace-flags "-Os" "-O2"
+		filter-flags "-O*" "-Wl,-O*"; #See #25
 		strip-flags
 
 		# Prevent linker from running out of address space, bug #471810 .
