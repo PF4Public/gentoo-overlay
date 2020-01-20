@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,7 +9,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	SRC_URI="https://github.com/PF4Public/gb-chroot/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
 DESCRIPTION="gb-chroot is a collection of scripts for building Gentoo's binpkgs"
@@ -21,7 +21,9 @@ IUSE="doc host"
 
 DOCS=( README.md )
 
-DEPEND=""
+DEPEND="
+	app-portage/gentoolkit
+"
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
