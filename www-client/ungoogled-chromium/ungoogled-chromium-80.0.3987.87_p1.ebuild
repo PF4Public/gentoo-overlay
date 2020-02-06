@@ -148,7 +148,6 @@ BDEPEND="
 	virtual/pkgconfig
 	clang? ( >=sys-devel/clang-8.0.0 )
 	thinlto? ( >=sys-devel/lld-8.0.0 )
-	virtual/libusb:1
 	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
 "
 
@@ -266,11 +265,6 @@ src_prepare() {
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r1.patch"
 	use vaapi && eapply "${FILESDIR}/chromium-fix-vaapi-r2.patch"
-
-	# Hack for libusb stuff (taken from openSUSE)
-	rm third_party/libusb/src/libusb/libusb.h || die
-	cp -a "${EPREFIX}/usr/include/libusb-1.0/libusb.h" \
-		third_party/libusb/src/libusb/libusb.h || die
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
@@ -512,8 +506,6 @@ src_prepare() {
 		third_party/usb_ids
 		third_party/xdg-utils
 		third_party/yasm/run_yasm.py
-
-		third_party/libusb
 	)
 	if ! use system-ffmpeg; then
 		keeplibs+=( third_party/ffmpeg third_party/opus )
@@ -603,7 +595,6 @@ src_configure() {
 		libdrm
 		libjpeg
 		libpng
-		libusb
 		libwebp
 		libxml
 		libxslt
