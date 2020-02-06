@@ -248,7 +248,6 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use system-harfbuzz && eapply "${FILESDIR}/chromium-80-system-hb.patch"
 
 	if use system-icu
 	then
