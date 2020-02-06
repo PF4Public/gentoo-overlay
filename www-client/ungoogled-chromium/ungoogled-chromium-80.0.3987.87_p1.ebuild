@@ -189,6 +189,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-80-gcc-blink.patch"
 	"${FILESDIR}/chromium-80-gcc-abstract.patch"
 	"${FILESDIR}/chromium-80-gcc-incomplete-type.patch"
+	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
