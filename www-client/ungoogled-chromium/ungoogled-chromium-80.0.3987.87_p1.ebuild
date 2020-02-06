@@ -248,13 +248,12 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	use system-harfbuzz && eapply "${FILESDIR}/chromium-79-system-hb.patch"
+	use system-harfbuzz && eapply "${FILESDIR}/chromium-80-system-hb.patch"
 
 	if use system-icu
 	then
 		eapply "${FILESDIR}/chromium-system-icu.patch"
 		eapply "${FILESDIR}/chromium-77-system-icu.patch"
-		eapply "${FILESDIR}/chromium-system-convertutf.patch"
 	fi
 
 	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
