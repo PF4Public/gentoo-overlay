@@ -27,8 +27,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags
-	enable-driver gnome gnome-keyring hangouts jumbo-build
-	kerberos optimize-thinlto optimize-webui pdf +proprietary-codecs
+	enable-driver gnome gnome-keyring hangouts kerberos
+	optimize-thinlto optimize-webui pdf +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
@@ -214,14 +214,6 @@ pkg_pretend() {
 	if use custom-cflags && [[ "${MERGE_TYPE}" != binary ]]; then
 		ewarn
 		ewarn "USE=custom-cflags bypasses strip-flags"
-		ewarn "Consider disabling this USE flag if something breaks"
-		ewarn
-	fi
-
-	if use jumbo-build && [[ "${MERGE_TYPE}" != binary ]]; then
-		ewarn
-		ewarn "Jumbo is no longer supported by Google, but it might still work"
-		ewarn "jumbo_file_merge_limit was lowered to 8 just in case"
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
@@ -576,12 +568,6 @@ src_configure() {
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=false"
-
-	# https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
-	myconf_gn+=" use_jumbo_build=$(usex jumbo-build true false)"
-
-	# default (50) breaks often; setting 8 here (goma default)
-	use jumbo-build && myconf_gn+=" jumbo_file_merge_limit=8"
 
 	myconf_gn+=" use_allocator=$(usex tcmalloc \"tcmalloc\" \"none\")"
 
