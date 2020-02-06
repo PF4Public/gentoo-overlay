@@ -19,13 +19,12 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
+	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
 "
-#	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
-#"
 
 LICENSE="BSD"
 SLOT="0"
-#KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags
 	enable-driver gnome gnome-keyring hangouts jumbo-build
@@ -59,7 +58,7 @@ COMMON_DEPEND="
 	dev-libs/libxslt:=
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
-	>=dev-libs/re2-0.2016.11.01:=
+	>=dev-libs/re2-0.2019.08.01:=
 	gnome-keyring? ( >=gnome-base/libgnome-keyring-3.12:= )
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
@@ -85,7 +84,7 @@ COMMON_DEPEND="
 			>=net-fs/samba-4.5.10-r1[-debug(-)]
 		)
 		!=net-fs/samba-4.5.12-r0
-		media-libs/opus:=
+		>=media-libs/opus-1.3.1:=
 	)
 	sys-apps/dbus:=
 	sys-apps/pciutils:=
@@ -180,16 +179,17 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-	"${FILESDIR}/chromium-compiler-r10.patch"
 	"${FILESDIR}/chromium-fix-char_traits.patch"
 	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
 	"${FILESDIR}/chromium-78-protobuf-export.patch"
 	"${FILESDIR}/chromium-79-gcc-alignas.patch"
 	"${FILESDIR}/chromium-80-unbundle-libxml.patch"
 	"${FILESDIR}/chromium-80-include.patch"
-	"${FILESDIR}/chromium-80-gcc-noexcept.patch"
 	"${FILESDIR}/chromium-80-gcc-quiche.patch"
+	"${FILESDIR}/chromium-80-gcc-permissive.patch"
 	"${FILESDIR}/chromium-80-gcc-blink.patch"
+	"${FILESDIR}/chromium-80-gcc-abstract.patch"
+	"${FILESDIR}/chromium-80-gcc-incomplete-type.patch"
 )
 
 S="${WORKDIR}/chromium-${PV/_*}"
@@ -239,6 +239,8 @@ src_prepare() {
 	python_setup 'python3*'
 
 	default
+
+	use custom-cflags && eapply "${FILESDIR}/chromium-compiler-r10.patch"
 
 	if use optimize-webui; then
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
@@ -378,13 +380,13 @@ src_prepare() {
 		third_party/dom_distiller_js
 		third_party/emoji-segmenter
 		third_party/flatbuffers
-		third_party/flot
 	)
 	use system-harfbuzz || keeplibs+=(
 		third_party/freetype
 		third_party/harfbuzz-ng
 	)
 	keeplibs+=(
+		third_party/libgifcodec
 		third_party/glslang
 		third_party/google_input_tools
 		third_party/google_input_tools/third_party/closure_library
@@ -466,7 +468,6 @@ src_prepare() {
 		third_party/skia
 		third_party/skia/include/third_party/skcms
 		third_party/skia/include/third_party/vulkan
-		third_party/skia/third_party/gif
 		third_party/skia/third_party/skcms
 		third_party/skia/third_party/vulkan
 		third_party/smhasher
@@ -713,7 +714,7 @@ src_configure() {
 
 	# Avoid CFLAGS problems, bug #352457, bug #390147.
 	if ! use custom-cflags; then
-		replace-flags "-Os" "-O2"
+		filter-flags "-O*" "-Wl,-O*"; #See #25
 		strip-flags
 
 		# Prevent linker from running out of address space, bug #471810 .
@@ -859,6 +860,14 @@ src_compile() {
 		s|@@MENUNAME@@|Chromium|g;' \
 		chrome/app/resources/manpage.1.in > \
 		out/Release/chromium-browser.1 || die
+
+	# Build desktop file; bug #706786
+	sed -e 's|@@MENUNAME@@|Chromium|g;
+		s|@@USR_BIN_SYMLINK_NAME@@|chromium-browser|g;
+		s|@@PACKAGE@@|chromium-browser|g;
+		s|\(^Exec=\)/usr/bin/|\1|g;' \
+		chrome/installer/linux/common/desktop.template > \
+		out/Release/chromium-browser-chromium.desktop || die
 }
 
 src_install() {
@@ -910,7 +919,7 @@ src_install() {
 	doins -r out/Release/locales
 	doins -r out/Release/resources
 
-	# Install icons and desktop entry.
+	# Install icons
 	local branding size
 	for size in 16 24 32 48 64 128 256 ; do
 		case ${size} in
@@ -921,17 +930,8 @@ src_install() {
 			chromium-browser.png
 	done
 
-	local mime_types="text/html;text/xml;application/xhtml+xml;"
-	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
-	mime_types+="x-scheme-handler/ftp;" # bug #412185
-	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
-	make_desktop_entry \
-		chromium-browser \
-		"Chromium" \
-		chromium-browser \
-		"Network;WebBrowser" \
-		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
-	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
+	# Install desktop entry
+	domenu out/Release/chromium-browser-chromium.desktop
 
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
