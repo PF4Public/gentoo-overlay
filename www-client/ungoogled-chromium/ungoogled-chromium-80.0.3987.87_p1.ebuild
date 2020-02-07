@@ -403,7 +403,9 @@ src_prepare() {
 		third_party/libwebm
 		third_party/libxml/chromium
 		third_party/libyuv
+		third_party/llvm
 		third_party/lss
+		third_party/lzma_sdk
 		third_party/markupsafe
 		third_party/mesa
 		third_party/metrics_proto
