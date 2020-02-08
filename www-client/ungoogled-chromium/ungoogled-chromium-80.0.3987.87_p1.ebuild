@@ -49,6 +49,7 @@ REQUIRED_USE="
 
 COMMON_DEPEND="
 	>=app-accessibility/at-spi2-atk-2.26:2
+	app-arch/bzip2:=
 	cups? ( >=net-print/cups-1.3.11:= )
 	>=dev-libs/atk-2.26
 	dev-libs/expat:=
@@ -132,7 +133,6 @@ DEPEND="${COMMON_DEPEND}
 # dev-vcs/git - https://bugs.gentoo.org/593476
 BDEPEND="
 	${PYTHON_DEPS}
-	app-arch/bzip2:=
 	>=app-arch/gzip-1.7
 	dev-lang/yasm
 	dev-lang/perl
