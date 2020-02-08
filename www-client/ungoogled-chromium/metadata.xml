@@ -34,7 +34,6 @@
 		</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="gnome">Improve integration with GIO (libgio).</flag>
-		<flag name="gold">Use GNU's gold linker.</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="jumbo-build">
 			Coalesce translation units together, making builds faster on single
@@ -42,15 +41,6 @@
 			is not automatically tested by Chromium developers, so it may not
 			work all the time.
 		</flag>
-		<flag name="libcxx">
-			Build against <pkg>sys-devel/libcxx</pkg>, which requires that all
-			C++ dependencies must be built with '-stdlib=libc++' (EXPERIMENTAL).
-		</flag>
-		<flag name="lld">
-			LLD is a linker from the LLVM project. That is a drop-in replacement
-			for system linkers and runs much faster than them (recommended).
-		</flag>
-		<flag name="new-tcmalloc">Use the soon-to-be default tcmalloc.</flag>
 		<flag name="optimize-thinlto">
 			Whether to enable ThinLTO optimizations. Turning ThinLTO
 			optimizations on can substantially increase link time and binary
