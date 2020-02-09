@@ -10,9 +10,9 @@ diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0
          SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedVideoDecode),
      },
  #if defined(OS_WIN)
-@@ -2039,12 +2039,12 @@
+@@ -1882,12 +1882,12 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_VALUE_TYPE(service_manager::features::kXRSandbox)},
- #endif  // !defined(OS_ANDROID)
+ #endif  // ENABLE_ISOLATED_XR_SERVICE
  #endif  // ENABLE_VR
 -#if defined(OS_CHROMEOS)
 +#if defined(OS_CHROMEOS) || defined(OS_LINUX)
@@ -23,9 +23,9 @@ diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedMjpegDecode)},
 -#endif  // OS_CHROMEOS
 +#endif  // OS_CHROMEOS // OS_LINUX
-     {"system-keyboard-lock", flag_descriptions::kSystemKeyboardLockName,
-      flag_descriptions::kSystemKeyboardLockDescription, kOsDesktop,
-      FEATURE_VALUE_TYPE(features::kSystemKeyboardLock)},
+     {"v8-cache-options", flag_descriptions::kV8CacheOptionsName,
+      flag_descriptions::kV8CacheOptionsDescription, kOsAll,
+      MULTI_VALUE_TYPE(kV8CacheOptionsChoices)},
 diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc
 --- chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi	2019-06-05 11:26:46.473753026 -0400
 +++ chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc	2019-06-05 11:29:28.039397479 -0400
@@ -55,7 +55,7 @@ diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi chromiu
 diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.h.vaapi chromium-75.0.3770.80/chrome/browser/flag_descriptions.h
 --- chromium-75.0.3770.80/chrome/browser/flag_descriptions.h.vaapi	2019-06-05 11:26:46.475752984 -0400
 +++ chromium-75.0.3770.80/chrome/browser/flag_descriptions.h	2019-06-05 11:30:39.503928986 -0400
-@@ -1822,13 +1822,19 @@
+@@ -1765,13 +1765,19 @@ extern const char kPermissionPromptPersi
  
  #endif  // defined(OS_MACOSX)
  
@@ -74,8 +74,8 @@ diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.h.vaapi chromium
 +
 +#if defined(OS_CHROMEOS)
 +
- extern const char kAggregatedMlAppRankingName[];
- extern const char kAggregatedMlAppRankingDescription[];
+ extern const char kAppServiceAshName[];
+ extern const char kAppServiceAshDescription[];
  
 diff -up chromium-75.0.3770.80/gpu/config/software_rendering_list.json.vaapi chromium-75.0.3770.80/gpu/config/software_rendering_list.json
 --- chromium-75.0.3770.80/gpu/config/software_rendering_list.json.vaapi	2019-06-04 14:55:24.000000000 -0400

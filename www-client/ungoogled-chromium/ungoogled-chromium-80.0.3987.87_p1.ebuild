@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags
 	enable-driver gnome gnome-keyring hangouts kerberos
@@ -255,7 +255,6 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r1.patch"
-	use vaapi && eapply "${FILESDIR}/chromium-fix-vaapi-r2.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
