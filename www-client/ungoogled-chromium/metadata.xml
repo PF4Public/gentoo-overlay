@@ -35,12 +35,6 @@
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="gnome">Improve integration with GIO (libgio).</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
-		<flag name="jumbo-build">
-			Coalesce translation units together, making builds faster on single
-			machines, at the expense of more memory during build time. This flag
-			is not automatically tested by Chromium developers, so it may not
-			work all the time.
-		</flag>
 		<flag name="optimize-thinlto">
 			Whether to enable ThinLTO optimizations. Turning ThinLTO
 			optimizations on can substantially increase link time and binary
