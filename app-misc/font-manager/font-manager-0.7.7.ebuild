@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -17,7 +17,8 @@ fi
 DESCRIPTION="A simple font management application for Gtk+ Desktop Environments"
 HOMEPAGE="https://fontmanager.github.io"
 
-VALA_MIN_API_VERSION=0.42
+VALA_MIN_API_VERSION=0.44
+VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
