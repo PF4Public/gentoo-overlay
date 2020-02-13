@@ -636,6 +636,7 @@ src_configure() {
 	myconf_gn+=" use_system_freetype=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libopenjpeg2=$(usex system-openjpeg true false)"
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
+	myconf_gn+=" enable_plugins=$(usex pdf true false)"
 	myconf_gn+=" enable_pdf=$(usex pdf true false)"
 	myconf_gn+=" use_system_lcms2=$(usex pdf true false)"
 	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
