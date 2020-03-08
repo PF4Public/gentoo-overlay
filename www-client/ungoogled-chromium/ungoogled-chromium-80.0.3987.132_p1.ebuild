@@ -32,7 +32,7 @@ KEYWORDS="amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags
 	enable-driver gnome gnome-keyring hangouts kerberos
-	optimize-thinlto optimize-webui pdf +proprietary-codecs
+	optimize-thinlto optimize-webui +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
@@ -47,7 +47,6 @@ REQUIRED_USE="
 	thinlto? ( clang )
 	optimize-thinlto? ( thinlto )
 	cfi? ( thinlto )
-	system-openjpeg? ( pdf )
 	x86? ( !thinlto )
 "
 
@@ -114,7 +113,7 @@ COMMON_DEPEND="
 	>=media-libs/libwebp-0.4.0:=
 	sys-libs/zlib:=[minizip]
 	kerberos? ( virtual/krb5 )
-	pdf? ( media-libs/lcms:= )
+	media-libs/lcms:=
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
 	system-openjpeg? ( media-libs/openjpeg:2= )
@@ -418,8 +417,6 @@ src_prepare() {
 		third_party/openscreen
 		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
-	)
-	use pdf && keeplibs+=(
 		third_party/pdfium
 		third_party/pdfium/third_party/agg23
 		third_party/pdfium/third_party/base
@@ -430,12 +427,10 @@ src_prepare() {
 	use system-openjpeg || keeplibs+=(
 		third_party/pdfium/third_party/libopenjpeg20
 	)
-	use pdf && keeplibs+=(
+	keeplibs+=(
 		third_party/pdfium/third_party/libpng16
 		third_party/pdfium/third_party/libtiff
 		third_party/pdfium/third_party/skia_shared
-	)
-	keeplibs+=(
 		third_party/perfetto
 		third_party/pffft
 		third_party/ply
@@ -640,10 +635,8 @@ src_configure() {
 	myconf_gn+=" use_system_freetype=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libopenjpeg2=$(usex system-openjpeg true false)"
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
-	myconf_gn+=" enable_plugins=$(usex pdf true false)"
-	myconf_gn+=" enable_pdf=$(usex pdf true false)"
-	myconf_gn+=" use_system_lcms2=$(usex pdf true false)"
-	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
+	myconf_gn+=" use_system_lcms2=true"
+	myconf_gn+=" enable_print_preview=true"
 
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
