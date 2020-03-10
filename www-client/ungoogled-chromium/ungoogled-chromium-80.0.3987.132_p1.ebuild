@@ -32,7 +32,7 @@ KEYWORDS="amd64 ~x86"
 IUSE="
 	cfi +clang closure-compile convert-dict cups custom-cflags
 	enable-driver gnome gnome-keyring hangouts kerberos
-	optimize-thinlto optimize-webui +proprietary-codecs
+	optimize-thinlto optimize-webui pdf +proprietary-codecs
 	pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu
 	+system-jsoncpp +system-libevent +system-libvpx
 	+system-openh264 system-openjpeg +tcmalloc thinlto vaapi widevine
@@ -113,7 +113,7 @@ COMMON_DEPEND="
 	>=media-libs/libwebp-0.4.0:=
 	sys-libs/zlib:=[minizip]
 	kerberos? ( virtual/krb5 )
-	media-libs/lcms:=
+	pdf? ( media-libs/lcms:= )
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
 	system-openjpeg? ( media-libs/openjpeg:2= )
@@ -635,8 +635,9 @@ src_configure() {
 	myconf_gn+=" use_system_freetype=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libopenjpeg2=$(usex system-openjpeg true false)"
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
-	myconf_gn+=" use_system_lcms2=true"
-	myconf_gn+=" enable_print_preview=true"
+	myconf_gn+=" enable_pdf=$(usex pdf true false)"
+	myconf_gn+=" use_system_lcms2=$(usex pdf true false)"
+	myconf_gn+=" enable_print_preview=$(usex pdf true false)"
 
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
