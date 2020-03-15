@@ -222,6 +222,10 @@ pkg_pretend() {
 		ewarn
 	fi
 
+	if ! use pdf; then
+		eerror "pdf USE flag is disabled. It is known to cause build failures: #26 #30. If the situation won't get better with next release, this flag will be removed and pdf will be enabled permanently."
+	fi
+
 	pre_build_checks
 }
 
