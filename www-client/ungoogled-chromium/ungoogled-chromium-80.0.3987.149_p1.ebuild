@@ -19,12 +19,13 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
-	https://github.com/Eloston/ungoogled-chromium/archive/9ec24e7652e8be46f44e879bbbf8b894d5ce957b.tar.gz
+	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
 "
-UGC_WD="${WORKDIR}/ungoogled-chromium-9ec24e7652e8be46f44e879bbbf8b894d5ce957b"
 
-#	https://github.com/Eloston/${PN}/archive/${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz
+#	https://github.com/Eloston/ungoogled-chromium/archive/9ec24e7652e8be46f44e879bbbf8b894d5ce957b.tar.gz
 #"
+#UGC_WD="${WORKDIR}/ungoogled-chromium-9ec24e7652e8be46f44e879bbbf8b894d5ce957b"
+
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
