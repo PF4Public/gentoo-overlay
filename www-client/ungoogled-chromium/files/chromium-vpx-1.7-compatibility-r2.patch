@@ -83,7 +83,7 @@ author: Michael Gilbert <mgilbert@debian.org>
    // Register callback for getting each spatial layer.
    vpx_codec_priv_output_cx_pkt_cb_pair_t cbp = {
        VP9EncoderImpl::EncoderOutputCodedPacketCallback,
-@@ -857,11 +857,24 @@
+@@ -857,24 +857,11 @@
      }
    }
  
