@@ -250,7 +250,6 @@ src_prepare() {
 	if use system-icu
 	then
 		eapply "${FILESDIR}/chromium-system-icu.patch"
-		eapply "${FILESDIR}/chromium-77-system-icu.patch"
 	fi
 
 	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
