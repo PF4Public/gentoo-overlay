@@ -261,7 +261,14 @@ src_prepare() {
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
-	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r2.patch"
+
+	if use vaapi
+	then
+		eapply "${FILESDIR}/vaapi-build-fix.patch"
+		eapply "${FILESDIR}/vdpau-support.patch"
+		elog "Even though ${PN} is built with vaapi support, #ignore-gpu-blacklist"
+		elog "should be enabled via flags or commandline for it to work."
+	fi
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
