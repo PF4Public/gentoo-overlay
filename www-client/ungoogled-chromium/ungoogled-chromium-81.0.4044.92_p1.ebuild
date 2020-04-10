@@ -15,7 +15,7 @@ UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_WD="${WORKDIR}/${UGC_P}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="5316c0a1b231298aa9d56a7ded7ba1486479f28d"
+UGC_COMMIT_ID="209e24bbb86df3f2f110efc8e8699ec7a37a93ab"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -261,7 +261,7 @@ src_prepare() {
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
-	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r1.patch"
+	use vaapi && eapply "${FILESDIR}/chromium-enable-vaapi-r2.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
