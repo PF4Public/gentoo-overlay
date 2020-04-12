@@ -15,7 +15,7 @@ UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_WD="${WORKDIR}/${UGC_P}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-#UGC_COMMIT_ID="209e24bbb86df3f2f110efc8e8699ec7a37a93ab"
+UGC_COMMIT_ID="209e24bbb86df3f2f110efc8e8699ec7a37a93ab"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
