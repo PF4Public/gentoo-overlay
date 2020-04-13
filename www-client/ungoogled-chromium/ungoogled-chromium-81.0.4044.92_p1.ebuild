@@ -468,6 +468,7 @@ src_prepare() {
 		third_party/swiftshader/third_party/marl
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
+		third_party/ungoogled
 		third_party/usrsctp
 		third_party/vulkan
 		third_party/web-animations-js
