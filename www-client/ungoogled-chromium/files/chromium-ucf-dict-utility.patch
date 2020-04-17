@@ -109,4 +109,3 @@ https://github.com/qvint/ungoogled-chromium-fedora/commit/a68fdd679566da5134d916
 +
  base::FilePath GetVersionedFileName(base::StringPiece input_language,
                                      const base::FilePath& dict_dir);
- 
