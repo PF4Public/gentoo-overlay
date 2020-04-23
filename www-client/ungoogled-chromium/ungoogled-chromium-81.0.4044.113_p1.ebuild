@@ -35,7 +35,7 @@ SRC_URI="
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 ~x86"
-IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui ozone +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau widevine wayland"
+IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui ozone +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -651,21 +651,20 @@ src_configure() {
 		myconf_gn+=" use_cfi_cast=true"
 	fi
 
-	if use ozone; then
+	if use ozone || use wayland; then
 		myconf_gn+=" use_ozone=true"
 		myconf_gn+=" ozone_auto_platforms=false"
-		myconf_gn+=" ozone_platform_x11=true"
 		myconf_gn+=" use_system_minigbm=true"
 		myconf_gn+=" use_system_libdrm=true"
 	fi
 
+	if use ozone; then
+		myconf_gn+=" ozone_platform_x11=true"
+	fi
+
 	if use wayland; then
-		myconf_gn+=" use_ozone=true"
-		myconf_gn+=" ozone_auto_platforms=false"
 		myconf_gn+=" ozone_platform_wayland=true"
 		myconf_gn+=" use_system_libwayland=true"
-		myconf_gn+=" use_system_minigbm=true"
-		myconf_gn+=" use_system_libdrm=true"
 	fi
 
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"

@@ -45,6 +45,9 @@
 			(HTML/CSS/JS) for runtime performance purposes. This does more
 			work at compile time for speed benefits at runtime.
 		</flag>
+		<flag name="ozone">
+			Enable Chrome's Ozone platform abstraction layer (experimental feature).
+		</flag>
 		<flag name="proprietary-codecs">
 			Enable proprietary codecs like H.264, MP3.
 		</flag>
