@@ -223,7 +223,12 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
-
+	if use cfi; then
+		ewarn
+		ewarn "USE=cfi is known to break compilation: #32"
+		ewarn "Consider disabling this USE flag if something breaks"
+		ewarn
+	fi
 	if use wayland; then
 		ewarn
 		ewarn "You've enabled USE=wayland"
