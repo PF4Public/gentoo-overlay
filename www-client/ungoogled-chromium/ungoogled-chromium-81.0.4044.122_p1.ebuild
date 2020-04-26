@@ -229,6 +229,12 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
+	if use ozone && use vaapi; then
+		ewarn
+		ewarn "You've enabled ozone and vaapi USE flags"
+		ewarn "This combinations is known to break the compilation"
+		ewarn
+	fi
 	if use wayland; then
 		ewarn
 		ewarn "You've enabled USE=wayland"
@@ -236,7 +242,6 @@ pkg_pretend() {
 		ewarn "otherwise something can break"
 		ewarn
 	fi
-
 	pre_build_checks
 }
 
