@@ -13,13 +13,13 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
-UGC_WD="${WORKDIR}/${UGC_P}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
 #UGC_COMMIT_ID="c6bed0c7d342d26c59c39798f4794a430c14a2f9"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
 	UGC_URL="${UGC_URL}${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz"
+	UGC_WD="${WORKDIR}/${UGC_P}"
 else
 	UGC_URL="${UGC_URL}${UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
 	UGC_WD="${WORKDIR}/ungoogled-chromium-${UGC_COMMIT_ID}"
@@ -134,7 +134,6 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND="
 	${PYTHON_DEPS}
 	>=app-arch/gzip-1.7
-	dev-lang/yasm
 	dev-lang/perl
 	dev-util/gn
 	dev-vcs/git
@@ -144,11 +143,15 @@ BDEPEND="
 	sys-apps/hwids[usb(+)]
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
-	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
-	clang? ( >=sys-devel/clang-8.0.0 )
-	thinlto? ( >=sys-devel/lld-8.0.0 )
-	cfi? ( >=sys-devel/clang-runtime-8.0.0[sanitize] )
+	closure-compile? ( virtual/jre )
+	!system-libvpx? (
+		amd64? ( dev-lang/yasm )
+		x86? ( dev-lang/yasm )
+	)
+	clang? ( sys-devel/clang )
+	thinlto? ( sys-devel/lld )
+	cfi? ( sys-devel/clang-runtime[sanitize] )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
@@ -193,6 +196,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-80-gcc-blink.patch"
 	"${FILESDIR}/chromium-81-gcc-noexcept.patch"
 	"${FILESDIR}/chromium-81-gcc-constexpr.patch"
+	"${FILESDIR}/chromium-81-gcc-10.patch"
 
 	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
 )

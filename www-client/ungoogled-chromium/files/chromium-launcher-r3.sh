@@ -36,4 +36,6 @@ fi
 # Set the .desktop file name
 export CHROME_DESKTOP="chromium-browser-ungoogled-chromium.desktop"
 
+export CHROME_VERSION_EXTRA="(with ungoogled-chromium patches)"
+
 exec -a "chromium-browser" "$PROGDIR/chrome" --extra-plugin-dir=/usr/lib/nsbrowser/plugins ${CHROMIUM_FLAGS} "$@"
