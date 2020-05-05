@@ -21,7 +21,7 @@
 	</longdescription>
 	<use>
 		<flag name="cfi">
-			Build with CFI (Control Flow Integrity) enabled (recommended).
+			Build with CFI (Control Flow Integrity) enabled.
 		</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
 		<flag name="closure-compile">
