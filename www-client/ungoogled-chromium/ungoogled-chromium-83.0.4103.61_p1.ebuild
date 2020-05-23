@@ -288,7 +288,7 @@ src_prepare() {
 	if use system-libvpx
 	then
 		eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
-		has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r2.patch"
+		has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r3.patch"
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
