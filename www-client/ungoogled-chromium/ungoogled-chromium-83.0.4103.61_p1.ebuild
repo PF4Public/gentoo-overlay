@@ -415,7 +415,6 @@ src_prepare() {
 	use system-harfbuzz || keeplibs+=(
 		third_party/freetype
 		third_party/harfbuzz-ng
-		third_party/harfbuzz-ng/utils
 	)
 	keeplibs+=(
 		third_party/libgifcodec
@@ -424,6 +423,7 @@ src_prepare() {
 		third_party/google_input_tools/third_party/closure_library
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
 		third_party/googletest
+		third_party/harfbuzz-ng/utils
 		third_party/hunspell
 		third_party/iccjpeg
 		third_party/inspector_protocol
