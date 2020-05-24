@@ -295,7 +295,6 @@ src_prepare() {
 
 	if use vaapi
 	then
-		eapply "${FILESDIR}/vaapi-build-fix.patch"
 		elog "Even though ${PN} is built with vaapi support, #ignore-gpu-blacklist"
 		elog "should be enabled via flags or commandline for it to work."
 	fi
