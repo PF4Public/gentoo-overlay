@@ -83,7 +83,7 @@ author: Michael Gilbert <mgilbert@debian.org>
    // Register callback for getting each spatial layer.
    vpx_codec_priv_output_cx_pkt_cb_pair_t cbp = {
        VP9EncoderImpl::EncoderOutputCodedPacketCallback,
-@@ -917,25 +857,12 @@ int VP9EncoderImpl::Encode(const VideoFr
+@@ -861,12 +861,6 @@ int VP9EncoderImpl::Encode(const VideoFr
      }
    }
  
@@ -93,10 +93,10 @@ author: Michael Gilbert <mgilbert@debian.org>
 -  for (int sl_idx = 0; sl_idx < num_spatial_layers_; ++sl_idx) {
 -    layer_id.temporal_layer_id_per_spatial[sl_idx] = layer_id.temporal_layer_id;
 -  }
--
+ 
    if (layer_id.spatial_layer_id < first_active_layer_) {
      layer_id.spatial_layer_id = first_active_layer_;
-   }
+@@ -874,11 +868,6 @@
  
    vpx_codec_control(encoder_, VP9E_SET_SVC_LAYER_ID, &layer_id);
  
@@ -105,10 +105,9 @@ author: Michael Gilbert <mgilbert@debian.org>
 -    vpx_codec_control(encoder_, VP9E_SET_SVC_FRAME_DROP_LAYER,
 -                      &svc_drop_frame_);
 -  }
--
-  if (config_changed_) {
-    if (vpx_codec_enc_config_set(encoder_, config_)) {
-      return WEBRTC_VIDEO_CODEC_ERROR;
+ 
+   if (config_changed_) {
+     if (vpx_codec_enc_config_set(encoder_, config_)) {
 @@ -998,21 +925,6 @@ int VP9EncoderImpl::Encode(const VideoFr
      flags = VPX_EFLAG_FORCE_KF;
    }
