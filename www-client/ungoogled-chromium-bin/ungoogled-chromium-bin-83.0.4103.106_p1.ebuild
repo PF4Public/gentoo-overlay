@@ -24,7 +24,7 @@ SRC_URI="
 		-> ${P}-x86-64.tar.bz2
 		)
 		x86? (
-		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/x86-64.tar.bz2
+		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/i686.tar.bz2
 		-> ${P}-i686.tar.bz2
 		)
 	)
