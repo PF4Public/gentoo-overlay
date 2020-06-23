@@ -298,7 +298,7 @@ src_prepare() {
 
 	local ugc_unneeded=(
 		# GN bootstrap
-		extra/debian_buster/gn/parallel
+		extra/debian/gn/parallel
 	)
 
 	local ugc_p ugc_dir
