@@ -278,6 +278,8 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
+	use system-ffmpeg && eapply "${FILESDIR}/chromium-84-mediaalloc.patch"
+
 	if use system-icu
 	then
 		eapply "${FILESDIR}/chromium-system-icu.patch"
