@@ -245,12 +245,6 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
-	if use ozone && use vaapi; then
-		ewarn
-		ewarn "You've enabled ozone and vaapi USE flags"
-		ewarn "This combinations is known to break the compilation"
-		ewarn
-	fi
 	if use wayland; then
 		ewarn
 		ewarn "You've enabled USE=wayland"
@@ -692,6 +686,7 @@ src_configure() {
 
 	if use ozone; then
 		myconf_gn+=" ozone_platform_x11=true"
+		use vaapi && eapply "${FILESDIR}/fix-vaapi-ozone-build.patch"
 	fi
 
 	if use wayland; then
