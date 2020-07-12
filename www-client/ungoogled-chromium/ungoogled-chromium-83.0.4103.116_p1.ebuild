@@ -682,11 +682,11 @@ src_configure() {
 		myconf_gn+=" ozone_auto_platforms=false"
 		myconf_gn+=" use_system_minigbm=true"
 		myconf_gn+=" use_system_libdrm=true"
+		use vaapi && eapply "${FILESDIR}/fix-vaapi-ozone-build.patch"
 	fi
 
 	if use ozone; then
 		myconf_gn+=" ozone_platform_x11=true"
-		use vaapi && eapply "${FILESDIR}/fix-vaapi-ozone-build.patch"
 	fi
 
 	if use wayland; then
