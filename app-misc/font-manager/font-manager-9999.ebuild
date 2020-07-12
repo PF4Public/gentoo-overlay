@@ -22,7 +22,7 @@ VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="nautilus nemo"
+IUSE="doc +manager nautilus nemo reproducible +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
 	>=dev-libs/libxml2-2.9
@@ -37,6 +37,7 @@ DEPEND="${RDEPEND}
 	$(vala_depend)
 	dev-util/ninja
 	dev-util/meson
+	doc? ( app-text/yelp-tools )
 "
 
 src_prepare() {
@@ -47,7 +48,12 @@ src_prepare() {
 
 src_configure() {
 	meson_src_configure \
+		$(meson_use manager) \
+		$(meson_use viewer) \
+		$(meson_use reproducible) \
 		$(meson_use nautilus) \
 		$(meson_use nemo) \
+		-Denable-nls=$(usex nls true false) \
+		-Dyelp-doc=$(usex doc true false) \
 		--buildtype=release
 }
