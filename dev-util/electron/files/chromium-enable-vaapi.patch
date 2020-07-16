@@ -1,0 +1,96 @@
+diff -up chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi chromium-75.0.3770.80/chrome/browser/about_flags.cc
+--- chromium-75.0.3770.80/chrome/browser/about_flags.cc.vaapi	2019-06-04 14:55:16.000000000 -0400
++++ chromium-75.0.3770.80/chrome/browser/about_flags.cc	2019-06-05 11:26:46.472753047 -0400
+@@ -1390,7 +1390,7 @@ const FeatureEntry kFeatureEntries[] = {
+         "disable-accelerated-video-decode",
+         flag_descriptions::kAcceleratedVideoDecodeName,
+         flag_descriptions::kAcceleratedVideoDecodeDescription,
+-        kOsMac | kOsWin | kOsCrOS | kOsAndroid,
++        kOsMac | kOsWin | kOsCrOS | kOsAndroid | kOsLinux,
+         SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedVideoDecode),
+     },
+ #if defined(OS_WIN)
+@@ -2039,12 +2039,12 @@
+      FEATURE_VALUE_TYPE(service_manager::features::kXRSandbox)},
+ #endif  // !defined(OS_ANDROID)
+ #endif  // ENABLE_VR
+-#if defined(OS_CHROMEOS)
++#if defined(OS_CHROMEOS) || defined(OS_LINUX)
+     {"disable-accelerated-mjpeg-decode",
+      flag_descriptions::kAcceleratedMjpegDecodeName,
+-     flag_descriptions::kAcceleratedMjpegDecodeDescription, kOsCrOS,
++     flag_descriptions::kAcceleratedMjpegDecodeDescription, kOsCrOS | kOsLinux,
+      SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAcceleratedMjpegDecode)},
+-#endif  // OS_CHROMEOS
++#endif  // OS_CHROMEOS // OS_LINUX
+     {"system-keyboard-lock", flag_descriptions::kSystemKeyboardLockName,
+      flag_descriptions::kSystemKeyboardLockDescription, kOsDesktop,
+      FEATURE_VALUE_TYPE(features::kSystemKeyboardLock)},
+diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc
+--- chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc.vaapi	2019-06-05 11:26:46.473753026 -0400
++++ chromium-75.0.3770.80/chrome/browser/flag_descriptions.cc	2019-06-05 11:29:28.039397479 -0400
+@@ -2941,15 +2941,20 @@ const char kMacSystemMediaPermissionsInf
+ 
+ #endif
+ 
+-// Chrome OS -------------------------------------------------------------------
++// Chrome OS & Linux------------------------------------------------------------
+ 
+-#if defined(OS_CHROMEOS)
++#if defined(OS_CHROMEOS) || (defined(OS_LINUX) && !defined(OS_ANDROID))
+ 
+ const char kAcceleratedMjpegDecodeName[] =
+     "Hardware-accelerated mjpeg decode for captured frame";
+ const char kAcceleratedMjpegDecodeDescription[] =
+     "Enable hardware-accelerated mjpeg decode for captured frame where "
+     "available.";
++#endif
++
++// Chrome OS -------------------------------------------------------------------
++
++#if defined(OS_CHROMEOS)
+ 
+ const char kAppServiceAshName[] = "App Service Ash";
+ const char kAppServiceAshDescription[] =
+diff -up chromium-75.0.3770.80/chrome/browser/flag_descriptions.h.vaapi chromium-75.0.3770.80/chrome/browser/flag_descriptions.h
+--- chromium-75.0.3770.80/chrome/browser/flag_descriptions.h.vaapi	2019-06-05 11:26:46.475752984 -0400
++++ chromium-75.0.3770.80/chrome/browser/flag_descriptions.h	2019-06-05 11:30:39.503928986 -0400
+@@ -1765,13 +1765,19 @@ extern const char kPermissionPromptPersi
+ 
+ #endif  // defined(OS_MACOSX)
+ 
+-// Chrome OS ------------------------------------------------------------------
++// Chrome OS & Linux ----------------------------------------------------------
+ 
+-#if defined(OS_CHROMEOS)
++#if defined(OS_CHROMEOS) || (defined(OS_LINUX) && !defined(OS_ANDROID))
+ 
+ extern const char kAcceleratedMjpegDecodeName[];
+ extern const char kAcceleratedMjpegDecodeDescription[];
+ 
++#endif
++
++// Chrome OS ------------------------------------------------------------------
++
++#if defined(OS_CHROMEOS)
++
+ extern const char kAppServiceAshName[];
+ extern const char kAppServiceAshDescription[];
+ 
+diff -up chromium-75.0.3770.80/gpu/config/software_rendering_list.json.vaapi chromium-75.0.3770.80/gpu/config/software_rendering_list.json
+--- chromium-75.0.3770.80/gpu/config/software_rendering_list.json.vaapi	2019-06-04 14:55:24.000000000 -0400
++++ chromium-75.0.3770.80/gpu/config/software_rendering_list.json	2019-06-05 11:26:46.482752839 -0400
+@@ -371,11 +371,12 @@
+     },
+     {
+       "id": 48,
+-      "description": "Accelerated video decode is unavailable on Linux",
++      "description": "Accelerated VA-API video decode is not supported on NVIDIA platforms",
+       "cr_bugs": [137247],
+       "os": {
+         "type": "linux"
+       },
++      "vendor_id": "0x10de",
+       "features": [
+         "accelerated_video_decode"
+       ]

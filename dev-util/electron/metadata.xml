@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">electron/electron</remote-id>
+		<bugs-to>https://github.com/electron/electron/issues</bugs-to>
+		<doc>https://www.electronjs.org/docs</doc>
+	</upstream>
+	<longdescription>
+		Electron is a cross platform application development framework based on web technologies based on Chromium
+	</longdescription>
+	<use>
+		<flag name="clang">Use Clang compiler instead of GCC</flag>
+		<flag name="closure-compile">
+			Enable closure type-checking for Chrome's web technology-based UI.
+			Requires Java and bundled binary compiler.jar in sources tree
+		</flag>
+		<flag name="enable-driver">Build chromedriver</flag>
+		<flag name="gnome">Improve integration with GIO (libgio).</flag>
+		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
+		<flag name="optimize-thinlto">
+			Whether to enable ThinLTO optimizations. Turning ThinLTO
+			optimizations on can substantially increase link time and binary
+			size, but they generally also make binaries a fair bit faster.
+		</flag>
+		<flag name="optimize-webui">
+			Optimize parts of Chromium's UI written with web technologies
+			(HTML/CSS/JS) for runtime performance purposes. This does more
+			work at compile time for speed benefits at runtime.
+		</flag>
+		<flag name="proprietary-codecs">
+			Enable proprietary codecs like H.264, MP3.
+		</flag>
+		<flag name="system-ffmpeg">
+			Use the system <pkg>media-video/ffmpeg</pkg> instead of bundled.
+		</flag>
+		<flag name="system-harfbuzz">
+			Use the system <pkg>media-libs/harfbuzz</pkg> instead of bundled.
+		</flag>
+		<flag name="system-icu">
+			Use the system <pkg>dev-libs/icu</pkg> instead of bundled.
+		</flag>
+		<flag name="system-jsoncpp">
+			Use the system <pkg>dev-libs/jsoncpp</pkg> instead of bundled.
+		</flag>
+		<flag name="system-libevent">
+			Use the system <pkg>dev-libs/libevent</pkg> instead of bundled.
+		</flag>
+		<flag name="system-libvpx">
+			Use the system <pkg>media-libs/libvpx</pkg> instead of bundled.
+		</flag>
+		<flag name="system-openh264">
+			Use the system <pkg>media-libs/openh264</pkg> instead of bundled.
+			If disabled, it will restrict USE=bindist.
+		</flag>
+		<flag name="system-openjpeg">
+			Use the system-wide <pkg>media-libs/openjpeg</pkg> instead of
+			bundled. OpenJPEG use are exclusively for Chromium's PDF viewer.
+		</flag>
+		<flag name="tcmalloc">
+			Use bundled tcmalloc instead of system malloc.
+		</flag>
+		<flag name="thinlto">
+			Build with ThinLTO support. LTO (Link Time Optimization) achieves
+			better runtime performance through whole-program analysis and
+			cross-module optimization (highly recommended).
+		</flag>
+	</use>
+</pkgmetadata>

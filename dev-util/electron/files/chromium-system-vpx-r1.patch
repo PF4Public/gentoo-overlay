@@ -1,0 +1,32 @@
+description: use system vpx
+
+--- a/media/base/supported_types.cc
++++ b/media/base/supported_types.cc
+@@ -16,8 +16,8 @@
+ #if BUILDFLAG(ENABLE_LIBVPX)
+ // TODO(dalecurtis): This technically should not be allowed in media/base. See
+ // TODO below about moving outside of base.
+-#include "third_party/libvpx/source/libvpx/vpx/vp8dx.h"
+-#include "third_party/libvpx/source/libvpx/vpx/vpx_codec.h"
++#include <vpx/vp8dx.h>
++#include <vpx/vpx_codec.h>
+ #endif
+
+ #if defined(OS_ANDROID)
+--- a/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
++++ b/third_party/webrtc/modules/video_coding/codecs/vp9/vp9_impl.cc
+@@ -31,10 +31,10 @@
+ #include "rtc_base/time_utils.h"
+ #include "rtc_base/trace_event.h"
+ #include "system_wrappers/include/field_trial.h"
+-#include "vpx/vp8cx.h"
+-#include "vpx/vp8dx.h"
+-#include "vpx/vpx_decoder.h"
+-#include "vpx/vpx_encoder.h"
++#include <vpx/vp8cx.h>
++#include <vpx/vp8dx.h>
++#include <vpx/vpx_decoder.h>
++#include <vpx/vpx_encoder.h>
+ 
+ namespace webrtc {
+ 

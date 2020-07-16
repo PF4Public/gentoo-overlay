@@ -1,0 +1,11 @@
+--- a/common.gypi.old    2020-07-14 16:18:32.000000000 +0300
++++ b/common.gypi        2020-07-14 16:23:11.000000000 +0300
+@@ -28,6 +28,7 @@
+     'clang%': 0,
+ 
+     'openssl_fips%': '',
++    'openssl_fips': '',
+ 
+     # Some STL containers (e.g. std::vector) do not preserve ABI compatibility
+     # between debug and non-debug mode.
+
