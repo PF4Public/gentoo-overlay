@@ -2186,16 +2186,18 @@ src_install() {
 	doins -r "${WORKDIR}"/V*/resources
 	doins "${WORKDIR}"/V*/*.json
 
+	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
+
+	insinto /usr/share/
+	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
+	doins -r applications bash-completion zsh
+
 	insinto /usr/share/metainfo/
 	doins appdata/*
 
 	insinto /usr/share/icons/hicolor/1024x1024/apps/
 	doins pixmaps/*
 
-	insinto /usr/share/
-	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
-	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion zsh
 	popd > /dev/null || die
 }
 
