@@ -2176,14 +2176,14 @@ src_install() {
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> ${WORKDIR}/V*/bin/code-oss
-	doexe "${WORKDIR}/V*/bin/code-oss"
+	doexe "${WORKDIR}"/V*/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
 	insinto ${VSCODE_HOME}
 	doins -r .build/extensions
-	doins -r "${WORKDIR}/app/*"
-	doins -r "${WORKDIR}/V*/out"
-	doins "${WORKDIR}/V*/*.json"
+	doins -r "${WORKDIR}"/app/*
+	doins -r "${WORKDIR}"/V*/out
+	doins "${WORKDIR}"/V*/*.json
 
 	insinto /usr/share/
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
