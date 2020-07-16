@@ -2138,9 +2138,9 @@ src_configure() {
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	yarn install --frozen-lockfile --offline --no-progress || die
-#--ignore-optional 
+#--ignore-optional
 #--ignore-engines
-#--production=true		 
+#--production=true
 #--no-progress
 #--skip-integrity-check
 #--verbose
@@ -2183,12 +2183,19 @@ src_install() {
 	doins -r .build/extensions
 	doins -r "${WORKDIR}"/app/*
 	doins -r "${WORKDIR}"/V*/out
+	doins -r "${WORKDIR}"/V*/resources
 	doins "${WORKDIR}"/V*/*.json
+
+	insinto /usr/share/metainfo/
+	doins appdata/*
+
+	insinto /usr/share/icons/hicolor/1024x1024/apps/
+	doins pixmaps/*
 
 	insinto /usr/share/
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
 	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r appdata applications bash-completion pixmaps zsh
+	doins -r applications bash-completion zsh
 	popd > /dev/null || die
 }
 
