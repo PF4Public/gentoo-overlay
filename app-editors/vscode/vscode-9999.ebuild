@@ -2169,7 +2169,7 @@ src_install() {
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto ${VSCODE_HOME}
-	sed -i '/^ELECTRON/,+3d' "${WORKDIR}/V*/bin/code-oss" || die
+	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
