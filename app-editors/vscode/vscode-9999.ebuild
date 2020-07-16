@@ -2089,7 +2089,7 @@ BDEPEND="
 
 src_unpack() {
 	if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
-	    unpack ${P}.tar.gz || die
+	    unpack "${P}".tar.gz || die
 	else
 	    git-r3_src_unpack
 	fi
@@ -2168,18 +2168,18 @@ src_install() {
 	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-x64-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
-	exeinto ${VSCODE_HOME}
+	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> ${WORKDIR}/V*/bin/code-oss
+	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/V*/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
-	insinto ${VSCODE_HOME}
+	insinto "${VSCODE_HOME}"
 	doins -r .build/extensions
 	doins -r "${WORKDIR}"/app/*
 	doins -r "${WORKDIR}"/V*/out
