@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>pf4public@mail.ru</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">microsoft/vscode</remote-id>
+		<bugs-to>https://github.com/microsoft/vscode/issues</bugs-to>
+		<doc>https://github.com/microsoft/vscode/wiki</doc>
+	</upstream>
+	<longdescription>
+		Visual Studio Code - Open Source
+	</longdescription>
+	<use>
+	</use>
+</pkgmetadata>
