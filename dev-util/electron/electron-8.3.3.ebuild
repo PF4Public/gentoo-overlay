@@ -1293,7 +1293,7 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${CHROMIUM_P}.tar.xz
-	unpack ${P}.tar.gz
+	unpack "${P}".tar.gz
 	unpack node-v${NODE_VERSION}.tar.xz
 
 	einfo "Disabling dugite"
@@ -1930,7 +1930,7 @@ src_install() {
 
 	pushd out/Release/locales > /dev/null || die
 	chromium_remove_language_paks
-	popd
+	popd > /dev/null || die
 
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
