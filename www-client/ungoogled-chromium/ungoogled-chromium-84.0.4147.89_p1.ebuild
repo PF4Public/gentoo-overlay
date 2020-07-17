@@ -644,11 +644,15 @@ src_configure() {
 		libjpeg
 		libpng
 		libwebp
+		libxml
+		libxslt
 	)
 	use system-openh264 && gn_system_libraries+=(
 		openh264
 	)
 	gn_system_libraries+=(
+		re2
+		snappy
 		zlib
 	)
 	if use system-ffmpeg; then
@@ -668,11 +672,7 @@ src_configure() {
 	fi
 	if use libcxx; then
 		# unbundle only without libc++, because libc++ is not fully ABI compatible with libstdc++
-		gn_system_libraries+=( libxml )
-		gn_system_libraries+=( libxslt )
 		gn_system_libraries+=( openh264 )
-		gn_system_libraries+=( re2 )
-		gn_system_libraries+=( snappy )
 	fi
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
