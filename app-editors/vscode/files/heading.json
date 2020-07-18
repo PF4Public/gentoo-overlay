@@ -1,0 +1,7 @@
+{
+	"quality": "stable",
+    "documentationUrl": "https://code.visualstudio.com/docs",
+	"requestFeatureUrl": "https://github.com/Microsoft/vscode/issues",
+	"introductoryVideosUrl": "https://go.microsoft.com/fwlink/?linkid=832146",
+	"tipsAndTricksUrl": "https://go.microsoft.com/fwlink/?linkid=852118",
+	"keyboardShortcutsUrlLinux": "https://go.microsoft.com/fwlink/?linkid=832144",

@@ -13,5 +13,8 @@
 		Visual Studio Code - Open Source
 	</longdescription>
 	<use>
+		<flag name="builtin-extensions">Download and install builtin extensions from Visual Studio Marketplace</flag>
+		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
+		<flag name="substitute-urls">Even though telemetry is disabled by default in this ebuild, one might want to replace telemetry reporting urls with 0.0.0.0</flag>
 	</use>
 </pkgmetadata>
