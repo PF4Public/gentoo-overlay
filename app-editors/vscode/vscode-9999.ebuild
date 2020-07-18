@@ -4295,13 +4295,10 @@ src_install() {
 
 	insinto /usr/share/
 	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion zsh
+	doins -r applications bash-completion pixmaps zsh
 
 	insinto /usr/share/metainfo/
 	doins appdata/*
-
-	insinto /usr/share/icons/hicolor/1024x1024/apps/
-	doins pixmaps/*
 
 	popd > /dev/null || die
 }
