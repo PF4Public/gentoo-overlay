@@ -2188,8 +2188,19 @@ src_prepare() {
 
 src_configure() {
 
+	local myarch="$(tc-arch)"
+
+	if [[ $myarch = amd64 ]] ; then
+		VSCODE_ARCH="x64"
+	elif [[ $myarch = x86 ]] ; then
+		VSCODE_ARCH="ia32"
+	else
+		die "Failed to determine target arch, got '$myarch'."
+	fi
+
 	ebegin "Installing node_modules"
 #	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+	OLD_PATH=$PATH
 	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
@@ -2201,13 +2212,16 @@ src_configure() {
 	fi
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
+		--arch=${VSCODE_ARCH} --no-progress || die
 #--ignore-optional
 #--ignore-engines
 #--production=true
 #--no-progress
 #--skip-integrity-check
 #--verbose
+
+	export PATH=${OLD_PATH}
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	rm -rf extensions/css-language-features/server/test > /dev/null || die
 
@@ -2226,28 +2240,11 @@ src_compile() {
 	#export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	#export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 
-	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-x64-min || die
-
-# yarn gulp compile-build
-# yarn gulp compile-extensions-build
-
-# yarn gulp minify-vscode
-
-# yarn gulp minify-vscode-reh
-# yarn gulp minify-vscode-reh-web
-# yarn gulp vscode-linux-${BUILDARCH}-min-ci
-# yarn gulp vscode-reh-linux-${BUILDARCH}-min-ci
-# yarn gulp vscode-reh-web-linux-${BUILDARCH}-min-ci
-
-# yarn gulp "vscode-linux-${BUILDARCH}-build-deb"
-# if [[ "$BUILDARCH" == "x64" ]]; then
-# 	yarn gulp "vscode-linux-${BUILDARCH}-build-rpm"
-# fi
-# . ../create_appimage.sh
+	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 }
 
 src_install() {
-	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-x64-prepare-deb || die
+	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
@@ -2258,7 +2255,7 @@ src_install() {
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
-	doexe "${WORKDIR}"/V*/bin/code-oss
+	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
 	if use builtin-extensions
@@ -2278,9 +2275,9 @@ src_install() {
 	insinto "${VSCODE_HOME}"
 	doins -r .build/extensions
 	doins -r "${WORKDIR}"/app/*
-	doins -r "${WORKDIR}"/V*/out
-	doins -r "${WORKDIR}"/V*/resources
-	doins "${WORKDIR}"/V*/*.json
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
+	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
 
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
 
