@@ -1,0 +1,207 @@
+# Copyright 1999-2020 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+# Based on postgresql.eselect
+
+inherit config multilib
+
+DESCRIPTION="Utility to select the default Electron slot"
+VERSION="0.1"
+
+# We do a lot of things in /usr and it's a bit of a pain to write this
+# constantly.
+USR_PATH="${EROOT%/}/usr"
+
+active_slot() {
+    # ${USR_PATH}/bin/electron is a symlink to the active
+    # slot. See if it's there, then find out where it links to.
+	if [[ -h "${USR_PATH}/bin/electron" ]] ; then
+		canonicalise -m "${USR_PATH}/bin/electron" | \
+			sed -re 's#.*-([1-9][0-9.]+)/electron$#\1#'
+	else
+		echo "(none)"
+	fi
+}
+
+lib_dir() {
+	local lib_list=$(list_libdirs)
+	if [[ ${lib_list} =~ .*lib64.* && \
+		-n $(ls -d ${USR_PATH}/lib64/electron-* 2> /dev/null) ]] ; then
+		echo "lib64"
+	elif [[ ${lib_list} =~ .*lib32.* && \
+		-n $(ls -d ${USR_PATH}/lib32/electron-* 2> /dev/null) ]] ; then
+		echo "lib32"
+	elif [[ ${lib_list} =~ .*libx32.* && \
+		-n $(ls -d ${USR_PATH}/libx32/electron-* 2> /dev/null) ]] ; then
+		echo "libx32"
+	else
+		echo "lib"
+	fi
+}
+
+### Get Slots Function ###
+# Find all available slots in the preferred lib_dir() and return them.
+get_slots() {
+	local slot
+	local found_slots
+
+	for slot in $(find "${USR_PATH}/$(lib_dir)/" \
+					   -mindepth 1 -maxdepth 1 -type d -name 'electron-*' | \
+						 sed -re 's#.*-([1-9][0-9.]+)$#\1#' | sort -n)
+	do
+		found_slots+=( ${slot} )
+	done
+
+	echo ${found_slots[@]}
+}
+
+### List Action ###
+describe_list() {
+	echo "List available Electron slots."
+}
+
+do_list() {
+	if $(is_output_mode brief) ; then
+		echo $(get_slots)
+	else
+		write_list_start "Available Electron slots"
+
+		local slot
+		for slot in $(get_slots) ; do
+			case "${slot}" in
+				"$(active_slot)" )
+					write_kv_list_entry \
+						"$(highlight_marker ${slot})";;
+				* )
+					write_kv_list_entry "${slot}";;
+			esac
+		done
+
+		[[ -z "$(get_slots)" ]] && write_warning_msg "No slots available."
+	fi
+}
+
+### Show Action ###
+describe_show() {
+	echo "Show which slot is currently active."
+}
+
+do_show() {
+	echo $(active_slot)
+}
+
+### Set Action ###
+describe_set() {
+	echo "Create symbolic link for Electron."
+}
+
+do_set() {
+	local slot=$1
+
+	if [[ ! -d ${USR_PATH}/$(lib_dir)/electron-${slot} ]] ; then
+		die -q "Not a valid slot."
+	fi
+
+	# If there's an active slot, unset that one first
+	local active_slot=$(active_slot)
+	if [[ "${active_slot}" != "(none)" ]] ; then
+		echo -ne "Unsetting ${active_slot} as default..."
+		do_unset ${active_slot}
+		echo "done."
+	fi
+
+	echo -ne "Setting ${slot} as the default..."
+
+	# Link modules to /usr/lib{,32,64}/
+	local x
+	for x in $(list_libdirs) ; do
+		if [[ -d "${USR_PATH}/${x}/electron-${slot}" ]] ; then
+			ln -sf "${USR_PATH}/${x}/electron-${slot}" "${USR_PATH}/${x}/electron" || \
+				die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot} -> ${USR_PATH}/${x}/electron"
+		fi
+
+	# Link binaries to /usr/bin/
+        ln -sf "${USR_PATH}/${x}/electron-${slot}/electron" "${USR_PATH}/bin/electron" || \
+            die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot}/electron -> ${USR_PATH}/bin/electron"
+	done
+
+	echo "success!"
+}
+
+### Unset Action ###
+describe_unset() {
+	echo "Remove symbolic links."
+}
+
+# Undo everything done by do_set().
+do_unset() {
+	local slot=$1
+	if [[ ${slot} != $(active_slot) ]] ; then
+		echo "Slot already inactive; no work to do."
+		return 0
+	fi
+
+	# Get the file path that the link is pointing to. If it has the string
+	# "postgresql-${slot}" somewhere in it, then it's a link that this module is
+	# handling.
+	is_active_slot_link() {
+		if [[ $(canonicalise -m "$1") == *electron-${slot}* ]] ; then
+			return 0 # yes
+		else
+			return 1 # no
+		fi
+    }
+
+	# Start with some known locations that are, or will contain, symlinks.
+	local paths=(
+		"${USR_PATH}/bin/electron"
+	)
+
+	local lib
+	for lib in $(list_libdirs) ; do
+		# If $libdir is a symlink, it will point to a real lib directory that
+		# will be or has been added in this loop.
+		[[ -h "${USR_PATH}/${lib}" ]] && continue
+
+		# If the $libdir/postgresql symlink exists, then there are certainly
+		# others within that same directory that must be cleaned up.
+		if [[ -h "${USR_PATH}/${lib}/electron" ]] ; then
+			paths+=( "${USR_PATH}/${lib}" )
+		fi
+	done
+
+	local l path
+	for path in "${paths[@]}" ; do
+		# If $path is a link that belongs to the active slot, it can be removed
+		# without invoking find.
+		if [[ -h "${path}" ]] && is_active_slot_link "${path}" ; then
+			rm "${path}" || write_warning_msg "Couldn't remove: ${path}"
+			continue
+		fi
+	done
+}
+
+### Update Action ###
+describe_update() {
+	echo "Refreshes all symbolic links managed by this module"
+}
+
+do_update() {
+	local active_slot=$(active_slot)
+	local slots=($(get_slots))
+
+	if [[ ${slots[@]} =~ ${active_slot} ]] ; then
+		# If active_slot is in the slots list, set it again as the installation
+		# may have changed.
+		do_set ${active_slot}
+	elif [[ ${#slots[@]} -ne 0 ]] ; then
+		# If $slots is not empty and active_slot is not in the list, set the
+		# highest slot available.
+		do_set ${slots[-1]}
+	elif [[ ${active_slot} != "(none)" ]] ; then
+		# If slots is empty, but active_slot still has a value, an unset must
+		# happen as the links are now pointing to nothing.
+		do_unset ${active_slot}
+	else
+		echo "Apparently, I have nothing to do."
+	fi
+}
