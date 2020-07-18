@@ -4273,13 +4273,12 @@ src_install() {
 	if use builtin-extensions
 	then
 	einfo "Installing builtin extensions"
-	mkdir
 	pushd "${T}" > /dev/null || die
 	for ext in "${!builtin_exts[@]}";
 	do
 		cp "${DISTDIR}/ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" "${T}" || die
 		gunzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" || die
-		unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* || die
+		unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* > /dev/null || die
 		mv extension "${S}/.build/extensions/ms-vscode.${ext}" || die
 	done
 	popd > /dev/null || die
