@@ -2075,7 +2075,7 @@ SRC_URI+="
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="badge-providers builtin-extensions insiders liveshare openvsx substitute-urls"
+IUSE="badge-providers build-online builtin-extensions insiders liveshare openvsx substitute-urls"
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -2187,16 +2187,21 @@ src_prepare() {
 }
 
 src_configure() {
+
 	ebegin "Installing node_modules"
 #	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 #	echo "$PATH"
-	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	if ! use build-online
+	then
+		ONLINE_OFFLINE="--offline"
+		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	fi
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	yarn install --frozen-lockfile --offline --no-progress || die
+	yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 #--ignore-optional
 #--ignore-engines
 #--production=true
