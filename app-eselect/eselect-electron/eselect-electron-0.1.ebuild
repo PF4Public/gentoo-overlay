@@ -12,6 +12,8 @@ KEYWORDS="amd64 x86"
 
 RDEPEND="app-admin/eselect"
 
+S=${FILESDIR}
+
 src_install() {
 	insinto /usr/share/eselect/modules
 	doins "${FILESDIR}"/electron.eselect
