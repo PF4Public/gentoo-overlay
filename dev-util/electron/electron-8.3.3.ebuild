@@ -1128,7 +1128,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="${PV}"
-#KEYWORDS="amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1141,6 +1141,7 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
+	app-eselect/eselect-electron
 	>=app-accessibility/at-spi2-atk-2.26:2
 	app-arch/bzip2:=
 	cups? ( >=net-print/cups-1.3.11:= )
@@ -1957,13 +1958,10 @@ src_install() {
 
 }
 
-pkg_postrm() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
+pkg_postinst() {
+	electron-config update
 }
 
-pkg_postinst() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
-	readme.gentoo_print_elog
+pkg_postrm() {
+	electron-config update
 }
