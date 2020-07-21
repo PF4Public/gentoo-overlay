@@ -23,7 +23,7 @@
 		<flag name="cfi">Build with CFI (Control Flow Integrity) enabled.</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
 		<flag name="closure-compile">Enable closure type-checking for Chrome's web technology-based UI. Requires Java and bundled binary compiler.jar in sources tree.</flag>
-		<flag name="convert-dict">Patch and build the convert_dict utility. The script will be installed into /usr/lib64/chromium-browser/ungoogled-chromium-update-dicts.sh. More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
+		<flag name="convert-dict">Patch and build the convert_dict utility. The script will be installed into /usr/lib64/chromium-browser/update-dicts.sh. More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="headless">Build Ozone only with headless backend, NOT RECOMMENDED for general uses</flag>
