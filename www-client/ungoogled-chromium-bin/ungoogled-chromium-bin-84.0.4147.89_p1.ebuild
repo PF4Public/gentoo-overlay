@@ -39,7 +39,7 @@ RESTRICT="mirror"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="convert-dict core2 +generic haswell suid widevine"
+IUSE="convert-dict core2 +generic haswell widevine"
 
 REQUIRED_USE="
 	|| ( core2 generic haswell )
@@ -145,7 +145,7 @@ src_install() {
 	doexe ./usr/lib64/chromium-browser/chrome
 
 	if use convert-dict; then
-		newexe "./usr/lib64/chromium-browser/ungoogled-chromium-update-dicts.sh" ungoogled-chromium-update-dicts.sh
+		newexe "./usr/lib64/chromium-browser/update-dicts.sh" update-dicts.sh
 		doexe ./usr/lib64/chromium-browser/convert_dict
 	fi
 

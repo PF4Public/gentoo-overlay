@@ -20,25 +20,10 @@
 		Chromium.
 	</longdescription>
 	<use>
-		<flag name="haswell">
-			Pull in a binary, built for haswell.
-		</flag>
-		<flag name="convert-dict">
-			Install also the convert_dict utility. The script will be installed into /opt/chromium-browser/ungoogled-chromium-update-dicts.sh
-			More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907
-		</flag>
-		<flag name="core2">
-			Pull in a binary, built for core2.
-		</flag>
-		<flag name="generic">
-			Pull in a binary, built for a generic x86-64.
-		</flag>
-		<flag name="widevine">
-			Unsupported closed-source DRM capability (required by Netflix VOD).
-		</flag>
-		<flag name="suid">
-			Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n
-			kernels.
-		</flag>
+		<flag name="haswell">Pull in a binary, built for haswell</flag>
+		<flag name="convert-dict">Install also the convert_dict utility. The script will be installed into /opt/chromium-browser/update-dicts.sh More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
+		<flag name="core2">Pull in a binary, built for core2</flag>
+		<flag name="generic">Pull in a binary, built for a generic x86-64</flag>
+		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
 	</use>
 </pkgmetadata>
