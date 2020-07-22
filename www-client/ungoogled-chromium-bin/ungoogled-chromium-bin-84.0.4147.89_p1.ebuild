@@ -132,10 +132,6 @@ GTK+ icon theme.
 For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
-pkg_setup() {
-	chromium_suid_sandbox_check_kernel_config
-}
-
 QA_PREBUILT="*"
 S="${WORKDIR}"
 
@@ -147,11 +143,6 @@ src_install() {
 	if use convert-dict; then
 		newexe "./usr/lib64/chromium-browser/update-dicts.sh" update-dicts.sh
 		doexe ./usr/lib64/chromium-browser/convert_dict
-	fi
-
-	if use suid; then
-		newexe chrome_sandbox ./usr/lib64/chromium-browser/chrome-sandbox
-		fperms 4755 "${CHROMIUM_HOME}/chrome-sandbox"
 	fi
 
 	if use widevine; then
