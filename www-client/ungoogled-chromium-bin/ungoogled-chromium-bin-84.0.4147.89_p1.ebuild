@@ -93,11 +93,11 @@ CDEPEND="
 	media-libs/opus:=
 	media-libs/freetype:=
 	>=media-libs/harfbuzz-2.0.0:0=[icu(-)]
-	>=dev-libs/icu-58.2:=
+	=dev-libs/icu-67*:0
 	dev-libs/jsoncpp
 	dev-libs/libevent
-	>=media-libs/libvpx-1.7.0:=[postproc,svc]
-	>=media-libs/openh264-1.6.0:=
+	>=media-libs/libvpx-1.7.0:0/5[postproc,svc]
+	>=media-libs/openh264-1.6.0:0/0
 	media-libs/openjpeg:2=
 	x11-libs/libva:=
 "
