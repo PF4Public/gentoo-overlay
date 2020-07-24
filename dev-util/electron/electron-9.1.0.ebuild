@@ -11,7 +11,7 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 
 inherit check-reqs chromium-2 flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs
 
-CHROMIUM_VERSION="83.0.4103.116"
+CHROMIUM_VERSION="83.0.4103.119"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="12.14.1"
 NODE_P="node-v${NODE_VERSION}"
