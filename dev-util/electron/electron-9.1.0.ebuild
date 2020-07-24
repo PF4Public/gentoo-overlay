@@ -1398,8 +1398,7 @@ src_prepare() {
 		einfo "Applying patches from ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			#if [ "$i" = "fsevents-stop-using-fsevents-to-watch-files.patch" ] ||
-			#	[ "$i" = "fsevents-regression-in-watching.patch" ]; then continue; fi
+			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ]; then continue; fi
 			pushd ${patches[$patch_folder]} > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die
