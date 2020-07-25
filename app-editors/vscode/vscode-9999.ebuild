@@ -2296,7 +2296,7 @@ src_compile() {
 }
 
 src_install() {
-	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	if use ignore-gpu-blacklist
