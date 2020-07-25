@@ -1,0 +1,30 @@
+From 907b74447f4a35d5a8e851c73c15cc951a2e446b Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Fri, 20 Mar 2020 09:14:25 +0000
+Subject: [PATCH] Disable various compiler configs
+##Excerpt from this patch actually
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 9573394..d35e736 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1559,7 +1549,7 @@ config("chromium_code") {
+       defines = [ "_HAS_NODISCARD" ]
+     }
+   } else {
+-    cflags = [ "-Wall" ]
++    cflags = []
+     if (treat_warnings_as_errors) {
+       cflags += [ "-Werror" ]
+
+@@ -1568,10 +1558,6 @@ config("chromium_code") {
+       # well.
+       ldflags = [ "-Werror" ]
+     }
+-    if (is_clang) {
+-      # Enable extra warnings for chromium_code when we control the compiler.
+-      cflags += [ "-Wextra" ]
+-    }
+
+     # In Chromium code, we define __STDC_foo_MACROS in order to get the
+     # C99 macros on Mac and Linux.

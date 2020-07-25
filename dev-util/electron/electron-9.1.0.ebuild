@@ -1356,7 +1356,11 @@ src_prepare() {
 	ln -s "${WORKDIR}/${P}" electron || die
 	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
-	use custom-cflags && eapply "${FILESDIR}/chromium-compiler-r12.patch"
+	if use custom-cflags; then
+		eapply "${FILESDIR}/chromium-compiler-r12.patch"
+	else
+		eapply "${FILESDIR}/wall-wextra.patch"
+	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
@@ -1398,8 +1402,12 @@ src_prepare() {
 		einfo "Applying patches from ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ]; then continue; fi
-			pushd ${patches[$patch_folder]} > /dev/null || die
+			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ] || \
+			[ "$i" = "crash_allow_setting_more_options.patch" ] || \
+			[ "$i" = "breakpad_treat_node_processes_as_browser_processes.patch" ] || \
+			[ "$i" = "breakpad_disable_upload_compression.patch" ] || \
+			[ "$i" = "add_trustedauthclient_to_urlloaderfactory.patch" ]; then continue; fi
+			pushd "${patches[$patch_folder]}" > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die
 		done
