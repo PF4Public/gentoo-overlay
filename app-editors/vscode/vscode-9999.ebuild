@@ -2125,7 +2125,7 @@ SRC_URI+="
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="badge-providers build-online builtin-extensions insiders liveshare openvsx substitute-urls"
+IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -2157,7 +2157,7 @@ src_unpack() {
 src_prepare() {
 	default
 
-	einfo "Removing vscode-ripgrep, playwright, vscode-telemetry-extractor"
+	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/vscode-ripgrep/d' package.json || die
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -2166,6 +2166,7 @@ src_prepare() {
 	#einfo "Creating yarn_cache"
 	#mkdir -p ${T}/yarn_cache || die
 	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
+	sed -i '/typescript-web-server/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
@@ -2254,6 +2255,7 @@ src_configure() {
 	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 #	echo "$PATH"
 	if ! use build-online
 	then
@@ -2275,7 +2277,7 @@ src_configure() {
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	rm -rf extensions/css-language-features/server/test > /dev/null || die
 
-	einfo "Restoring vscode-ripgrep in vscode"
+	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
 	tar -xf "${DISTDIR}/vscode-ripgrep-1.8.0.tgz"
 	mv package vscode-ripgrep
@@ -2297,6 +2299,11 @@ src_install() {
 	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
+	if use ignore-gpu-blacklist
+	then
+		IGNORE_BLACKLIST="--ignore-gpu-blacklist"
+	fi
+
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
@@ -2304,7 +2311,7 @@ src_install() {
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
+	\"\${ELECTRON_PATH}/electron\" ${IGNORE_BLACKLIST} \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
