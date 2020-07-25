@@ -1356,7 +1356,8 @@ src_prepare() {
 	ln -s "${WORKDIR}/${P}" electron || die
 	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
-	if use custom-cflags; then
+	if use custom-cflags
+	then
 		eapply "${FILESDIR}/chromium-compiler-r12.patch"
 	else
 		eapply "${FILESDIR}/wall-wextra.patch"
@@ -1402,11 +1403,7 @@ src_prepare() {
 		einfo "Applying patches from ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ] || \
-			[ "$i" = "crash_allow_setting_more_options.patch" ] || \
-			[ "$i" = "breakpad_treat_node_processes_as_browser_processes.patch" ] || \
-			[ "$i" = "breakpad_disable_upload_compression.patch" ] || \
-			[ "$i" = "add_trustedauthclient_to_urlloaderfactory.patch" ]; then continue; fi
+			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ]; then continue; fi
 			pushd "${patches[$patch_folder]}" > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die
@@ -1775,7 +1772,7 @@ src_configure() {
 	myconf_gn+=" enable_one_click_signin=false"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
-	myconf_gn+=" enable_reporting=false"
+	#myconf_gn+=" enable_reporting=false"
 	myconf_gn+=" enable_service_discovery=false"
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" use_official_google_api_keys=false"
