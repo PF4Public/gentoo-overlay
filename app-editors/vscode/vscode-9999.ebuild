@@ -2311,7 +2311,7 @@ src_install() {
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" ${IGNORE_BLACKLIST} \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
+	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" ${IGNORE_BLACKLIST} \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
