@@ -1159,7 +1159,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1356,12 +1356,7 @@ src_prepare() {
 	ln -s "${WORKDIR}/${P}" electron || die
 	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
-	if use custom-cflags
-	then
-		eapply "${FILESDIR}/chromium-compiler-r12.patch"
-	else
-		eapply "${FILESDIR}/wall-wextra.patch"
-	fi
+	use custom-cflags && eapply "${FILESDIR}/chromium-compiler-r12.patch"
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
