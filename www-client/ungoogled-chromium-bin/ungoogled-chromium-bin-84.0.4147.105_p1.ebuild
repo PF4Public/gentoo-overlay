@@ -48,58 +48,58 @@ REQUIRED_USE="
 
 CDEPEND="
 	>=app-accessibility/at-spi2-atk-2.26:2
-	app-arch/snappy:=
+	app-arch/snappy
 	>=dev-libs/atk-2.26
-	dev-libs/expat:=
+	dev-libs/expat
 	dev-libs/glib:2
-	>=dev-libs/libxml2-2.9.4-r3:=[icu]
-	dev-libs/libxslt:=
-	dev-libs/nspr:=
-	>=dev-libs/nss-3.26:=
-	>=dev-libs/re2-0.2018.10.01:=
-	>=media-libs/alsa-lib-1.0.19:=
-	media-libs/flac:=
-	media-libs/fontconfig:=
-	media-libs/libjpeg-turbo:=
-	media-libs/libpng:=
-	>=media-libs/libwebp-0.4.0:=
-	sys-apps/dbus:=
-	sys-apps/pciutils:=
-	sys-libs/zlib:=[minizip]
+	>=dev-libs/libxml2-2.9.4-r3[icu]
+	dev-libs/libxslt
+	dev-libs/nspr
+	>=dev-libs/nss-3.26
+	>=dev-libs/re2-0.2018.10.01
+	>=media-libs/alsa-lib-1.0.19
+	media-libs/flac
+	media-libs/fontconfig
+	media-libs/libjpeg-turbo
+	media-libs/libpng
+	>=media-libs/libwebp-0.4.0
+	sys-apps/dbus
+	sys-apps/pciutils
+	sys-libs/zlib[minizip]
 	virtual/udev
-	x11-libs/cairo:=
+	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3[X]
-	x11-libs/libX11:=
-	x11-libs/libXcomposite:=
-	x11-libs/libXcursor:=
-	x11-libs/libXdamage:=
-	x11-libs/libXext:=
-	x11-libs/libXfixes:=
-	>=x11-libs/libXi-1.6.0:=
-	x11-libs/libXrandr:=
-	x11-libs/libXrender:=
-	x11-libs/libXScrnSaver:=
-	x11-libs/libXtst:=
-	x11-libs/pango:=
-	>=net-print/cups-1.3.11:=
-	media-libs/lcms:=
-	media-sound/pulseaudio:=
-	>=media-video/ffmpeg-3.4.5:=
+	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXcursor
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	>=x11-libs/libXi-1.6.0
+	x11-libs/libXrandr
+	x11-libs/libXrender
+	x11-libs/libXScrnSaver
+	x11-libs/libXtst
+	x11-libs/pango
+	>=net-print/cups-1.3.11
+	media-libs/lcms
+	media-sound/pulseaudio
+	>=media-video/ffmpeg-3.4.5
 	|| (
 		media-video/ffmpeg[-samba]
 		>=net-fs/samba-4.5.16[-debug(-)]
 	)
-	media-libs/opus:=
-	media-libs/freetype:=
-	>=media-libs/harfbuzz-2.0.0:0=[icu(-)]
+	media-libs/opus
+	media-libs/freetype
+	media-libs/harfbuzz:0[icu(-)]
 	=dev-libs/icu-67*:0
 	dev-libs/jsoncpp
 	dev-libs/libevent
-	>=media-libs/libvpx-1.7.0:0/5[postproc,svc]
-	>=media-libs/openh264-1.6.0:0/0
-	media-libs/openjpeg:2=
-	x11-libs/libva:=
+	media-libs/libvpx:0/5[postproc,svc]
+	media-libs/openh264:0/6
+	media-libs/openjpeg:2/7
+	x11-libs/libva:0/2
 "
 RDEPEND="${CDEPEND}
 	virtual/opengl
