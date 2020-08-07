@@ -2228,7 +2228,12 @@ src_prepare() {
 	then
 	    echo "\"commit\":\"$(git rev-parse HEAD)\"," >> product.json
 	else
-	    echo "\"commit\":\"${PV}\"," >> product.json
+		if [ -z "$CODE_COMMIT_ID" ]
+		then
+			echo "\"commit\":\"${PV}\"," >> product.json
+		else
+			echo "\"commit\":\"${CODE_COMMIT_ID}\"," >> product.json
+		fi
 	fi
 	cat product.json.bak >> product.json
 
