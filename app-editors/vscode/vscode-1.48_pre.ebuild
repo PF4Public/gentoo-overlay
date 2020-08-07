@@ -211,7 +211,6 @@ SRC_URI+="
 	https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.1.tgz
 	https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz
 	https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz
-	https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz
 	https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz
 	https://registry.yarnpkg.com/boolean/-/boolean-3.0.0.tgz
 	https://registry.yarnpkg.com/boom/-/boom-2.10.1.tgz
@@ -479,12 +478,11 @@ SRC_URI+="
 	https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.0.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.2.tgz
-	https://registry.yarnpkg.com/electron/-/electron-7.3.2.tgz
+	https://registry.yarnpkg.com/electron/-/electron-9.1.0.tgz
 	https://registry.yarnpkg.com/@electron/get/-/get-1.7.2.tgz -> @electron-get-1.7.2.tgz
 	https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.16.tgz
 	https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.27.tgz
 	https://registry.yarnpkg.com/elliptic/-/elliptic-6.4.0.tgz
-	https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.3.tgz
 	https://registry.yarnpkg.com/emitter-component/-/emitter-component-1.1.1.tgz
 	https://registry.yarnpkg.com/emitter-listener/-/emitter-listener-1.1.2.tgz
 	https://registry.yarnpkg.com/@emmetio/extract-abbreviation/-/extract-abbreviation-0.2.0.tgz -> @emmetio-extract-abbreviation-0.2.0.tgz
@@ -784,8 +782,8 @@ SRC_URI+="
 	https://registry.yarnpkg.com/has/-/has-1.0.3.tgz
 	https://registry.yarnpkg.com/hash-base/-/hash-base-2.0.2.tgz
 	https://registry.yarnpkg.com/hash-base/-/hash-base-3.0.4.tgz
+	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.3.tgz
 	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.5.tgz
-	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.7.tgz
 	https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.0.0.tgz
 	https://registry.yarnpkg.com/has-unicode/-/has-unicode-2.0.1.tgz
 	https://registry.yarnpkg.com/has-value/-/has-value-0.3.1.tgz
@@ -1128,6 +1126,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-1.0.1.tgz
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.0.0.tgz
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.1.0.tgz
+	https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.0.tgz
 	https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz
 	https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz
 	https://registry.yarnpkg.com/minimatch/-/minimatch-0.3.0.tgz
@@ -1974,14 +1973,14 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz
 	https://registry.yarnpkg.com/vsce/-/vsce-1.48.0.tgz
-	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.1.tgz
+	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.0.tgz
 	https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.41.0.tgz
 	https://registry.yarnpkg.com/vscode-emmet-helper2/-/vscode-emmet-helper2-2.0.0-next.0.tgz
 	https://registry.yarnpkg.com/vscode-extension-telemetry/-/vscode-extension-telemetry-0.1.1.tgz
 	https://registry.yarnpkg.com/vscode-gulp-watch/-/vscode-gulp-watch-5.0.2.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-3.0.3.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-3.1.0.tgz
-	https://registry.yarnpkg.com/vscode-json-languageservice/-/vscode-json-languageservice-3.8.0.tgz
+	https://registry.yarnpkg.com/vscode-json-languageservice/-/vscode-json-languageservice-3.7.0.tgz
 	https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-6.0.0-next.2.tgz
 	https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-7.0.0-next.5.1.tgz
 	https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.16.0-next.4.tgz
