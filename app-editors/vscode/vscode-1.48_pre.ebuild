@@ -2224,8 +2224,11 @@ src_prepare() {
 		cat "${FILESDIR}/badge_prov.json" >> product.json
 	fi
 
-	if [ -d ".git" ]; then
+	if [ -d ".git" ]
+	then
 	    echo "\"commit\":\"$(git rev-parse HEAD)\"," >> product.json
+	else
+	    echo "\"commit\":\"${PV}\"," >> product.json
 	fi
 	cat product.json.bak >> product.json
 
