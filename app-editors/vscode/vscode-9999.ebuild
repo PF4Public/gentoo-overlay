@@ -2197,6 +2197,9 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
 
+	einfo "Editing build/lib/util.js"
+	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
@@ -2225,17 +2228,6 @@ src_prepare() {
 		cat "${FILESDIR}/badge_prov.json" >> product.json
 	fi
 
-	if [ -d ".git" ]
-	then
-	    echo "\"commit\":\"$(git rev-parse HEAD)\"," >> product.json
-	else
-		if [ -z "$CODE_COMMIT_ID" ]
-		then
-			echo "\"commit\":\"${PV}\"," >> product.json
-		else
-			echo "\"commit\":\"${CODE_COMMIT_ID}\"," >> product.json
-		fi
-	fi
 	cat product.json.bak >> product.json
 
 	einfo "Disabling telemetry by default"
@@ -2307,6 +2299,19 @@ src_configure() {
 }
 
 src_compile() {
+
+	if [ -d ".git" ]
+	then
+	    COMMIT_ID="$(git rev-parse HEAD)"
+	else
+		if [ -z "$CODE_COMMIT_ID" ]
+		then
+			COMMIT_ID="${PV}"
+		else
+			COMMIT_ID="${CODE_COMMIT_ID}"
+		fi
+	fi
+	export BUILD_SOURCEVERSION="${COMMIT_ID}"
 	#export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
 	#export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	#export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
