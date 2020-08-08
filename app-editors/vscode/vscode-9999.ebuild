@@ -2201,7 +2201,7 @@ src_prepare() {
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
 
 	einfo "Editing .yarnrc"
-	sed -i "s/.*target.*/ target \"${ELECTRON_SLOT}\"/" .yarnrc || die
+	sed -i "s/target.*/target \"${ELECTRON_SLOT}\"/" .yarnrc || die
 
 	einfo "Editing product.json"
 
