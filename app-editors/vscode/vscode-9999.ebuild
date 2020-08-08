@@ -29,13 +29,13 @@ fi
 ELECTRON_SLOT="9.1.0"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.7"
+	["node-debug"]="1.44.8"
 	["node-debug2"]="1.42.5"
 	["references-view"]="0.0.61"
 	["js-debug-companion"]="1.0.2"
-	["js-debug"]="1.48.0"
+	["js-debug"]="1.48.1"
 	["vscode-js-profile-table"]="0.0.6"
-	["github-browser"]="0.0.1"
+	["github-browser"]="0.0.2"
 )
 SRC_URI="${DOWNLOAD}
 builtin-extensions? ("
@@ -1810,7 +1810,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz
-	https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-dev.20200729.tgz
+	https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-dev.20200803.tgz
 	https://registry.yarnpkg.com/typescript-vscode-sh-plugin/-/typescript-vscode-sh-plugin-0.6.14.tgz
 	https://registry.yarnpkg.com/@types/debounce/-/debounce-1.0.0.tgz -> @types-debounce-1.0.0.tgz
 	https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz -> @types-debug-4.1.5.tgz
@@ -2127,6 +2127,8 @@ SRC_URI+="
 	https://codeload.github.com/mjbvz/ts-server-web-build/tar.gz/1d85be25043f9b5e36a531941ea345dd5a2ca007
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
+
+	${REPO}/commit/227d533937b17f54bae09f94083bf6304e6262e1.patch -> ${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch
 "
 
 LICENSE="MIT"
@@ -2200,8 +2202,8 @@ src_prepare() {
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
 
-	einfo "Editing .yarnrc"
-	sed -i "s/target.*/target \"${ELECTRON_SLOT}\"/" .yarnrc || die
+	einfo "Recovering 9.1.0 support"
+	patch -Rup1 -i "${DISTDIR}/${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch" || die
 
 	einfo "Editing product.json"
 
