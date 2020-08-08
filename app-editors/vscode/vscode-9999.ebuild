@@ -479,7 +479,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.0.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.2.tgz
-	https://registry.yarnpkg.com/electron/-/electron-7.3.2.tgz
+	https://registry.yarnpkg.com/electron/-/electron-9.1.0.tgz
 	https://registry.yarnpkg.com/@electron/get/-/get-1.7.2.tgz -> @electron-get-1.7.2.tgz
 	https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.16.tgz
 	https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.27.tgz
