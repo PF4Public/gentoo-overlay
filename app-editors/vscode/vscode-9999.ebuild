@@ -1809,8 +1809,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/typescript/-/typescript-3.7.4.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz
-	https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz
-	https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-dev.20200803.tgz
+	https://registry.yarnpkg.com/typescript/-/typescript-4.0.1-rc.tgz
 	https://registry.yarnpkg.com/typescript-vscode-sh-plugin/-/typescript-vscode-sh-plugin-0.6.14.tgz
 	https://registry.yarnpkg.com/@types/debounce/-/debounce-1.0.0.tgz -> @types-debounce-1.0.0.tgz
 	https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz -> @types-debug-4.1.5.tgz
