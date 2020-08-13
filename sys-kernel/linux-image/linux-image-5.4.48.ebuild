@@ -16,6 +16,8 @@ KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86"
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
 
+REQUIRED_USE="savedconfig"
+
 BDEPEND="~sys-kernel/gentoo-sources-${PVR}"
 
 #TODO restrict bindists maybe
