@@ -1138,15 +1138,15 @@ SRC_URI="
 #UGC_PV="${PV/_p/-}"
 #UGC_P="${PN}-${UGC_PV}"
 #UGC_URL="https://github.com/Eloston/${PN}/archive/"
-#UGC_COMMIT_ID="058925cdb9b8391c0bfab250ac031cb9aaf3c614"
+##UGC_COMMIT_ID="058925cdb9b8391c0bfab250ac031cb9aaf3c614"
 
-#if [ -z "$UGC_COMMIT_ID" ]
+#if [ -z "$#UGC_COMMIT_ID" ]
 #then
 #	UGC_URL="${UGC_URL}${UGC_PV}.tar.gz -> ${UGC_P}.tar.gz"
 #	UGC_WD="${WORKDIR}/${UGC_P}"
 #else
-#	UGC_URL="${UGC_URL}${UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
-#	UGC_WD="${WORKDIR}/ungoogled-chromium-${UGC_COMMIT_ID}"
+#	UGC_URL="${UGC_URL}${#UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
+#	UGC_WD="${WORKDIR}/ungoogled-chromium-${#UGC_COMMIT_ID}"
 #fi
 
 #DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
@@ -1159,7 +1159,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
