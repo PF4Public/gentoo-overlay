@@ -7,7 +7,4 @@
 	<longdescription>
 		linux-image ebuild is used to build linux kernel image using savedconfig
 	</longdescription>
-	<use>
-		<flag name="initramfs">Build also initramfs</flag>
-	</use>
 </pkgmetadata>
