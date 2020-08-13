@@ -1345,6 +1345,10 @@ src_unpack() {
 	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	eapply "${FILESDIR}/openssl_fips.patch" || die
 	popd > /dev/null || die
+
+	pushd "${WORKDIR}/${P}" > /dev/null || die
+	eapply "${FILESDIR}/fix-backport_1042986.patch" || die
+	popd > /dev/null || die
 }
 
 src_prepare() {

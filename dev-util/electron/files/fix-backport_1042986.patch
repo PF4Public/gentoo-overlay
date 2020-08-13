@@ -1,0 +1,38 @@
+diff --git a/patches/chromium/backport_1042986.patch b/patches/chromium/backport_1042986.patch
+index 414e0402b..bec833550 100644
+--- a/patches/chromium/backport_1042986.patch
++++ b/patches/chromium/backport_1042986.patch
+@@ -159,33 +159,6 @@ index 0a8a18d178ded19600c33ca086d1c79fe30fa717..daffcb50bd9588e7b03d12cd245b6f8a
+  }
+
+  // Regression test for https://crbug.com/996044
+-diff --git a/content/test/data/scrollable_page_with_content.html b/content/test/data/scrollable_page_with_content.html
+-index c37d095d22231d12faa19985e8e98b3f9368fab1..1ef150d3a4289caef3a883c92feb79216f77f457 100644
+---- a/content/test/data/scrollable_page_with_content.html
+-+++ b/content/test/data/scrollable_page_with_content.html
+-@@ -1,6 +1,12 @@
+- <html>
+-   <head>
+-     <meta name="viewport" content="width=device-width, minimum-scale=1.0">
+-+    <script>
+-+      let did_scroll = false;
+-+      window.addEventListener('scroll', () => {
+-+        did_scroll = true;
+-+      });
+-+    </script>
+-     <style>
+-       p {
+-         position: absolute;
+-diff --git a/content/test/data/target_text_link.html b/content/test/data/target_text_link.html
+-index 00f40bf042aed3476f07a9cc0575159c52cba9f2..ade7e42029f40b213c9110dd88ac270edb8d26f3 100644
+---- a/content/test/data/target_text_link.html
+-+++ b/content/test/data/target_text_link.html
+-@@ -5,4 +5,4 @@
+-   <body>
+-     <a id="link" href="/scrollable_page_with_content.html#:~:text=text">link</a>
+-   </body>
+--</html>>
+-+</html>
+ diff --git a/third_party/blink/renderer/core/loader/document_loader.h b/third_party/blink/renderer/core/loader/document_loader.h
+ index 31fc5754a02318ab5eb7b239cea1530baf80ecba..cbf0e87fd81e48f77dac052a7f5992cf0dbaa2e0 100644
+ --- a/third_party/blink/renderer/core/loader/document_loader.h
