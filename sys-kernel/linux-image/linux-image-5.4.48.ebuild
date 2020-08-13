@@ -21,15 +21,13 @@ BDEPEND="~sys-kernel/gentoo-sources-${PVR}"
 #TODO restrict bindists maybe
 RESTRICT="strip"
 
-#TODO initramfs?
-
 src_unpack()
 {
-	cp -r "/usr/src/linux-${PVR}-gentoo" "${WORKDIR}/${P}"
+	cp -r "/usr/src/linux-${PVR}-gentoo" "${WORKDIR}/${P}" || die
 }
 
 pkg_postinst() {
-	default
+	kernel-install_pkg_postinst
 	elog "Don't forget to update grub configuration using"
 	elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
 	elog "and inspect newly created config in /boot"
