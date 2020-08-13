@@ -1348,6 +1348,7 @@ src_unpack() {
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	eapply "${FILESDIR}/fix-backport_1042986.patch" || die
+	eapply "${FILESDIR}/fix-a11y_axplatformnodebase.patch" || die
 	popd > /dev/null || die
 }
 
