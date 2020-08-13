@@ -29,9 +29,9 @@ fi
 ELECTRON_SLOT="9.1.0"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.8"
+	["node-debug"]="1.44.9"
 	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.61"
+	["references-view"]="0.0.62"
 	["js-debug-companion"]="1.0.2"
 	["js-debug"]="1.48.1"
 	["vscode-js-profile-table"]="0.0.6"
@@ -479,7 +479,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.0.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.2.tgz
-	https://registry.yarnpkg.com/electron/-/electron-9.1.0.tgz
+	https://registry.yarnpkg.com/electron/-/electron-9.2.0.tgz
 	https://registry.yarnpkg.com/@electron/get/-/get-1.7.2.tgz -> @electron-get-1.7.2.tgz
 	https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.16.tgz
 	https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.27.tgz
@@ -2126,8 +2126,6 @@ SRC_URI+="
 	https://codeload.github.com/mjbvz/ts-server-web-build/tar.gz/1d85be25043f9b5e36a531941ea345dd5a2ca007
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
-
-	${REPO}/commit/227d533937b17f54bae09f94083bf6304e6262e1.patch -> ${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch
 "
 
 LICENSE="MIT"
@@ -2200,9 +2198,6 @@ src_prepare() {
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
-
-	einfo "Recovering 9.1.0 support"
-	patch -Rup1 -i "${DISTDIR}/${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch" || die
 
 	einfo "Editing product.json"
 
