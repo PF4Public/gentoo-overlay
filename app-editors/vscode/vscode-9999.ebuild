@@ -1809,6 +1809,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/typescript/-/typescript-3.7.4.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz
+	https://registry.yarnpkg.com/typescript/-/typescript-4.0.1-insiders.20200813.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-4.0.1-rc.tgz
 	https://registry.yarnpkg.com/typescript-vscode-sh-plugin/-/typescript-vscode-sh-plugin-0.6.14.tgz
 	https://registry.yarnpkg.com/@types/debounce/-/debounce-1.0.0.tgz -> @types-debounce-1.0.0.tgz
@@ -1975,7 +1976,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vsce/-/vsce-1.48.0.tgz
 	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.1.tgz
 	https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.41.0.tgz
-	https://registry.yarnpkg.com/vscode-emmet-helper2/-/vscode-emmet-helper2-2.0.0-next.0.tgz
+	https://registry.yarnpkg.com/vscode-emmet-helper/-/vscode-emmet-helper-2.0.0.tgz
 	https://registry.yarnpkg.com/vscode-extension-telemetry/-/vscode-extension-telemetry-0.1.1.tgz
 	https://registry.yarnpkg.com/vscode-gulp-watch/-/vscode-gulp-watch-5.0.2.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-3.0.3.tgz
