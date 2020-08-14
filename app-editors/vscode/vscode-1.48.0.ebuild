@@ -2199,9 +2199,6 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
 
-	einfo "Editing build/lib/util.js"
-	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
-
 	einfo "Recovering 9.1.0 support"
 	patch -Rup1 -i "${DISTDIR}/${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch" || die
 
@@ -2301,6 +2298,9 @@ src_configure() {
 	popd > /dev/null || die
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.8.0",/' package.json || die
+
+	einfo "Editing build/lib/util.js"
+	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
 }
 
 src_compile() {
