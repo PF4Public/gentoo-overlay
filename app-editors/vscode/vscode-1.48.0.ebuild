@@ -8,14 +8,14 @@ PYTHON_COMPAT=( python2_7 )
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
 REPO="https://github.com/microsoft/vscode"
-CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
+# CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 else
-	KEYWORDS="amd64 ~x86"
+	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
 	then
@@ -29,13 +29,13 @@ fi
 ELECTRON_SLOT="9.1.0"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.7"
+	["node-debug"]="1.44.8"
 	["node-debug2"]="1.42.5"
 	["references-view"]="0.0.61"
 	["js-debug-companion"]="1.0.2"
-	["js-debug"]="1.48.0"
+	["js-debug"]="1.48.1"
 	["vscode-js-profile-table"]="0.0.6"
-	["github-browser"]="0.0.1"
+	["github-browser"]="0.0.2"
 )
 SRC_URI="${DOWNLOAD}
 builtin-extensions? ("
@@ -211,6 +211,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.1.tgz
 	https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz
 	https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz
+	https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz
 	https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz
 	https://registry.yarnpkg.com/boolean/-/boolean-3.0.0.tgz
 	https://registry.yarnpkg.com/boom/-/boom-2.10.1.tgz
@@ -483,6 +484,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.16.tgz
 	https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.27.tgz
 	https://registry.yarnpkg.com/elliptic/-/elliptic-6.4.0.tgz
+	https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.3.tgz
 	https://registry.yarnpkg.com/emitter-component/-/emitter-component-1.1.1.tgz
 	https://registry.yarnpkg.com/emitter-listener/-/emitter-listener-1.1.2.tgz
 	https://registry.yarnpkg.com/@emmetio/extract-abbreviation/-/extract-abbreviation-0.2.0.tgz -> @emmetio-extract-abbreviation-0.2.0.tgz
@@ -782,8 +784,8 @@ SRC_URI+="
 	https://registry.yarnpkg.com/has/-/has-1.0.3.tgz
 	https://registry.yarnpkg.com/hash-base/-/hash-base-2.0.2.tgz
 	https://registry.yarnpkg.com/hash-base/-/hash-base-3.0.4.tgz
-	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.3.tgz
 	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.5.tgz
+	https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.7.tgz
 	https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.0.0.tgz
 	https://registry.yarnpkg.com/has-unicode/-/has-unicode-2.0.1.tgz
 	https://registry.yarnpkg.com/has-value/-/has-value-0.3.1.tgz
@@ -1126,7 +1128,6 @@ SRC_URI+="
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-1.0.1.tgz
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.0.0.tgz
 	https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.1.0.tgz
-	https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.0.tgz
 	https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz
 	https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz
 	https://registry.yarnpkg.com/minimatch/-/minimatch-0.3.0.tgz
@@ -1809,7 +1810,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz
-	https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-dev.20200729.tgz
+	https://registry.yarnpkg.com/typescript/-/typescript-4.0.0-dev.20200803.tgz
 	https://registry.yarnpkg.com/typescript-vscode-sh-plugin/-/typescript-vscode-sh-plugin-0.6.14.tgz
 	https://registry.yarnpkg.com/@types/debounce/-/debounce-1.0.0.tgz -> @types-debounce-1.0.0.tgz
 	https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz -> @types-debug-4.1.5.tgz
@@ -1973,14 +1974,14 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz
 	https://registry.yarnpkg.com/vsce/-/vsce-1.48.0.tgz
-	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.0.tgz
+	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.1.tgz
 	https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.41.0.tgz
 	https://registry.yarnpkg.com/vscode-emmet-helper2/-/vscode-emmet-helper2-2.0.0-next.0.tgz
 	https://registry.yarnpkg.com/vscode-extension-telemetry/-/vscode-extension-telemetry-0.1.1.tgz
 	https://registry.yarnpkg.com/vscode-gulp-watch/-/vscode-gulp-watch-5.0.2.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-3.0.3.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-3.1.0.tgz
-	https://registry.yarnpkg.com/vscode-json-languageservice/-/vscode-json-languageservice-3.7.0.tgz
+	https://registry.yarnpkg.com/vscode-json-languageservice/-/vscode-json-languageservice-3.8.0.tgz
 	https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-6.0.0-next.2.tgz
 	https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-7.0.0-next.5.1.tgz
 	https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.16.0-next.4.tgz
@@ -2126,6 +2127,8 @@ SRC_URI+="
 	https://codeload.github.com/mjbvz/ts-server-web-build/tar.gz/1d85be25043f9b5e36a531941ea345dd5a2ca007
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
+
+	${REPO}/commit/227d533937b17f54bae09f94083bf6304e6262e1.patch -> ${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch
 "
 
 LICENSE="MIT"
@@ -2198,6 +2201,9 @@ src_prepare() {
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
+
+	einfo "Recovering 9.1.0 support"
+	patch -Rup1 -i "${DISTDIR}/${PN}-227d533937b17f54bae09f94083bf6304e6262e1.patch" || die
 
 	einfo "Editing product.json"
 
