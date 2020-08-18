@@ -504,7 +504,7 @@ src_prepare() {
 		third_party/sqlite
 		third_party/swiftshader
 		third_party/swiftshader/third_party/astc-encoder
-		third_party/swiftshader/third_party/llvm-7.0
+		third_party/swiftshader/third_party/llvm-10.0
 		third_party/swiftshader/third_party/llvm-subzero
 		third_party/swiftshader/third_party/marl
 		third_party/swiftshader/third_party/subzero
