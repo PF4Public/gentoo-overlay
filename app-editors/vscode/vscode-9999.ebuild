@@ -29,11 +29,11 @@ fi
 ELECTRON_SLOT="9.2.0"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.9"
+	["node-debug"]="1.44.11"
 	["node-debug2"]="1.42.5"
 	["references-view"]="0.0.62"
-	["js-debug-companion"]="1.0.2"
-	["js-debug"]="1.48.1"
+	["js-debug-companion"]="1.0.5"
+	["js-debug"]="1.49.2"
 	["vscode-js-profile-table"]="0.0.6"
 	["github-browser"]="0.0.2"
 )
@@ -48,7 +48,7 @@ SRC_URI+=") "
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
-
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.8.0.tgz
 "
 
 LICENSE="MIT"
