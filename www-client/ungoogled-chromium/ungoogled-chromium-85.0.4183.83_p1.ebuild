@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="ba5ea772ac674b7af6526b521ba64adde4758a7b"
+UGC_COMMIT_ID="8dd6fdc82167b57d45c3db902a179b9aa4083b18"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -248,6 +248,13 @@ pkg_pretend() {
 		ewarn
 		ewarn "USE=cfi is known to break compilation: #32"
 		ewarn "Consider disabling this USE flag if something breaks"
+		ewarn
+	fi
+	if use vaapi && ! use system-libvpx; then
+		ewarn
+		ewarn "New vaapi code heavily depends on libvpx-1.9"
+		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
+		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
 		ewarn
 	fi
 	pre_build_checks
@@ -660,7 +667,7 @@ src_configure() {
 	myconf_gn+=" use_gnome_keyring=false"
 
 	# Optional dependencies.
-	myconf_gn+=" closure_compile=$(usex closure-compile true false)"
+	myconf_gn+=" enable_js_type_check=$(usex closure-compile true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" enable_widevine=$(usex widevine true false)"
 	myconf_gn+=" use_cups=$(usex cups true false)"
