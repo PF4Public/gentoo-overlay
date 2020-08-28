@@ -250,7 +250,7 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
-	if use vaapi && ! use system-libvpx; then
+	if use vaapi && use system-libvpx; then
 		ewarn
 		ewarn "New vaapi code heavily depends on libvpx-1.9"
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
