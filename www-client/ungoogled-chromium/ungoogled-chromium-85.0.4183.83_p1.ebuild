@@ -246,8 +246,8 @@ pkg_pretend() {
 	fi
 	if use cfi; then
 		ewarn
-		ewarn "USE=cfi is known to break compilation: #32"
-		ewarn "Consider disabling this USE flag if something breaks"
+		ewarn "Building with cfi is only possible if building with -stdlib=libc++"
+		ewarn "Make sure, all dependencies are also built this way, see #40"
 		ewarn
 	fi
 	if use vaapi && use system-libvpx; then
