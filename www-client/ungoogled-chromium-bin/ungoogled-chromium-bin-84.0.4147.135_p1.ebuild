@@ -138,11 +138,11 @@ S="${WORKDIR}"
 src_install() {
 	local CHROMIUM_HOME="/opt/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
-	doexe ./usr/lib64/chromium-browser/chrome
+	doexe ./usr/$(get_libdir)/chromium-browser/chrome
 
 	if use convert-dict; then
-		newexe "./usr/lib64/chromium-browser/update-dicts.sh" update-dicts.sh
-		doexe ./usr/lib64/chromium-browser/convert_dict
+		newexe "./usr/$(get_libdir)/chromium-browser/update-dicts.sh" update-dicts.sh
+		doexe ./usr/$(get_libdir)/chromium-browser/convert_dict
 	fi
 
 	if use widevine; then
@@ -150,7 +150,7 @@ src_install() {
 			"${CHROMIUM_HOME}/libwidevinecdm.so"
 	fi
 
-	doexe ./usr/lib64/chromium-browser/chromium-launcher.sh
+	doexe ./usr/$(get_libdir)/chromium-browser/chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
 	# xdg-utils expect it; bug #355517.
@@ -162,17 +162,17 @@ src_install() {
 	insinto /etc/chromium
 	doins ./etc/chromium/default
 
-	pushd ./usr/lib64/chromium-browser/locales > /dev/null || die
+	pushd ./usr/$(get_libdir)/chromium-browser/locales > /dev/null || die
 	chromium_remove_language_paks
 	popd
 
 	insinto "${CHROMIUM_HOME}"
-	doins ./usr/lib64/chromium-browser/*.bin
-	doins ./usr/lib64/chromium-browser/*.pak
-	doins ./usr/lib64/chromium-browser/*.so
+	doins ./usr/$(get_libdir)/chromium-browser/*.bin
+	doins ./usr/$(get_libdir)/chromium-browser/*.pak
+	doins ./usr/$(get_libdir)/chromium-browser/*.so
 
-	doins -r ./usr/lib64/chromium-browser/locales
-	doins -r ./usr/lib64/chromium-browser/resources
+	doins -r ./usr/$(get_libdir)/chromium-browser/locales
+	doins -r ./usr/$(get_libdir)/chromium-browser/resources
 
 	# Install icons and desktop entry
 	newicon -s 48 ./usr/share/icons/hicolor/256x256/apps/chromium-browser.png chromium-browser.png
