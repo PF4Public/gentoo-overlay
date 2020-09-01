@@ -250,14 +250,15 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	if use vaapi && use system-libvpx; then
+	if use system-libvpx && use vaapi; then
 		ewarn
 		ewarn "New vaapi code depends heavily on libvpx-1.9, see #43"
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
 		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
 		ewarn
+		die "The build will fail!"
 	fi
-	if has_version "=media-libs/libvpx-1.7*"; then
+	if use system-libvpx && has_version "=media-libs/libvpx-1.7*"; then
 		ewarn
 		ewarn "Some of new code depends on libvpx-1.8+ features, see #45"
 		ewarn "Consider disabling system-libvpx USE flag"
