@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="76c969401b10e2cbced802e915accb33382f9d0f"
+#UGC_COMMIT_ID="76c969401b10e2cbced802e915accb33382f9d0f"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -36,7 +36,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos optimize-thinlto optimize-webui ozone +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -247,15 +247,22 @@ pkg_pretend() {
 	if use cfi; then
 		ewarn
 		ewarn "Building with cfi is only possible if building with -stdlib=libc++"
-		ewarn "Make sure, all dependencies are also built this way, see #40"
+		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
 	if use vaapi && use system-libvpx; then
 		ewarn
-		ewarn "New vaapi code depends heavily on libvpx-1.9"
+		ewarn "New vaapi code depends heavily on libvpx-1.9, see #43"
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
 		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
 		ewarn
+	fi
+	if has_version "=media-libs/libvpx-1.7*"; then
+		ewarn
+		ewarn "Some of new code depends on libvpx-1.8+ features, see #45"
+		ewarn "Consider disabling system-libvpx USE flag"
+		ewarn
+		die "The build will fail!"
 	fi
 	pre_build_checks
 }
