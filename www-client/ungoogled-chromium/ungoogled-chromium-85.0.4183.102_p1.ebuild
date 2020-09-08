@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-#UGC_COMMIT_ID="76c969401b10e2cbced802e915accb33382f9d0f"
+UGC_COMMIT_ID="47ce66065bf372249e832f7fa2035b45b776277a"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
