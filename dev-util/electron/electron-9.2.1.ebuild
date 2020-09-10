@@ -1349,6 +1349,7 @@ src_unpack() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	eapply "${FILESDIR}/fix-backport_1042986.patch" || die
 	eapply "${FILESDIR}/fix-a11y_axplatformnodebase.patch" || die
+	sed -i '/test\/data/Q' "patches/chromium/allow_focus_to_move_into_an_editable_combobox_s_listbox.patch" || die
 	popd > /dev/null || die
 }
 
