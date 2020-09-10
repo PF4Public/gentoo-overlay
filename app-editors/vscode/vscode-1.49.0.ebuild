@@ -2120,7 +2120,7 @@ SRC_URI+="
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
