@@ -1350,6 +1350,8 @@ src_unpack() {
 	eapply "${FILESDIR}/fix-backport_1042986.patch" || die
 	eapply "${FILESDIR}/fix-a11y_axplatformnodebase.patch" || die
 	sed -i '/test\/data/Q' "patches/chromium/allow_focus_to_move_into_an_editable_combobox_s_listbox.patch" || die
+	sed -i '/tests/Q' "patches/skia/mallocpixelref_should_always_allocate_as_large_as_computebytesize.patch" || die
+	sed -i '/test/Q' "patches/v8/wasm_do_not_log_code_of_functions_whose_module_is_not_fully_loaded.patch" || die
 	popd > /dev/null || die
 }
 
