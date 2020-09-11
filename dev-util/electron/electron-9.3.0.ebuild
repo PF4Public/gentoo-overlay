@@ -1399,7 +1399,7 @@ src_prepare() {
 		["electron/patches/boringssl"]="third_party/boringssl/src"
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
-		["src/electron/patches/swiftshader"]="third_party/swiftshader"
+		["electron/patches/swiftshader"]="third_party/swiftshader"
 		["electron/patches/pdfium"]="third_party/pdfium"
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/skia"]="third_party/skia"
