@@ -84,7 +84,10 @@ CDEPEND="
 	x11-libs/pango
 	>=net-print/cups-1.3.11
 	media-libs/lcms
-	media-sound/pulseaudio
+	|| (
+		media-sound/pulseaudio
+		>=media-sound/apulse-0.1.9
+	)
 	>=media-video/ffmpeg-3.4.5
 	|| (
 		media-video/ffmpeg[-samba]
@@ -148,6 +151,10 @@ src_install() {
 	if use widevine; then
 		dosym "../../usr/$(get_libdir)/chromium/libwidevinecdm.so" \
 			"${CHROMIUM_HOME}/libwidevinecdm.so"
+	fi
+
+	if  has_version ">=media-sound/apulse-0.1.9" ; then
+	   sed -i 's/exec -a "chromium-browser"/exec -a "chromium-browser" apulse/' ./usr/$(get_libdir)/chromium-browser/chromium-launcher.sh
 	fi
 
 	doexe ./usr/$(get_libdir)/chromium-browser/chromium-launcher.sh
