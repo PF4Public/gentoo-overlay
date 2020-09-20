@@ -844,7 +844,7 @@ src_configure() {
 	if use ozone; then
 		myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
 		myconf_gn+=" ozone_platform_headless=true"
-		use vaapi && eapply "${FILESDIR}/fix-vaapi-ozone-build.patch"
+		# use vaapi && eapply "${FILESDIR}/fix-vaapi-ozone-build.patch"
 		if ! use headless; then
 			myconf_gn+=" use_system_libdrm=true"
 			myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
