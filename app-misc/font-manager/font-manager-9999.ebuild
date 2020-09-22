@@ -22,7 +22,7 @@ VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc +manager nautilus nemo reproducible +viewer +nls"
+IUSE="doc +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
 	>=dev-libs/libxml2-2.9
@@ -31,6 +31,7 @@ RDEPEND="gnome-base/gnome-common
 	>=dev-db/sqlite-3.8
 	nautilus? ( gnome-base/nautilus )
 	nemo? ( gnome-extra/nemo )
+	thunar? ( xfce-base/thunar )
 "
 
 DEPEND="${RDEPEND}
@@ -53,6 +54,7 @@ src_configure() {
 		$(meson_use reproducible) \
 		$(meson_use nautilus) \
 		$(meson_use nemo) \
+		$(meson_use thunar) \
 		-Denable-nls=$(usex nls true false) \
 		-Dyelp-doc=$(usex doc true false) \
 		--buildtype=release
