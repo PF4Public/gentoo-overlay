@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-#UGC_COMMIT_ID="47ce66065bf372249e832f7fa2035b45b776277a"
+UGC_COMMIT_ID="9415c3d8dec6dc902dbc799593554d952994879e"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -36,7 +36,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos optimize-thinlto optimize-webui ozone +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -91,7 +91,12 @@ COMMON_DEPEND="
 			>media-libs/libvpx-1.8.1
 		)
 	)
-	pulseaudio? ( media-sound/pulseaudio:= )
+	pulseaudio? (
+		|| (
+			media-sound/pulseaudio
+			>=media-sound/apulse-0.1.9
+		)
+	)
 	system-ffmpeg? (
 		>=media-video/ffmpeg-4:=
 		|| (
@@ -954,6 +959,9 @@ src_install() {
 			s:@@OZONE_AUTO_SESSION@@:$(ozone_auto_session):g"
 	)
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r5.sh" > chromium-launcher.sh || die
+	if  has_version ">=media-sound/apulse-0.1.9" ; then
+		sed -i 's/exec -a "chromium-browser"/exec -a "chromium-browser" apulse/' chromium-launcher.sh || die
+	fi
 	doexe chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
