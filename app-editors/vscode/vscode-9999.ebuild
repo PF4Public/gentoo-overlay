@@ -26,16 +26,16 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="9.3.0"
+ELECTRON_SLOT="9.2.1"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.11"
+	["node-debug"]="1.44.14"
 	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.63"
+	["references-view"]="0.0.68"
 	["js-debug-companion"]="1.0.8"
-	["js-debug"]="1.49.6"
-	["vscode-js-profile-table"]="0.0.6"
-	["github-browser"]="0.0.8"
+	["js-debug"]="1.50.1"
+	["vscode-js-profile-table"]="0.0.10"
+	["github-browser"]="0.0.13"
 )
 SRC_URI="${DOWNLOAD}
 builtin-extensions? ("
