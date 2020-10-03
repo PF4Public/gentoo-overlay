@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - core2
-          - haswell
+          - core2 -generic
+          - haswell -generic
           - generic
           - convert-dict
           - widevine
