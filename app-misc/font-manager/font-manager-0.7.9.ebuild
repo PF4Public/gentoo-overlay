@@ -25,6 +25,7 @@ SLOT="0"
 IUSE="doc +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
+	dev-libs/json-glib
 	>=dev-libs/libxml2-2.9
 	>=media-libs/freetype-2.5
 	>=x11-libs/gtk+-3.22
