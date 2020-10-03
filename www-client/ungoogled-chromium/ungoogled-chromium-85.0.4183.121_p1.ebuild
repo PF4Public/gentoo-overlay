@@ -739,7 +739,7 @@ src_configure() {
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
 	# Trying to use gold results in linker crash.
-	myconf_gn+=" use_gold=false use_sysroot=false linux_use_bundled_binutils=false use_custom_libcxx=false"
+	myconf_gn+=" use_gold=false use_sysroot=false use_custom_libcxx=false"
 
 	# Disable forced lld, bug 641556
 	myconf_gn+=" use_lld=false"
