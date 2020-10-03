@@ -119,6 +119,9 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
 
+	einfo "Editing extensions/css-language-features/package.json"
+	sed -i 's/yarn install/yarn install --skip-integrity-check/' extensions/css-language-features/package.json || die
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
