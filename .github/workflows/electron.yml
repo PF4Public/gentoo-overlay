@@ -1,0 +1,38 @@
+name: electron tests
+on:
+  push:
+    paths:
+    - 'dev-util/electron/**'
+  pull_request:
+    paths:
+    - 'dev-util/electron/**'
+
+jobs:
+  ebuild:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - vaapi
+          - vdpau
+          - -clang
+          - enable-driver hangouts
+          - pulseaudio
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+        id: files
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trying to configure electron with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            added: ${{ steps.files.outputs.added }}
+            modified: ${{ steps.files.outputs.modified }}
+            action: configure
+            use: ${{ matrix.use }}

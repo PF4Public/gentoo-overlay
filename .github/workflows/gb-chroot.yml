@@ -1,0 +1,36 @@
+name: gb-chroot tests
+on:
+  push:
+    paths:
+    - 'app-admin/gb-chroot/**'
+  pull_request:
+    paths:
+    - 'app-admin/gb-chroot/**'
+
+jobs:
+  ebuild:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - doc
+          - ''
+          - host
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+        id: files
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trying to install gb-chroot with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            added: ${{ steps.files.outputs.added }}
+            modified: ${{ steps.files.outputs.modified }}
+            action: install
+            use: ${{ matrix.use }}

@@ -1,0 +1,38 @@
+name: ungoogled-chromium-bin tests
+on:
+  push:
+    paths:
+    - 'www-client/ungoogled-chromium-bin/**'
+  pull_request:
+    paths:
+    - 'www-client/ungoogled-chromium-bin/**'
+
+jobs:
+  ebuild:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - core2
+          - haswell
+          - generic
+          - convert-dict
+          - widevine
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+        id: files
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trying to install ungoogled-chromium-bin with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            added: ${{ steps.files.outputs.added }}
+            modified: ${{ steps.files.outputs.modified }}
+            action: install
+            use: ${{ matrix.use }}
