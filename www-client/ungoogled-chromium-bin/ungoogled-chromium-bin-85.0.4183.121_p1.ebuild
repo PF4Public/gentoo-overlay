@@ -42,7 +42,7 @@ KEYWORDS="amd64 x86"
 IUSE="convert-dict core2 +generic haswell widevine"
 
 REQUIRED_USE="
-	|| ( core2 generic haswell )
+	^^ ( core2 generic haswell )
 	x86? ( !core2 !haswell )
 "
 
