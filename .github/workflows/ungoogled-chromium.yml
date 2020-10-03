@@ -16,6 +16,7 @@ jobs:
       matrix:
         use:
           - vaapi
+          - vaapi ozone
           - vdpau
           - cfi thinlto
           - -clang
