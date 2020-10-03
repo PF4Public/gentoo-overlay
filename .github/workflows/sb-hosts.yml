@@ -9,6 +9,7 @@ on:
 
 jobs:
   ebuild:
+    if: false # temporarily disabled
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     strategy:
