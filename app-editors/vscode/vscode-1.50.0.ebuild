@@ -2214,6 +2214,7 @@ src_prepare() {
 	sed -i '/typescript-web-server/d' extensions/typescript-language-features/package.json || die
 	#TODO
 	sed -i '/vscode-css-languageservice/d' extensions/css-language-features/server/package.json || die
+	sed -i '/vscode-css-languageservice/d' extensions/html-language-features/server/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
@@ -2336,6 +2337,13 @@ src_configure() {
 	popd > /dev/null || die
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-css-languageservice": "^4.3.4",/' extensions/css-language-features/server/package.json || die
+	einfo "Restoring vscode-css-languageservice"
+	pushd extensions/html-language-features/server/node_modules > /dev/null || die
+	tar -xf "${DISTDIR}/vscode-css-languageservice-4.3.4.tgz"
+	mv package vscode-css-languageservice
+	popd > /dev/null || die
+	eend $? || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-css-languageservice": "^4.3.4",/' extensions/html-language-features/server/package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	rm -rf extensions/css-language-features/server/test > /dev/null || die
