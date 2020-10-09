@@ -2,14 +2,13 @@ name: sb-hosts tests
 on:
   push:
     paths:
-    - 'net-misc/sb-hosts/**'
+    - 'net-misc/sb-hosts/sb-hosts-9999.ebuild'
   pull_request:
     paths:
-    - 'net-misc/sb-hosts/**'
+    - 'net-misc/sb-hosts/sb-hosts-9999.ebuild'
 
 jobs:
   ebuild:
-    if: false # temporarily disabled
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     strategy:
