@@ -2230,7 +2230,7 @@ src_prepare() {
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
-	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/.*gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
 
 	#! probably broken upstream ------✁------
 	einfo "Reverting vscode-css-languageservice"
