@@ -2001,7 +2001,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz
 	https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz
 	https://registry.yarnpkg.com/vsce/-/vsce-1.48.0.tgz
-	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.4.tgz
+	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.3.3.tgz
 	https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.41.0.tgz
 	https://registry.yarnpkg.com/vscode-emmet-helper/-/vscode-emmet-helper-2.0.0.tgz
 	https://registry.yarnpkg.com/vscode-extension-telemetry/-/vscode-extension-telemetry-0.1.1.tgz
