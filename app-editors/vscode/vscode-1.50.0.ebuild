@@ -2322,12 +2322,12 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-1.8.0.tgz"
+	tar -xf "${DISTDIR}/vscode-ripgrep-1.9.0.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.8.0",/' package.json || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.9.0",/' package.json || die
 
 	#TODO
 	einfo "Restoring vscode-css-languageservice"
