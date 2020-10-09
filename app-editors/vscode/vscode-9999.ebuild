@@ -14,7 +14,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
+	IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 else
+	IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -33,8 +35,8 @@ declare -A builtin_exts=(
 	["node-debug2"]="1.42.5"
 	["references-view"]="0.0.68"
 	["js-debug-companion"]="1.0.8"
-	["js-debug"]="1.50.1"
-	["vscode-js-profile-table"]="0.0.10"
+	["js-debug"]="1.50.2"
+	["vscode-js-profile-table"]="0.0.11"
 	["github-browser"]="0.0.13"
 )
 SRC_URI="${DOWNLOAD}
@@ -48,12 +50,12 @@ SRC_URI+=") "
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.8.0.tgz
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.9.0.tgz
+	${REPO}/commit/795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch -> ${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch
 "
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -117,11 +119,13 @@ src_prepare() {
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
-	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
 
-	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	rm -rf extensions/css-language-features/server/test > /dev/null || die
-	
+	#! probably broken upstream ------✁------
+	einfo "Reverting vscode-css-languageservice"
+	patch -Rup1 -i "${DISTDIR}/${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch" || die
+	#! probably broken upstream ------✁------
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
@@ -210,12 +214,15 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-1.8.0.tgz"
+	tar -xf "${DISTDIR}/vscode-ripgrep-1.9.0.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.8.0",/' package.json || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.9.0",/' package.json || die
+
+	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
+	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
