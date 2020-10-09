@@ -2161,6 +2161,7 @@ SRC_URI+="
 	https://codeload.github.com/googleinterns/tsec/tar.gz/eb8abc0a58b16f97bb499833c21467fc6425260f
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
+	${REPO}/commit/795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch -> ${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch
 "
 
 LICENSE="MIT"
@@ -2212,9 +2213,6 @@ src_prepare() {
 	#mkdir -p ${T}/yarn_cache || die
 	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
 	sed -i '/typescript-web-server/d' extensions/typescript-language-features/package.json || die
-	#TODO
-	sed -i '/vscode-css-languageservice/d' extensions/css-language-features/server/package.json || die
-	sed -i '/vscode-css-languageservice/d' extensions/html-language-features/server/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
@@ -2233,6 +2231,11 @@ src_prepare() {
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/.*gulp.task(prepareDebTask);$/gulp.task(prepareDebTask);/' build/gulpfile.vscode.linux.js || die
+
+	#! probably broken upstream ------✁------
+	einfo "Reverting vscode-css-languageservice"
+	patch -Rup1 -i "${DISTDIR}/${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch" || die
+	#! probably broken upstream ------✁------
 
 	einfo "Editing product.json"
 
@@ -2329,24 +2332,8 @@ src_configure() {
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.9.0",/' package.json || die
 
-	#TODO
-	einfo "Restoring vscode-css-languageservice"
-	pushd extensions/css-language-features/server/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-css-languageservice-4.3.4.tgz"
-	mv package vscode-css-languageservice
-	popd > /dev/null || die
-	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-css-languageservice": "^4.3.4",/' extensions/css-language-features/server/package.json || die
-	einfo "Restoring vscode-css-languageservice"
-	pushd extensions/html-language-features/server/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-css-languageservice-4.3.4.tgz"
-	mv package vscode-css-languageservice
-	popd > /dev/null || die
-	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-css-languageservice": "^4.3.4",/' extensions/html-language-features/server/package.json || die
-
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	rm -rf extensions/css-language-features/server/test > /dev/null || die
+	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
