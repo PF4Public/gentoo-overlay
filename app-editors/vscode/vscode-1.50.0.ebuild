@@ -2212,6 +2212,8 @@ src_prepare() {
 	#mkdir -p ${T}/yarn_cache || die
 	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
 	sed -i '/typescript-web-server/d' extensions/typescript-language-features/package.json || die
+	#TODO
+	sed -i '/vscode-css-languageservice/d' extensions/css-language-features/server/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
@@ -2316,8 +2318,6 @@ src_configure() {
 #--verbose
 
 	export PATH=${OLD_PATH}
-	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
@@ -2327,6 +2327,18 @@ src_configure() {
 	popd > /dev/null || die
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.8.0",/' package.json || die
+
+	#TODO
+	einfo "Restoring vscode-css-languageservice"
+	pushd extensions/css-language-features/server/node_modules > /dev/null || die
+	tar -xf "${DISTDIR}/vscode-css-languageservice-4.3.4.tgz"
+	mv package vscode-css-languageservice
+	popd > /dev/null || die
+	eend $? || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-css-languageservice": "^4.3.4",/' extensions/css-language-features/server/package.json || die
+
+	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
+	rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
