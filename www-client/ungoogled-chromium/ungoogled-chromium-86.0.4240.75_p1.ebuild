@@ -278,7 +278,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup 'python3*'
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-84-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-86-compiler.patch" || die
 
 	eapply "${WORKDIR}/patches"
 
