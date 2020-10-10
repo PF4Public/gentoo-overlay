@@ -42,7 +42,7 @@
 		<flag name="system-openjpeg">Use the system-wide <pkg>media-libs/openjpeg</pkg> instead of the bundled one. OpenJPEG use are exclusively for Chromium's PDF viewer.</flag>
 		<flag name="tcmalloc">Use bundled tcmalloc instead of system malloc</flag>
 		<flag name="thinlto">Build with ThinLTO support. LTO (Link Time Optimization) achieves better runtime performance through whole-program analysis and cross-module optimization (highly recommended).</flag>
-		<flag name="wayland">Enable Wayland backend for Ozone</flag>
+		<flag name="ozone-wayland">Enable Wayland backend for Ozone</flag>
 		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
 	</use>
 </pkgmetadata>
