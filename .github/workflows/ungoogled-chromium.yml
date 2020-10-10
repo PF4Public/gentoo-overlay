@@ -21,12 +21,13 @@ jobs:
           - cfi thinlto
           - -clang
           - enable-driver hangouts
-          - headless
+          - headless ozone
           - pulseaudio
           - suid
           - ozone
-          - ozone wayland
+          - ozone ozone-wayland
           - widevine
+          - custom-cflags
 
     steps:
       - uses: actions/checkout@v2
