@@ -299,7 +299,7 @@ src_prepare() {
 		elog "should be enabled via flags or commandline for it to work."
 	fi
 
-	use vdpau && eapply "${FILESDIR}/vdpau-support.patch"
+	use vdpau && eapply "${FILESDIR}/vdpau-support-r2.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
