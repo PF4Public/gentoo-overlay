@@ -251,14 +251,7 @@ pkg_pretend() {
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
 		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
 		ewarn
-		#die "The build will fail!"
-	fi
-	if use system-libvpx && has_version "=media-libs/libvpx-1.7*"; then
-		ewarn
-		ewarn "Some of new code depends on libvpx-1.8+ features, see #45"
-		ewarn "Consider disabling system-libvpx USE flag"
-		ewarn
-		#die "The build will fail!"
+		die "The build will fail!"
 	fi
 	pre_build_checks
 }
