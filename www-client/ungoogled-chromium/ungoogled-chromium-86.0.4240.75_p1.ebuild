@@ -282,7 +282,11 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
-	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
+	if use system-jsoncpp
+	then
+		eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
+		sed '/^#include "third_party\/jsoncpp.*$/{s//#include <json\/value\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.h || die
+	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 
