@@ -11,12 +11,12 @@ jobs:
   ebuild:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       fail-fast: false
       matrix:
         use:
           - vaapi -system-libvpx
-          - vaapi system-libvpx
           - vaapi ozone -system-libvpx
           - vdpau
           - cfi thinlto
@@ -29,7 +29,11 @@ jobs:
           - ozone ozone-wayland
           - widevine
           - custom-cflags
-          - system-libvpx
+        include:
+          - use: vaapi system-libvpx
+            experimental: true
+          - use: system-libvpx
+            experimental: true
 
     steps:
       - uses: actions/checkout@v2
