@@ -17,7 +17,7 @@ jobs:
         use:
           - vaapi -system-libvpx
           - vaapi system-libvpx
-          - vaapi ozone
+          - vaapi ozone -system-libvpx
           - vdpau
           - cfi thinlto
           - -clang
