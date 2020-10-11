@@ -15,7 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - vaapi
+          - vaapi -system-libvpx
+          - vaapi system-libvpx
           - vaapi ozone
           - vdpau
           - cfi thinlto
