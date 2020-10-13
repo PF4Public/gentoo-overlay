@@ -51,7 +51,6 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.9.0.tgz
-	${REPO}/commit/795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch -> ${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch
 "
 
 LICENSE="MIT"
@@ -120,11 +119,6 @@ src_prepare() {
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
-
-	#! probably broken upstream ------✁------
-	einfo "Reverting vscode-css-languageservice"
-	patch -Rup1 -i "${DISTDIR}/${PN}-795b0dba8d85e0f95f9ffd08a25208af940bfedc.patch" || die
-	#! probably broken upstream ------✁------
 
 	einfo "Editing product.json"
 
