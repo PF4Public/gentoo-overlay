@@ -17,9 +17,8 @@ jobs:
         use:
           - 'manager viewer'
           - 'reproducible'
-          - 'thunar nautilus'
+          - 'thunar nautilus nemo'
           - 'doc'
-          # not testing nemo
 
     steps:
       - uses: actions/checkout@v2
