@@ -39,7 +39,7 @@ RESTRICT="mirror"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="convert-dict core2 +generic haswell widevine"
+IUSE="convert-dict core2 +generic haswell"
 
 REQUIRED_USE="
 	^^ ( core2 generic haswell )
@@ -146,11 +146,6 @@ src_install() {
 	if use convert-dict; then
 		newexe "./usr/$(get_libdir)/chromium-browser/update-dicts.sh" update-dicts.sh
 		doexe ./usr/$(get_libdir)/chromium-browser/convert_dict
-	fi
-
-	if use widevine; then
-		dosym "../../usr/$(get_libdir)/chromium/libwidevinecdm.so" \
-			"${CHROMIUM_HOME}/libwidevinecdm.so"
 	fi
 
 	if  has_version ">=media-sound/apulse-0.1.9" ; then
