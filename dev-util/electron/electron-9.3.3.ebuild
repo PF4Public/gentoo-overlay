@@ -1383,7 +1383,7 @@ src_prepare() {
 		["electron/patches/skia"]="third_party/skia"
 		["electron/patches/angle"]="third_party/angle"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
-		["electron/patches/usrsctp"]="third_party/ffmpeg/usrsctp/usrsctplib"
+		["electron/patches/usrsctp"]="third_party/usrsctp/usrsctplib"
 		["electron/patches/freetype"]="third_party/freetype/src"
 	)
 	for patch_folder in "${!patches[@]}";
