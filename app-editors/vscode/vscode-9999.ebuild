@@ -272,17 +272,18 @@ src_install() {
 		cp "${DISTDIR}/ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" "${T}" || die
 		gunzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" || die
 		unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* > /dev/null || die
-		mv extension "${S}/.build/extensions/ms-vscode.${ext}" || die
+		mv extension "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/extensions/ms-vscode.${ext}" || die
 	done
 	popd > /dev/null || die
 	fi
 
 	insinto "${VSCODE_HOME}"
-	doins -r .build/extensions
-	doins -r "${WORKDIR}"/app/*
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
+	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
 
