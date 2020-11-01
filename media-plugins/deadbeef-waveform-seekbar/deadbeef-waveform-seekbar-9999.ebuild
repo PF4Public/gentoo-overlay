@@ -14,7 +14,7 @@ fi
 
 DESCRIPTION="Waveform Seekbar plugin for DeaDBeeF audio player"
 HOMEPAGE="https://github.com/cboxdoerfer/ddb_waveform_seekbar"
-LICENSE="GPL-3"
+LICENSE="GPL-2"
 SLOT="0"
 
 RDEPEND="dev-db/sqlite:3
