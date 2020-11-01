@@ -1137,7 +1137,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="${PV}"
-KEYWORDS="amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver gnome hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1383,6 +1383,8 @@ src_prepare() {
 		["electron/patches/skia"]="third_party/skia"
 		["electron/patches/angle"]="third_party/angle"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
+		["electron/patches/usrsctp"]="third_party/ffmpeg/usrsctp/usrsctplib"
+		["electron/patches/freetype"]="third_party/freetype/src"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
