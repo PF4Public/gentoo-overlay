@@ -50,7 +50,7 @@ SRC_URI+=") "
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.9.0.tgz
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.10.0.tgz
 "
 
 LICENSE="MIT"
