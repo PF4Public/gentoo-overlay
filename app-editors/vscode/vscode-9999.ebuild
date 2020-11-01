@@ -28,14 +28,14 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="9.3.2"
+ELECTRON_SLOT="9.3.3"
 
 declare -A builtin_exts=(
 	["node-debug"]="1.44.14"
 	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.68"
+	["references-view"]="0.0.71"
 	["js-debug-companion"]="1.0.8"
-	["js-debug"]="1.50.2"
+	["js-debug"]="1.51.0"
 	["vscode-js-profile-table"]="0.0.11"
 	["github-browser"]="0.0.13"
 )
@@ -208,12 +208,12 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-1.9.0.tgz"
+	tar -xf "${DISTDIR}/vscode-ripgrep-1.10.0.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.9.0",/' package.json || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.10.0",/' package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
