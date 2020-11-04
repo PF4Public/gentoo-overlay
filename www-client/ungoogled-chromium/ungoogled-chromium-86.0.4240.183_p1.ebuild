@@ -271,9 +271,10 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup 'python3*'
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-*-compiler.patch" || die
 
 	eapply "${WORKDIR}/patches"
+	eapply "${FILESDIR}/chromium-87-xproto-crash.patch"
 
 	default
 
