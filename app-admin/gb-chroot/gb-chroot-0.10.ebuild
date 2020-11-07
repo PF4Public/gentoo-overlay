@@ -3,6 +3,8 @@
 
 EAPI=7
 
+inherit bash-completion-r1
+
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PF4Public/gb-chroot.git"
@@ -49,4 +51,7 @@ src_install()
 		insinto /etc
 		newins config/gb-chroot-target gb-chroot.conf
 	fi
+
+	newbashcomp completions/bash-completions ${PN}
+	bashcomp_alias ${PN} gb-enter gb-clone gb-all
 }
