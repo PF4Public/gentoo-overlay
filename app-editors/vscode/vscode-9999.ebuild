@@ -47,6 +47,8 @@ do
 done
 SRC_URI+=") "
 
+RESTRICT="mirror"
+
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
