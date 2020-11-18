@@ -239,6 +239,14 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
+	if has_version "sys-libs/libcxx"; then
+		ewarn
+		ewarn "You have sys-libs/libcxx, please make sure that"
+		ewarn "system-* c++ dependencies are compiled with the same library"
+		ewarn "as ungoogled-chromium itself"
+		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 for details"
+		ewarn
+	fi
 	if use cfi; then
 		ewarn
 		ewarn "Building with cfi is only possible if building with -stdlib=libc++"
