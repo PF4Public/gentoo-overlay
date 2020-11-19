@@ -286,7 +286,7 @@ src_prepare() {
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
 	if use system-jsoncpp; then
-		eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
+		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
 		sed -i '/^#include "third_party\/jsoncpp.*$/{s//#include <json\/value\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.h || die
 		sed -i '/^.*json\/reader.h"$/{s//#include <json\/reader\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.cc || die
 		sed -i '/^.*json\/writer.h"$/{s//#include <json\/writer\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.cc || die
