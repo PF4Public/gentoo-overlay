@@ -13,9 +13,8 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 
 UGC_PV="${PV/_p/-}"
 UGC_P="${PN}-${UGC_PV}"
-# UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_URL="https://github.com/Zoraver/${PN}/archive/"
-UGC_COMMIT_ID="fc06b0d7f59585b5d577ea90c2a7fd47a6a8068e"
+UGC_URL="https://github.com/Eloston/${PN}/archive/"
+UGC_COMMIT_ID="43fbd1d76cda2367dbb869e4984ada276833cf5e"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -304,6 +303,10 @@ src_prepare() {
 	local ugc_unneeded=(
 		# GN bootstrap
 		extra/debian/gn/parallel
+	)
+	use custom-cflags && ugc_unneeded+=(
+		# part of chromium-$(ver_cut 1)-compiler.patch
+		core/ungoogled-chromium/remove-enable-dse-memoryssa-cflag
 	)
 
 	local ugc_p ugc_dir
@@ -869,7 +872,7 @@ src_configure() {
 			tools/generate_shim_headers/generate_shim_headers.py || die
 		# Disable PGO, because profile data is missing in tarball
 		# (https://groups.google.com/a/chromium.org/g/chromium-packagers/c/2ID9c4j6UkY)
-		#myconf_gn+=" chrome_pgo_phase=0"
+		myconf_gn+=" chrome_pgo_phase=0"
 	fi
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
