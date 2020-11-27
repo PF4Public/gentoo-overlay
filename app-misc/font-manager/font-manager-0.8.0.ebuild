@@ -11,7 +11,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	SRC_URI="https://github.com/FontManager/font-manager/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="amd64 x86"
+	KEYWORDS="~amd64 ~x86"
 fi
 
 DESCRIPTION="A simple font management application for Gtk+ Desktop Environments"
@@ -22,21 +22,25 @@ VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc +manager nautilus nemo reproducible +viewer +nls"
+IUSE="doc gnome-search-provider +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
-	>=dev-libs/libxml2-2.9
-	>=media-libs/freetype-2.5
-	>=x11-libs/gtk+-3.22
 	>=dev-db/sqlite-3.8
+	>=dev-libs/json-glib-0.15
+	>=dev-libs/libxml2-2.9
+	>=media-libs/fontconfig-2.1
+	>=media-libs/freetype-2.5
+	>=net-libs/libsoup-2.62
+	>=net-libs/webkit-gtk-2.24
+	>=x11-libs/gtk+-3.22
+	>=x11-libs/pango-1.4
 	nautilus? ( gnome-base/nautilus )
 	nemo? ( gnome-extra/nemo )
+	thunar? ( xfce-base/thunar )
 "
 
 DEPEND="${RDEPEND}
 	$(vala_depend)
-	dev-util/ninja
-	dev-util/meson
 	doc? ( app-text/yelp-tools )
 "
 
@@ -53,7 +57,10 @@ src_configure() {
 		$(meson_use reproducible) \
 		$(meson_use nautilus) \
 		$(meson_use nemo) \
-		-Denable-nls=$(usex nls true false) \
-		-Dyelp-doc=$(usex doc true false) \
+		$(meson_use thunar) \
+		$(meson_use gnome-search-provider search-provider) \
+		$(meson_use nls enable-nls) \
+		$(meson_use doc yelp-doc) \
+		$(meson_use doc gtk-doc) \
 		--buildtype=release
 }
