@@ -19,6 +19,7 @@ jobs:
           - 'reproducible'
           - 'thunar nautilus nemo'
           - 'doc'
+          - 'gnome-search-provider'
 
     steps:
       - uses: actions/checkout@v2
