@@ -17,6 +17,7 @@
 		<flag name="nautilus">Build Nautilus extension</flag>
 		<flag name="nemo">Build Nemo extension</flag>
 		<flag name="reproducible">Make the build reproducible</flag>
+		<flag name="google-fonts">Google Fonts Integration</flag>
 		<flag name="gnome-search-provider">Install GNOME shell search provider</flag>
 		<flag name="thunar">Build Thunar extension</flag>
 		<flag name="viewer">Build font-viewer</flag>
