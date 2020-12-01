@@ -43,7 +43,10 @@ RDEPEND="gnome-base/gnome-common
 
 DEPEND="${RDEPEND}
 	$(vala_depend)
-	doc? ( app-text/yelp-tools )
+	doc? (
+		app-text/yelp-tools
+		dev-util/gtk-doc
+	)
 "
 
 src_prepare() {
