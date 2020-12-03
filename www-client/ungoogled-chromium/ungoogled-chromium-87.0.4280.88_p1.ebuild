@@ -321,7 +321,7 @@ src_prepare() {
 	fi
 
 	ebegin "Pruning binaries"
-	"${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
+	# "${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
 	eend $? || die
 
 	ebegin "Applying ungoogled-chromium patches"
