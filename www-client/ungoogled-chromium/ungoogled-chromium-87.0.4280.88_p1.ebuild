@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 # KEYWORDS="amd64 ~x86"
-IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos +official optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau wayland widevine"
+IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos +official optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +system-re2 +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -129,7 +129,7 @@ COMMON_DEPEND="
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	app-arch/snappy:=
 	dev-libs/libxslt:=
-	>=dev-libs/re2-0.2019.08.01:=
+	system-re2? ( dev-libs/re2:= )
 	>=media-libs/openh264-1.6.0:=
 	system-icu? ( >=dev-libs/icu-67.1:= )
 "
@@ -654,8 +654,10 @@ src_configure() {
 	use system-openh264 && gn_system_libraries+=(
 		openh264
 	)
-	gn_system_libraries+=(
+	use system-re2 && gn_system_libraries+=(
 		re2
+	)
+	gn_system_libraries+=(
 		snappy
 		zlib
 	)
