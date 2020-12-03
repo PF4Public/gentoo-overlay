@@ -872,7 +872,7 @@ src_configure() {
 			tools/generate_shim_headers/generate_shim_headers.py || die
 		# Disable PGO, because profile data is missing in tarball
 		# (https://groups.google.com/a/chromium.org/g/chromium-packagers/c/2ID9c4j6UkY)
-		myconf_gn+=" chrome_pgo_phase=0"
+		# myconf_gn+=" chrome_pgo_phase=0"
 	fi
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
