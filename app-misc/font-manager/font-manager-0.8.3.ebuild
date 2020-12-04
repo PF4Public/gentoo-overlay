@@ -22,7 +22,7 @@ VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc gnome-search-provider +manager nautilus nemo reproducible thunar +viewer +nls"
+IUSE="doc gnome-search-provider google-fonts +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
 	>=dev-db/sqlite-3.8
@@ -30,10 +30,12 @@ RDEPEND="gnome-base/gnome-common
 	>=dev-libs/libxml2-2.9
 	>=media-libs/fontconfig-2.1
 	>=media-libs/freetype-2.5
-	>=net-libs/libsoup-2.62
-	>=net-libs/webkit-gtk-2.24
 	>=x11-libs/gtk+-3.22
 	>=x11-libs/pango-1.4
+	google-fonts? (
+		>=net-libs/libsoup-2.62
+		>=net-libs/webkit-gtk-2.24
+	)
 	nautilus? ( gnome-base/nautilus )
 	nemo? ( gnome-extra/nemo )
 	thunar? ( xfce-base/thunar )
@@ -41,7 +43,10 @@ RDEPEND="gnome-base/gnome-common
 
 DEPEND="${RDEPEND}
 	$(vala_depend)
-	doc? ( app-text/yelp-tools )
+	doc? (
+		app-text/yelp-tools
+		dev-util/gtk-doc
+	)
 "
 
 src_prepare() {
@@ -59,6 +64,7 @@ src_configure() {
 		$(meson_use nemo) \
 		$(meson_use thunar) \
 		$(meson_use gnome-search-provider search-provider) \
+		$(meson_use google-fonts webkit) \
 		$(meson_use nls enable-nls) \
 		$(meson_use doc yelp-doc) \
 		$(meson_use doc gtk-doc) \
