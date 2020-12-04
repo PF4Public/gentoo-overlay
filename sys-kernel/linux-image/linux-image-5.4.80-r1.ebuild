@@ -20,7 +20,7 @@ REQUIRED_USE="savedconfig"
 
 DEPEND="~sys-kernel/gentoo-sources-${PVR}"
 
-S="${WORKDIR}/linux-${PVR}-gentoo"
+S="${WORKDIR}/linux-${PV}-gentoo"
 
 #TODO restrict bindists maybe
 RESTRICT="strip"
@@ -29,7 +29,7 @@ RESTRICT="strip"
 
 src_unpack()
 {
-	cp -r "/usr/src/linux-${PVR}-gentoo" "${WORKDIR}"
+	cp -r "/usr/src/linux-${PV}-gentoo" "${WORKDIR}"
 }
 
 src_prepare()
