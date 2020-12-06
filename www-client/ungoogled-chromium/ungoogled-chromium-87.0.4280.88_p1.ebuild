@@ -515,6 +515,11 @@ src_prepare() {
 		third_party/protobuf/third_party/six
 		third_party/pyjson5
 		third_party/qcms
+	)
+	use system-re2 || keeplibs+=(
+		third_party/re2
+	)
+	keeplibs+=(
 		third_party/rnnoise
 		third_party/s2cellid
 		third_party/schema_org
