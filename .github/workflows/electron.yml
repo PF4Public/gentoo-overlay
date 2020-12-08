@@ -21,7 +21,7 @@ jobs:
           - -clang
           - enable-driver hangouts
           - pulseaudio
-          include:
+        include:
           - use: vaapi system-libvpx
             experimental: true
           - use: system-libvpx
