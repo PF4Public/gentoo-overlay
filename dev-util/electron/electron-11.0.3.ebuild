@@ -1197,8 +1197,6 @@ SRC_URI="
 	https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz
 "
 
-RESTRICT="mirror"
-
 LICENSE="BSD"
 SLOT="${PV}"
 KEYWORDS="~amd64 ~x86"
@@ -1206,6 +1204,7 @@ IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos 
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
+	mirror
 "
 REQUIRED_USE="
 	thinlto? ( clang )
@@ -1706,7 +1705,7 @@ src_configure() {
 	pushd electron > /dev/null || die
 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	yarn config set disable-self-update-check true || die
-	yarn install --frozen-lockfile --offline --no-progress || die
+	yarn install --production=true --frozen-lockfile --offline --no-progress || die
 	popd > /dev/null || die
 	eend $? || die
 
