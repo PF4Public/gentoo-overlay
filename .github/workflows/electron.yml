@@ -11,15 +11,21 @@ jobs:
   ebuild:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       fail-fast: false
       matrix:
         use:
-          - vaapi
+          - vaapi -system-libvpx
           - vdpau
           - -clang
           - enable-driver hangouts
           - pulseaudio
+          include:
+          - use: vaapi system-libvpx
+            experimental: true
+          - use: system-libvpx
+            experimental: true
 
     steps:
       - uses: actions/checkout@v2
