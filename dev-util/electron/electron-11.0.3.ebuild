@@ -1199,7 +1199,7 @@ SRC_URI="
 
 LICENSE="BSD"
 SLOT="${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1378,14 +1378,6 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	eapply "${FILESDIR}/openssl_fips.patch" || die
-	popd > /dev/null || die
-
-	pushd "${WORKDIR}/${P}" > /dev/null || die
-	# eapply "${FILESDIR}/fix-backport_1042986.patch" || die
-	# eapply "${FILESDIR}/fix-a11y_axplatformnodebase.patch" || die
-	# sed -i '/test\/data/Q' "patches/chromium/allow_focus_to_move_into_an_editable_combobox_s_listbox.patch" || die
-	# sed -i '/tests/Q' "patches/skia/mallocpixelref_should_always_allocate_as_large_as_computebytesize.patch" || die
-	# sed -i '/test/Q' "patches/v8/wasm_do_not_log_code_of_functions_whose_module_is_not_fully_loaded.patch" || die
 	popd > /dev/null || die
 
 	use custom-cflags || rm "${WORKDIR}/patches/chromium-87-compiler.patch" || die
@@ -1823,7 +1815,7 @@ src_configure() {
 	myconf_gn+=" enable_one_click_signin=false"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
-	myconf_gn+=" enable_reporting=false"
+	# myconf_gn+=" enable_reporting=false"
 	myconf_gn+=" enable_service_discovery=false"
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" use_official_google_api_keys=false"
