@@ -1373,8 +1373,8 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	# einfo "Disabling dugite"
-	# sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
+	einfo "Disabling dugite"
+	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
 	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	eapply "${FILESDIR}/openssl_fips.patch" || die
@@ -1705,7 +1705,7 @@ src_configure() {
 	pushd electron > /dev/null || die
 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	yarn config set disable-self-update-check true || die
-	yarn install --production=true --frozen-lockfile --offline --no-progress || die
+	yarn install --frozen-lockfile --offline --no-progress || die
 	popd > /dev/null || die
 	eend $? || die
 
