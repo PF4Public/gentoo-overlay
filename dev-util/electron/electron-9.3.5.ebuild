@@ -1358,6 +1358,8 @@ src_unpack() {
 	sed -i '/test\/data/Q' "patches/chromium/allow_focus_to_move_into_an_editable_combobox_s_listbox.patch" || die
 	sed -i '/tests/Q' "patches/skia/mallocpixelref_should_always_allocate_as_large_as_computebytesize.patch" || die
 	sed -i '/test/Q' "patches/v8/wasm_do_not_log_code_of_functions_whose_module_is_not_fully_loaded.patch" || die
+	sed -i '/test\/cctest/Q' "patches/v8/cherry-pick-815b12dfb5ec.patch" || die
+	sed -i '/test\/cctest/Q' "patches/v8/cherry-pick-146bd99e762b.patch" || die
 	popd > /dev/null || die
 }
 
@@ -1420,7 +1422,10 @@ src_prepare() {
 		einfo "Applying patches from ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ]; then continue; fi
+			if [ "$i" = "fix_remove_unused_llhttp_variables.patch" ]; then
+				einfo "Skipping ${i}"
+				continue;
+			fi
 			pushd "${patches[$patch_folder]}" > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die
