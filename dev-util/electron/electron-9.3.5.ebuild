@@ -1360,6 +1360,7 @@ src_unpack() {
 	sed -i '/test/Q' "patches/v8/wasm_do_not_log_code_of_functions_whose_module_is_not_fully_loaded.patch" || die
 	sed -i '/test\/cctest/Q' "patches/v8/cherry-pick-815b12dfb5ec.patch" || die
 	sed -i '/test\/cctest/Q' "patches/v8/cherry-pick-146bd99e762b.patch" || die
+	sed -i '/test\/browser/Q' "patches/chromium/ignore_renderframehostimpl_detach_for_speculative_rfhs.patch" || die
 	popd > /dev/null || die
 }
 
