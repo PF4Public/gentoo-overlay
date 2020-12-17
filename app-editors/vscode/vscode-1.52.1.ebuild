@@ -2101,7 +2101,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vscode-oniguruma/-/vscode-oniguruma-1.3.1.tgz
 	https://registry.yarnpkg.com/vscode-proxy-agent/-/vscode-proxy-agent-0.5.2.tgz
 	https://registry.yarnpkg.com/vscode-regexpp/-/vscode-regexpp-3.1.0.tgz
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.9.0.tgz
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.6.2.tgz
 	https://registry.yarnpkg.com/vscode-sqlite3/-/vscode-sqlite3-4.0.10.tgz
 	https://registry.yarnpkg.com/vscode-telemetry-extractor/-/vscode-telemetry-extractor-1.6.0.tgz
