@@ -2101,7 +2101,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vscode-oniguruma/-/vscode-oniguruma-1.3.1.tgz
 	https://registry.yarnpkg.com/vscode-proxy-agent/-/vscode-proxy-agent-0.5.2.tgz
 	https://registry.yarnpkg.com/vscode-regexpp/-/vscode-regexpp-3.1.0.tgz
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.9.0.tgz
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.6.2.tgz
 	https://registry.yarnpkg.com/vscode-sqlite3/-/vscode-sqlite3-4.0.10.tgz
 	https://registry.yarnpkg.com/vscode-telemetry-extractor/-/vscode-telemetry-extractor-1.6.0.tgz
@@ -2401,12 +2401,12 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-1.9.0.tgz"
+	tar -xf "${DISTDIR}/vscode-ripgrep-1.11.1.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "1.9.0",/' package.json || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
