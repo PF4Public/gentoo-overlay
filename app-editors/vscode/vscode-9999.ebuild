@@ -28,7 +28,7 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.0.3"
+ELECTRON_SLOT="11.0.5"
 
 declare -A builtin_exts=(
 	["node-debug"]="1.44.15"
@@ -52,7 +52,7 @@ RESTRICT="mirror"
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.10.0.tgz
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
 "
 
 LICENSE="MIT"
@@ -210,12 +210,12 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-1.10.0.tgz"
+	tar -xf "${DISTDIR}/vscode-ripgrep-1.11.1.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.10.0",/' package.json || die
+	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
