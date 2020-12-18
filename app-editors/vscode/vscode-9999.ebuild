@@ -28,12 +28,12 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.0.5"
+ELECTRON_SLOT="11.1.0"
 
 declare -A builtin_exts=(
 	["node-debug"]="1.44.15"
 	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.75"
+	["references-view"]="0.0.76"
 	["js-debug-companion"]="1.0.8"
 	["js-debug"]="1.52.2"
 	["vscode-js-profile-table"]="0.0.11"
@@ -94,15 +94,15 @@ src_prepare() {
 	default
 
 	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/vscode-ripgrep/d' package.json || die
+	sed -i '/"vscode-ripgrep"/d' package.json || die
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
-	sed -i '/vscode-telemetry-extractor/d' build/package.json || die
+	sed -i '/"vscode-telemetry-extractor"/d' build/package.json || die
 	sed -i '/"playwright"/d' package.json || die
 	#einfo "Creating yarn_cache"
 	#mkdir -p ${T}/yarn_cache || die
 	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
-	sed -i '/typescript-web-server/d' extensions/typescript-language-features/package.json || die
+	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
