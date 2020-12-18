@@ -98,7 +98,7 @@ src_prepare() {
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
 	sed -i '/vscode-telemetry-extractor/d' build/package.json || die
-	sed -i '/playwright/d' package.json || die
+	sed -i '/"playwright"/d' package.json || die
 	#einfo "Creating yarn_cache"
 	#mkdir -p ${T}/yarn_cache || die
 	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
