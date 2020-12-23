@@ -106,11 +106,13 @@ src_prepare() {
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
-	sed -i '/remote/d' build/npm/postinstall.js || die
-	sed -i '/test\/automation/d' build/npm/postinstall.js || die
-	sed -i '/test\/smoke/d' build/npm/postinstall.js || die
-	sed -i '/test\/integration\/browser/d' build/npm/postinstall.js || die
 	sed -i '/git config pull/d' build/npm/postinstall.js || die
+
+	einfo "Editing dirs.js"
+	sed -i '/remote/d' build/npm/dirs.js || die
+	sed -i '/test\/automation/d' build/npm/dirs.js || die
+	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
+	sed -i '/test\/smoke/d' build/npm/dirs.js || die
 
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
