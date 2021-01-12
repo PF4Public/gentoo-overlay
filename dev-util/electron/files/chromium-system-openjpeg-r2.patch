@@ -20,8 +20,7 @@ author: Michael Gilbert <mgilbert@debian.org>
 -#if defined(USE_SYSTEM_LIBOPENJPEG2)
 -#include <openjpeg.h>
 +#if 1
-+#include <openjpeg-2.3/openjpeg.h>
++#include <openjpeg-2.4/openjpeg.h>
  #else
  #include "third_party/libopenjpeg20/openjpeg.h"
  #endif
-
