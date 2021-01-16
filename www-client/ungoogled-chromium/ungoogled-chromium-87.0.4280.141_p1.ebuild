@@ -49,7 +49,7 @@ REQUIRED_USE="
 	optimize-thinlto? ( thinlto )
 	cfi? ( thinlto )
 	pgo? ( clang )
-	x86? ( !thinlto )
+	x86? ( !thinlto !widevine )
 "
 
 COMMON_X_DEPEND="
@@ -141,6 +141,7 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
 	tcmalloc? ( !<x11-drivers/nvidia-drivers-331.20 )
+	!x86? ( widevine? ( ~www-plugins/chrome-binary-plugins-${PV/_*} ) )
 	!www-client/chromium
 	!www-client/chromium-bin
 	!www-client/ungoogled-chromium-bin
@@ -1022,6 +1023,8 @@ src_install() {
 	#	insinto "${CHROMIUM_HOME}/swiftshader"
 	#	doins out/Release/swiftshader/*.so
 	#fi
+
+	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so libwidevinecdm.so
 
 	# Install icons
 	local branding size
