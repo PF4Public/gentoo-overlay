@@ -96,7 +96,7 @@ CDEPEND="
 	media-libs/opus
 	media-libs/freetype
 	media-libs/harfbuzz:0[icu(-)]
-	=dev-libs/icu-67*:0
+	=dev-libs/icu-68*:0
 	dev-libs/jsoncpp
 	dev-libs/libevent
 	media-libs/libvpx:0/5[postproc,svc]
