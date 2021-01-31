@@ -99,7 +99,7 @@ CDEPEND="
 	=dev-libs/icu-68*:0
 	dev-libs/jsoncpp
 	dev-libs/libevent
-        media-libs/libvpx:0/6[postproc]
+    media-libs/libvpx:0/6[postproc]
 	media-libs/openh264:0/6
 	media-libs/openjpeg:2/7
 	x11-libs/libva:0/2
