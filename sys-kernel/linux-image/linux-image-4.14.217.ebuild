@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Gentoo Authors
+# Copyright 2009-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
-KEYWORDS="~alpha amd64 arm ~arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
 
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
@@ -20,7 +20,7 @@ REQUIRED_USE="savedconfig"
 
 DEPEND="~sys-kernel/gentoo-sources-${PVR}"
 
-S="${WORKDIR}/linux-${PVR}-gentoo"
+S="${WORKDIR}/linux-${PV}-gentoo${PR:+-$PR}"
 
 #TODO restrict bindists maybe
 RESTRICT="strip"
@@ -29,7 +29,7 @@ RESTRICT="strip"
 
 src_unpack()
 {
-	cp -r "/usr/src/linux-${PVR}-gentoo" "${WORKDIR}"
+	cp -r "/usr/src/linux-${PV}-gentoo${PR:+-$PR}" "${WORKDIR}"
 }
 
 src_prepare()
