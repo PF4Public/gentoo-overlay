@@ -263,7 +263,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Calling this here supports resumption via FEATURES=keepwork
 
 	rm "${WORKDIR}/patches/chromium-84-blink-disable-clang-format.patch" || die
 
