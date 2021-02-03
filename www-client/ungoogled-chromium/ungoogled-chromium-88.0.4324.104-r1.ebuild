@@ -227,6 +227,13 @@ pkg_pretend() {
 		ewarn "Consider disabling this USE flag if something breaks"
 		ewarn
 	fi
+	if use system-libvpx; then
+		ewarn
+		ewarn "Chromium is notorious of relying upon the newest libvpx"
+		ewarn "that is absent from Gentoo, which might result in build failure"
+		ewarn "Consider disabling this USE flag if something breaks"
+		ewarn
+	fi
 	if has_version "sys-libs/libcxx"; then
 		ewarn
 		ewarn "You have sys-libs/libcxx, please make sure that"
