@@ -52,8 +52,6 @@ RESTRICT="mirror"
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
-
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
 	https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz
 	https://registry.yarnpkg.com/acorn/-/acorn-6.4.2.tgz
@@ -1883,6 +1881,7 @@ src_configure() {
 	tar -xf "${DISTDIR}/vscode-ripgrep-1.11.1.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
+	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
