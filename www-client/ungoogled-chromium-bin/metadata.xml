@@ -2,7 +2,7 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>pf4public@mail.ru</email>
+		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
 	<upstream>
 		<remote-id type="github">Eloston/ungoogled-chromium</remote-id>
