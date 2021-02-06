@@ -1,4 +1,4 @@
-# Copyright 2009-2020 Gentoo Authors
+# Copyright 2009-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -65,6 +65,7 @@ COMMON_DEPEND="
 	sys-apps/ripgrep
 	dev-util/electron:${ELECTRON_SLOT}
 "
+#TODO: oniguruma?
 
 RDEPEND="${COMMON_DEPEND}
 "
