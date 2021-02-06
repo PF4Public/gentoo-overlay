@@ -53,6 +53,9 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz	
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
 "
 
 LICENSE="MIT"
@@ -96,13 +99,13 @@ src_prepare() {
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
+	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
+	sed -i '/"esbuild"/d' build/package.json || die
+
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
-	sed -i '/"vscode-telemetry-extractor"/d' build/package.json || die
 	sed -i '/"playwright"/d' package.json || die
-	#einfo "Creating yarn_cache"
-	#mkdir -p ${T}/yarn_cache || die
-	#cp ${DISTDIR}/*.tgz ${T}/yarn_cache
+
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing postinstall.js"
@@ -114,6 +117,7 @@ src_prepare() {
 	sed -i '/test\/automation/d' build/npm/dirs.js || die
 	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
 	sed -i '/test\/smoke/d' build/npm/dirs.js || die
+	sed -i '/test\/monaco/d' build/npm/dirs.js || die
 
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
@@ -216,9 +220,23 @@ src_configure() {
 	tar -xf "${DISTDIR}/vscode-ripgrep-1.11.1.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
+	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
+
+	einfo "Restoring esbuild"
+	pushd build/node_modules > /dev/null || die
+	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
+	mv package esbuild
+	if [[ $myarch = amd64 ]] ; then
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.8.30.tgz"
+	else
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.8.30.tgz"
+	fi
+	mv -f package/bin/esbuild esbuild/bin/
+	popd > /dev/null || die
+	eend $? || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
