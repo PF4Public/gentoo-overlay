@@ -1377,6 +1377,10 @@ src_prepare() {
 	eapply "${FILESDIR}/openssl_fips.patch" || die
 	popd > /dev/null || die
 
+	pushd "${WORKDIR}/${P}" > /dev/null || die
+	sed -i '/test\/mjsunit/Q' "patches/v8/merged_deoptimizer_stricter_checks_during_deoptimization.patch" || die
+	popd > /dev/null || die
+
 	use custom-cflags || rm "${WORKDIR}/patches/chromium-87-compiler.patch" || die
 
 	local PATCHES=(
