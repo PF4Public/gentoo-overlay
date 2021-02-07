@@ -28,7 +28,7 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.1.0"
+ELECTRON_SLOT="11.2.2"
 
 declare -A builtin_exts=(
 	["node-debug"]="1.44.16"
