@@ -28,14 +28,14 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.1.0"
+ELECTRON_SLOT="11.2.2"
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.15"
+	["node-debug"]="1.44.16"
 	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.76"
+	["references-view"]="0.0.77"
 	["js-debug-companion"]="1.0.8"
-	["js-debug"]="1.52.2"
+	["js-debug"]="1.54.0"
 	["vscode-js-profile-table"]="0.0.11"
 	["github-browser"]="0.0.14"
 )
@@ -53,7 +53,7 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 SRC_URI+="
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz	
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
 	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
 "
