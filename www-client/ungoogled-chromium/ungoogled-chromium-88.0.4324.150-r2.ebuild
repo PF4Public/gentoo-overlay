@@ -139,7 +139,6 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
 	tcmalloc? ( !<x11-drivers/nvidia-drivers-331.20 )
-	!x86? ( widevine? ( ~www-plugins/chrome-binary-plugins-${PV} ) )
 	!www-client/chromium
 	!www-client/chromium-bin
 	!www-client/ungoogled-chromium-bin
@@ -1069,5 +1068,10 @@ pkg_postinst() {
 		elog "by navigating to chrome://flags/#enable-accelerated-video-decode"
 		elog "inside Chromium or add --enable-accelerated-video-decode"
 		elog "to CHROMIUM_FLAGS in /etc/chromium/default."
+	fi
+
+	if use widevine; then
+		elog "widevine requires binary plugins, which are distributed separately"
+		elog "Make sure you have www-plugins/chrome-binary-plugins installed"
 	fi
 }
