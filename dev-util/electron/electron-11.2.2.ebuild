@@ -1435,6 +1435,13 @@ src_prepare() {
 				einfo "Skipping ${i}"
 				continue;
 			fi
+			if [ "$i" = "fix_apply_tzdata2020f_to_icu.patch" ]; then
+				einfo "Git binary patch: ${i}"
+				pushd "${patches[$patch_folder]}" > /dev/null || die
+				git apply -p1 < "${S}/${patch_folder}/$i" || die
+				popd > /dev/null || die
+				continue;
+			fi
 			pushd "${patches[$patch_folder]}" > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die
