@@ -1379,6 +1379,7 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	sed -i '/test\/mjsunit/Q' "patches/v8/merged_deoptimizer_stricter_checks_during_deoptimization.patch" || die
+	sed -i '/web_tests/Q' "patches/chromium/add_restrictions_to_allowed_extensions_for_file_system_access_api.patch" || die
 	popd > /dev/null || die
 
 	use custom-cflags || rm "${WORKDIR}/patches/chromium-87-compiler.patch" || die
@@ -1426,7 +1427,7 @@ src_prepare() {
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
-		einfo "Applying patches from ${patch_folder}"
+		einfo "- ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
 			if [ "$i" = "cherry-pick-2f5b8357dca2.patch" ] ||
