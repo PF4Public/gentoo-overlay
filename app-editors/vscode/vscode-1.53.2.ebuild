@@ -1438,8 +1438,8 @@ SRC_URI+="
 	https://registry.yarnpkg.com/typescript-formatter/-/typescript-formatter-7.1.0.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-2.6.2.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz
-	https://registry.yarnpkg.com/typescript/-/typescript-4.1.2.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-4.1.3.tgz
+	https://registry.yarnpkg.com/typescript/-/typescript-4.1.5.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-4.2.0-dev.20201207.tgz
 	https://registry.yarnpkg.com/typescript/-/typescript-4.2.0-dev.20201209.tgz
 	https://registry.yarnpkg.com/typescript-vscode-sh-plugin/-/typescript-vscode-sh-plugin-0.6.14.tgz
@@ -1594,7 +1594,7 @@ SRC_URI+="
 	https://registry.yarnpkg.com/vscode-codicons/-/vscode-codicons-0.0.12.tgz
 	https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-5.0.3.tgz
 	https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.44.0.tgz
-	https://registry.yarnpkg.com/vscode-emmet-helper/-/vscode-emmet-helper-2.2.4-2.tgz
+	https://registry.yarnpkg.com/vscode-emmet-helper/-/vscode-emmet-helper-2.2.4.tgz
 	https://registry.yarnpkg.com/vscode-extension-telemetry/-/vscode-extension-telemetry-0.1.1.tgz
 	https://registry.yarnpkg.com/vscode-gulp-watch/-/vscode-gulp-watch-5.0.3.tgz
 	https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-4.0.1.tgz
@@ -1720,8 +1720,8 @@ SRC_URI+="
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	https://registry.yarnpkg.com/zone.js/-/zone.js-0.7.6.tgz
 	https://codeload.github.com/deepak1556/universal/tar.gz/61454d96223b774c53cda10f72c2098c0ce02d58
-	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
+	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
 "
 
 LICENSE="MIT"
