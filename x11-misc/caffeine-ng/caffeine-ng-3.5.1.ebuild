@@ -19,7 +19,7 @@ if [[ ${PV} == 9999 ]];then
 	EGIT_REPO_URI="${HOMEPAGE}.git"
 else
 	SRC_URI="${HOMEPAGE}/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
 LICENSE="GPL-3"
@@ -40,6 +40,7 @@ DEPEND="
 	dev-libs/libappindicator:3[introspection]
 	x11-libs/gtk+:3
 	x11-libs/libnotify[introspection]
+	dev-python/pulsectl[${PYTHON_USEDEP}]
 "
 RDEPEND="${DEPEND}
 	!x11-misc/caffeine"

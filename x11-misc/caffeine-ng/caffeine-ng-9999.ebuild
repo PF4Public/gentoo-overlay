@@ -40,6 +40,7 @@ DEPEND="
 	dev-libs/libappindicator:3[introspection]
 	x11-libs/gtk+:3
 	x11-libs/libnotify[introspection]
+	dev-python/pulsectl[${PYTHON_USEDEP}]
 "
 RDEPEND="${DEPEND}
 	!x11-misc/caffeine"
