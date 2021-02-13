@@ -95,12 +95,6 @@ src_install()
 	rm "${D}/lib/modules/*/build ${D}/lib/modules/*/source"
 }
 
-pkg_postinst() {
-	elog "Don't forget to update grub configuration using"
-	elog "for example 'grub-mkconfig -o /boot/grub/grub.cfg'"
-	elog "and inspect newly created config in /boot"
-}
-
 #modified version from kernel-2.eclass
 env_setup_xmakeopts()
 {
