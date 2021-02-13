@@ -11,7 +11,7 @@ inherit distutils-r1
 
 DESCRIPTION="An implementation of Extended Window Manager Hints, based on Xlib"
 HOMEPAGE="https://github.com/parkouss/pyewmh https://pypi.python.org/pypi/ewmh"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-3"
 KEYWORDS="amd64 x86"
