@@ -1432,6 +1432,7 @@ src_prepare() {
 		for i in "${topatch[@]}";
 		do
 			if [ "$i" = "cherry-pick-2f5b8357dca2.patch" ] ||
+				[ "$i" = "cherry-pick-5c7ad5393f74.patch" ] ||
 				[ "$i" = "cherry-pick-47e21abe349a.patch" ] ||
 				[ "$i" = "cherry-pick-8f5a08079948.patch" ]; then
 				einfo "Skipping ${i}"
