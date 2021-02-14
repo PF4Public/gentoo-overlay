@@ -19,7 +19,6 @@
 			Requires Java and bundled binary compiler.jar in sources tree
 		</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
-		<flag name="gnome">Improve integration with GIO (libgio).</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="optimize-thinlto">
 			Whether to enable ThinLTO optimizations. Turning ThinLTO
