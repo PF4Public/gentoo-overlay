@@ -7,16 +7,30 @@ PYTHON_COMPAT=( python2_7 )
 
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
+DESCRIPTION="Visual Studio Code - Open Source"
+HOMEPAGE="https://github.com/microsoft/vscode"
+LICENSE="MIT"
+SLOT="0"
+SRC_URI="
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
+"
+
 REPO="https://github.com/microsoft/vscode"
+ELECTRON_VERSION="11.2.3"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
+	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}="
 	IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 else
 	IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}/${ELECTRON_VERSION#*.}"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -28,8 +42,6 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.2.2"
-
 declare -A builtin_exts=(
 	["node-debug"]="1.44.16"
 	["node-debug2"]="1.42.5"
@@ -39,7 +51,7 @@ declare -A builtin_exts=(
 	["vscode-js-profile-table"]="0.0.11"
 	["github-browser"]="0.0.14"
 )
-SRC_URI="${DOWNLOAD}
+SRC_URI+="${DOWNLOAD}
 builtin-extensions? ("
 for ext in "${!builtin_exts[@]}";
 do
@@ -49,24 +61,12 @@ SRC_URI+=") "
 
 RESTRICT="mirror"
 
-DESCRIPTION="Visual Studio Code - Open Source"
-HOMEPAGE="https://github.com/microsoft/vscode"
-SRC_URI+="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
-"
-
-LICENSE="MIT"
-SLOT="0"
-
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	dev-util/electron:${ELECTRON_SLOT}
+	dev-util/electron:${ELECTRON_DEPS}
 "
 #TODO: oniguruma?
 
@@ -192,9 +192,9 @@ src_configure() {
 	ebegin "Installing node_modules"
 #	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
-	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
+	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
+	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 #	echo "$PATH"
 	if ! use build-online
@@ -203,7 +203,7 @@ src_configure() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	yarn config set nodedir /usr/include/electron-${ELECTRON_VERSION%%.*}/node || die
 	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 #--ignore-optional
@@ -259,9 +259,6 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
-	#export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
-	#export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	#export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 
 	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 }
@@ -278,7 +275,7 @@ src_install() {
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
-	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
+	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
