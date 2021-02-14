@@ -1719,16 +1719,6 @@ src_unpack() {
 
 src_configure() {
 
-	local myarch="$(tc-arch)"
-
-	if [[ $myarch = amd64 ]] ; then
-		VSCODE_ARCH="x64"
-	elif [[ $myarch = x86 ]] ; then
-		VSCODE_ARCH="ia32"
-	else
-		die "Failed to determine target arch, got '$myarch'."
-	fi
-
 	ebegin "Installing node_modules"
 	#OLD_PATH=$PATH
 	#export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
@@ -1743,17 +1733,14 @@ src_configure() {
 	fi
 	yarn config set disable-self-update-check true || die
 	#yarn config set nodedir /usr/include/electron-${ELECTRON_VERSION%%.*}/node || die
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
-		--arch=${VSCODE_ARCH} --no-progress || die
+	yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 
 	pushd node_modules/matrix-js-sdk > /dev/null || die
-		yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
-			--arch=${VSCODE_ARCH} --no-progress || die
+		yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 
 	pushd node_modules/matrix-react-sdk > /dev/null || die
-		yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
-			--arch=${VSCODE_ARCH} --no-progress || die
+		yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 
 #--ignore-optional
