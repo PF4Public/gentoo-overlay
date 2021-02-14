@@ -1,11 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 # Based on postgresql.eselect
 
 inherit config multilib
 
 DESCRIPTION="Utility to select the default Electron slot"
-VERSION="0.1"
+VERSION="0.2"
 
 # We do a lot of things in /usr and it's a bit of a pain to write this
 # constantly.
@@ -16,7 +16,7 @@ active_slot() {
     # slot. See if it's there, then find out where it links to.
 	if [[ -h "${USR_PATH}/bin/electron" ]] ; then
 		canonicalise -m "${USR_PATH}/bin/electron" | \
-			sed -re 's#.*-([1-9][0-9.]+)/electron$#\1#'
+			sed -re 's#.*-([1-9][0-9]?)/electron$#\1#'
 	else
 		echo "(none)"
 	fi
@@ -46,7 +46,7 @@ get_slots() {
 
 	for slot in $(find "${USR_PATH}/$(lib_dir)/" \
 					   -mindepth 1 -maxdepth 1 -type d -name 'electron-*' | \
-						 sed -re 's#.*-([1-9][0-9.]+)$#\1#' | sort -n)
+						 sed -re 's#.*-([1-9][0-9]?)$#\1#' | sort -n)
 	do
 		found_slots+=( ${slot} )
 	done
@@ -141,7 +141,7 @@ do_unset() {
 	fi
 
 	# Get the file path that the link is pointing to. If it has the string
-	# "postgresql-${slot}" somewhere in it, then it's a link that this module is
+	# "electron-${slot}" somewhere in it, then it's a link that this module is
 	# handling.
 	is_active_slot_link() {
 		if [[ $(canonicalise -m "$1") == *electron-${slot}* ]] ; then
@@ -162,10 +162,10 @@ do_unset() {
 		# will be or has been added in this loop.
 		[[ -h "${USR_PATH}/${lib}" ]] && continue
 
-		# If the $libdir/postgresql symlink exists, then there are certainly
+		# If the $libdir/electron symlink exists, then there are certainly
 		# others within that same directory that must be cleaned up.
 		if [[ -h "${USR_PATH}/${lib}/electron" ]] ; then
-			paths+=( "${USR_PATH}/${lib}" )
+			paths+=( "${USR_PATH}/${lib}/electron" )
 		fi
 	done
 
