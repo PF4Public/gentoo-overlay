@@ -3102,7 +3102,7 @@ src_configure() {
 
 src_compile() {
 
-	node yarn run build || die
+	node /usr/bin/yarn run build || die
 }
 
 src_install() {
