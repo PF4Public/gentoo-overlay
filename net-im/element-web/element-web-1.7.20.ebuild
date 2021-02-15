@@ -3023,22 +3023,8 @@ src_unpack() {
 	fi
 }
 
-#src_prepare() {
-#	default
-#}
-
 src_configure() {
-
 	ebegin "Installing node_modules"
-	#OLD_PATH=$PATH
-	#export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
-	#export CFLAGS="${CFLAGS} -I/usr/include/node"
-	#export CPPFLAGS="${CPPFLAGS} -I/usr/include/node"
-	#export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-#	echo "$PATH"
-	#export PATH="/usr/$(get_libdir)/electron-11:/usr/$(get_libdir)/electron-11/npm/bin/node-gyp-bin:$PATH"
-	#export CFLAGS="${CFLAGS} -I/usr/include/electron-11/node"
-	#export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-11/node"
 	export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/node || die
@@ -3060,104 +3046,21 @@ src_configure() {
 		tar -xf "${DISTDIR}/matrix-react-sdk-v3.13.1.tar.gz" --strip-components=1 --overwrite
 		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
-
-#--ignore-optional
-#--ignore-engines
-#--production=true
-#--no-progress
-#--skip-integrity-check
-#--verbose
-
-	#export PATH=${OLD_PATH}
-
-	# einfo "Restoring vscode-ripgrep"
-	# pushd node_modules > /dev/null || die
-	# tar -xf "${DISTDIR}/vscode-ripgrep-1.11.1.tgz"
-	# mv package vscode-ripgrep
-	# sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
-	# sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
-	# popd > /dev/null || die
-	# eend $? || die
-	# sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
-
-	# einfo "Restoring esbuild"
-	# pushd build/node_modules > /dev/null || die
-	# tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
-	# mv package esbuild
-	# if [[ $myarch = amd64 ]] ; then
-	# 	tar -xf "${DISTDIR}/esbuild-linux-64-0.8.30.tgz"
-	# else
-	# 	tar -xf "${DISTDIR}/esbuild-linux-32-0.8.30.tgz"
-	# fi
-	# mv -f package/bin/esbuild esbuild/bin/
-	# popd > /dev/null || die
-	# eend $? || die
-
-	# #rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	# #rm -rf extensions/css-language-features/server/test > /dev/null || die
-
-	# einfo "Editing build/lib/util.js"
-	# sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
 }
 
 src_compile() {
-
 	node /usr/bin/yarn run build || die
 }
 
 src_install() {
-	die
-	# YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	# local VSCODE_HOME="/usr/$(get_libdir)/vscode"
+	insinto /usr/share/element-web
+	doins -r webapp/*
+	dosym /etc/element-web/config.json /usr/share/element-web/config.json
 
-	# if use ignore-gpu-blacklist
-	# then
-	# 	IGNORE_BLACKLIST="--ignore-gpu-blacklist"
-	# fi
+	insinto /etc/element-web
+	newins config.sample.json config.json
 
-	# exeinto "${VSCODE_HOME}"
-	# sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
-	# echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
-	# ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}\"
-	# CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	# exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	# NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	# \"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" ${IGNORE_BLACKLIST} \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
-	# doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
-	# dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
-
-	# if use builtin-extensions
-	# then
-	# einfo "Installing builtin extensions"
-	# pushd "${T}" > /dev/null || die
-	# for ext in "${!builtin_exts[@]}";
-	# do
-	# 	cp "${DISTDIR}/ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" "${T}" || die
-	# 	gunzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" || die
-	# 	unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* > /dev/null || die
-	# 	mv extension "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/extensions/ms-vscode.${ext}" || die
-	# done
-	# popd > /dev/null || die
-	# fi
-
-	# insinto "${VSCODE_HOME}"
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
-	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
-
-	# pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
-
-	# insinto /usr/share/
-	# sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	# doins -r applications bash-completion pixmaps zsh
-
-	# insinto /usr/share/metainfo/
-	# doins appdata/*
-
-	# popd > /dev/null || die
+	newicon res/themes/element/img/logos/element-logo.svg element.svg
 }
 
 pkg_postinst() {
