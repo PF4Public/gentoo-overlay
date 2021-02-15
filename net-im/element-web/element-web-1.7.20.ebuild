@@ -8,6 +8,9 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI="
+	https://github.com/matrix-org/matrix-react-sdk/archive/v3.13.1.tar.gz -> matrix-react-sdk-v3.13.1.tar.gz
+	https://github.com/matrix-org/matrix-js-sdk/archive/v9.6.0.tar.gz -> matrix-js-sdk-v9.6.0.tar.gz
+
 	https://packages.matrix.org/npm/olm/olm-3.2.1.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
 	https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz
@@ -2853,10 +2856,12 @@ src_configure() {
 	node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 
 	pushd node_modules/matrix-js-sdk > /dev/null || die
+		tar -xf "${DISTDIR}/matrix-js-sdk-v9.6.0.tar.gz" --strip-components=1 --overwrite
 		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 
 	pushd node_modules/matrix-react-sdk > /dev/null || die
+		tar -xf "${DISTDIR}/matrix-react-sdk-v3.13.1.tar.gz" --strip-components=1 --overwrite
 		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 
