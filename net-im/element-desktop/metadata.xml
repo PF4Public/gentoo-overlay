@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">vector-im/element-desktop</remote-id>
+	</upstream>
+	<longdescription>A glossy Matrix collaboration client for desktop</longdescription>
+	<use>
+		<flag name="build-online">If yarn fails with cached dependencies, it is possible to temporarily allow networking during build with USE="build-online" FEATURES="-network-sandbox" emerge</flag>
+		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
+	</use>
+</pkgmetadata>
