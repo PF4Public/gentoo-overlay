@@ -2541,6 +2541,11 @@ src_unpack() {
 	else
 		unpack "${PN}-${ELEMENT_COMMIT_ID}.tar.gz" || die
 	fi
+
+	if use native-modules
+	then
+		custom_cargo_src_unpack
+	fi
 }
 
 # src_prepare() {
@@ -2672,14 +2677,13 @@ src_compile() {
 
 	if use native-modules
 	then
-		custom_cargo_src_unpack
 		mkdir -p .hak/matrix-seshat .hak/keytar
 		pushd .hak/matrix-seshat > /dev/null || die
 			tar -xf "${DISTDIR}/matrix-seshat-2.2.3.tar.gz" || die
 			mv seshat-*/seshat-node build
 			pushd build > /dev/null || die
 				node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --ignore-scripts --no-progress || die
-				cd native; cargo build --release --verbose; cd ..
+				cd native; cargo build --offline --release --verbose; cd ..
 			popd > /dev/null || die
 		popd > /dev/null || die
 		pushd .hak/keytar > /dev/null || die
