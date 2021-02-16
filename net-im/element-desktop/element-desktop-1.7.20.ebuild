@@ -2319,6 +2319,7 @@ COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	dev-util/electron:${ELECTRON_DEPS}
 	native-modules? ( dev-db/sqlcipher )
+	net-libs/nodejs
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -2466,6 +2467,12 @@ src_compile() {
 #--skip-integrity-check
 #--verbose
 
+	einfo "Editing ElectronFramework.js"
+	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
+		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
+		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+
 	if use native-modules
 	then
 		mkdir -p .hak/matrix-seshat .hak/keytar
@@ -2486,7 +2493,14 @@ src_compile() {
 		node /usr/bin/yarn run build:native
 	fi
 
-	node /usr/bin/yarn run asar-webapp
+	/usr/bin/node node_modules/.bin/electron-builder --dir
+
+	#cp -r /usr/share/element-web webapp
+	#rm -f webapp/config.json
+	#cp -f /etc/element-web/config.json webapp/config.json
+	#node node_modules/.bin/asar p webapp webapp.asar
+	#node node_modules/.bin/asar l webapp.asar
+
 	export PATH=${OLD_PATH}
 
 	die
