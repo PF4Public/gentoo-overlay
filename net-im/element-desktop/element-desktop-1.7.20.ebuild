@@ -74,6 +74,7 @@ CRATES="
 	gimli-0.23.0
 	hashbrown-0.9.1
 	hashlink-0.6.0
+	hermit-abi-0.1.18
 	hkdf-0.10.0
 	hmac-0.10.1
 	htmlescape-0.3.1
@@ -197,6 +198,29 @@ CRATES="
 	void-1.0.2
 	walkdir-2.3.1
 	zeroize-1.2.0
+    aesni-0.10.0
+    cloudabi-0.0.3
+    fsevent-0.4.0
+    fsevent-sys-2.0.1
+    fuchsia-cprng-0.1.1
+    fuchsia-zircon-0.3.3
+    fuchsia-zircon-sys-0.3.3
+    kernel32-sys-0.2.2
+    miow-0.2.2
+    rand_hc-0.2.0
+    rand_hc-0.3.0
+    rdrand-0.4.0
+    redox_syscall-0.2.5
+    vcpkg-0.2.11
+    wasi-0.10.2+wasi-snapshot-preview1
+    wasi-0.9.0+wasi-snapshot-preview1
+    winapi-0.2.8
+    winapi-0.3.9
+    winapi-build-0.1.1
+    winapi-i686-pc-windows-gnu-0.4.0
+    winapi-util-0.1.5
+    winapi-x86_64-pc-windows-gnu-0.4.0
+    ws2_32-sys-0.2.1
 "
 
 inherit desktop flag-o-matic multilib toolchain-funcs cargo xdg-utils
