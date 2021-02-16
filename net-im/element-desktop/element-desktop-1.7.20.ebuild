@@ -2,8 +2,204 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+CARGO_OPTIONAL=1
+CRATES="
+	autocfg-1.0.1
+	libc-0.2.86
+	cfg-if-1.0.0
+	memchr-2.3.4
+	proc-macro2-1.0.24
+	unicode-xid-0.2.1
+	syn-1.0.60
+	version_check-0.9.2
+	cfg-if-0.1.10
+	lazy_static-1.4.0
+	once_cell-1.5.2
+	regex-syntax-0.6.22
+	typenum-1.12.0
+	cc-1.0.66
+	scopeguard-1.1.0
+	autocfg-0.1.7
+	rand_core-0.4.2
+	log-0.4.14
+	bitflags-1.2.1
+	getrandom-0.2.2
+	serde_derive-1.0.118
+	maybe-uninit-2.0.0
+	proc-macro-hack-0.5.19
+	const_fn-0.4.5
+	ppv-lite86-0.2.10
+	slab-0.4.2
+	smallvec-1.6.1
+	serde-1.0.118
+	getrandom-0.1.16
+	proc-macro-nested-0.1.7
+	adler-0.2.3
+	gimli-0.23.0
+	futures-core-0.3.12
+	rustc-demangle-0.1.18
+	object-0.23.0
+	byteorder-1.4.2
+	futures-sink-0.3.12
+	rayon-core-1.9.0
+	pkg-config-0.3.19
+	opaque-debug-0.3.0
+	pin-project-lite-0.2.4
+	subtle-2.4.0
+	ahash-0.4.7
+	crunchy-0.2.2
+	failure_derive-0.1.8
+	remove_dir_all-0.5.3
+	ryu-1.0.5
+	futures-io-0.3.12
+	nix-0.14.1
+	pin-utils-0.1.0
+	same-file-1.0.6
+	serde_json-1.0.61
+	void-1.0.2
+	snap-1.0.4
+	bytes-1.0.1
+	crc32fast-1.2.1
+	either-1.6.1
+	lazycell-1.3.0
+	stable_deref_trait-1.2.0
+	fallible-streaming-iterator-0.1.9
+	regex-syntax-0.4.2
+	fallible-iterator-0.2.0
+	itoa-0.4.7
+	semver-parser-0.7.0
+	utf8-ranges-1.0.4
+	cpuid-bool-0.1.2
+	fnv-1.0.7
+	htmlescape-0.3.1
+	linked-hash-map-0.5.4
+	cslice-0.2.0
+	census-0.4.0
+	downcast-rs-1.2.0
+	maplit-1.0.2
+	base64-0.11.0
+	base64-0.13.0
+	fs_extra-1.2.0
+	zeroize-1.2.0
+	instant-0.1.9
+	num-traits-0.2.14
+	crossbeam-utils-0.8.1
+	num-integer-0.1.44
+	crossbeam-utils-0.7.2
+	memoffset-0.6.1
+	miniz_oxide-0.4.3
+	memoffset-0.5.6
+	crossbeam-epoch-0.8.2
+	num-iter-0.1.42
+	rayon-1.5.0
+	num-rational-0.2.4
+	num-complex-0.2.4
+	thread_local-1.1.3
+	generic-array-0.14.4
+	error-chain-0.12.4
+	lock_api-0.4.2
+	rand_core-0.3.1
+	rand_jitter-0.1.4
+	rand_pcg-0.1.2
+	rand_chacha-0.1.1
+	rand-0.6.5
+	neon-build-0.4.0
+	futures-task-0.3.12
+	fst-0.3.5
+	murmurhash32-0.2.0
+	futures-channel-0.3.12
+	libsqlite3-sys-0.20.1
+	hashbrown-0.9.1
+	walkdir-2.3.1
+	addr2line-0.14.1
+	itertools-0.8.2
+	owned-read-0.4.1
+	owning_ref-0.4.1
+	semver-0.9.0
+	lru-cache-0.1.2
+	tinysegmenter-0.1.1
+	rand_xorshift-0.1.1
+	rand_isaac-0.1.1
+	rand_hc-0.1.0
+	levenshtein_automata-0.1.1
+	hashlink-0.6.0
+	aho-corasick-0.7.15
+	combine-4.5.2
+	quote-1.0.9
+	num_cpus-1.13.0
+	net2-0.2.37
+	iovec-0.1.4
+	parking_lot_core-0.8.3
+	rand-0.4.6
+	rand_os-0.1.3
+	inotify-sys-0.1.5
+	filetime-0.2.14
+	time-0.1.43
+	fs2-0.4.3
+	memmap-0.7.0
+	tantivy-fst-0.2.1
+	bitpacking-0.8.2
+	crossbeam-channel-0.5.0
+	crossbeam-epoch-0.9.1
+	crossbeam-queue-0.2.3
+	crossbeam-channel-0.4.4
+	backtrace-0.3.56
+	regex-1.4.3
+	rand_core-0.6.2
+	mio-0.6.23
+	rand_core-0.5.1
+	parking_lot-0.11.1
+	inotify-0.7.1
+	tempdir-0.3.7
+	tantivy-query-grammar-0.12.0
+	rusqlite-0.24.2
+	digest-0.9.0
+	cipher-0.2.5
+	crypto-mac-0.10.0
+	block-buffer-0.9.0
+	chrono-0.4.19
+	crossbeam-deque-0.8.0
+	crossbeam-deque-0.7.3
+	neon-sys-0.4.0
+	rand_chacha-0.3.0
+	rand_chacha-0.2.2
+	mio-extras-2.0.6
+	scheduled-thread-pool-0.2.5
+	synstructure-0.12.4
+	atomicwrites-0.2.5
+	fail-0.3.0
+	futures-macro-0.3.12
+	thiserror-impl-1.0.23
+	aes-soft-0.6.4
+	ctr-0.6.0
+	hmac-0.10.1
+	sha2-0.9.3
+	num-0.2.1
+	crossbeam-0.7.3
+	rand-0.8.3
+	rand-0.7.3
+	notify-4.0.15
+	r2d2-0.8.9
+	futures-util-0.3.12
+	thiserror-1.0.23
+	aes-ctr-0.6.0
+	hkdf-0.10.0
+	pbkdf2-0.6.0
+	tempfile-3.2.0
+	r2d2_sqlite-0.17.0
+	failure-0.1.8
+	futures-executor-0.3.12
+	uuid-0.8.2
+	rust-stemmers-1.2.0
+	futures-0.3.12
+	tantivy-0.12.0
+	neon-runtime-0.4.0
+	neon-0.4.0
+	neon-serde-0.4.0
+	seshat-2.2.3
+"
 
-inherit desktop flag-o-matic multilib toolchain-funcs xdg-utils
+inherit desktop flag-o-matic multilib toolchain-funcs cargo xdg-utils
 
 DESCRIPTION="A glossy Matrix collaboration client for desktop"
 HOMEPAGE="https://element.io/"
@@ -13,6 +209,7 @@ SRC_URI="
 	native-modules? (
 		https://github.com/matrix-org/seshat/archive/2.2.3.tar.gz -> matrix-seshat-2.2.3.tar.gz
 		https://github.com/atom/node-keytar/archive/v5.6.0.tar.gz -> keytar-5.6.0.tar.gz
+		$(cargo_crate_uris ${CRATES})
 	)
 
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.0.3.tgz
@@ -2475,6 +2672,7 @@ src_compile() {
 
 	if use native-modules
 	then
+		cargo_src_unpack
 		mkdir -p .hak/matrix-seshat .hak/keytar
 		pushd .hak/matrix-seshat > /dev/null || die
 			tar -xf "${DISTDIR}/matrix-seshat-2.2.3.tar.gz" || die
