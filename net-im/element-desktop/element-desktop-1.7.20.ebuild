@@ -2678,14 +2678,15 @@ src_compile() {
 			tar -xf "${DISTDIR}/matrix-seshat-2.2.3.tar.gz" || die
 			mv seshat-*/seshat-node build
 			pushd build > /dev/null || die
-				node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+				node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --ignore-scripts --no-progress || die
+				cd native; cargo build --release --verbose; cd ..
 			popd > /dev/null || die
 		popd > /dev/null || die
 		pushd .hak/keytar > /dev/null || die
 			tar -xf "${DISTDIR}/keytar-5.6.0.tar.gz" || die
-			mv keytar-* build
+			mv node-keytar-* build
 			pushd build > /dev/null || die
-				node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+				node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --ignore-scripts --no-progress || die
 			popd > /dev/null || die
 		popd > /dev/null || die
 		node /usr/bin/yarn run build:native
