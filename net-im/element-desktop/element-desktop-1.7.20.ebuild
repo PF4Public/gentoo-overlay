@@ -3035,9 +3035,8 @@ src_compile() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 
-	ebegin "Installing node_modules"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-	eend $? || die
+	einfo "Installing node_modules"
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
 	einfo "Editing ElectronFramework.js"
 	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
@@ -3050,7 +3049,7 @@ src_compile() {
 		node /usr/bin/yarn run build:native
 	fi
 
-	#Unknown argument with electron's node
+	#!Unknown argument with electron's node
 	/usr/bin/node node_modules/.bin/electron-builder --dir
 
 	#cp -r /usr/share/element-web webapp
@@ -3060,62 +3059,15 @@ src_compile() {
 	#node node_modules/.bin/asar l webapp.asar
 
 	export PATH=${OLD_PATH}
-
-	die
 }
 
 src_install() {
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
+	insinto "/usr/$(get_libdir)/element-desktop"
 
-	if use ignore-gpu-blacklist
-	then
-		IGNORE_BLACKLIST="--ignore-gpu-blacklist"
-	fi
+	doins -r dist/linux-unpacked/resources/*
+	dosym /usr/share/element-web webapp
 
-	exeinto "${VSCODE_HOME}"
-	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
-	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
-	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}\"
-	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" ${IGNORE_BLACKLIST} \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
-	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
-	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
-
-	if use builtin-extensions
-	then
-	einfo "Installing builtin extensions"
-	pushd "${T}" > /dev/null || die
-	for ext in "${!builtin_exts[@]}";
-	do
-		cp "${DISTDIR}/ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" "${T}" || die
-		gunzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" || die
-		unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* > /dev/null || die
-		mv extension "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/extensions/ms-vscode.${ext}" || die
-	done
-	popd > /dev/null || die
-	fi
-
-	insinto "${VSCODE_HOME}"
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
-
-	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
-
-	insinto /usr/share/
-	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion pixmaps zsh
-
-	insinto /usr/share/metainfo/
-	doins appdata/*
-
-	popd > /dev/null || die
+	make_desktop_entry "electron-${ELECTRON_VERSION%%.*} /usr/$(get_libdir)/element-desktop/app.asar" Element element "Network;Chat"
 }
 
 pkg_postrm() {
