@@ -3371,11 +3371,11 @@ src_compile() {
 #--skip-integrity-check
 #--verbose
 
-	einfo "Editing ElectronFramework.js"
-	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	# einfo "Editing ElectronFramework.js"
+	# sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
+	# 	node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	# sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
+	# 	node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
 	if use native-modules
 	then
