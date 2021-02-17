@@ -2,240 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CARGO_OPTIONAL=1
-CRATES="
-	addr2line-0.14.1
-	adler-0.2.3
-	aes-ctr-0.6.0
-	aes-soft-0.6.4
-	ahash-0.4.7
-	aho-corasick-0.7.15
-	atomicwrites-0.2.5
-	autocfg-0.1.7
-	autocfg-1.0.1
-	backtrace-0.3.56
-	base64-0.11.0
-	base64-0.13.0
-	bitflags-1.2.1
-	bitpacking-0.8.2
-	block-buffer-0.9.0
-	byteorder-1.4.2
-	bytes-1.0.1
-	cc-1.0.66
-	census-0.4.0
-	cfg-if-0.1.10
-	cfg-if-1.0.0
-	chrono-0.4.19
-	cipher-0.2.5
-	combine-4.5.2
-	const_fn-0.4.5
-	cpuid-bool-0.1.2
-	crc32fast-1.2.1
-	crossbeam-0.7.3
-	crossbeam-channel-0.4.4
-	crossbeam-channel-0.5.0
-	crossbeam-deque-0.7.3
-	crossbeam-deque-0.8.0
-	crossbeam-epoch-0.8.2
-	crossbeam-epoch-0.9.1
-	crossbeam-queue-0.2.3
-	crossbeam-utils-0.7.2
-	crossbeam-utils-0.8.1
-	crunchy-0.2.2
-	crypto-mac-0.10.0
-	cslice-0.2.0
-	ctr-0.6.0
-	digest-0.9.0
-	downcast-rs-1.2.0
-	either-1.6.1
-	error-chain-0.12.4
-	fail-0.3.0
-	failure_derive-0.1.8
-	failure-0.1.8
-	fallible-iterator-0.2.0
-	fallible-streaming-iterator-0.1.9
-	filetime-0.2.14
-	fnv-1.0.7
-	fs_extra-1.2.0
-	fs2-0.4.3
-	fst-0.3.5
-	futures-0.3.12
-	futures-channel-0.3.12
-	futures-core-0.3.12
-	futures-executor-0.3.12
-	futures-io-0.3.12
-	futures-macro-0.3.12
-	futures-sink-0.3.12
-	futures-task-0.3.12
-	futures-util-0.3.12
-	generic-array-0.14.4
-	getrandom-0.1.16
-	getrandom-0.2.2
-	gimli-0.23.0
-	hashbrown-0.9.1
-	hashlink-0.6.0
-	hermit-abi-0.1.18
-	hkdf-0.10.0
-	hmac-0.10.1
-	htmlescape-0.3.1
-	inotify-0.7.1
-	inotify-sys-0.1.5
-	instant-0.1.9
-	iovec-0.1.4
-	itertools-0.8.2
-	itoa-0.4.7
-	lazy_static-1.4.0
-	lazycell-1.3.0
-	levenshtein_automata-0.1.1
-	libc-0.2.86
-	libsqlite3-sys-0.20.1
-	linked-hash-map-0.5.4
-	lock_api-0.4.2
-	log-0.4.14
-	lru-cache-0.1.2
-	maplit-1.0.2
-	maybe-uninit-2.0.0
-	memchr-2.3.4
-	memmap-0.7.0
-	memoffset-0.5.6
-	memoffset-0.6.1
-	miniz_oxide-0.4.3
-	mio-0.6.23
-	mio-extras-2.0.6
-	murmurhash32-0.2.0
-	neon-0.4.0
-	neon-build-0.4.0
-	neon-runtime-0.4.0
-	neon-serde-0.4.0
-	neon-sys-0.4.0
-	net2-0.2.37
-	nix-0.14.1
-	notify-4.0.15
-	num_cpus-1.13.0
-	num-0.2.1
-	num-complex-0.2.4
-	num-integer-0.1.44
-	num-iter-0.1.42
-	num-rational-0.2.4
-	num-traits-0.2.14
-	object-0.23.0
-	once_cell-1.5.2
-	opaque-debug-0.3.0
-	owned-read-0.4.1
-	owning_ref-0.4.1
-	parking_lot_core-0.8.3
-	parking_lot-0.11.1
-	pbkdf2-0.6.0
-	pin-project-lite-0.2.4
-	pin-utils-0.1.0
-	pkg-config-0.3.19
-	ppv-lite86-0.2.10
-	proc-macro-hack-0.5.19
-	proc-macro-nested-0.1.7
-	proc-macro2-1.0.24
-	quote-1.0.9
-	r2d2_sqlite-0.17.0
-	r2d2-0.8.9
-	rand_chacha-0.1.1
-	rand_chacha-0.2.2
-	rand_chacha-0.3.0
-	rand_core-0.3.1
-	rand_core-0.4.2
-	rand_core-0.5.1
-	rand_core-0.6.2
-	rand_hc-0.1.0
-	rand_isaac-0.1.1
-	rand_jitter-0.1.4
-	rand_os-0.1.3
-	rand_pcg-0.1.2
-	rand_xorshift-0.1.1
-	rand-0.4.6
-	rand-0.6.5
-	rand-0.7.3
-	rand-0.8.3
-	rayon-1.5.0
-	rayon-core-1.9.0
-	regex-1.4.3
-	regex-syntax-0.4.2
-	regex-syntax-0.6.22
-	remove_dir_all-0.5.3
-	rusqlite-0.24.2
-	rust-stemmers-1.2.0
-	rustc-demangle-0.1.18
-	ryu-1.0.5
-	same-file-1.0.6
-	scheduled-thread-pool-0.2.5
-	scopeguard-1.1.0
-	semver-0.9.0
-	semver-parser-0.7.0
-	serde_derive-1.0.118
-	serde_json-1.0.61
-	serde-1.0.118
-	seshat-2.2.3
-	sha2-0.9.3
-	slab-0.4.2
-	smallvec-1.6.1
-	snap-1.0.4
-	stable_deref_trait-1.2.0
-	subtle-2.4.0
-	syn-1.0.60
-	synstructure-0.12.4
-	tantivy-0.12.0
-	tantivy-fst-0.2.1
-	tantivy-query-grammar-0.12.0
-	tempdir-0.3.7
-	tempfile-3.2.0
-	thiserror-1.0.23
-	thiserror-impl-1.0.23
-	thread_local-1.1.3
-	time-0.1.43
-	tinysegmenter-0.1.1
-	typenum-1.12.0
-	unicode-xid-0.2.1
-	utf8-ranges-1.0.4
-	uuid-0.8.2
-	version_check-0.9.2
-	void-1.0.2
-	walkdir-2.3.1
-	zeroize-1.2.0
-    aesni-0.10.0
-    cloudabi-0.0.3
-    fsevent-0.4.0
-    fsevent-sys-2.0.1
-    fuchsia-cprng-0.1.1
-    fuchsia-zircon-0.3.3
-    fuchsia-zircon-sys-0.3.3
-    kernel32-sys-0.2.2
-    miow-0.2.2
-    rand_hc-0.2.0
-    rand_hc-0.3.0
-    rdrand-0.4.0
-    redox_syscall-0.2.5
-    vcpkg-0.2.11
-    wasi-0.10.2+wasi-snapshot-preview1
-    wasi-0.9.0+wasi-snapshot-preview1
-    winapi-0.2.8
-    winapi-0.3.9
-    winapi-build-0.1.1
-    winapi-i686-pc-windows-gnu-0.4.0
-    winapi-util-0.1.5
-    winapi-x86_64-pc-windows-gnu-0.4.0
-    ws2_32-sys-0.2.1
-"
 
-inherit desktop flag-o-matic multilib toolchain-funcs cargo xdg-utils
+inherit desktop flag-o-matic multilib xdg-utils
 
 DESCRIPTION="A glossy Matrix collaboration client for desktop"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-SRC_URI="
-	native-modules? (
-		https://github.com/matrix-org/seshat/archive/2.2.3.tar.gz -> matrix-seshat-2.2.3.tar.gz
-		https://github.com/atom/node-keytar/archive/v5.6.0.tar.gz -> keytar-5.6.0.tar.gz
-		$(cargo_crate_uris ${CRATES})
-	)
-
+SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.0.3.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.3.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
@@ -3184,7 +2958,7 @@ SRC_URI="
 	https://registry.yarnpkg.com/zip-stream/-/zip-stream-4.0.4.tgz
 	https://registry.npmjs.org/event-stream/-/event-stream-3.3.4.tgz#4ab4c9a0f5a54db9338b4c34d86bfce8f4b35571
 	https://codeload.github.com/kpdecker/istanbul/tar.gz/dd1228d2f0a6e8506cbb5dba398a8297b1dbaf22
-"
+) "
 
 REPO="https://github.com/vector-im/element-desktop"
 ELECTRON_VERSION="11.2.3"
@@ -3213,12 +2987,12 @@ fi
 SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
+REQUIRED_USE="native-modules? ( build-online )"
 
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	dev-util/electron:${ELECTRON_DEPS}
 	native-modules? ( dev-db/sqlcipher )
-	net-libs/nodejs
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -3228,8 +3002,9 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	${PYTHON_DEPS}
-	sys-apps/yarn
 	native-modules? ( virtual/rust )
+	net-libs/nodejs
+	sys-apps/yarn
 "
 
 src_unpack() {
@@ -3243,113 +3018,9 @@ src_unpack() {
 	else
 		unpack "${PN}-${ELEMENT_COMMIT_ID}.tar.gz" || die
 	fi
-
-	if use native-modules
-	then
-		custom_cargo_src_unpack
-	fi
 }
 
-# src_prepare() {
-# 	default
-
-# 	einfo "Removing vscode-ripgrep and other dependencies"
-# 	sed -i '/"vscode-ripgrep"/d' package.json || die
-# 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
-# 	sed -i '/"esbuild"/d' build/package.json || die
-
-# 	#sed -i '/"electron"/d' package.json || die
-# 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
-# 	sed -i '/"playwright"/d' package.json || die
-
-# 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
-
-# 	einfo "Editing postinstall.js"
-# 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
-# 	sed -i '/git config pull/d' build/npm/postinstall.js || die
-
-# 	einfo "Editing dirs.js"
-# 	sed -i '/remote/d' build/npm/dirs.js || die
-# 	sed -i '/test\/automation/d' build/npm/dirs.js || die
-# 	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
-# 	sed -i '/test\/smoke/d' build/npm/dirs.js || die
-# 	sed -i '/test\/monaco/d' build/npm/dirs.js || die
-
-# 	einfo "Editing build/gulpfile.extensions.js"
-# 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
-
-# 	einfo "Editing build/gulpfile.vscode.js"
-# 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
-# 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
-
-# 	einfo "Editing build/gulpfile.vscode.linux.js"
-# 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
-
-# 	einfo "Editing product.json"
-
-# 	mv product.json product.json.bak || die
-# 	sed -i '1d' product.json.bak || die
-
-# 	if use liveshare
-# 	then
-# 	sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.vscode-js-profile-flame", "ms-vsliveshare.vsliveshare",/' product.json.bak || die
-# 	fi
-
-# 	if use insiders
-# 	then
-# 	sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.references-view", "ms-vsliveshare.vsliveshare", "ms-vsliveshare.cloudenv", "ms-vsliveshare.cloudenv-explorer", "ms-vsonline.vsonline", "GitHub.vscode-pull-request-github", "GitHub.vscode-pull-request-github-insiders", "Microsoft.vscode-nmake-tools", "ms-vscode-remote.remote-containers", "ms-vscode-remote.remote-containers-nightly", "ms-vscode-remote.remote-ssh", "ms-vscode-remote.remote-ssh-nightly", "ms-vscode-remote.remote-ssh-edit", "ms-vscode-remote.remote-ssh-edit-nightly", "ms-vscode-remote.remote-wsl", "ms-vscode-remote.remote-wsl-nightly", "ms-vscode-remote.vscode-remote-extensionpack", "ms-vscode-remote.vscode-remote-extensionpack-nightly", "ms-azuretools.vscode-docker", "ms-vscode.azure-account", "ms-vscode.js-debug", "ms-vscode.js-debug-nightly", "ms-vscode.vscode-js-profile-table", "ms-vscode.vscode-js-profile-flame", "ms-vscode.vscode-github-issue-notebooks", "ms-vscode.vscode-markdown-notebook", "ms-azuretools.vscode-azurestaticwebapps", "ms-dotnettools.dotnet-interactive-vscode", "ms-python.python", "ms-ai-tools.notebook-renderers",/' product.json.bak || die
-# 	fi
-
-# 	cat "${FILESDIR}/heading.json" > product.json
-# 	if use openvsx
-# 	then
-# 		cat "${FILESDIR}/openvsx.json" >> product.json
-# 	else
-# 		cat "${FILESDIR}/marketplace.json" >> product.json
-# 	fi
-
-# 	if use badge-providers
-# 	then
-# 		cat "${FILESDIR}/badge_prov.json" >> product.json
-# 	fi
-
-# 	cat product.json.bak >> product.json
-
-# 	einfo "Disabling telemetry by default"
-# 	perl -0777 -pi -e "s/'default': true,\n\s*'tags': \['usesOnlineServices'\]/'default': false,'tags': ['usesOnlineServices']/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
-# 	perl -0777 -pi -e "s/'default': true,\n\s*'tags': \['usesOnlineServices'\]/'default': false,'tags': ['usesOnlineServices']/m or die" src/vs/workbench/electron-sandbox/desktop.contribution.ts || die
-
-# 	einfo "Disabling automatic updates by default"
-# 	perl -0777 -pi -e "s/enum: \['none', 'manual', 'start', 'default'\],\n\s*default: 'default',/enum: ['none', 'manual', 'start', 'default'], default: 'none',/m or die" src/vs/platform/update/common/update.config.contribution.ts || die
-
-# 	if use substitute-urls
-# 	then
-# 		ebegin "Substituting urls"
-# 			#Taken from VSCodium
-# 			TELEMETRY_URLS="(dc\.services\.visualstudio\.com)|(vortex\.data\.microsoft\.com)"
-# 			REPLACEMENT="s/$TELEMETRY_URLS/0\.0\.0\.0/g"
-# 			grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
-# 		eend $? || die
-# 	fi
-# }
-
-# src_configure() {
-
-# }
-
 src_compile() {
-	local myarch="$(tc-arch)"
-
-	if [[ $myarch = amd64 ]] ; then
-		VSCODE_ARCH="x64"
-	elif [[ $myarch = x86 ]] ; then
-		VSCODE_ARCH="ia32"
-	else
-		die "Failed to determine target arch, got '$myarch'."
-	fi
-
-	ebegin "Installing node_modules"
-
 	OLD_PATH=$PATH
 	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
@@ -3360,45 +3031,26 @@ src_compile() {
 
 	if ! use build-online
 	then
-		ONLINE_OFFLINE="--offline"
+		ONLINE_OFFLINE="--offline --frozen-lockfile"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
-#--ignore-optional
-#--ignore-engines
-#--production=true
-#--no-progress
-#--skip-integrity-check
-#--verbose
 
-	# einfo "Editing ElectronFramework.js"
-	# sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
-	# 	node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-	# sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
-	# 	node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	ebegin "Installing node_modules"
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	eend $? || die
+
+	einfo "Editing ElectronFramework.js"
+	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
+		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
+		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
 	if use native-modules
 	then
-		# mkdir -p .hak/matrix-seshat .hak/keytar
-		# pushd .hak/matrix-seshat > /dev/null || die
-		# 	tar -xf "${DISTDIR}/matrix-seshat-2.2.3.tar.gz" || die
-		# 	mv seshat-*/seshat-node build
-		# 	pushd build > /dev/null || die
-		# 		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --ignore-scripts --no-progress || die
-		# 		cd native; cargo build --offline --release --verbose; cd ..
-		# 	popd > /dev/null || die
-		# popd > /dev/null || die
-		# pushd .hak/keytar > /dev/null || die
-		# 	tar -xf "${DISTDIR}/keytar-5.6.0.tar.gz" || die
-		# 	mv node-keytar-* build
-		# 	pushd build > /dev/null || die
-		# 		cp ${FILESDIR}/yarn.lock yarn.lock
-		# 		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --ignore-scripts --no-progress || die
-		# 	popd > /dev/null || die
-		# popd > /dev/null || die
 		node /usr/bin/yarn run build:native
 	fi
 
+	#Unknown argument with electron's node
 	/usr/bin/node node_modules/.bin/electron-builder --dir
 
 	#cp -r /usr/share/element-web webapp
@@ -3474,50 +3126,4 @@ pkg_postrm() {
 pkg_postinst() {
 	xdg_icon_cache_update
 	xdg_desktop_database_update
-}
-
-#modified version from cargo.eclass
-custom_cargo_src_unpack() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	mkdir -p "${ECARGO_VENDOR}" || die
-	mkdir -p "${S}" || die
-
-	local archive shasum pkg
-	for archive in ${A}; do
-		case "${archive}" in
-			*.crate)
-				ebegin "Loading ${archive} into Cargo registry"
-				tar -xf "${DISTDIR}"/${archive} -C "${ECARGO_VENDOR}/" || die
-				# generate sha256sum of the crate itself as cargo needs this
-				shasum=$(sha256sum "${DISTDIR}"/${archive} | cut -d ' ' -f 1)
-				pkg=$(basename ${archive} .crate)
-				cat <<- EOF > ${ECARGO_VENDOR}/${pkg}/.cargo-checksum.json
-				{
-					"package": "${shasum}",
-					"files": {}
-				}
-				EOF
-				# if this is our target package we need it in ${WORKDIR} too
-				# to make ${S} (and handle any revisions too)
-				if [[ ${P} == ${pkg}* ]]; then
-					tar -xf "${DISTDIR}"/${archive} -C "${WORKDIR}" || die
-				fi
-				eend $?
-				;;
-			cargo-snapshot*)
-				ebegin "Unpacking ${archive}"
-				mkdir -p "${S}"/target/snapshot
-				tar -xzf "${DISTDIR}"/${archive} -C "${S}"/target/snapshot --strip-components 2 || die
-				# cargo's makefile needs this otherwise it will try to
-				# download it
-				touch "${S}"/target/snapshot/bin/cargo || die
-				eend $?
-				;;
-			*)
-				;;
-		esac
-	done
-
-	cargo_gen_config
 }
