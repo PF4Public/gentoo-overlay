@@ -9,7 +9,7 @@
 	</upstream>
 	<longdescription>A glossy Matrix collaboration client for desktop</longdescription>
 	<use>
-		<flag name="build-online">If yarn fails with cached dependencies, it is possible to temporarily allow networking during build with USE="build-online" FEATURES="-network-sandbox" emerge</flag>
+		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
 	</use>
 </pkgmetadata>

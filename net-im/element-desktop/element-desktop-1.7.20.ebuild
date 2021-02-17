@@ -3065,7 +3065,7 @@ src_install() {
 	insinto "/usr/$(get_libdir)/element-desktop"
 
 	doins -r dist/linux-unpacked/resources/*
-	dosym /usr/share/element-web webapp
+	dosym /usr/share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
 	make_desktop_entry "electron-${ELECTRON_VERSION%%.*} /usr/$(get_libdir)/element-desktop/app.asar" Element element "Network;Chat"
 }
