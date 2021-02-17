@@ -11,11 +11,11 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-SRC_URI="
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
+SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz )
+	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -59,7 +59,7 @@ do
 done
 SRC_URI+=") "
 
-RESTRICT="mirror"
+RESTRICT="mirror build-online? ( network-sandbox )"
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -100,7 +100,7 @@ src_prepare() {
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
-	sed -i '/"esbuild"/d' build/package.json || die
+	use build-online || sed -i '/"esbuild"/d' build/package.json || die
 
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -225,6 +225,7 @@ src_configure() {
 	eend $? || die
 	sed -i 's/"dependencies": {/"dependencies": {"vscode-ripgrep": "^1.11.1",/' package.json || die
 
+	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
 	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
@@ -237,6 +238,7 @@ src_configure() {
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
 	eend $? || die
+	fi
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die

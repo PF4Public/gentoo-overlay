@@ -14,7 +14,7 @@
 	</longdescription>
 	<use>
 		<flag name="badge-providers">Allow various badge providers</flag>
-		<flag name="build-online">If yarn fails with cached dependencies, it is possible to temporarily allow networking during build with USE="build-online" FEATURES="-network-sandbox" emerge</flag>
+		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="builtin-extensions">Download and install builtin extensions from Visual Studio Marketplace</flag>
 		<flag name="ignore-gpu-blacklist">Append --ignore-gpu-blacklist to commandline</flag>
 		<flag name="insiders">Allow insiders API !WARNING! Enabling this might be illegal!</flag>
