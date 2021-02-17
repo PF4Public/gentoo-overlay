@@ -3061,8 +3061,6 @@ src_install() {
 
 	insinto /etc/element-web
 	newins config.sample.json config.json
-
-	newicon res/themes/element/img/logos/element-logo.svg element.svg
 }
 
 pkg_postinst() {
