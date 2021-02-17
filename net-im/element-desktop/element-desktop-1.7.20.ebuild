@@ -3212,7 +3212,7 @@ fi
 
 SRC_URI+="${DOWNLOAD}"
 
-RESTRICT="mirror"
+RESTRICT="mirror build-online? ( network-sandbox )"
 
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
