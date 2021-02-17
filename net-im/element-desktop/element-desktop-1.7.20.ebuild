@@ -3067,7 +3067,8 @@ src_install() {
 	doins -r dist/linux-unpacked/resources/*
 	dosym /usr/share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
-	make_desktop_entry "electron-${ELECTRON_VERSION%%.*} /usr/$(get_libdir)/element-desktop/app.asar" Element element "Network;Chat"
+	make_desktop_entry "electron-${ELECTRON_VERSION%%.*} /usr/$(get_libdir)/element-desktop/app.asar" \
+		Element "/usr/$(get_libdir)/element-desktop/img/element.png" "Network;Chat"
 }
 
 pkg_postrm() {
