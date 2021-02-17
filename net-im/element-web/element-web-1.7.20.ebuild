@@ -7,9 +7,11 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-SRC_URI="
-	https://github.com/matrix-org/matrix-react-sdk/archive/v3.13.1.tar.gz -> matrix-react-sdk-v3.13.1.tar.gz
-	https://github.com/matrix-org/matrix-js-sdk/archive/v9.6.0.tar.gz -> matrix-js-sdk-v9.6.0.tar.gz
+MATRIX_REACT_SDK="v3.13.1"
+MATRIX_JS_SDK="v9.6.0"
+SRC_URI="!build-online? (
+	https://github.com/matrix-org/matrix-react-sdk/archive/${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
+	https://github.com/matrix-org/matrix-js-sdk/archive/${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
 
 	https://packages.matrix.org/npm/olm/olm-3.2.1.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
@@ -2972,7 +2974,7 @@ SRC_URI="
 	https://registry.yarnpkg.com/zxcvbn/-/zxcvbn-4.4.2.tgz
 	http://registry.npmjs.org/onetime/-/onetime-1.1.0.tgz#a1f7838f8314c516f05ecefcbc4ccfe04b4ed789
 	https://codeload.github.com/apostrophecms/sanitize-html/tar.gz/3c7f93f2058f696f5359e3e58d464161647226db
-"
+) "
 
 REPO="https://github.com/vector-im/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
@@ -2996,7 +2998,7 @@ else
 fi
 SRC_URI+="${DOWNLOAD}"
 
-RESTRICT="mirror"
+RESTRICT="mirror build-online? ( network-sandbox )"
 
 COMMON_DEPEND=""
 
@@ -3024,27 +3026,27 @@ src_unpack() {
 }
 
 src_configure() {
-	ebegin "Installing node_modules"
 	export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/node || die
 
 	if ! use build-online
 	then
-		ONLINE_OFFLINE="--offline"
+		ONLINE_OFFLINE="--offline --frozen-lockfile"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 
-	node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+	einfo "Installing node_modules"
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
 	pushd node_modules/matrix-js-sdk > /dev/null || die
-		tar -xf "${DISTDIR}/matrix-js-sdk-v9.6.0.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+		use build-online || tar -xf "${DISTDIR}/matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz" --strip-components=1 --overwrite
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 
 	pushd node_modules/matrix-react-sdk > /dev/null || die
-		tar -xf "${DISTDIR}/matrix-react-sdk-v3.13.1.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+		use build-online || tar -xf "${DISTDIR}/matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz" --strip-components=1 --overwrite
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	popd > /dev/null || die
 }
 
