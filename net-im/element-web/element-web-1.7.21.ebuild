@@ -7,8 +7,8 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_REACT_SDK="v3.13.1"
-MATRIX_JS_SDK="v9.6.0"
+MATRIX_REACT_SDK="v3.14.0"
+MATRIX_JS_SDK="v9.7.0"
 SRC_URI="!build-online? (
 	https://github.com/matrix-org/matrix-react-sdk/archive/${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-js-sdk/archive/${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
@@ -1684,9 +1684,9 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/mathml-tag-names/-/mathml-tag-names-2.1.3.tgz
 	https://registry.yarnpkg.com/math-random/-/math-random-1.0.1.tgz
 	https://registry.yarnpkg.com/math-random/-/math-random-1.0.4.tgz
-	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-9.6.0.tgz
+	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-9.7.0.tgz
 	https://registry.yarnpkg.com/matrix-mock-request/-/matrix-mock-request-1.2.3.tgz
-	https://registry.yarnpkg.com/matrix-react-sdk/-/matrix-react-sdk-3.13.1.tgz
+	https://registry.yarnpkg.com/matrix-react-sdk/-/matrix-react-sdk-3.14.0.tgz
 	https://registry.yarnpkg.com/matrix-react-test-utils/-/matrix-react-test-utils-0.2.2.tgz
 	https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-0.1.0-beta.13.tgz
 	https://registry.yarnpkg.com/md5-hex/-/md5-hex-1.3.0.tgz
