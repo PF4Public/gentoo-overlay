@@ -2961,18 +2961,16 @@ SRC_URI="!build-online? (
 ) "
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_VERSION="11.2.3"
+ELECTRON_VERSION="11"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}="
 	IUSE="+build-online native-modules"
 else
 	IUSE="build-online native-modules"
-	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}/${ELECTRON_VERSION#*.}"
 	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -2991,7 +2989,7 @@ REQUIRED_USE="native-modules? ( build-online )"
 
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
-	dev-util/electron:${ELECTRON_DEPS}
+	dev-util/electron:${ELECTRON_VERSION}=
 	native-modules? ( dev-db/sqlcipher )
 "
 
@@ -3022,12 +3020,12 @@ src_unpack() {
 
 src_compile() {
 	OLD_PATH=$PATH
-	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
+	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION}/npm/bin/node-gyp-bin:$PATH"
+	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_VERSION}/node"
+	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_VERSION}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_VERSION%%.*}/node || die
+	yarn config set nodedir /usr/include/electron-${ELECTRON_VERSION}/node || die
 
 	if ! use build-online
 	then
@@ -3067,7 +3065,7 @@ src_install() {
 	doins -r dist/linux-unpacked/resources/*
 	dosym /usr/share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
-	make_desktop_entry "electron-${ELECTRON_VERSION%%.*} /usr/$(get_libdir)/element-desktop/app.asar" \
+	make_desktop_entry "electron-${ELECTRON_VERSION} /usr/$(get_libdir)/element-desktop/app.asar" \
 		Element "/usr/$(get_libdir)/element-desktop/img/element.png" "Network;Chat"
 }
 
