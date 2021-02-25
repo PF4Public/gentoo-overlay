@@ -1424,6 +1424,7 @@ src_prepare() {
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
 		["electron/patches/icu"]="third_party/icu"
+		["electron/patches/skia"]="third_party/skia"
 		["electron/patches/usrsctp"]="third_party/usrsctp/usrsctplib"
 	)
 	for patch_folder in "${!patches[@]}";
