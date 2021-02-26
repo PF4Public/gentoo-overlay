@@ -20,6 +20,7 @@ ELECTRON_SLOT="11"
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
+	EGIT_BRANCH="develop"
 	DOWNLOAD=""
 	IUSE="+build-online native-modules"
 else
