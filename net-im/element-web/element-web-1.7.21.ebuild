@@ -3057,7 +3057,7 @@ src_compile() {
 src_install() {
 	insinto /usr/share/element-web
 	doins -r webapp/*
-	dosym /etc/element-web/config.json /usr/share/element-web/config.json
+	dosym ../../etc/element-web/config.json /usr/share/element-web/config.json
 
 	insinto /etc/element-web
 	newins config.sample.json config.json
