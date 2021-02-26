@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_{8..9} )
 
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
@@ -19,18 +19,16 @@ SRC_URI="!build-online? (
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_VERSION="11.2.3"
+ELECTRON_SLOT="11"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}="
 	IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 else
 	IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
-	ELECTRON_DEPS="${ELECTRON_VERSION%%.*}/${ELECTRON_VERSION#*.}"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -66,7 +64,7 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	dev-util/electron:${ELECTRON_DEPS}
+	dev-util/electron:${ELECTRON_SLOT}
 "
 #TODO: oniguruma?
 
@@ -192,9 +190,9 @@ src_configure() {
 	ebegin "Installing node_modules"
 #	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
-	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}:/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}/npm/bin/node-gyp-bin:$PATH"
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_VERSION%%.*}/node"
+	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
+	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 #	echo "$PATH"
 	if ! use build-online
@@ -203,7 +201,7 @@ src_configure() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_VERSION%%.*}/node || die
+	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 #--ignore-optional
@@ -277,7 +275,7 @@ src_install() {
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
-	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_VERSION%%.*}\"
+	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \

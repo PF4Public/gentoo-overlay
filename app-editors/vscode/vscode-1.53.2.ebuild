@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_{8..9} )
 
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
@@ -28,7 +28,7 @@ else
 	fi
 fi
 
-ELECTRON_SLOT="11.2.2"
+ELECTRON_SLOT="11"
 
 declare -A builtin_exts=(
 	["node-debug"]="1.44.16"
