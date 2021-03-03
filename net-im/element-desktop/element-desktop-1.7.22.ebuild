@@ -2974,7 +2974,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="+build-online native-modules"
 else
 	IUSE="build-online native-modules"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
@@ -3052,7 +3052,7 @@ src_compile() {
 		node /usr/bin/yarn run build:native
 	fi
 
-	#!Error "Unknown argument" with electron's node
+	#!Error: "Unknown argument" with electron's node
 	/usr/bin/node node_modules/.bin/electron-builder --dir
 
 	#cp -r /usr/share/element-web webapp

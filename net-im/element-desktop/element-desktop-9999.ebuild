@@ -103,7 +103,7 @@ src_compile() {
 		node /usr/bin/yarn run build:native
 	fi
 
-	#!Error "Unknown argument" with electron's node
+	#!Error: "Unknown argument" with electron's node
 	/usr/bin/node node_modules/.bin/electron-builder --dir
 
 	#cp -r /usr/share/element-web webapp
