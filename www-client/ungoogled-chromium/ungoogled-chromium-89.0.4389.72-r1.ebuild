@@ -263,10 +263,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Calling this here supports resumption via FEATURES=keepwork
-	python_setup
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-88-compiler.patch" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
