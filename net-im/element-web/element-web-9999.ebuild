@@ -7,11 +7,11 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_REACT_SDK="v3.13.1"
-MATRIX_JS_SDK="v9.6.0"
+MATRIX_JS_SDK="9.8.0"
+MATRIX_REACT_SDK="3.15.0"
 SRC_URI="!build-online? (
-	https://github.com/matrix-org/matrix-react-sdk/archive/${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
-	https://github.com/matrix-org/matrix-js-sdk/archive/${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
+	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
+	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
 ) "
 
 REPO="https://github.com/vector-im/element-web"
@@ -104,8 +104,11 @@ src_install() {
 }
 
 pkg_postinst() {
+	if ! has_version "net-im/element-desktop"
+	then
 		elog
 		elog "element-web provides only a web application ready to be served"
 		elog "If you need a desktop application, consider element-desktop"
 		elog
+	fi
 }

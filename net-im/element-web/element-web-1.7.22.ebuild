@@ -10,8 +10,8 @@ SLOT="0"
 MATRIX_JS_SDK="9.8.0"
 MATRIX_REACT_SDK="3.15.0"
 SRC_URI="!build-online? (
-	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
+	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
 
 	https://packages.matrix.org/npm/olm/olm-3.2.1.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
@@ -2987,7 +2987,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="+build-online"
 else
 	IUSE="build-online"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
@@ -3066,8 +3066,11 @@ src_install() {
 }
 
 pkg_postinst() {
+	if ! has_version "net-im/element-desktop"
+	then
 		elog
 		elog "element-web provides only a web application ready to be served"
 		elog "If you need a desktop application, consider element-desktop"
 		elog
+	fi
 }
