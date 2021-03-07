@@ -13,7 +13,7 @@ SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="qt5"
 
 COMMON_DEPEND="
@@ -53,11 +53,15 @@ src_install() {
 }
 
 pkg_postrm() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
+	if use qt5; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
+	fi
 }
 
 pkg_postinst() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
+	if use qt5; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
+	fi
 }
