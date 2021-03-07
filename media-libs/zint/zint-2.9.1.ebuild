@@ -5,7 +5,7 @@
 
 EAPI=7
 
-inherit cmake
+inherit cmake desktop
 
 DESCRIPTION="Barcode encoding library supporting over 50 symbologies"
 HOMEPAGE="http://zint.org.uk"
@@ -47,5 +47,17 @@ src_install() {
 	if use qt5; then
 		insinto /usr/share/applications/
 		doins *.desktop
+		insinto /usr/share/pixmaps/
+		doins *.png
 	fi
+}
+
+pkg_postrm() {
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+}
+
+pkg_postinst() {
+	xdg_icon_cache_update
+	xdg_desktop_database_update
 }
