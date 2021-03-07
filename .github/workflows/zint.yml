@@ -1,0 +1,35 @@
+name: zint tests
+on:
+  push:
+    paths:
+    - 'media-libs/zint/**'
+  pull_request:
+    paths:
+    - 'media-libs/zint/**'
+
+jobs:
+  ebuild:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - 'qt'
+          - '-qt'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+        id: files
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trying to install zint with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            added: ${{ steps.files.outputs.added }}
+            modified: ${{ steps.files.outputs.modified }}
+            action: install
+            use: ${{ matrix.use }}
