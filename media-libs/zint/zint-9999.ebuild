@@ -5,7 +5,7 @@
 
 EAPI=7
 
-inherit cmake
+inherit cmake desktop
 
 DESCRIPTION="Barcode encoding library supporting over 50 symbologies"
 HOMEPAGE="http://zint.org.uk"
@@ -21,6 +21,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	KEYWORDS="~amd64 ~x86"
 	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
+	S="${WORKDIR}/${P}-src"
 fi
 
 COMMON_DEPEND="
@@ -41,9 +42,32 @@ RDEPEND="${COMMON_DEPEND}
 	x11-themes/hicolor-icon-theme
 "
 
-S="${WORKDIR}/${P}-src"
-
 src_prepare(){
 	use qt5 || sed -i "s/^else()$/elseif(false)/" CMakeLists.txt
 	cmake_src_prepare
+}
+
+src_install() {
+	cmake_src_install
+
+	if use qt5; then
+		insinto /usr/share/applications/
+		doins *.desktop
+		insinto /usr/share/pixmaps/
+		doins *.png
+	fi
+}
+
+pkg_postrm() {
+	if use qt5; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
+	fi
+}
+
+pkg_postinst() {
+	if use qt5; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
+	fi
 }
