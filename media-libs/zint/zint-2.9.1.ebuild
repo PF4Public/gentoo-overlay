@@ -40,3 +40,12 @@ src_prepare(){
 	use qt5 || sed -i "s/Qt5Widgets_FOUND/false/" CMakeLists.txt
 	cmake_src_prepare
 }
+
+src_install() {
+	default
+
+	if use qt5; then
+		insinto /usr/share/
+		doins *.desktop
+	fi
+}
