@@ -1832,8 +1832,8 @@ src_prepare() {
 
 	einfo "Editing dirs.js"
 	sed -i '/remote/d' build/npm/dirs.js || die
-	sed -i '/emmet/d' build/npm/dirs.js || die
-	rm -rf extensions/emmet
+	#sed -i '/emmet/d' build/npm/dirs.js || die
+	#rm -rf extensions/emmet
 	sed -i '/test\/automation/d' build/npm/dirs.js || die
 	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
 	sed -i '/test\/smoke/d' build/npm/dirs.js || die
