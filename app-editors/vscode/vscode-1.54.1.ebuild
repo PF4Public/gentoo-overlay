@@ -1849,6 +1849,9 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
 
+	einfo "Fixing terrapin"
+	eapply "${FILESDIR}/terrapin.patch"
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
