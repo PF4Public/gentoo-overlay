@@ -9,12 +9,19 @@ inherit cmake
 
 DESCRIPTION="Barcode encoding library supporting over 50 symbologies"
 HOMEPAGE="http://zint.org.uk"
-SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
-
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+
 IUSE="qt5"
+
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://git.code.sf.net/p/zint/code"
+	SRC_URI=""
+else
+	KEYWORDS="~amd64 ~x86"
+	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
+fi
 
 COMMON_DEPEND="
 	qt5? (
