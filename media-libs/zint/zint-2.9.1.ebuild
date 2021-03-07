@@ -37,6 +37,6 @@ RDEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/${P}-src"
 
 src_prepare(){
-	use qt5 || sed "s/^else()$/elseif(false)/" CMakeLists.txt
+	use qt5 || sed -i "s/^else()$/elseif(false)/" CMakeLists.txt
 	cmake_src_prepare
 }
