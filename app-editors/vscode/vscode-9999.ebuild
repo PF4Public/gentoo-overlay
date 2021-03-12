@@ -14,7 +14,8 @@ SLOT="0"
 SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz )
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
+	)
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.11.1.tgz
 "
 
