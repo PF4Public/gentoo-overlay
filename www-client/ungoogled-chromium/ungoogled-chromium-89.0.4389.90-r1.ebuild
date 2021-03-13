@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="6f98d56618f5a191e3996031bcfffa40b5126343"
+UGC_COMMIT_ID="64cbcbcfee33fd56760173b3a17d2de52cd77258"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -313,11 +313,10 @@ src_prepare() {
 		ewarn "Keeping binary compiler.jar in source tree for closure-compile"
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
-	# if use pgo; then
-	#!TEMPORARY
-		# ewarn "Keeping binary profile data in source tree for pgo"
+	if use pgo; then
+		ewarn "Keeping binary profile data in source tree for pgo"
 		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-	# fi
+	fi
 
 	ebegin "Pruning binaries"
 	"${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
