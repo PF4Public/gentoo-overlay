@@ -313,10 +313,11 @@ src_prepare() {
 		ewarn "Keeping binary compiler.jar in source tree for closure-compile"
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
-	if use pgo; then
-		ewarn "Keeping binary profile data in source tree for pgo"
+	# if use pgo; then
+	#!TEMPORARY
+		# ewarn "Keeping binary profile data in source tree for pgo"
 		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-	fi
+	# fi
 
 	ebegin "Pruning binaries"
 	"${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
