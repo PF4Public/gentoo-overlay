@@ -9,27 +9,25 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 
 inherit chromium-2 desktop readme.gentoo-r1 xdg-utils
 
-UGC_PV="${PV/_p/-}"
-
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
 SRC_URI="
 	core2? (
-		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/core2.tar.bz2
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/core2.tar.bz2
 		-> ${P}-core2.tar.bz2
 	)
 	generic? (
 		amd64? (
-		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/x86-64.tar.bz2
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/x86-64.tar.bz2
 		-> ${P}-x86-64.tar.bz2
 		)
 		x86? (
-		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/i686.tar.bz2
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/i686.tar.bz2
 		-> ${P}-i686.tar.bz2
 		)
 	)
 	haswell? (
-		https://github.com/PF4Public/${PN}/releases/download/${UGC_PV}/haswell.tar.xz
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/haswell.tar.xz
 		-> ${P}-haswell.tar.xz
 	)
 "
