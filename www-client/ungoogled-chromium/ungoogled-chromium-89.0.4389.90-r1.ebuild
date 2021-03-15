@@ -248,6 +248,13 @@ pkg_pretend() {
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
 	fi
+	if use pgo; then
+		ewarn
+		ewarn "PGO is known to fail with llvm-11, see #80"
+		ewarn "Consider disabling this USE flag if compilation breaks"
+		ewarn "If it succeeds, please let me know your llvm version in the bug mentioned"
+		ewarn
+	fi
 	pre_build_checks
 }
 
