@@ -42,13 +42,13 @@ else
 fi
 
 declare -A builtin_exts=(
-	["node-debug"]="1.44.16"
+	["node-debug"]="1.44.17"
 	["node-debug2"]="1.42.5"
 	["references-view"]="0.0.77"
-	["js-debug-companion"]="1.0.8"
-	["js-debug"]="1.54.0"
+	["js-debug-companion"]="1.0.9"
+	["js-debug"]="1.54.4"
 	["vscode-js-profile-table"]="0.0.11"
-	["github-browser"]="0.0.14"
+	["github-browser"]="0.0.15"
 )
 SRC_URI+="${DOWNLOAD}
 builtin-extensions? ("
