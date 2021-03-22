@@ -163,6 +163,7 @@ BDEPEND="
 	virtual/pkgconfig
 	closure-compile? ( virtual/jre )
 	clang? ( sys-devel/clang sys-devel/lld )
+	pgo? ( >=sys-devel/clang-12 )
 	cfi? ( sys-devel/clang-runtime[sanitize] )
 "
 
@@ -247,13 +248,6 @@ pkg_pretend() {
 		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
-	fi
-	if use pgo; then
-		ewarn
-		ewarn "PGO is known to fail with llvm-11, see #80"
-		ewarn "Consider disabling this USE flag if compilation breaks"
-		ewarn "If it succeeds, please let me know your llvm version in the bug mentioned"
-		ewarn
 	fi
 	pre_build_checks
 }
