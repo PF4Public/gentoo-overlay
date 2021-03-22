@@ -48,7 +48,7 @@ declare -A builtin_exts=(
 	["js-debug-companion"]="1.0.9"
 	["js-debug"]="1.54.4"
 	["vscode-js-profile-table"]="0.0.11"
-	["github-browser"]="0.0.15"
+	["remotehub"]="0.1.0"
 )
 SRC_URI+="${DOWNLOAD}
 builtin-extensions? ("
