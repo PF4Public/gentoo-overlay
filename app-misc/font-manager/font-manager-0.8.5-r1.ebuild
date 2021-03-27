@@ -11,7 +11,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	SRC_URI="https://github.com/FontManager/font-manager/archive/0.8.5-1.tar.gz -> ${PVR}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
 DESCRIPTION="A simple font management application for Gtk+ Desktop Environments"
