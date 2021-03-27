@@ -10,7 +10,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/FontManager/font-manager.git"
 	SRC_URI=""
 else
-	SRC_URI="https://github.com/FontManager/font-manager/archive/0.8.5-1.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/FontManager/font-manager/archive/0.8.5-1.tar.gz -> ${PVR}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
 
