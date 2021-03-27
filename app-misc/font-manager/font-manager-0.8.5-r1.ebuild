@@ -49,7 +49,7 @@ DEPEND="${RDEPEND}
 	)
 "
 
-S="${WORKDIR}/${PVR/r}"
+S="${WORKDIR}/${PF/r}"
 
 src_prepare() {
 	default
