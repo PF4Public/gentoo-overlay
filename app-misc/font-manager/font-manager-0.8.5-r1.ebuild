@@ -49,6 +49,8 @@ DEPEND="${RDEPEND}
 	)
 "
 
+S="${WORKDIR}/${PVR/r}"
+
 src_prepare() {
 	default
 	vala_src_prepare
