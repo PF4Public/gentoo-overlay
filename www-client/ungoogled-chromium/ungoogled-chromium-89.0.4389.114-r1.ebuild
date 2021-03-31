@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="261409122c476633f98a283dddbf6239da0ff749"
+#UGC_COMMIT_ID="261409122c476633f98a283dddbf6239da0ff749"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -36,7 +36,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-# KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos +official optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -163,7 +163,6 @@ BDEPEND="
 	virtual/pkgconfig
 	closure-compile? ( virtual/jre )
 	clang? ( sys-devel/clang sys-devel/lld )
-	pgo? ( >=sys-devel/clang-12 )
 	cfi? ( sys-devel/clang-runtime[sanitize] )
 "
 
