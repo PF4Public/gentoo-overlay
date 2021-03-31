@@ -2008,6 +2008,7 @@ pkg_postinst() {
 	elog
 	elog "normally vscode ships some builtin extensions"
 	elog "You may install them manually if you need them"
+	elog "ms-vscode.references-view is one of them"
 	elog
 }
 
