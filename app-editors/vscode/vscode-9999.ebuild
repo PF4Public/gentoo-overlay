@@ -27,9 +27,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online builtin-extensions ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -269,20 +269,6 @@ src_install() {
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
-	if use builtin-extensions
-	then
-	einfo "Installing builtin extensions"
-	pushd "${T}" > /dev/null || die
-	for ext in "${!builtin_exts[@]}";
-	do
-		cp "${DISTDIR}/ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" "${T}" || die
-		gunzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz" || die
-		unzip "ms-vscode.${ext}-${builtin_exts[${ext}]}.zip" extension/* > /dev/null || die
-		mv extension "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/extensions/ms-vscode.${ext}" || die
-	done
-	popd > /dev/null || die
-	fi
-
 	insinto "${VSCODE_HOME}"
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
@@ -310,6 +296,11 @@ pkg_postinst() {
 		ewarn "this might be against Microsoft licensing terms."
 		ewarn
 	fi
+
+	elog
+	elog "normally vscode ships some builtin extensions"
+	elog "You may install them manually if you need them"
+	elog
 }
 
 pkg_postrm() {

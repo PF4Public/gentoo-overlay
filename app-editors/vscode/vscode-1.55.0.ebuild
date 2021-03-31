@@ -1735,7 +1735,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="badge-providers +build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
 else
 	IUSE="badge-providers build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
 	then
@@ -2004,6 +2004,11 @@ pkg_postinst() {
 		ewarn "this might be against Microsoft licensing terms."
 		ewarn
 	fi
+
+	elog
+	elog "normally vscode ships some builtin extensions"
+	elog "You may install them manually if you need them"
+	elog
 }
 
 pkg_postrm() {
