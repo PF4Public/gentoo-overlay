@@ -41,22 +41,7 @@ else
 	fi
 fi
 
-declare -A builtin_exts=(
-	["node-debug"]="1.44.17"
-	["node-debug2"]="1.42.5"
-	["references-view"]="0.0.77"
-	["js-debug-companion"]="1.0.9"
-	["js-debug"]="1.54.4"
-	["vscode-js-profile-table"]="0.0.11"
-	["remotehub"]="0.1.0"
-)
-SRC_URI+="${DOWNLOAD}
-builtin-extensions? ("
-for ext in "${!builtin_exts[@]}";
-do
-	SRC_URI+=" https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-vscode/vsextensions/${ext}/${builtin_exts[${ext}]}/vspackage -> ms-vscode.${ext}-${builtin_exts[${ext}]}.zip.gz "
-done
-SRC_URI+=") "
+SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
