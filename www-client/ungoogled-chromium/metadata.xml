@@ -30,7 +30,7 @@
 		<flag name="official">Enable Official build instead of Developer build.</flag>
 		<flag name="optimize-thinlto">Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on can substantially increase link time and binary size, but they generally also make binaries a fair bit faster.</flag>
 		<flag name="optimize-webui">Optimize parts of Chromium's UI written with web technologies (HTML/CSS/JS) for runtime performance purposes. This does more work at compile time for speed benefits at runtime.</flag>
-		<flag name="pgo">Enable PGO. Requires clnang and bundled binary profile data in sources tree.</flag>
+		<flag name="pgo">Enable PGO. Requires clang and bundled binary profile data in sources tree.</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
