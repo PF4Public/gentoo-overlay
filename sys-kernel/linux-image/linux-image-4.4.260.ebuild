@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
 
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
@@ -29,7 +29,7 @@ RESTRICT="strip"
 
 src_unpack()
 {
-	mkdir $S || die
+	mkdir "$S" || die
 	if [ $PR = "r0" ]; then
 		cp -r "/usr/src/linux-${PV}-gentoo/." "$S" || die
 	else

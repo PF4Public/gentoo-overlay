@@ -29,7 +29,7 @@ RESTRICT="strip"
 
 src_unpack()
 {
-	mkdir $S || die
+	mkdir "$S" || die
 	if [ $PR = "r0" ]; then
 		cp -r "/usr/src/linux-${PV}-gentoo/." "$S" || die
 	else
