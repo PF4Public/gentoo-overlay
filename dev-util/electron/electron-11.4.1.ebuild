@@ -1200,7 +1200,7 @@ SRC_URI="
 LICENSE="BSD"
 SLOT="${PV%%.*}/${PV#*.}"
 KEYWORDS="~amd64 ~x86"
-IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos optimize-thinlto optimize-webui +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
+IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1209,6 +1209,7 @@ RESTRICT="
 REQUIRED_USE="
 	thinlto? ( clang )
 	optimize-thinlto? ( thinlto )
+	pgo? ( clang )
 	x86? ( !thinlto )
 "
 
@@ -1821,6 +1822,10 @@ src_configure() {
 	myconf_gn+=" use_pulseaudio=$(usex pulseaudio true false)"
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
 	myconf_gn+=" link_pulseaudio=$(usex pulseaudio true false)"
+
+	if ! use pgo; then
+		myconf_gn+=" chrome_pgo_phase=0"
+	fi
 
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
 	myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
