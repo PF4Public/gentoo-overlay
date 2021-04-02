@@ -1431,7 +1431,7 @@ src_prepare() {
 		["electron/patches/icu"]="third_party/icu"
 		["electron/patches/skia"]="third_party/skia"
 		["electron/patches/usrsctp"]="third_party/usrsctp/usrsctplib"
-		["src/electron/patches/pdfium"]="third_party/pdfium"
+		["electron/patches/pdfium"]="third_party/pdfium"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
