@@ -1397,6 +1397,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-87-webcodecs-deps.patch"
 		"${FILESDIR}/chromium-87-v8-icu68.patch"
 		"${FILESDIR}/chromium-87-icu68.patch"
+		"${FILESDIR}/delete-fix.patch"
 	)
 
 	if use vaapi; then
