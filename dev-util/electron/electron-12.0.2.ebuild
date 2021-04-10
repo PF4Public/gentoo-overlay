@@ -1408,10 +1408,11 @@ src_prepare() {
 		einfo "- ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			# if [ "$i" = "cherry-pick-8f5a08079948.patch" ]; then
-			# 	einfo "Skipping ${i}"
-			# 	continue;
-			# fi
+			if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
+				[ "$i" = "cherry-pick-5c7ad5393f74.patch" ]; then
+				einfo "Skipping ${i}"
+				continue;
+			fi
 			# if [ "$i" = "fix_apply_tzdata2020f_to_icu.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
 			# 	pushd "${patches[$patch_folder]}" > /dev/null || die
