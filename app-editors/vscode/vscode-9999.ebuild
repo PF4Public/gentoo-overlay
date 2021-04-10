@@ -41,7 +41,8 @@ else
 	fi
 fi
 
-SRC_URI+="${DOWNLOAD}"
+SRC_URI+="${DOWNLOAD}
+	${REPO}/commit/f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch -> ${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -80,6 +81,11 @@ src_unpack() {
 
 src_prepare() {
 	default
+
+	#! delme ------✁------
+	einfo "Restoring electron 12 support"
+	patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
+	#! delme ------✁------
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
