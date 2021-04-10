@@ -1359,7 +1359,7 @@ src_prepare() {
 	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
 	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
-	eapply "${FILESDIR}/openssl_fips.patch" || die
+	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
 	popd > /dev/null || die
 
 	# pushd "${WORKDIR}/${P}" > /dev/null || die
