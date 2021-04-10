@@ -1183,7 +1183,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 
 LICENSE="BSD"
 SLOT="${PV%%.*}/${PV#*.}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +system-re2 +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
