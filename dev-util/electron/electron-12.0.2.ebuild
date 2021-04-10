@@ -1401,7 +1401,6 @@ src_prepare() {
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/depot_tools"]="third_party/depot_tools"
-		["electron/patches/nan"]="third_party/nan"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
@@ -1409,11 +1408,7 @@ src_prepare() {
 		einfo "- ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
-			# if [ "$i" = "cherry-pick-2f5b8357dca2.patch" ] ||
-			# 	[ "$i" = "cherry-pick-5c7ad5393f74.patch" ] ||
-			# 	[ "$i" = "cherry-pick-47e21abe349a.patch" ] ||
-			# 	[ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# 	[ "$i" = "cherry-pick-8f5a08079948.patch" ]; then
+			# if [ "$i" = "cherry-pick-8f5a08079948.patch" ]; then
 			# 	einfo "Skipping ${i}"
 			# 	continue;
 			# fi
