@@ -10,6 +10,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	SRC_URI="https://github.com/cboxdoerfer/ddb_waveform_seekbar/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 x86"
+	S="${WORKDIR}/ddb_waveform_seekbar-${PV}"
 fi
 
 DESCRIPTION="Waveform Seekbar plugin for DeaDBeeF audio player"
