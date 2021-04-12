@@ -21,7 +21,7 @@ SRC_URI="!build-online? (
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT="12"
+ELECTRON_SLOT="11"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -42,8 +42,7 @@ else
 	fi
 fi
 
-SRC_URI+="${DOWNLOAD}
-	${REPO}/commit/f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch -> ${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch"
+SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -83,10 +82,8 @@ src_unpack() {
 src_prepare() {
 	default
 
-	#! delme ------✁------
-	einfo "Restoring electron 12 support"
-	patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
-	#! delme ------✁------
+	# einfo "Restoring electron 12 support"
+	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
