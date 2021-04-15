@@ -263,7 +263,7 @@ pkg_setup() {
 
 src_prepare() {
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-91-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-90-compiler.patch" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
@@ -296,10 +296,6 @@ src_prepare() {
 	local ugc_unneeded=(
 		# GN bootstrap
 		extra/debian/gn/parallel
-	)
-	use custom-cflags && ugc_unneeded+=(
-		# part of chromium-$(ver_cut 1)-compiler.patch
-		core/ungoogled-chromium/remove-enable-dse-memoryssa-cflag
 	)
 
 	local ugc_p ugc_dir
