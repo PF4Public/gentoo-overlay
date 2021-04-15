@@ -263,7 +263,7 @@ pkg_setup() {
 
 src_prepare() {
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-88-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-91-compiler.patch" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
