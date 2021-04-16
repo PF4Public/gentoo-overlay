@@ -823,7 +823,7 @@ src_configure() {
 		# from 25% to 10%. The performance number of page_cycler is the
 		# same on two of the thinLTO configurations, we got 1% slowdown
 		# on speedometer when changing import-instr-limit from 100 to 30.
-		append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
+		# append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
