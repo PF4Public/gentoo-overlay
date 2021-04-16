@@ -914,8 +914,8 @@ src_configure() {
 	echo "$@"
 	"$@" || die
 
-	# Quick compiler check for tests
-	[[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	# Quick compiler check for tests // needs clang-12 anyway
+	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
 src_compile() {
