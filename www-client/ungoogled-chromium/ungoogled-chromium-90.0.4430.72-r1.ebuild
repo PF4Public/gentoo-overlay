@@ -913,6 +913,9 @@ src_configure() {
 	set -- gn gen --args="${myconf_gn} ${EXTRA_GN}" out/Release
 	echo "$@"
 	"$@" || die
+
+	# Quick compiler check for tests
+	[[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
 src_compile() {
