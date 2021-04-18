@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="cfi +clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos +official optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 +tcmalloc thinlto vaapi vdpau wayland widevine"
+IUSE="cfi +clang convert-dict cups custom-cflags enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 +tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -161,7 +161,7 @@ BDEPEND="
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
-	closure-compile? ( virtual/jre )
+	js-type-check? ( virtual/jre )
 	clang? ( sys-devel/clang sys-devel/lld )
 	cfi? ( sys-devel/clang-runtime[sanitize] )
 "
@@ -309,8 +309,8 @@ src_prepare() {
 		sed -i "\!${p}.patch!d" "${ugc_patch_series}" || die
 	done
 
-	if use closure-compile; then
-		ewarn "Keeping binary compiler.jar in source tree for closure-compile"
+	if use js-type-check ; then
+		ewarn "Keeping binary compiler.jar in source tree for js-type-check"
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
 	if use pgo; then
@@ -686,7 +686,7 @@ src_configure() {
 	myconf_gn+=" use_gnome_keyring=false"
 
 	# Optional dependencies.
-	myconf_gn+=" enable_js_type_check=$(usex closure-compile true false)"
+	myconf_gn+=" enable_js_type_check=$(usex js-type-check true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" enable_widevine=$(usex widevine true false)"
 	myconf_gn+=" use_cups=$(usex cups true false)"

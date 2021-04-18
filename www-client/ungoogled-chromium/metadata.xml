@@ -22,11 +22,11 @@
 	<use>
 		<flag name="cfi">Build with CFI (Control Flow Integrity) enabled</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
-		<flag name="closure-compile">Enable closure type-checking for Chrome's web technology-based UI. Requires Java and bundled binary compiler.jar in sources tree.</flag>
 		<flag name="convert-dict">Patch and build the convert_dict utility. The script will be installed into /usr/lib64/chromium-browser/update-dicts.sh. More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="headless">Build Ozone only with headless backend, NOT RECOMMENDED for general uses</flag>
+		<flag name="js-type-check">Enable JavaScript type-checking for Chrome's web technology-based UI. Requires Java.</flag>
 		<flag name="official">Enable Official build instead of Developer build.</flag>
 		<flag name="optimize-thinlto">Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on can substantially increase link time and binary size, but they generally also make binaries a fair bit faster.</flag>
 		<flag name="optimize-webui">Optimize parts of Chromium's UI written with web technologies (HTML/CSS/JS) for runtime performance purposes. This does more work at compile time for speed benefits at runtime.</flag>
