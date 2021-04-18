@@ -179,7 +179,6 @@ are not displayed properly:
 - media-fonts/droid
 - media-fonts/ipamonafont
 - media-fonts/noto
-- media-fonts/noto-emoji
 - media-fonts/ja-ipafonts
 - media-fonts/takao-fonts
 - media-fonts/wqy-microhei
@@ -208,6 +207,9 @@ pre_build_checks() {
 		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
 			die "At least gcc 9.2 is required"
 		fi
+		if use clang && ! ver_test "$(clang-major-version)" -ge 12; then
+			die "At least clang 12 is required"
+		fi
 	fi
 
 	# Check build requirements, bug #541816 and bug #471810 .
@@ -220,12 +222,6 @@ pre_build_checks() {
 }
 
 pkg_pretend() {
-	if use custom-cflags && [[ "${MERGE_TYPE}" != binary ]]; then
-		ewarn
-		ewarn "USE=custom-cflags bypasses strip-flags"
-		ewarn "Consider disabling this USE flag if something breaks"
-		ewarn
-	fi
 	if has_version "sys-libs/libcxx"; then
 		ewarn
 		ewarn "You have sys-libs/libcxx, please make sure that"
@@ -252,6 +248,8 @@ pkg_pretend() {
 }
 
 pkg_setup() {
+	pre_build_checks
+
 	chromium_suid_sandbox_check_kernel_config
 
 	# nvidia-drivers does not work correctly with Wayland due to unsupported EGLStreams
@@ -270,6 +268,17 @@ src_prepare() {
 		"${FILESDIR}/chromium-89-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 	)
+
+	# seccomp sandbox is broken if compiled against >=sys-libs/glibc-2.33, bug #769989
+	if has_version -d ">=sys-libs/glibc-2.33"; then
+		ewarn "Adding experimental glibc-2.33 sandbox patch. Seccomp sandbox might"
+		ewarn "still not work correctly. In case of issues, try to disable seccomp"
+		ewarn "sandbox by adding --disable-seccomp-filter-sandbox to CHROMIUM_FLAGS"
+		ewarn "in /etc/chromium/default."
+		PATCHES+=(
+			"${FILESDIR}/chromium-glibc-2.33.patch"
+		)
+	fi
 
 	default
 
@@ -612,14 +621,12 @@ src_configure() {
 	tc-export AR CC CXX NM
 
 	if use clang && ! tc-is-clang ; then
-		# Force clang
 		einfo "Enforcing the use of clang due to USE=clang ..."
 		CC=${CHOST}-clang
 		CXX=${CHOST}-clang++
 		AR=llvm-ar #thinlto fails otherwise
 		strip-unsupported-flags
 	elif ! use clang && ! tc-is-gcc ; then
-		# Force gcc
 		einfo "Enforcing the use of gcc due to USE=-clang ..."
 		CC=${CHOST}-gcc
 		CXX=${CHOST}-g++
@@ -914,7 +921,7 @@ src_configure() {
 	echo "$@"
 	"$@" || die
 
-	# Quick compiler check for tests // needs clang-12 anyway
+	# Quick compiler check for tests // needs clang-12
 	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
