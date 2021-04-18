@@ -921,6 +921,8 @@ src_configure() {
 	echo "$@"
 	"$@" || die
 
+	# List all args
+	[[ -z "${NODIE}" ]] || gn args --list out/Release
 	# Quick compiler check for tests // needs clang-12
 	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
