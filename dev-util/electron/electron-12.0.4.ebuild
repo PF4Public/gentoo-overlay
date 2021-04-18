@@ -1800,7 +1800,6 @@ src_configure() {
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
 	myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 	myconf_gn+=" optimize_webui=$(usex optimize-webui true false)"
-	myconf_gn+=" use_openh264=$(usex system-openh264 false true)"
 	myconf_gn+=" use_system_freetype=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libopenjpeg2=$(usex system-openjpeg true false)"
 	myconf_gn+=" enable_pdf=true"
@@ -1999,7 +1998,7 @@ src_configure() {
 	"$@" || die
 
 	# Quick compiler check for tests
-	[[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
 src_compile() {
