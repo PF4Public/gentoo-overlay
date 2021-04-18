@@ -1200,7 +1200,7 @@ SRC_URI="
 LICENSE="BSD"
 SLOT="${PV%%.*}/${PV#*.}"
 KEYWORDS="amd64 ~x86"
-IUSE="+clang closure-compile cups custom-cflags enable-driver hangouts kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
+IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libvpx +system-openh264 system-openjpeg +tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1312,7 +1312,7 @@ BDEPEND="
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
-	closure-compile? ( virtual/jre )
+	js-type-check? ( virtual/jre )
 	clang? ( sys-devel/clang )
 	thinlto? ( sys-devel/lld )
 	sys-apps/yarn
@@ -1816,7 +1816,7 @@ src_configure() {
 	myconf_gn+=" use_gnome_keyring=false"
 
 	# Optional dependencies.
-	myconf_gn+=" enable_js_type_check=$(usex closure-compile true false)"
+	myconf_gn+=" enable_js_type_check=$(usex js-type-check true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" use_cups=$(usex cups true false)"
 	myconf_gn+=" use_kerberos=$(usex kerberos true false)"

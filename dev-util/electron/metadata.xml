@@ -14,12 +14,9 @@
 	</longdescription>
 	<use>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
-		<flag name="closure-compile">
-			Enable closure type-checking for Chrome's web technology-based UI.
-			Requires Java and bundled binary compiler.jar in sources tree
-		</flag>
 		<flag name="enable-driver">Build chromedriver</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
+		<flag name="js-type-check">Enable JavaScript type-checking for Chrome's web technology-based UI. Requires Java.</flag>
 		<flag name="optimize-thinlto">
 			Whether to enable ThinLTO optimizations. Turning ThinLTO
 			optimizations on can substantially increase link time and binary
