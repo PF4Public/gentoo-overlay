@@ -205,10 +205,10 @@ pre_build_checks() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		local -x CPP="$(tc-getCXX) -E"
 		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
-			die "At least gcc 9.2 is required"
+			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
 		fi
-		if use clang && ! ver_test "$(clang-major-version)" -ge 12; then
-			die "At least clang 12 is required"
+		if tc-is-clang && ! ver_test "$(clang-major-version)" -ge 12; then
+			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
 		fi
 	fi
 
