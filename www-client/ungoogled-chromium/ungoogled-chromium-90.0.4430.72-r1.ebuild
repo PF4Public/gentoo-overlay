@@ -771,7 +771,7 @@ src_configure() {
 	myconf_gn+=" use_gold=false use_sysroot=false use_custom_libcxx=false"
 
 	if use clang; then
-	myconf_gn+=" use_lld=true"
+	myconf_gn+=" use_lld=true" #x86 fails with gnu ld
 	else
 	# Disable forced lld, bug 641556
 	myconf_gn+=" use_lld=false"
@@ -785,7 +785,7 @@ src_configure() {
 
 	# Avoid CFLAGS problems, bug #352457, bug #390147.
 	if ! use custom-cflags; then
-		filter-flags "-O*" "-Wl,-O*"; #See #25
+		filter-flags "-O*" "-Wl,-O*" #See #25
 		strip-flags
 
 		# Prevent linker from running out of address space, bug #471810 .
@@ -922,7 +922,7 @@ src_configure() {
 
 	# List all args
 	# [[ -z "${NODIE}" ]] || gn args --list out/Release
-	# Quick compiler check for tests // needs clang-12
+	# Quick compiler check for tests
 	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
