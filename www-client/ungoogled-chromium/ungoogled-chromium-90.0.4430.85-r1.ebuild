@@ -207,9 +207,11 @@ pre_build_checks() {
 		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
 			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
 		fi
-		if use clang && ! ver_test "$(clang-major-version)" -ge 12; then
+		if use clang; then
 			CPP="${CHOST}-clang++ -E"
-			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
+			if ! ver_test "$(clang-major-version)" -ge 12; then
+				[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
+			fi
 		fi
 	fi
 
