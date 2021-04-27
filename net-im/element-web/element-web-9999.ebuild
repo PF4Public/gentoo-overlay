@@ -51,6 +51,8 @@ BDEPEND="
 	net-libs/nodejs
 "
 
+#TODO: Jitsi
+
 src_unpack() {
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
