@@ -208,6 +208,7 @@ pre_build_checks() {
 			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
 		fi
 		if use clang && ! ver_test "$(clang-major-version)" -ge 12; then
+			CPP="${CHOST}-clang++ -E"
 			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
 		fi
 	fi
