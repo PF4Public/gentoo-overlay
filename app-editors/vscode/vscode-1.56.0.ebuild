@@ -1843,7 +1843,7 @@ src_prepare() {
 	cat product.json.bak >> product.json
 
 	einfo "Disabling telemetry by default"
-	perl -0777 -pi -e "s/'default': true,\n\s*'requireTrust': true,/'default': false,'requireTrust': true,/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
+	perl -0777 -pi -e "s/'default': true,\n\s*'restricted': true,/'default': false,'restricted': true,/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
 	perl -0777 -pi -e "s/'default': true,\n\s*'tags': \['usesOnlineServices'\]/'default': false,'tags': ['usesOnlineServices']/m or die" src/vs/workbench/electron-sandbox/desktop.contribution.ts || die
 
 	einfo "Disabling automatic updates by default"
