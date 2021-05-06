@@ -89,6 +89,7 @@ src_prepare() {
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
 	use build-online || sed -i '/"esbuild"/d' build/package.json || die
+	use build-online || sed -i '/"esbuild"/d' extensions/package.json || die
 
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -216,6 +217,22 @@ src_configure() {
 	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
+	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
+	mv package esbuild
+	if [[ $myarch = amd64 ]] ; then
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.8.30.tgz"
+	else
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.8.30.tgz"
+	fi
+	mv -f package/bin/esbuild esbuild/bin/
+	popd > /dev/null || die
+	eend $? || die
+	fi
+
+	if ! use build-online; then
+	einfo "Restoring esbuild in extensions"
+	mkdir -p extensions/node_modules
+	pushd extensions/node_modules > /dev/null || die
 	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
