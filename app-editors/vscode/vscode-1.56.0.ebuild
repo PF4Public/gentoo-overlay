@@ -1739,7 +1739,9 @@ else
 fi
 
 SRC_URI+="${DOWNLOAD}
-${REPO}/commit/9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch -> ${PN}-9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch
+	${REPO}/commit/9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch -> ${PN}-9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch
+	${REPO}/commit/13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch -> ${PN}-13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch
+	${REPO}/commit/3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch -> ${PN}-3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch
 "
 
 RESTRICT="mirror build-online? ( network-sandbox )"
@@ -1783,6 +1785,10 @@ src_prepare() {
 	# einfo "Restoring electron 12 support"
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
+	einfo "Reverting 13944bac07e0c58bb4cce8da2ca1bb13a4409dd0"
+	patch -Rup1 -i "${DISTDIR}/${PN}-13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch" || die
+	einfo "Reverting 3c89afbbc4351d6880dea41f467c1fe19a7584d0"
+	patch -Rup1 -i "${DISTDIR}/${PN}-3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch" || die
 	einfo "Reverting 9ab80019bf2347e03c529c7ce6d5125e784e8ac7"
 	patch -Rup1 -i "${DISTDIR}/${PN}-9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch" || die
 
