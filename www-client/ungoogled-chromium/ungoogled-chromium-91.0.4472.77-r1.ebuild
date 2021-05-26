@@ -48,6 +48,7 @@ REQUIRED_USE="
 	cfi? ( thinlto )
 	pgo? ( clang )
 	x86? ( !thinlto !widevine )
+	screencast? ( wayland )
 "
 
 COMMON_X_DEPEND="
@@ -887,9 +888,9 @@ src_configure() {
 	fi
 
 	# Enable ozone wayland and/or headless support
+	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
+	myconf_gn+=" ozone_platform_headless=true"
 	if use wayland || use headless; then
-		myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
-		myconf_gn+=" ozone_platform_headless=true"
 		if use headless; then
 			myconf_gn+=" ozone_platform=\"headless\""
 			myconf_gn+=" use_x11=false"
@@ -900,8 +901,6 @@ src_configure() {
 			myconf_gn+=" use_xkbcommon=true"
 			myconf_gn+=" ozone_platform=\"wayland\""
 		fi
-	else
-		myconf_gn+=" use_ozone=false"
 	fi
 
 	# Enable official builds
@@ -931,7 +930,7 @@ src_configure() {
 	# List all args
 	# [[ -z "${NODIE}" ]] || gn args --list out/Release
 	# Quick compiler check for tests
-	[[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
 src_compile() {
