@@ -547,6 +547,7 @@ src_prepare() {
 		third_party/swiftshader/third_party/marl
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
+		third_party/tcmalloc
 		third_party/tensorflow-text
 		third_party/tflite
 		third_party/tflite/src/third_party/eigen3
@@ -597,9 +598,6 @@ src_prepare() {
 	fi
 	if ! use system-icu; then
 		keeplibs+=( third_party/icu )
-	fi
-	if use tcmalloc; then
-		keeplibs+=( third_party/tcmalloc )
 	fi
 	if use wayland && ! use headless ; then
 		keeplibs+=( third_party/wayland )
