@@ -517,7 +517,7 @@ src_prepare() {
 		third_party/perfetto/protos/third_party/chromium
 		third_party/pffft
 		third_party/ply
-		third_party/polymercore/chromium-upstream/fix-crash-in-ThemeService.patch
+		third_party/polymer
 		third_party/private-join-and-compute
 		third_party/private_membership
 		third_party/protobuf
