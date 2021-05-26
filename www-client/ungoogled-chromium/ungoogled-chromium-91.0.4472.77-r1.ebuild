@@ -32,7 +32,8 @@ PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV}.tar.xz
 	https://files.pythonhosted.org/packages/ed/7b/bbf89ca71e722b7f9464ebffe4b5ee20a9e5c9a555a56e2d3914bb9119a6/setuptools-44.1.0.zip
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	${UGC_URL}"
+	${UGC_URL}
+	js-type-check? ( https://github.com/chromium/chromium/commit/6951c37cecd05979b232a39e5c10e6346a0f74ef.patch -> ${PN}-6951c37cecd05979b232a39e5c10e6346a0f74ef.patch ) "
 
 LICENSE="BSD"
 SLOT="0"
@@ -289,6 +290,11 @@ src_prepare() {
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+
+	if use js-type-check; then
+		einfo "Using system Java for js-type-check"
+		patch -Rup1 -i "${DISTDIR}/${PN}-6951c37cecd05979b232a39e5c10e6346a0f74ef.patch" || die
+	fi
 
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
