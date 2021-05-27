@@ -132,7 +132,7 @@ COMMON_DEPEND="
 	dev-libs/libxslt:=
 	system-re2? ( dev-libs/re2:= )
 	>=media-libs/openh264-1.6.0:=
-	system-icu? ( >=dev-libs/icu-69.1:= )
+	system-icu? ( >=dev-libs/icu-67.1:= )
 "
 RDEPEND="${COMMON_DEPEND}
 	x11-misc/xdg-utils
