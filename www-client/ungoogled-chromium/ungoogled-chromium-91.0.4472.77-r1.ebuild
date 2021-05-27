@@ -32,8 +32,7 @@ PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV}.tar.xz
 	https://files.pythonhosted.org/packages/ed/7b/bbf89ca71e722b7f9464ebffe4b5ee20a9e5c9a555a56e2d3914bb9119a6/setuptools-44.1.0.zip
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	${UGC_URL}
-	js-type-check? ( https://github.com/chromium/chromium/commit/6951c37cecd05979b232a39e5c10e6346a0f74ef.patch -> ${PN}-6951c37cecd05979b232a39e5c10e6346a0f74ef.patch ) "
+	${UGC_URL}"
 
 LICENSE="BSD"
 SLOT="0"
@@ -80,8 +79,8 @@ COMMON_DEPEND="
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
 	system-harfbuzz? (
-		media-libs/freetype:=
-		>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
+	media-libs/freetype:=
+	>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
 	)
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
@@ -263,7 +262,7 @@ pkg_setup() {
 
 src_prepare() {
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-91-compiler.patch" || die
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
@@ -290,11 +289,6 @@ src_prepare() {
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-
-	if use js-type-check; then
-		einfo "Using system Java for js-type-check"
-		patch -Rup1 -i "${DISTDIR}/${PN}-6951c37cecd05979b232a39e5c10e6346a0f74ef.patch" || die
-	fi
 
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
@@ -327,6 +321,7 @@ src_prepare() {
 		ewarn "Keeping binary compiler.jar in source tree for js-type-check"
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
+
 	if use pgo; then
 		ewarn "Keeping binary profile data in source tree for pgo"
 		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
@@ -532,9 +527,6 @@ src_prepare() {
 		third_party/pyjson5
 		third_party/qcms
 	)
-	use system-re2 || keeplibs+=(
-		third_party/re2
-	)
 	keeplibs+=(
 		third_party/rnnoise
 		third_party/s2cellid
@@ -612,13 +604,18 @@ src_prepare() {
 	if ! use system-openh264; then
 		keeplibs+=( third_party/openh264 )
 	fi
-	ebegin "Removing unneeded bundled libraries"
+	if ! use system-re2; then
+		keeplibs+=( third_party/re2 )
+	fi
+
 	python_setup
 
 	# Remove most bundled libraries. Some are still needed.
-	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
+	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 
-	eend $? || die
+	if use js-type-check; then
+		ln -s "${EPREFIX}"/usr/bin/java third_party/jdk/current/bin/java || die
+	fi
 }
 
 src_configure() {
