@@ -1,25 +1,20 @@
-name: sb-hosts tests
+name: repoman
 on:
   push:
     paths:
-    - 'net-misc/sb-hosts/sb-hosts-9999.ebuild'
+    - '**.ebuild'
+    - '**.xml'
+    - '**Manifest'
   pull_request:
     paths:
-    - 'net-misc/sb-hosts/sb-hosts-9999.ebuild'
+    - '**.ebuild'
+    - '**.xml'
+    - '**Manifest'
 
 jobs:
-  ebuild:
+  repoman:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        use:
-          - fakenews gambling porn social
-          - ''
-          - fakenews social
-          - fakenews gambling social
-          - gambling
 
     steps:
       - uses: actions/checkout@v2
@@ -29,11 +24,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install sb-hosts with "${{ matrix.use }}"
+      - name: Run repoman
         uses: pf4public/gentoo-docker-action@master
         with:
             added: ${{ steps.files.outputs.added }}
             modified: ${{ steps.files.outputs.modified }}
-            tool: ebuild
-            action: install
-            params: ${{ matrix.use }}
+            tool: repoman
+            action: full
+            params: -dx

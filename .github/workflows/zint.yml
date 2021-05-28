@@ -26,10 +26,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Trying to install zint with "${{ matrix.use }}"
+      - name: Install zint with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
             added: ${{ steps.files.outputs.added }}
             modified: ${{ steps.files.outputs.modified }}
+            tool: ebuild
             action: install
-            use: ${{ matrix.use }}
+            params: ${{ matrix.use }}
