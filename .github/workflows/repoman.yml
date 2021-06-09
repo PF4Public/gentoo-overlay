@@ -5,11 +5,13 @@ on:
     - '**.ebuild'
     - '**.xml'
     - '**Manifest'
+    - '!sys-kernel/linux-image/**'
   pull_request:
     paths:
     - '**.ebuild'
     - '**.xml'
     - '**Manifest'
+    - '!sys-kernel/linux-image/**'
 
 jobs:
   repoman:
