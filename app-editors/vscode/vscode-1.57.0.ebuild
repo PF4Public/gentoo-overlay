@@ -1793,7 +1793,7 @@ src_prepare() {
 	sed -i '/"playwright"/d' package.json || die
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
-	sed -i '/"@iktakahiro/markdown-it-katex"/d' extensions/notebook-markdown-extensions/package.json || die
+	sed -i '/"@iktakahiro\/markdown-it-katex"/d' extensions/notebook-markdown-extensions/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
