@@ -322,7 +322,7 @@ src_prepare() {
 		sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 	fi
 
-	if use pgo; then
+	if use pgo || [ ! -z "$UGC_COMMIT_ID" ]; then
 		ewarn "Keeping binary profile data in source tree for pgo"
 		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
 	fi
