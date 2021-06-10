@@ -16,6 +16,7 @@ SRC_URI="!build-online? (
 	https://codeload.github.com/deepak1556/universal/tar.gz/61454d96223b774c53cda10f72c2098c0ce02d58
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://codeload.github.com/rmacfarlane/randombytes/tar.gz/b28d4ecee46262801ea09f15fa1f1513a05c5971
+	https://codeload.github.com/mjbvz/markdown-it-katex/tar.gz/2bf0b89c6c22ef0b585f55ccab66d1f7c5356bea
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
 	https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz
 	https://registry.yarnpkg.com/acorn/-/acorn-6.4.2.tgz
@@ -652,7 +653,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz
 	https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz
 	https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz
-	https://registry.yarnpkg.com/@iktakahiro/markdown-it-katex/-/markdown-it-katex-4.0.1.tgz -> @iktakahiro-markdown-it-katex-4.0.1.tgz
 	https://registry.yarnpkg.com/image-size/-/image-size-0.5.5.tgz
 	https://registry.yarnpkg.com/import-cwd/-/import-cwd-2.1.0.tgz
 	https://registry.yarnpkg.com/import-fresh/-/import-fresh-2.0.0.tgz
@@ -1739,11 +1739,7 @@ else
 	fi
 fi
 
-SRC_URI+="${DOWNLOAD}
-	${REPO}/commit/9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch -> ${PN}-9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch
-	${REPO}/commit/13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch -> ${PN}-13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch
-	${REPO}/commit/3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch -> ${PN}-3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch
-"
+SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -1785,13 +1781,6 @@ src_prepare() {
 
 	# einfo "Restoring electron 12 support"
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
-
-	einfo "Reverting 13944bac07e0c58bb4cce8da2ca1bb13a4409dd0"
-	patch -Rup1 -i "${DISTDIR}/${PN}-13944bac07e0c58bb4cce8da2ca1bb13a4409dd0.patch" || die
-	einfo "Reverting 3c89afbbc4351d6880dea41f467c1fe19a7584d0"
-	patch -Rup1 -i "${DISTDIR}/${PN}-3c89afbbc4351d6880dea41f467c1fe19a7584d0.patch" || die
-	einfo "Reverting 9ab80019bf2347e03c529c7ce6d5125e784e8ac7"
-	patch -Rup1 -i "${DISTDIR}/${PN}-9ab80019bf2347e03c529c7ce6d5125e784e8ac7.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
