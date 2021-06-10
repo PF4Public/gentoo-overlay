@@ -13,9 +13,9 @@ LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.11.3"
 SRC_URI="!build-online? (
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.8.30.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.8.30.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.1.tgz
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.1.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.1.tgz
 	)
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
@@ -217,12 +217,12 @@ src_configure() {
 	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.8.30.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.8.30.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
@@ -233,12 +233,12 @@ src_configure() {
 	einfo "Restoring esbuild in extensions"
 	mkdir -p extensions/node_modules
 	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.8.30.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.8.30.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.8.30.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
