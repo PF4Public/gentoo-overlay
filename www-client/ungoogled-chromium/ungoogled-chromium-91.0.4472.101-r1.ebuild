@@ -255,7 +255,7 @@ pkg_setup() {
 
 	# nvidia-drivers does not work correctly with Wayland due to unsupported EGLStreams
 	if use wayland && ! use headless && has_version "x11-drivers/nvidia-drivers"; then
-		ewarn "Prxoprietary nVidia driver does not work with Wayland. You can disable"
+		ewarn "Proprietary nVidia driver does not work with Wayland. You can disable"
 		ewarn "Wayland by setting DISABLE_OZONE_PLATFORM=true in /etc/chromium/default."
 	fi
 }
