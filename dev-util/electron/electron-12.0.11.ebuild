@@ -1729,6 +1729,8 @@ src_configure() {
 
 	if use tcmalloc; then
 	myconf_gn+=" use_allocator=\"tcmalloc\""
+	else
+	myconf_gn+=" use_allocator=\"partition\""
 	fi
 
 	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
