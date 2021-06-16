@@ -1183,7 +1183,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 
 LICENSE="BSD"
 SLOT="${PV%%.*}/${PV#*.}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1994,7 +1994,7 @@ src_configure() {
 	"$@" || die
 
 	# List all args
-	[[ -z "${NODIE}" ]] || gn args --list out/Release
+	# [[ -z "${NODIE}" ]] || gn args --list out/Release
 	# Quick compiler check for tests
 	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
