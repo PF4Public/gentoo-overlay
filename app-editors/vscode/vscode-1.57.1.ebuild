@@ -383,7 +383,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.0.tgz
 	https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.2.tgz
-	https://registry.yarnpkg.com/electron/-/electron-12.0.9.tgz
+	https://registry.yarnpkg.com/electron/-/electron-12.0.7.tgz
 	https://registry.yarnpkg.com/@electron/get/-/get-1.12.3.tgz -> @electron-get-1.12.3.tgz
 	https://registry.yarnpkg.com/@electron/get/-/get-1.12.4.tgz -> @electron-get-1.12.4.tgz
 	https://registry.yarnpkg.com/electron-osx-sign/-/electron-osx-sign-0.4.16.tgz
