@@ -1184,7 +1184,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 LICENSE="BSD"
 SLOT="${PV%%.*}/${PV#*.}"
 KEYWORDS="amd64 ~x86"
-IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau"
+IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1729,7 +1729,9 @@ src_configure() {
 
 	if use tcmalloc; then
 	myconf_gn+=" use_allocator=\"tcmalloc\""
-	else
+	fi
+
+	if use partition; then
 	myconf_gn+=" use_allocator=\"partition\""
 	fi
 
