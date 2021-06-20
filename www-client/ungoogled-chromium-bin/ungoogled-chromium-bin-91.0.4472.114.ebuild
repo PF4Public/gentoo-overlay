@@ -27,8 +27,8 @@ SRC_URI="
 		)
 	)
 	haswell? (
-		https://github.com/PF4Public/${PN}/releases/download/${PV}/haswell.tar.zst
-		-> ${P}-haswell.tar.zst
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/haswell.tar.bz2
+		-> ${P}-haswell.tar.bz2
 	)
 "
 
