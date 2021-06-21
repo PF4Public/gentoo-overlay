@@ -910,6 +910,8 @@ src_compile() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	#! Until electron-builder >=22.11.5
+	yarn config set ignore-engines true || die
 
 	if ! use build-online
 	then
