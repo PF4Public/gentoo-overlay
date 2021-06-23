@@ -1357,6 +1357,7 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	sed -i '/web_tests/Q' "patches/chromium/word_break_between_space_and_alphanumeric.patch" || die
+	sed -i '/cctest/Q' "patches/v8/m90-lts_squashed_multiple_commits.patch" || die
 	popd > /dev/null || die
 
 	use custom-cflags || rm "${WORKDIR}/patches/chromium-88-compiler.patch" || die
