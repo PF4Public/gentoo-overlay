@@ -262,7 +262,9 @@ pkg_setup() {
 
 src_prepare() {
 
-	use custom-cflags || rm "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+	if ! use custom-cflags; then #See #25 #92
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+	fi
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
