@@ -8,5 +8,5 @@ assignees: ''
 ---
 
 <!-- What were you trying to accomplish? What didn't function as expected?
-Please provide any relevant information including the full build log. If you have some unusual setup in your system please also mention this.
+Please provide any relevant information including the full build log. Please don't use external services for that. If you have some unusual setup in your system please also mention this.
 And don't forget to edit the title. -->
