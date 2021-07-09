@@ -1748,7 +1748,9 @@ else
 	fi
 fi
 
-SRC_URI+="${DOWNLOAD}"
+SRC_URI+="${DOWNLOAD}
+	${REPO}/commit/0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch -> ${PN}-0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch
+"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -1791,6 +1793,9 @@ src_prepare() {
 	# einfo "Restoring electron 12 support"
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
+	einfo "Reverting 0a57fd87b1d1ef0ff81750f84840ee4303b8800b"
+	patch -Rup1 -i "${DISTDIR}/${PN}-0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch" || die
+
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
@@ -1802,7 +1807,6 @@ src_prepare() {
 	sed -i '/"playwright"/d' package.json || die
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
-	sed -i '/"@iktakahiro\/markdown-it-katex"/d' extensions/markdown-math/package.json || die
 
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
