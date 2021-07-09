@@ -1748,9 +1748,7 @@ else
 	fi
 fi
 
-SRC_URI+="${DOWNLOAD}
-	${REPO}/commit/0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch -> ${PN}-0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch
-"
+SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -1793,14 +1791,22 @@ src_prepare() {
 	# einfo "Restoring electron 12 support"
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
-	einfo "Reverting 0a57fd87b1d1ef0ff81750f84840ee4303b8800b"
-	patch -Rup1 -i "${DISTDIR}/${PN}-0a57fd87b1d1ef0ff81750f84840ee4303b8800b.patch" || die
-
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
-	use build-online || sed -i '/"esbuild"/d' build/package.json || die
-	use build-online || sed -i '/"esbuild"/d' extensions/package.json || die
+	
+	if ! use build-online; then
+		sed -i '/"esbuild"/d' extensions/package.json || die
+		sed -i '/"esbuild"/d' build/package.json || die
+
+		einfo "Removing markdown-math. Enable build-online if you need it."
+		rm -r extensions/markdown-math
+		sed -i '/"markdown-math"/d' build/filters.js || die
+		sed -i '/"markdown-math"/d' build/npm/dirs.js || die
+		sed -i '/"markdown-math"/d' build/gulpfile.extensions.js || die
+		sed -i '/"markdown-math"/d' build/lib/extensions.js || die
+		sed -i '/"markdown-math"/d' build/lib/extensions.ts || die
+	fi
 
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
