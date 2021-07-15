@@ -1424,7 +1424,6 @@ src_prepare() {
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/depot_tools"]="third_party/depot_tools"
-		["electron/patches/nan"]="third_party/nan"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
