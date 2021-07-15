@@ -1374,11 +1374,11 @@ src_prepare() {
 	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
 	popd > /dev/null || die
 
-	pushd "${WORKDIR}/${P}" > /dev/null || die
-	sed -i '/web_tests/Q' "patches/chromium/word_break_between_space_and_alphanumeric.patch" || die
-	sed -i '/cctest/Q' "patches/v8/m90-lts_squashed_multiple_commits.patch" || die
-	sed -i '/set-breakpoint-before-enabling-expected/Q' "patches/v8/cherry-pick-50de6a8ddad9.patch" || die
-	popd > /dev/null || die
+	# pushd "${WORKDIR}/${P}" > /dev/null || die
+	# sed -i '/web_tests/Q' "patches/chromium/word_break_between_space_and_alphanumeric.patch" || die
+	# sed -i '/cctest/Q' "patches/v8/m90-lts_squashed_multiple_commits.patch" || die
+	# sed -i '/set-breakpoint-before-enabling-expected/Q' "patches/v8/cherry-pick-50de6a8ddad9.patch" || die
+	# popd > /dev/null || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
