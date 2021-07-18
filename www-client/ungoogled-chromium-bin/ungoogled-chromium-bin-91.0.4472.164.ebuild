@@ -16,6 +16,10 @@ SRC_URI="
 		https://github.com/PF4Public/${PN}/releases/download/${PV}/core2.tar.bz2
 		-> ${P}-core2.tar.bz2
 	)
+	haswell? (
+		https://github.com/PF4Public/${PN}/releases/download/${PV}/haswell.tar.bz2
+		-> ${P}-haswell.tar.bz2
+	)
 	generic? (
 		amd64? (
 		https://github.com/PF4Public/${PN}/releases/download/${PV}/x86-64.tar.bz2
@@ -25,10 +29,6 @@ SRC_URI="
 		https://github.com/PF4Public/${PN}/releases/download/${PV}/i686.tar.bz2
 		-> ${P}-i686.tar.bz2
 		)
-	)
-	haswell? (
-		https://github.com/PF4Public/${PN}/releases/download/${PV}/haswell.tar.bz2
-		-> ${P}-haswell.tar.bz2
 	)
 "
 
