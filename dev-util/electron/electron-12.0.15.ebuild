@@ -11,15 +11,15 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 
 inherit check-reqs chromium-2 flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs
 
-CHROMIUM_VERSION="91.0.4472.124"
+CHROMIUM_VERSION="89.0.4389.128"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="14.16.0"
 NODE_P="node-v${NODE_VERSION}"
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
-PATCHSET="6"
-PATCHSET_NAME="chromium-91-patchset-${PATCHSET}"
+PATCHSET="7"
+PATCHSET_NAME="chromium-89-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	https://files.pythonhosted.org/packages/ed/7b/bbf89ca71e722b7f9464ebffe4b5ee20a9e5c9a555a56e2d3914bb9119a6/setuptools-44.1.0.zip
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
@@ -1209,8 +1209,8 @@ COMMON_X_DEPEND="
 	x11-libs/libXrandr:=
 	x11-libs/libXrender:=
 	x11-libs/libXtst:=
+	x11-libs/libXScrnSaver:=
 	x11-libs/libxcb:=
-	x11-libs/libxshmfence:=
 	vaapi? ( >=x11-libs/libva-2.7:=[X,drm] )
 "
 
@@ -1226,8 +1226,8 @@ COMMON_DEPEND="
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
 	system-harfbuzz? (
-	media-libs/freetype:=
-	>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
+		media-libs/freetype:=
+		>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
 	)
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
@@ -1251,7 +1251,6 @@ COMMON_DEPEND="
 	virtual/udev
 	x11-libs/cairo:=
 	x11-libs/gdk-pixbuf:2
-	x11-libs/libxkbcommon:=
 	x11-libs/pango:=
 	media-libs/flac:=
 	>=media-libs/libwebp-0.4.0:=
@@ -1278,6 +1277,7 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/opengl
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
+	tcmalloc? ( !<x11-drivers/nvidia-drivers-331.20 )
 "
 DEPEND="${COMMON_DEPEND}
 "
@@ -1307,19 +1307,13 @@ pre_build_checks() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		local -x CPP="$(tc-getCXX) -E"
 		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
-			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
-		fi
-		if use clang; then
-			CPP="${CHOST}-clang++ -E"
-			if ! ver_test "$(clang-major-version)" -ge 12; then
-				[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
-			fi
+			die "At least gcc 9.2 is required"
 		fi
 	fi
 
 	# Check build requirements, bug #541816 and bug #471810 .
 	CHECKREQS_MEMORY="3G"
-	CHECKREQS_DISK_BUILD="8G"
+	CHECKREQS_DISK_BUILD="7G"
 	if ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
 		CHECKREQS_DISK_BUILD="16G"
 	fi
@@ -1339,8 +1333,6 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	pre_build_checks
-
 	chromium_suid_sandbox_check_kernel_config
 }
 
@@ -1353,10 +1345,8 @@ src_unpack() {
 }
 
 src_prepare() {
-
-	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-91-compiler.patch" || die
-	fi
+	# Calling this here supports resumption via FEATURES=keepwork
+	python_setup
 
 	einfo "Disabling dugite"
 	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
@@ -1365,30 +1355,20 @@ src_prepare() {
 	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
 	popd > /dev/null || die
 
-	# pushd "${WORKDIR}/${P}" > /dev/null || die
-	# sed -i '/web_tests/Q' "patches/chromium/word_break_between_space_and_alphanumeric.patch" || die
-	# sed -i '/cctest/Q' "patches/v8/m90-lts_squashed_multiple_commits.patch" || die
-	# sed -i '/set-breakpoint-before-enabling-expected/Q' "patches/v8/cherry-pick-50de6a8ddad9.patch" || die
-	# popd > /dev/null || die
+	pushd "${WORKDIR}/${P}" > /dev/null || die
+	sed -i '/web_tests/Q' "patches/chromium/word_break_between_space_and_alphanumeric.patch" || die
+	sed -i '/cctest/Q' "patches/v8/m90-lts_squashed_multiple_commits.patch" || die
+	sed -i '/set-breakpoint-before-enabling-expected/Q' "patches/v8/cherry-pick-50de6a8ddad9.patch" || die
+	popd > /dev/null || die
+
+	use custom-cflags || rm "${WORKDIR}/patches/chromium-88-compiler.patch" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
+		"${FILESDIR}/chromium-89-webcodecs-deps.patch"
 		"${FILESDIR}/chromium-89-EnumTable-crash.patch"
-		"${FILESDIR}/chromium-91-ThemeService-crash.patch"
-		"${FILESDIR}/chromium-91-system-icu.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 	)
-
-	# seccomp sandbox is broken if compiled against >=sys-libs/glibc-2.33, bug #769989
-	if has_version -d ">=sys-libs/glibc-2.33"; then
-		ewarn "Adding experimental glibc-2.33 sandbox patch. Seccomp sandbox might"
-		ewarn "still not work correctly. In case of issues, try to disable seccomp"
-		ewarn "sandbox by adding --disable-seccomp-filter-sandbox to CHROMIUM_FLAGS"
-		ewarn "in /etc/chromium/default."
-		PATCHES+=(
-			"${FILESDIR}/chromium-glibc-2.33.patch"
-		)
-	fi
 
 	default
 
@@ -1415,6 +1395,8 @@ src_prepare() {
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/depot_tools"]="third_party/depot_tools"
+		["electron/patches/angle"]="third_party/angle"
+		["electron/patches/usrsctp"]="third_party/usrsctp/usrsctplib"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
@@ -1519,11 +1501,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
 		third_party/devtools-frontend/src/third_party
 		third_party/dom_distiller_js
-		third_party/eigen3
 		third_party/emoji-segmenter
-		third_party/farmhash
-		third_party/fdlibm
-		third_party/fft2d
 		third_party/flatbuffers
 	)
 	use system-harfbuzz || keeplibs+=(
@@ -1532,11 +1510,8 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/fusejs
-		third_party/highway
 		third_party/libgifcodec
 		third_party/liburlpattern
-		third_party/libzip
-		third_party/gemmlowp
 		third_party/google_input_tools
 		third_party/google_input_tools/third_party/closure_library
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
@@ -1557,13 +1532,10 @@ src_prepare() {
 		third_party/libXNVCtrl
 		third_party/libaddressinput
 		third_party/libaom
-		third_party/libaom/source/libaom/third_party/fastfeat
 		third_party/libaom/source/libaom/third_party/vector
 		third_party/libaom/source/libaom/third_party/x86inc
 		third_party/libavif
-		third_party/libgav1
 		third_party/libjingle
-		third_party/libjxl
 		third_party/libphonenumber
 		third_party/libsecret
 		third_party/libsrtp
@@ -1593,7 +1565,6 @@ src_prepare() {
 		third_party/modp_b64
 		third_party/nasm
 		third_party/nearby
-		third_party/neon_2_sse
 		third_party/node
 		third_party/node/node_modules/polymer-bundler/lib/third_party/UglifyJS2
 		third_party/one_euro_filter
@@ -1628,9 +1599,13 @@ src_prepare() {
 		third_party/pyjson5
 		third_party/qcms
 	)
+	use system-re2 || keeplibs+=(
+		third_party/re2
+	)
 	keeplibs+=(
 		third_party/rnnoise
 		third_party/s2cellid
+		third_party/schema_org
 		third_party/securemessage
 		third_party/shell-encryption
 		third_party/simplejson
@@ -1648,20 +1623,12 @@ src_prepare() {
 		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/tcmalloc
-		third_party/tensorflow-text
-		third_party/tflite
-		third_party/tflite/src/third_party/eigen3
-		third_party/tflite/src/third_party/fft2d
-		third_party/tflite-support
 		third_party/tint
-		third_party/ruy
 		third_party/ukey2
 		third_party/usrsctp
-		third_party/utf
 		third_party/vulkan
 		third_party/web-animations-js
 		third_party/webdriver
-		third_party/webgpu-cts
 		third_party/webrtc
 		third_party/webrtc/common_audio/third_party/ooura
 		third_party/webrtc/common_audio/third_party/spl_sqrt_floor
@@ -1702,17 +1669,12 @@ src_prepare() {
 	if ! use system-openh264; then
 		keeplibs+=( third_party/openh264 )
 	fi
-	if ! use system-re2; then
-		keeplibs+=( third_party/re2 )
-	fi
 	ebegin "Removing unneeded bundled libraries"
 
 	# Remove most bundled libraries. Some are still needed.
-	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
+	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
 
-	if use js-type-check; then
-		ln -s "${EPREFIX}"/usr/bin/java third_party/jdk/current/bin/java || die
-	fi
+	eend $? || die
 }
 
 src_configure() {
@@ -1832,9 +1794,7 @@ src_configure() {
 	myconf_gn+=" use_vaapi=$(usex vaapi true false)"
 	myconf_gn+=" link_pulseaudio=$(usex pulseaudio true false)"
 
-	if use pgo; then
-		myconf_gn+=" chrome_pgo_phase=2"
-	else
+	if ! use pgo; then
 		myconf_gn+=" chrome_pgo_phase=0"
 	fi
 
@@ -1867,7 +1827,6 @@ src_configure() {
 	myconf_gn+=" symbol_level=0"
 	myconf_gn+=" enable_iterator_debugging=false"
 	myconf_gn+=" enable_swiftshader=false"
-	myconf_gn+=" build_with_tflite_lib=false"
 
 	# Additional flags
 	myconf_gn+=" use_system_libjpeg=true"
@@ -1887,9 +1846,6 @@ src_configure() {
 	# Disable forced lld, bug 641556
 	myconf_gn+=" use_lld=false"
 	fi
-
-	# Disable pseudolocales, only used for testing
-	myconf_gn+=" enable_pseudolocales=false"
 
 	ffmpeg_branding="$(usex proprietary-codecs Chrome Chromium)"
 	myconf_gn+=" proprietary_codecs=$(usex proprietary-codecs true false)"
@@ -1951,7 +1907,7 @@ src_configure() {
 		# from 25% to 10%. The performance number of page_cycler is the
 		# same on two of the thinLTO configurations, we got 1% slowdown
 		# on speedometer when changing import-instr-limit from 100 to 30.
-		# append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
+		append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
@@ -2000,9 +1956,7 @@ src_configure() {
 		myconf_gn+=" icu_use_data_file=false"
 	fi
 
-	# Enable ozone wayland and/or headless support
-	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
-	myconf_gn+=" ozone_platform_headless=true"
+	myconf_gn+=" use_ozone=false"
 
 	# Enable official builds
 	myconf_gn+=" is_official_build=true"
@@ -2058,8 +2012,7 @@ src_compile() {
 	python_setup
 
 	# https://bugs.gentoo.org/717456
-	# don't inherit PYTHONPATH from environment, bug #789021
-	local -x PYTHONPATH="${WORKDIR}/setuptools-44.1.0"
+	local -x PYTHONPATH="${WORKDIR}/setuptools-44.1.0:${PYTHONPATH+:}${PYTHONPATH}"
 
 	eninja -C out/Release third_party/electron_node:headers
 
@@ -2133,10 +2086,4 @@ pkg_postinst() {
 
 pkg_postrm() {
 	electron-config update
-
-	if use vaapi; then
-		elog "VA-API is disabled by default at runtime. You have to enable it"
-		elog "by adding --enable-features=VaapiVideoDecoder to CHROMIUM_FLAGS"
-		elog "in /etc/chromium/default."
-	fi
 }
