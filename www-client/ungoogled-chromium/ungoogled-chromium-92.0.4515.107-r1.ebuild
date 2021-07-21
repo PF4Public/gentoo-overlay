@@ -267,7 +267,7 @@ src_prepare() {
 	python_setup
 
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-91-compiler.patch" || die
 	fi
 
 	local PATCHES=(
@@ -980,7 +980,7 @@ src_compile() {
 	pax-mark m out/Release/chrome
 
 	use enable-driver && mv out/Release/chromedriver{.unstripped,}
-	
+
 	# Build manpage; bug #684550
 	sed -e 's|@@PACKAGE@@|chromium-browser|g;
 		s|@@MENUNAME@@|Chromium|g;' \
