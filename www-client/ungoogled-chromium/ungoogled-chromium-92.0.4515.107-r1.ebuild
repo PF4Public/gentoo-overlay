@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="4ee8b57c6e2c285ab80ce9f2a0d70e6e2844cb6b"
+UGC_COMMIT_ID="1b2c5593f9d6fd3e3d9209e6d247de2add1791ef"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -940,9 +940,9 @@ src_configure() {
 	"$@" || die
 
 	# List all args
-	[[ -z "${NODIE}" ]] || gn args --list out/Release
+	# [[ -z "${NODIE}" ]] || gn args --list out/Release
 	# Quick compiler check for tests
-	[[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
 }
 
 src_compile() {
