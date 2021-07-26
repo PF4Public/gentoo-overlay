@@ -14,7 +14,7 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT="12"
+ELECTRON_SLOT="13"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
