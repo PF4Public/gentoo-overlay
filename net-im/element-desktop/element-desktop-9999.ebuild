@@ -100,6 +100,9 @@ src_compile() {
 	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
 		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
+	node node_modules/.bin/tsc || die
+	node scripts/copy-res.js || die
+
 	if use native-modules
 	then
 		node /usr/bin/yarn run build:native
