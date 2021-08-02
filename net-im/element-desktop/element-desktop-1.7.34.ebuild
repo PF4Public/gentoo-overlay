@@ -748,6 +748,8 @@ src_compile() {
 	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
 		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
+	node /usr/bin/yarn run tsbuild
+
 	if use native-modules
 	then
 		node /usr/bin/yarn run build:native
