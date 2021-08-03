@@ -276,7 +276,6 @@ src_prepare() {
 		"${WORKDIR}/sandbox-patches/chromium-syscall_broker.patch"
 		"${WORKDIR}/sandbox-patches/chromium-fstatat-crash.patch"
 		"${FILESDIR}/chromium-92-EnumTable-crash.patch"
-		"${FILESDIR}/chromium-92-GetUsableSize-nullptr.patch"
 		"${FILESDIR}/chromium-freetype-2.11.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 	)
