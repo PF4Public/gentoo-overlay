@@ -279,6 +279,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-92-crashpad-consent.patch"
 		"${FILESDIR}/chromium-freetype-2.11.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
+		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
 	)
 
 	default
