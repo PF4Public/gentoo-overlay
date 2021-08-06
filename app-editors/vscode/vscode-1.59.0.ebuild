@@ -426,7 +426,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.17.7.tgz
 	https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.18.0-next.1.tgz
 	https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.18.3.tgz
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.11.12.tgz
 	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.6.tgz
 	https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz
 	https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz
@@ -1821,8 +1820,8 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/yazl/-/yazl-2.5.1.tgz
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	https://registry.yarnpkg.com/zone.js/-/zone.js-0.7.6.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.1.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.1.tgz
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.6.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.6.tgz
 	)
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
@@ -2036,12 +2035,12 @@ src_configure() {
 	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
@@ -2052,12 +2051,12 @@ src_configure() {
 	einfo "Restoring esbuild in extensions"
 	mkdir -p extensions/node_modules
 	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
