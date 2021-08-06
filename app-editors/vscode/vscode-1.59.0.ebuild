@@ -1904,6 +1904,7 @@ src_prepare() {
 		rm -r extensions/markdown-math
 		sed -i '/markdown-math/d' build/filters.js || die
 		sed -i '/markdown-math/d' build/npm/dirs.js || die
+		sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 		sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
 		sed -i '/markdown-math/d' build/lib/extensions.js || die
 		sed -i '/markdown-math/d' build/lib/extensions.ts || die
