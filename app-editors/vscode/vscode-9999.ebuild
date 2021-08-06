@@ -13,9 +13,9 @@ LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.11.3"
 SRC_URI="!build-online? (
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.1.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.1.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.1.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.6.tgz
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.6.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.6.tgz
 	)
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
@@ -88,8 +88,20 @@ src_prepare() {
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
-	use build-online || sed -i '/"esbuild"/d' build/package.json || die
-	use build-online || sed -i '/"esbuild"/d' extensions/package.json || die
+
+	if ! use build-online; then
+		sed -i '/"esbuild"/d' extensions/package.json || die
+		sed -i '/"esbuild"/d' build/package.json || die
+
+		einfo "Removing markdown-math. Enable build-online if you need it."
+		rm -r extensions/markdown-math
+		sed -i '/markdown-math/d' build/filters.js || die
+		sed -i '/markdown-math/d' build/npm/dirs.js || die
+		sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+		sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
+		sed -i '/markdown-math/d' build/lib/extensions.js || die
+		sed -i '/markdown-math/d' build/lib/extensions.ts || die
+	fi
 
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -217,12 +229,12 @@ src_configure() {
 	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
@@ -233,12 +245,12 @@ src_configure() {
 	einfo "Restoring esbuild in extensions"
 	mkdir -p extensions/node_modules
 	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.1.tgz"
+	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.1.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
