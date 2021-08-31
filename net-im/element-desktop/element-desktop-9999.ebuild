@@ -105,11 +105,11 @@ src_compile() {
 
 	if use native-modules
 	then
-		node /usr/bin/yarn run build:native
+		node /usr/bin/yarn run build:native || die
 	fi
 
 	#!Error: "Unknown argument" with electron's node
-	/usr/bin/node node_modules/.bin/electron-builder --dir
+	/usr/bin/node node_modules/.bin/electron-builder --dir || die
 
 	#cp -r /usr/share/element-web webapp
 	#rm -f webapp/config.json
