@@ -29,15 +29,18 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://github.com/Eloston/ungoogled-chromium"
 PATCHSET="7"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
+PPC64LE_PATCHSET="92-ppc64le-1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV}.tar.xz
 	https://files.pythonhosted.org/packages/ed/7b/bbf89ca71e722b7f9464ebffe4b5ee20a9e5c9a555a56e2d3914bb9119a6/setuptools-44.1.0.zip
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-92-glibc-2.33-patch.tar.xz
+	arm64? ( https://github.com/google/highway/archive/refs/tags/0.12.1.tar.gz -> highway-0.12.1.tar.gz )
+	ppc64? ( https://dev.gentoo.org/~gyakovlev/distfiles/chromium-${PPC64LE_PATCHSET}.tar.xz )
 	${UGC_URL}"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE="cfi +clang convert-dict cups custom-cflags enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -201,6 +204,7 @@ in /etc/chromium/default.
 "
 
 S="${WORKDIR}/chromium-${PV}"
+PPC64LE_PATCHDIR="${WORKDIR}/chromium-ppc64le"
 
 pre_build_checks() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
@@ -282,7 +286,16 @@ src_prepare() {
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
 	)
 
+	if use ppc64; then
+		eapply "${PPC64LE_PATCHDIR}/xxx-ppc64le-libvpx.patch"
+		eapply "${PPC64LE_PATCHDIR}/xxx-ppc64le-support.patch"
+		eapply "${PPC64LE_PATCHDIR}/xxx-ppc64le-swiftshader.patch"
+	fi
+
 	default
+
+	# this patch needs to be applied after gentoo sandbox patchset
+	use ppc64 && eapply "${PPC64LE_PATCHDIR}/xxx-ppc64le-sandbox_kernel_stat.patch"
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
@@ -290,6 +303,12 @@ src_prepare() {
 	# adjust python interpreter versions
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 	sed -i -e "s|python2|python2\.7|g" buildtools/linux64/clang-format || die
+
+	# bundled highway library does not support arm64 with GCC
+	if use arm64; then
+		rm -r third_party/highway/src || die
+		ln -s "${WORKDIR}/highway-0.12.1" third_party/highway/src || die
+	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
@@ -610,11 +629,30 @@ src_prepare() {
 		keeplibs+=( third_party/re2 )
 	fi
 
+	if use arm64 || use ppc64 ; then
+		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
+	fi
+
+	# we need to generate ppc64 stuff because upstream does not ship it yet
+	# it has to be done before unbundling.
+	if use ppc64; then
+		pushd third_party/libvpx >/dev/null || die
+		mkdir -p source/config/linux/ppc64 || die
+		./generate_gni.sh || die
+		popd >/dev/null || die
+	fi
+
 	# Remove most bundled libraries. Some are still needed.
 	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 
 	if use js-type-check; then
 		ln -s "${EPREFIX}"/usr/bin/java third_party/jdk/current/bin/java || die
+	fi
+
+	# bundled eu-strip is for amd64 only
+	if ! use amd64 ; then
+		mkdir -p buildtools/third_party/eu-strip/bin || die
+		ln -s "${EPREFIX}"/bin/true buildtools/third_party/eu-strip/bin/eu-strip || die
 	fi
 }
 
@@ -885,6 +923,14 @@ src_configure() {
 
 	# Chromium relies on this, but was disabled in >=clang-10, crbug.com/1042470
 	append-cxxflags $(test-flags-CXX -flax-vector-conversions=all)
+
+	# highway/libjxl relies on this with arm64
+	if use arm64 && tc-is-gcc; then
+		append-cxxflags -flax-vector-conversions
+	fi
+
+	# highway/libjxl fail on ppc64 without extra patches, disable for now.
+	use ppc64 && myconf_gn+=" enable_jxl_decoder=false"
 
 	# Disable unknown warning message from clang.
 	tc-is-clang && append-flags -Wno-unknown-warning-option
