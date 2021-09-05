@@ -88,6 +88,8 @@ src_prepare() {
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/"vscode-ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
+	sed -i '/"applicationinsights"/d' package.json || die
+	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
 	if ! use build-online; then
 		sed -i '/"esbuild"/d' extensions/package.json || die
@@ -97,7 +99,6 @@ src_prepare() {
 		rm -r extensions/markdown-math
 		sed -i '/markdown-math/d' build/filters.js || die
 		sed -i '/markdown-math/d' build/npm/dirs.js || die
-		sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 		sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
 		sed -i '/markdown-math/d' build/lib/extensions.js || die
 		sed -i '/markdown-math/d' build/lib/extensions.ts || die
