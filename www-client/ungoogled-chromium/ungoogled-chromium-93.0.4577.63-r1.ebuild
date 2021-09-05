@@ -14,14 +14,15 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="8164c91790672be41717c69bebf8b156d31f2137"
+UGC_COMMIT_ID="bb17f21c2d81b73d90703da62ea84841af218337"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
 	UGC_URL="${UGC_URL}${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz"
 	UGC_WD="${WORKDIR}/${UGC_PF}"
 else
-	UGC_URL="${UGC_URL}${UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
+	UGC_URL="https://github.com/Zoraver/${PN}/archive/${UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
+	# UGC_URL="${UGC_URL}${UGC_COMMIT_ID}.tar.gz -> ${PN}-${UGC_COMMIT_ID}.tar.gz"
 	UGC_WD="${WORKDIR}/ungoogled-chromium-${UGC_COMMIT_ID}"
 fi
 
