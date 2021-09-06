@@ -1,4 +1,4 @@
-name: element-desktop tests
+name: element-desktop
 on:
   push:
     paths:
@@ -20,14 +20,37 @@ jobs:
           - 'build-online native-modules'
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out the repo
+        uses: actions/checkout@v2
 
-      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+      - name: Prepare cache dir
+        id: prepare
+        run: |
+          echo "::set-output name=workspace::${GITHUB_WORKSPACE}"
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Find modifications
+        uses: lots0logs/gh-action-get-changed-files@2.1.4
         id: files
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install element-desktop with "${{ matrix.use }}"
+      - name: Calculate the hash of changed files
+        uses: pplanel/hash-calculator-action@v1.3.1
+        id: hash
+        with:
+          input: ${{ steps.files.outputs.modified }}
+          method: MD5
+
+      - name: Cache distfiles
+        id: cache-distfiles
+        uses: gerbal/always-cache@v1.0.3
+        with:
+          path: "${{ steps.prepare.outputs.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
             added: ${{ steps.files.outputs.added }}
