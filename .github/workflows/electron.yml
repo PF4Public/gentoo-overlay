@@ -52,7 +52,7 @@ jobs:
 
       - name: Cache distfiles
         id: cache-distfiles
-        uses: gerbal/always-cache@v1.0.3
+        uses: actions/cache@v2
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
