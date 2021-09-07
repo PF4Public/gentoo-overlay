@@ -282,6 +282,7 @@ src_prepare() {
 		"${WORKDIR}/sandbox-patches/chromium-fstatat-crash.patch"
 		"${FILESDIR}/chromium-93-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-93-InkDropHost-crash.patch"
+		"${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
