@@ -1385,6 +1385,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-91-ThemeService-crash.patch"
 		"${FILESDIR}/chromium-91-system-icu.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
+		"${FILESDIR}/chromium-freetype-2.11.patch"
 	)
 
 	# seccomp sandbox is broken if compiled against >=sys-libs/glibc-2.33, bug #769989
