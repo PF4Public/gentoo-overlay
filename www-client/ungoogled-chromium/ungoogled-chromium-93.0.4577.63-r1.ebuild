@@ -315,6 +315,11 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r3.patch"
 
+	# Fix CFI build on Chromium>=93 with Clang<13
+	if use cfi && ver_test "$(clang --version | head -n1 | cut -d' ' -f3)" -lt 13.0.0; then
+		eapply "${FILESDIR}/chromium-cfi-clang13-back-compat.patch"
+	fi
+
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
 	local ugc_patch_series="${UGC_WD}/patches/series"
