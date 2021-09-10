@@ -1,0 +1,66 @@
+diff -urN a/build/config/sanitizers/BUILD.gn b/build/config/sanitizers/BUILD.gn
+--- a/build/config/sanitizers/BUILD.gn	2021-08-31 21:39:21.000000000 -0400
++++ b/build/config/sanitizers/BUILD.gn	2021-09-10 14:48:16.378096173 -0400
+@@ -276,7 +276,7 @@
+         asan_win_blocklist_path =
+             rebase_path("//tools/memory/asan/blocklist_win.txt", root_build_dir)
+       }
+-      cflags += [ "-fsanitize-ignorelist=$asan_win_blocklist_path" ]
++      cflags += [ "-fsanitize-blacklist=$asan_win_blocklist_path" ]
+     }
+   }
+ }
+@@ -312,7 +312,7 @@
+     }
+     cflags += [
+       "-fsanitize=cfi-vcall",
+-      "-fsanitize-ignorelist=$cfi_ignorelist_path",
++      "-fsanitize-blacklist=$cfi_ignorelist_path",
+     ]
+ 
+     if (use_cfi_cast) {
+@@ -416,7 +416,7 @@
+     cflags = [
+       "-fsanitize=memory",
+       "-fsanitize-memory-track-origins=$msan_track_origins",
+-      "-fsanitize-ignorelist=$msan_ignorelist_path",
++      "-fsanitize-blacklist=$msan_ignorelist_path",
+     ]
+   }
+ }
+@@ -430,7 +430,7 @@
+     }
+     cflags = [
+       "-fsanitize=thread",
+-      "-fsanitize-ignorelist=$tsan_ignorelist_path",
++      "-fsanitize-blacklist=$tsan_ignorelist_path",
+     ]
+   }
+ }
+@@ -456,7 +456,7 @@
+       "-fsanitize=signed-integer-overflow",
+       "-fsanitize=unreachable",
+       "-fsanitize=vla-bound",
+-      "-fsanitize-ignorelist=$ubsan_ignorelist_path",
++      "-fsanitize-blacklist=$ubsan_ignorelist_path",
+     ]
+ 
+     # Chromecast ubsan builds fail to compile with these
+@@ -495,7 +495,7 @@
+       "-fsanitize=shift",
+       "-fsanitize=signed-integer-overflow",
+       "-fsanitize=vla-bound",
+-      "-fsanitize-ignorelist=$ubsan_security_ignorelist_path",
++      "-fsanitize-blacklist=$ubsan_security_ignorelist_path",
+     ]
+   }
+ }
+@@ -514,7 +514,7 @@
+     }
+     cflags = [
+       "-fsanitize=vptr",
+-      "-fsanitize-ignorelist=$ubsan_vptr_ignorelist_path",
++      "-fsanitize-blacklist=$ubsan_vptr_ignorelist_path",
+     ]
+   }
+ }
