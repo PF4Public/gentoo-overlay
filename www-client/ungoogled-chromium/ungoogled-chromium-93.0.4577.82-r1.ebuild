@@ -975,7 +975,7 @@ src_configure() {
 	# List all args
 	# [[ -z "${NODIE}" ]] || gn args --list out/Release
 	# Quick compiler check for tests
-	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	[[ -z "${NODIE}" ]] || eninja -C out/Release protoc torque
 }
 
 src_compile() {
