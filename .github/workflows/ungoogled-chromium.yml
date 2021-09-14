@@ -17,16 +17,12 @@ jobs:
       matrix:
         use:
           - vaapi -system-libvpx
-          - vaapi ozone -system-libvpx
           - vdpau
-          - cfi thinlto
           - -clang
-          - enable-driver hangouts
-          - headless ozone
+          - -official
+          - headless
           - pulseaudio
-          - suid
-          - ozone
-          - ozone ozone-wayland
+          - wayland
           - widevine
           - custom-cflags
         include:
@@ -35,6 +31,10 @@ jobs:
           - use: system-libvpx
             experimental: true
           - use: pgo
+            experimental: true
+          - use: thinlto optimize-thinlto
+            experimental: true
+          - use: cfi thinlto
             experimental: true
 
     steps:
