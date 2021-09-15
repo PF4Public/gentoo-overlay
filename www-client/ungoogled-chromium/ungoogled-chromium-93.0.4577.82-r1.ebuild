@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="6a36dbacf68dcfb0f5430aef33c2446405433b37"
+UGC_COMMIT_ID="1835aef1e831ad784b2513908761439bb6d37834"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups custom-cflags enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -972,10 +972,14 @@ src_configure() {
 	echo "$@"
 	"$@" || die
 
-	# List all args
-	# [[ -z "${NODIE}" ]] || gn args --list out/Release
-	# Quick compiler check for tests
-	[[ -z "${NODIE}" ]] || eninja -C out/Release protoc torque
+	# The "if" below should not be executed unless testing
+	if [[ ! -z "${NODIE}" ]]; then
+		# List all args
+		# gn args --list out/Release
+
+		# Quick compiler check
+		eninja -C out/Release protoc torque
+	fi
 }
 
 src_compile() {
