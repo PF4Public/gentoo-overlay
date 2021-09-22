@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="6fe7d2f6455d09e2df42fd56834e1a0a51902b51"
+UGC_COMMIT_ID="5524999305a4ca245864dc4a83b286b425db4ac7"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -79,7 +79,7 @@ COMMON_DEPEND="
 	media-libs/fontconfig:=
 	system-harfbuzz? (
 	media-libs/freetype:=
-	>=media-libs/harfbuzz-2.4.0:0=[icu(-)]
+	>=media-libs/harfbuzz-2.9.0:0=[icu(-)]
 	)
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
@@ -291,14 +291,8 @@ src_prepare() {
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 
-	# bundled highway library does not support arm64 with GCC
-	if use arm64; then
-		rm -r third_party/highway/src || die
-		ln -s "${WORKDIR}/highway-0.12.1" third_party/highway/src || die
-	fi
-
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
-	
+
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 
 	if use system-jsoncpp; then
@@ -440,12 +434,7 @@ src_prepare() {
 		third_party/fdlibm
 		third_party/fft2d
 		third_party/flatbuffers
-	)
-	use system-harfbuzz || keeplibs+=(
 		third_party/freetype
-		third_party/harfbuzz-ng
-	)
-	keeplibs+=(
 		third_party/fusejs
 		third_party/highway
 		third_party/libgifcodec
@@ -456,7 +445,6 @@ src_prepare() {
 		third_party/google_input_tools/third_party/closure_library
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
 		third_party/googletest
-		third_party/harfbuzz-ng/utils
 		third_party/hunspell
 		third_party/iccjpeg
 		third_party/inspector_protocol
@@ -613,6 +601,11 @@ src_prepare() {
 	if ! use system-icu; then
 		keeplibs+=( third_party/icu )
 	fi
+	if use system-harfbuzz; then
+		keeplibs+=( third_party/harfbuzz-ng/utils )
+	else
+		keeplibs+=( third_party/harfbuzz-ng )
+	fi
 	if use wayland && ! use headless ; then
 		keeplibs+=( third_party/wayland )
 	fi
@@ -744,7 +737,7 @@ src_configure() {
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
 	# See dependency logic in third_party/BUILD.gn
-	myconf_gn+=" use_system_harfbuzz=true"
+	myconf_gn+=" use_system_harfbuzz=$(usex system-harfbuzz true false)"
 
 	# Disable deprecated libgnome-keyring dependency, bug #713012
 	myconf_gn+=" use_gnome_keyring=false"
@@ -922,11 +915,6 @@ src_configure() {
 	# Chromium relies on this, but was disabled in >=clang-10, crbug.com/1042470
 	append-cxxflags $(test-flags-CXX -flax-vector-conversions=all)
 
-	# highway/libjxl relies on this with arm64
-	if use arm64 && tc-is-gcc; then
-		append-cxxflags -flax-vector-conversions
-	fi
-
 	# Disable unknown warning message from clang.
 	tc-is-clang && append-flags -Wno-unknown-warning-option
 
@@ -991,6 +979,11 @@ src_compile() {
 
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
+
+	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
+	local -x PYTHONPATH=
+
+	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
 
 	use convert-dict && eninja -C out/Release convert_dict
 
@@ -1091,7 +1084,7 @@ src_install() {
 
 	doins -r out/Release/locales
 	doins -r out/Release/resources
-	doins -r out/Release/MEIPreload
+	#doins -r out/Release/MEIPreload
 
 	#if [[ -d out/Release/swiftshader ]]; then
 	#	insinto "${CHROMIUM_HOME}/swiftshader"
