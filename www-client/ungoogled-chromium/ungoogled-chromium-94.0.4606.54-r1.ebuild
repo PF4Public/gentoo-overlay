@@ -278,7 +278,6 @@ src_prepare() {
 		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-93-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-93-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
@@ -299,6 +298,8 @@ src_prepare() {
 	fi
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+	
+	use system-ffmpeg && eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
