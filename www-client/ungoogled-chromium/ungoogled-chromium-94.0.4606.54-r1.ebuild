@@ -298,6 +298,7 @@ src_prepare() {
 		eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
 	fi
 
+
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
 		sed -i '/^#include "third_party\/jsoncpp.*$/{s//#include <json\/value\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.h || die
