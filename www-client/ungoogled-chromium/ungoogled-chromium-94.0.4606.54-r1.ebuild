@@ -295,7 +295,7 @@ src_prepare() {
 
 	if use system-ffmpeg; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
-		eapply "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
+		eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
 	fi
 
 	if use system-jsoncpp; then
