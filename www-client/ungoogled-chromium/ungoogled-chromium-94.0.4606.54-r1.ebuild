@@ -293,7 +293,11 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
-	use system-ffmpeg && eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
+	if use system-ffmpeg; then
+		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
+		eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
+	fi
+
 
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
