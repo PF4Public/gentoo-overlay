@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="de37e9a754df20e1fc09c051a7447b8cc82f893e"
+#UGC_COMMIT_ID="de37e9a754df20e1fc09c051a7447b8cc82f893e"
 
 if [ -z "$UGC_COMMIT_ID" ]
 then
@@ -35,7 +35,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups custom-cflags debug enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -77,8 +77,8 @@ COMMON_DEPEND="
 	>=dev-libs/nss-3.26:=
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
+	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? (
-	media-libs/freetype:=
 	>=media-libs/harfbuzz-2.9.0:0=[icu(-)]
 	)
 	media-libs/libjpeg-turbo:=
@@ -730,9 +730,6 @@ src_configure() {
 	fi
 	if use system-libvpx; then
 		gn_system_libraries+=( libvpx )
-	fi
-	if use system-harfbuzz; then
-		gn_system_libraries+=( freetype harfbuzz-ng )
 	fi
 	if use system-libevent; then
 		gn_system_libraries+=( libevent )
