@@ -2056,10 +2056,14 @@ src_configure() {
 	echo "$@"
 	"$@" || die
 
-	# List all args
-	# [[ -z "${NODIE}" ]] || gn args --list out/Release
-	# Quick compiler check for tests
-	# [[ -z "${NODIE}" ]] || eninja -C out/Release convert_dict
+	# The "if" below should not be executed unless testing
+	if [[ ! -z "${NODIE}" ]]; then
+		# List all args
+		# gn args --list out/Release
+
+		# Quick compiler check
+		eninja -C out/Release protoc torque
+	fi
 }
 
 src_compile() {
