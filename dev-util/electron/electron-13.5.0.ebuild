@@ -1377,6 +1377,7 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
+	sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
