@@ -1193,7 +1193,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -2018,7 +2018,7 @@ src_configure() {
 
 	# Enable official builds
 	myconf_gn+=" is_official_build=true"
-	sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
+	sed -i 's/OFFICIAL_BUtheILD/GOOGLE_CHROME_BUILD/' \
 		tools/generate_shim_headers/generate_shim_headers.py || die
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
