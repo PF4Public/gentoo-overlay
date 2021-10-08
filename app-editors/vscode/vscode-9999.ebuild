@@ -11,7 +11,7 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-VS_RIPGREP_V="1.11.3"
+VS_RIPGREP_V="1.12.1"
 SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.6.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.6.tgz
