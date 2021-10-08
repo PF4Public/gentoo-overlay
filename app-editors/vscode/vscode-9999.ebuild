@@ -28,9 +28,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online ignore-gpu-blacklist insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -290,11 +290,6 @@ src_install() {
 	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
-	if use ignore-gpu-blacklist
-	then
-		IGNORE_BLACKLIST="--ignore-gpu-blacklist"
-	fi
-
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
@@ -302,7 +297,7 @@ src_install() {
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" ${IGNORE_BLACKLIST} \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
+	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
