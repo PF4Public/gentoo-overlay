@@ -1378,6 +1378,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
 	sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
+	sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1435,10 +1436,10 @@ src_prepare() {
 		for i in "${topatch[@]}";
 		do
 			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# 	[ "$i" = "cherry-pick-5c7ad5393f74.patch" ]; then
-			# 	einfo "Skipping ${i}"
-			# 	continue;
-			# fi
+			if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
+				einfo "Skipping ${i}: No files to patch."
+				continue;
+			fi
 			# if [ "$i" = "fix_apply_tzdata2020f_to_icu.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
 			# 	pushd "${patches[$patch_folder]}" > /dev/null || die
