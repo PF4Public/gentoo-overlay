@@ -2019,7 +2019,7 @@ src_configure() {
 
 	# Enable official builds
 	myconf_gn+=" is_official_build=true"
-	sed -i 's/OFFICIAL_BUtheILD/GOOGLE_CHROME_BUILD/' \
+	sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 		tools/generate_shim_headers/generate_shim_headers.py || die
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
