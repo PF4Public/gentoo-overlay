@@ -16,6 +16,13 @@ UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
 #UGC_COMMIT_ID="80e3444fbff5e36e82407814c68cdd421d1ab683"
 
+# Use following environment variables to customise the build
+# EXTRA_GN — pass extra options to gn
+# NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
+# UGC_SKIP_PATCHES — space-separated list of patches to skip
+# UGC_KEEP_BINARIES — space-separated list of binaries to keep
+# UGC_SKIP_SUBSTITUTION — space-separated list of files to skip domain substitution
+
 if [ -z "$UGC_COMMIT_ID" ]
 then
 	UGC_URL="${UGC_URL}${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz"
@@ -318,6 +325,7 @@ src_prepare() {
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
 	local ugc_patch_series="${UGC_WD}/patches/series"
+	local ugc_substitution_list="${UGC_WD}/domain_substitution.list"
 
 	local ugc_unneeded=(
 		# GN bootstrap
@@ -338,6 +346,27 @@ src_prepare() {
 	if use pgo || [ ! -z "$UGC_COMMIT_ID" ]; then
 		ewarn "Keeping binary profile data in source tree for pgo"
 		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
+	fi
+
+	if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
+	for p in "${UGC_SKIP_PATCHES}"; do
+		einfo "Removing ${p}"
+		sed -i "\!${p}!d" "${ugc_patch_series}" || die
+	done
+	fi
+
+	if [ ! -z "${UGC_KEEP_BINARIES}" ]; then
+	for p in "${UGC_KEEP_BINARIES}"; do
+		einfo "Keeping binary ${p}"
+		sed -i "\!${p}!d" "${ugc_pruning_list}" || die
+	done
+	fi
+
+	if [ ! -z "${UGC_SKIP_SUBSTITUTION}" ]; then
+	for p in "${UGC_SKIP_SUBSTITUTION}"; do
+		einfo "No substitution in ${p}"
+		sed -i "\!${p}!d" "${ugc_substitution_list}" || die
+	done
 	fi
 
 	ebegin "Pruning binaries"
@@ -955,7 +984,8 @@ src_configure() {
 
 	local flags
 	einfo "Building with the following compiler settings:"
-	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS; do
+	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS \
+		EXTRA_GN UGC_{SKIP_{PATCHES,SUBSTITUTION},KEEP_BINARIES} ; do
 		einfo "  ${flags} = \"${!flags}\""
 	done
 
@@ -965,7 +995,7 @@ src_configure() {
 	"$@" || die
 
 	# The "if" below should not be executed unless testing
-	if [[ ! -z "${NODIE}" ]]; then
+	if [ ! -z "${NODIE}" ]; then
 		# List all args
 		# gn args --list out/Release
 
