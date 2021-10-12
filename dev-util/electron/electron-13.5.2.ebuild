@@ -1428,6 +1428,7 @@ src_prepare() {
 		["electron/patches/depot_tools"]="third_party/depot_tools"
 		["electron/patches/angle"]="third_party/angle"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
+		["electron/patches/webrtc"]="third_party/webrtc"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
