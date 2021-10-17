@@ -349,22 +349,22 @@ src_prepare() {
 	fi
 
 	if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
-	for p in "${UGC_SKIP_PATCHES}"; do
+	for p in ${UGC_SKIP_PATCHES}; do
 		einfo "Removing ${p}"
 		sed -i "\!${p}!d" "${ugc_patch_series}" || die
 	done
 	fi
 
 	if [ ! -z "${UGC_KEEP_BINARIES}" ]; then
-	for p in "${UGC_KEEP_BINARIES}"; do
+	for p in ${UGC_KEEP_BINARIES}; do
 		einfo "Keeping binary ${p}"
 		sed -i "\!${p}!d" "${ugc_pruning_list}" || die
 	done
 	fi
 
 	if [ ! -z "${UGC_SKIP_SUBSTITUTION}" ]; then
-	for p in "${UGC_SKIP_SUBSTITUTION}"; do
-		einfo "No substitution in ${p}"
+	for p in ${UGC_SKIP_SUBSTITUTION}; do
+		einfo "No substitutions in ${p}"
 		sed -i "\!${p}!d" "${ugc_substitution_list}" || die
 	done
 	fi
