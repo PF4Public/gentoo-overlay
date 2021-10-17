@@ -66,7 +66,7 @@ CDEPEND="
 	>=media-libs/alsa-lib-1.0.19
 	media-libs/fontconfig
 	media-libs/freetype
-	>=media-libs/harfbuzz-2.9.0:0[icu(-)]
+	~media-libs/harfbuzz-2.9.1:0[icu(-)]
 	media-libs/libjpeg-turbo
 	media-libs/libpng
 	media-libs/libvpx:0/6[postproc]
