@@ -18,7 +18,6 @@ jobs:
           - 'build-online'
           - '-build-online'
           - 'badge-providers builtin-extensions'
-          - 'ignore-gpu-blacklist'
           - 'insiders'
           - 'liveshare'
           - 'openvsx'
