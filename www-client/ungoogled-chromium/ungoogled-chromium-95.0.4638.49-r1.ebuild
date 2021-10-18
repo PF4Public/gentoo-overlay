@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-util
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="0b5d32b73f5350f981f7563c2680330aa8f369f2"
+UGC_COMMIT_ID="956f351957a8ff546403f5c09149dd9d9ff2fbc3"
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
