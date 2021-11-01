@@ -850,6 +850,10 @@ src_configure() {
 	# Trying to use gold results in linker crash.
 	myconf_gn+=" use_gold=false use_sysroot=false use_custom_libcxx=false"
 
+	if use vaapi; then
+	myconf_gn+=" use_vaapi_x11=true"
+	fi
+
 	if use clang; then
 	myconf_gn+=" use_lld=true" #x86 fails with gnu ld
 	else
