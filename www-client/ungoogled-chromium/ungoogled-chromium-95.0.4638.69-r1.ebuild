@@ -320,6 +320,8 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 
+	use vaapi && eapply "${FILESDIR}/ozone-x11-fix-VA-API.patch"
+
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r3.patch"
 
 	# Fix CFI build on Chromium>=93 with Clang<13
