@@ -71,6 +71,10 @@ src_configure() {
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/node || die
 
+	# Removing sentry dependency
+	sed -i '/sentry/d' "${WORKDIR}/${P}/package.json" || die
+	sed -i 'sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
+
 	if ! use build-online
 	then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
