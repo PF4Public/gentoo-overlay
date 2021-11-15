@@ -1996,7 +1996,7 @@ src_configure() {
 
 	# Removing sentry dependency
 	sed -i '/sentry/d' "${WORKDIR}/${P}/package.json" || die
-	sed -i 'sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
+	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
 
 	if ! use build-online
 	then
