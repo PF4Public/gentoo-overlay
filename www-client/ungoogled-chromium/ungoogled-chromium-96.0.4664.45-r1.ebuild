@@ -317,7 +317,7 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 
-	use vdpau && eapply "${FILESDIR}/vdpau-support-r3.patch"
+	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
