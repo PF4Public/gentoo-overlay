@@ -16,10 +16,10 @@ jobs:
       matrix:
         use:
           - fakenews gambling porn social
-          - ''
-          - fakenews social
           - fakenews gambling social
+          - fakenews social
           - gambling
+          - ''
 
     steps:
       - name: Check out the repo

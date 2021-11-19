@@ -16,15 +16,15 @@ jobs:
       fail-fast: false
       matrix:
         use:
+          - -clang
+          - custom-cflags
           - vaapi -system-libvpx
           - vdpau
-          - -clang
           - -official
           - headless
           - pulseaudio
           - wayland
           - widevine
-          - custom-cflags
         include:
           - use: vaapi system-libvpx
             experimental: true

@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - 'build-online'
           - '-build-online'
+          - 'build-online'
           - 'badge-providers builtin-extensions'
           - 'insiders'
           - 'liveshare'
