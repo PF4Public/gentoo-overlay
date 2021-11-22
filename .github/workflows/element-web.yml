@@ -42,7 +42,7 @@ jobs:
           method: MD5
 
       - name: Cache distfiles
-        if: ${{ ! contains( matrix.use, 'build-online') }}
+        if: ${{ ! contains( matrix.use, 'build-online') || contains( matrix.use, '-build-online')}}
         id: cache-distfiles
         uses: actions/cache@v2
         with:
