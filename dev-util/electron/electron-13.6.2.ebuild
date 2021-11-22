@@ -1380,6 +1380,7 @@ src_prepare() {
 	sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 	sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
+	sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
