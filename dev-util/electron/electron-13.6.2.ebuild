@@ -1395,6 +1395,10 @@ src_prepare() {
 	sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 	sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
 	sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
+	if use ungoogled; then
+		sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
+		eapply "${FILESDIR}/ungoogled-electron.patch" || die
+	fi
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1497,10 +1501,6 @@ src_prepare() {
 		ebegin "Applying domain substitution"
 		"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
 		eend $? || die
-
-		pushd "${WORKDIR}/${P}" > /dev/null || die
-			eapply "${FILESDIR}/ungoogled-electron.patch" || die
-		popd > /dev/null || die
 	fi
 
 	declare -A patches=(
@@ -1525,7 +1525,7 @@ src_prepare() {
 				einfo "Skipping ${i}: No files to patch."
 				continue;
 			fi
-			if [ "$i" = "ssl_security_state_tab_helper.patch" ] || [ "$i" = "sysroot.patch" ]; then
+			if [ "$i" = "sysroot.patch" ]; then
 			if use ungoogled; then
 				ewarn "Skipping ${i} due to ungoogled."
 				continue;
