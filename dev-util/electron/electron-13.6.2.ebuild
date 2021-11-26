@@ -15,6 +15,16 @@ CHROMIUM_VERSION="91.0.4472.164"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="14.16.0"
 NODE_P="node-v${NODE_VERSION}"
+UGC_PVR="${CHROMIUM_VERSION}-1"
+UGC_PF="ungoogled-chromium-${UGC_PVR}"
+UGC_WD="${WORKDIR}/${UGC_PF}"
+
+# Use following environment variables to customise the build
+# EXTRA_GN — pass extra options to gn
+# NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
+# UGC_SKIP_PATCHES — space-separated list of patches to skip
+# UGC_KEEP_BINARIES — space-separated list of binaries to keep
+# UGC_SKIP_SUBSTITUTION — space-separated list of files to skip domain substitution
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
@@ -25,6 +35,9 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
+	ungoogled? (
+		https://github.com/Eloston/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
+	)
 
 	https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz
@@ -1194,7 +1207,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="amd64 ~x86"
-IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau"
+IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto ungoogled vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1360,6 +1373,7 @@ src_unpack() {
 	unpack "node-v${NODE_VERSION}.tar.xz"
 	unpack "setuptools-44.1.0.zip"
 	unpack "${PATCHSET_NAME}.tar.xz"
+	use ungoogled && unpack "${UGC_PF}.tar.gz"
 }
 
 src_prepare() {
@@ -1423,6 +1437,72 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r3.patch"
 
+	if use ungoogled; then
+		# From here we adapt ungoogled-chromium's patches to our needs
+		local ugc_pruning_list="${UGC_WD}/pruning.list"
+		local ugc_patch_series="${UGC_WD}/patches/series"
+		local ugc_substitution_list="${UGC_WD}/domain_substitution.list"
+
+		local ugc_unneeded=(
+			# GN bootstrap
+			extra/debian/gn/parallel
+			core/chromium-upstream/fix-crash-in-ThemeService
+		)
+
+		local ugc_p ugc_dir
+		for p in "${ugc_unneeded[@]}"; do
+			einfo "Removing ${p}.patch"
+			sed -i "\!${p}.patch!d" "${ugc_patch_series}" || die
+		done
+
+		if use js-type-check; then
+			ewarn "Keeping binary compiler.jar in source tree for js-type-check"
+			sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
+		fi
+
+		if use pgo; then
+			ewarn "Keeping binary profile data in source tree for pgo"
+			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
+		fi
+
+		if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
+		for p in ${UGC_SKIP_PATCHES}; do
+			ewarn "Removing ${p}"
+			sed -i "\!${p}!d" "${ugc_patch_series}" || die
+		done
+		fi
+
+		if [ ! -z "${UGC_KEEP_BINARIES}" ]; then
+		for p in ${UGC_KEEP_BINARIES}; do
+			ewarn "Keeping binary ${p}"
+			sed -i "\!${p}!d" "${ugc_pruning_list}" || die
+		done
+		fi
+
+		if [ ! -z "${UGC_SKIP_SUBSTITUTION}" ]; then
+		for p in ${UGC_SKIP_SUBSTITUTION}; do
+			ewarn "No substitutions in ${p}"
+			sed -i "\!${p}!d" "${ugc_substitution_list}" || die
+		done
+		fi
+
+		ebegin "Pruning binaries"
+		"${UGC_WD}/utils/prune_binaries.py" -q . "${UGC_WD}/pruning.list"
+		eend $? || die
+
+		ebegin "Applying ungoogled-chromium patches"
+		"${UGC_WD}/utils/patches.py" -q apply . "${UGC_WD}/patches"
+		eend $? || die
+
+		ebegin "Applying domain substitution"
+		"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
+		eend $? || die
+
+		pushd "${WORKDIR}/${P}" > /dev/null || die
+			eapply "${FILESDIR}/ungoogled-electron.patch" || die
+		popd > /dev/null || die
+	fi
+
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
@@ -1444,6 +1524,12 @@ src_prepare() {
 			if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
 				einfo "Skipping ${i}: No files to patch."
 				continue;
+			fi
+			if [ "$i" = "ssl_security_state_tab_helper.patch" ] || [ "$i" = "sysroot.patch" ]; then
+			if use ungoogled; then
+				ewarn "Skipping ${i} due to ungoogled."
+				continue;
+			fi
 			fi
 			# if [ "$i" = "fix_apply_tzdata2020f_to_icu.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
@@ -1872,7 +1958,9 @@ src_configure() {
 	myconf_gn+=" enable_one_click_signin=false"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
-	# myconf_gn+=" enable_reporting=false"
+	if use ungoogled; then
+		myconf_gn+=" enable_reporting=false"
+	fi
 	myconf_gn+=" enable_service_discovery=false"
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" use_official_google_api_keys=false"
@@ -2036,7 +2124,8 @@ src_configure() {
 
 	local flags
 	einfo "Building with the following compiler settings:"
-	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS; do
+	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS \
+		EXTRA_GN UGC_{SKIP_{PATCHES,SUBSTITUTION},KEEP_BINARIES} ; do
 		einfo "  ${flags} = \"${!flags}\""
 	done
 
