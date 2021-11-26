@@ -21,10 +21,15 @@ jobs:
           - -clang
           - enable-driver hangouts
           - pulseaudio
+          - ungoogled
         include:
           - use: vaapi system-libvpx
             experimental: true
           - use: system-libvpx
+            experimental: true
+          - use: pgo
+            experimental: true
+          - use: thinlto optimize-thinlto
             experimental: true
 
     steps:
