@@ -1408,8 +1408,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
 		"${FILESDIR}/chromium-freetype-2.11.patch"
+		"${FILESDIR}/harfbuzz_roll.patch"
+		"${FILESDIR}/skia_harfbuzz_roll.patch"
+		"${FILESDIR}/skia_harfbuzz_api.patch"
 	)
-
 	# seccomp sandbox is broken if compiled against >=sys-libs/glibc-2.33, bug #769989
 	if has_version -d ">=sys-libs/glibc-2.33"; then
 		ewarn "Adding experimental glibc-2.33 sandbox patch. Seccomp sandbox might"

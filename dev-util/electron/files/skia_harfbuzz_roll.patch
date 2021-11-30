@@ -1,0 +1,136 @@
+From 66684b17b382fdfe6cc3d18bbbe46658115e8628 Mon Sep 17 00:00:00 2001
+From: Garret Rieger <grieger@google.com>
+Date: Tue, 3 Aug 2021 16:25:09 -0700
+Subject: [PATCH] Roll HarfBuzz from 2.6.4 to 2.8.2-147
+
+https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git/+log/3a74ee528255cc027d84b204a87b5c25e47bff79..368e9578873798e2d17ed78a0474dec7d4e9d6c0
+
+Additionally adds a build option that switches to the new
+harfbuzz subsetting api which is coming in the next version
+of harfbuzz.
+
+Change-Id: I924a7b4978412d636d4c8d19f5c6021ea3c73d21
+Reviewed-on: https://skia-review.googlesource.com/c/skia/+/433737
+Reviewed-by: Ben Wagner <bungeman@google.com>
+Commit-Queue: Ben Wagner <bungeman@google.com>
+---
+ BUILD.gn                               |  3 +++
+ DEPS                                   |  2 +-
+ gn/gn_to_bp.py                         |  3 +++
+ gn/skia.gni                            |  7 +++++--
+ src/pdf/SkPDFSubsetFont.cpp            | 11 ++++++++++-
+ third_party/harfbuzz/BUILD.gn          |  9 +++++++--
+ third_party/harfbuzz/config-override.h | 10 ++++++++++
+ 7 files changed, 39 insertions(+), 6 deletions(-)
+ create mode 100644 third_party/harfbuzz/config-override.h
+
+diff --git a/BUILD.gn b/BUILD.gn
+index aeb46b466412..f737ef039145 100644
+--- a/third_party/skia/BUILD.gn
++++ b/third_party/skia/BUILD.gn
+@@ -1047,6 +1047,9 @@ optional("pdf") {
+   if (skia_use_icu && skia_use_harfbuzz && skia_pdf_subset_harfbuzz) {
+     deps += [ "//third_party/harfbuzz" ]
+     defines = [ "SK_PDF_USE_HARFBUZZ_SUBSET" ]
++    if (skia_subset_harfbuzz_new_api) {
++      defines += [ "SK_HARFBUZZ_SUBSET_NEW_API" ]
++    }
+   } else if (skia_use_icu && skia_use_sfntly) {
+     deps += [ "//third_party/sfntly" ]
+     defines = [ "SK_PDF_USE_SFNTLY" ]
+diff --git a/gn/skia.gni b/gn/skia.gni
+index d98fdc19eecf..fdb0935de96a 100644
+--- a/third_party/skia/gn/skia.gni
++++ b/third_party/skia/gn/skia.gni
+@@ -34,8 +34,6 @@ declare_args() {
+   skia_include_multiframe_procs = false
+   skia_lex = false
+   skia_libgifcodec_path = "third_party/externals/libgifcodec"
+-  skia_pdf_subset_harfbuzz =
+-      false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
+   skia_qt_path = getenv("QT_PATH")
+   skia_skqp_global_error_tolerance = 0
+   skia_tools_require_resources = false
+@@ -99,6 +97,11 @@ declare_args() {
+   skia_use_libfuzzer_defaults = true
+ }
+ 
++declare_args() {
++  skia_pdf_subset_harfbuzz = skia_use_harfbuzz
++  skia_subset_harfbuzz_new_api = !is_fuchsia
++}
++
+ declare_args() {
+   skia_compile_sksl_tests = skia_compile_processors
+   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+diff --git a/src/pdf/SkPDFSubsetFont.cpp b/src/pdf/SkPDFSubsetFont.cpp
+index 81c37eef3a10..3289940c712e 100644
+--- a/third_party/skia/src/pdf/SkPDFSubsetFont.cpp
++++ b/third_party/skia/src/pdf/SkPDFSubsetFont.cpp
+@@ -71,11 +71,21 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
+     hb_set_t* glyphs = hb_subset_input_glyph_set(input.get());
+     glyphUsage.getSetValues([&glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
+ 
++#if defined(SK_HARFBUZZ_SUBSET_NEW_API)
++    // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
++    // If it isn't known if a font is 'tricky', retain the hints.
++    hb_subset_input_set_flags(input.get(), HB_SUBSET_FLAGS_RETAIN_GIDS);
++    HBFace subset(hb_subset_or_fail(face.get(), input.get()));
++#else
+     hb_subset_input_set_retain_gids(input.get(), true);
+     // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
+     // If it isn't known if a font is 'tricky', retain the hints.
+     hb_subset_input_set_drop_hints(input.get(), false);
+     HBFace subset(hb_subset(face.get(), input.get()));
++#endif
++    if (!subset) {
++      return nullptr;
++    }
+     HBBlob result(hb_face_reference_blob(subset.get()));
+     return to_data(std::move(result));
+ }
+@@ -178,4 +188,3 @@ sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData>, const SkPDFGlyphUse&, SkPDF::Metada
+     return nullptr;
+ }
+ #endif  // defined(SK_PDF_USE_SFNTLY)
+-
+diff --git a/third_party/harfbuzz/BUILD.gn b/third_party/harfbuzz/BUILD.gn
+index 173830de623d..4156607ef9da 100644
+--- a/third_party/skia/third_party/harfbuzz/BUILD.gn
++++ b/third_party/skia/third_party/harfbuzz/BUILD.gn
+@@ -181,9 +184,10 @@ if (skia_use_system_harfbuzz) {
+       "$_src/hb-ot-shape-complex-myanmar-machine.hh",
+       "$_src/hb-ot-shape-complex-myanmar.cc",
+       "$_src/hb-ot-shape-complex-myanmar.hh",
++      "$_src/hb-ot-shape-complex-syllabic.cc",
++      "$_src/hb-ot-shape-complex-syllabic.hh",
+       "$_src/hb-ot-shape-complex-thai.cc",
+       "$_src/hb-ot-shape-complex-use-machine.hh",
+-      "$_src/hb-ot-shape-complex-use-table.cc",
+       "$_src/hb-ot-shape-complex-use.cc",
+       "$_src/hb-ot-shape-complex-use.hh",
+       "$_src/hb-ot-shape-complex-vowel-constraints.cc",
+@@ -241,6 +245,7 @@ if (skia_use_system_harfbuzz) {
+       "$_src/hb-utf.hh",
+       "$_src/hb-vector.hh",
+       "$_src/hb.hh",
++      "config-override.h",
+     ]
+   }
+ }
+diff --git a/third_party/harfbuzz/config-override.h b/third_party/harfbuzz/config-override.h
+new file mode 100644
+index 000000000000..62a7af4066ed
+--- /dev/null
++++ b/third_party/skia/third_party/harfbuzz/config-override.h
+@@ -0,0 +1,10 @@
++/*
++ * Adds a mutex implementation based on c++ mutex to harfbuzz.
++ */
++#include <mutex>
++
++using hb_mutex_impl_t = std::mutex;
++#define hb_mutex_impl_init(M)   HB_STMT_START { new (M) hb_mutex_impl_t;  } HB_STMT_END
++#define hb_mutex_impl_lock(M)   (M)->lock ()
++#define hb_mutex_impl_unlock(M) (M)->unlock ()
++#define hb_mutex_impl_finish(M) HB_STMT_START { (M)->~hb_mutex_impl_t(); } HB_STMT_END
