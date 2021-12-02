@@ -1394,6 +1394,8 @@ src_prepare() {
 	sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 	sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
 	sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
+	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
+	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 	if use ungoogled; then
 		sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
 		eapply "${FILESDIR}/ungoogled-electron.patch" || die
