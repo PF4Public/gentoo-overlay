@@ -1206,7 +1206,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang cups custom-cflags enable-driver hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto ungoogled vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1390,11 +1390,11 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
-	sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
+	sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
+	sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
 	sed -i '/web_tests/Q' "patches/chromium/cachestorage_store_partial_opaque_responses.patch" || die
-	sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
 	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 	if use ungoogled; then
