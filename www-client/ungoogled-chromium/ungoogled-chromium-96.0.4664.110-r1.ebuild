@@ -235,10 +235,10 @@ pre_build_checks() {
 pkg_pretend() {
 	if has_version "sys-libs/libcxx"; then
 		ewarn
-		ewarn "You have sys-libs/libcxx, please make sure that"
-		ewarn "system-* c++ dependencies are compiled with the same library"
-		ewarn "as ungoogled-chromium itself"
-		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 for details"
+		ewarn "You have sys-libs/libcxx, please be aware that system-*"
+		ewarn "and some other c++ dependencies need to be compiled"
+		ewarn "with the same library as ungoogled-chromium itself"
+		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 #119 for details"
 		ewarn
 	fi
 	if use cfi; then
