@@ -16,7 +16,6 @@ SRC_URI="build-online? (
 	https://codeload.github.com/matrix-org/matrix-analytics-events/tar.gz/1eab4356548c97722a183912fda1ceabbe8cc7c1
 	https://codeload.github.com/matrix-org/eslint-plugin-matrix-org/tar.gz/48ec1e6af2cfb8310b9a6e23edf2dc7a26ddd580
 	https://codeload.github.com/matrix-org/matrix-web-i18n/tar.gz/e5c7071e0cdf715de87ef39dc8260e11d7add2f8
-	https://github.com/matrix-org/matrix-analytics-events.git
 	https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.8.tgz -> @matrix-org-olm-3.2.8.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz
