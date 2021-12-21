@@ -1398,10 +1398,10 @@ src_prepare() {
 			sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 		fi
 
-		if use pgo; then
-			ewarn "Keeping binary profile data in source tree for pgo"
+		# if use pgo; then
+			# ewarn "Keeping binary profile data in source tree for pgo"
 			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-		fi
+		# fi
 
 		if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
 		for p in ${UGC_SKIP_PATCHES}; do
