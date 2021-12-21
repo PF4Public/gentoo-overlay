@@ -1134,7 +1134,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="~amd64 ~x86"
-IUSE="+clang cups custom-cflags debug js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto ungoogled vaapi vdpau"
+IUSE="+clang cups custom-cflags debug hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto ungoogled vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1332,10 +1332,10 @@ src_prepare() {
 	# sed -i '/web_tests/Q' "patches/chromium/cachestorage_store_partial_opaque_responses.patch" || die
 	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
-	if use ungoogled; then
-		sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
-		eapply "${FILESDIR}/ungoogled-electron.patch" || die
-	fi
+	# if use ungoogled; then
+	# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
+	# 	eapply "${FILESDIR}/ungoogled-electron.patch" || die
+	# fi
 	popd > /dev/null || die
 
 	local PATCHES=(
