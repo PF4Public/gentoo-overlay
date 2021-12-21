@@ -1,0 +1,56 @@
+--- a/media/gpu/vaapi/vaapi_video_decode_accelerator.cc
++++ b/media/gpu/vaapi/vaapi_video_decode_accelerator.cc
+@@ -705,7 +705,7 @@
+   // implementation we get from |vaapi_picture_factory_| requires the video
+   // processing pipeline for downloading the decoded frame from the internal
+   // surface, we need to create a |vpp_vaapi_wrapper_|.
+-  if (requires_vpp && buffer_allocation_mode_ != BufferAllocationMode::kNone) {
++  if (requires_vpp && buffer_allocation_mode_ != BufferAllocationMode::kWrapVdpau) {
+     if (!vpp_vaapi_wrapper_) {
+       vpp_vaapi_wrapper_ = VaapiWrapper::Create(
+           VaapiWrapper::kVideoProcess, VAProfileNone,
+@@ -1209,6 +1209,11 @@
+ 
+ VaapiVideoDecodeAccelerator::BufferAllocationMode
+ VaapiVideoDecodeAccelerator::DecideBufferAllocationMode() {
++  // NVIDIA blobs use VDPAU
++  if (VaapiWrapper::GetImplementationType() == VAImplementation::kNVIDIAVDPAU) {
++    LOG(INFO) << "VA-API driver on VDPAU backend";
++    return BufferAllocationMode::kWrapVdpau;
++  }
+ #if BUILDFLAG(USE_VAAPI_X11)
+   // The IMPORT mode is used for Android on Chrome OS, so this doesn't apply
+   // here.
+
+--- a/media/gpu/vaapi/vaapi_video_decode_accelerator.h
++++ b/media/gpu/vaapi/vaapi_video_decode_accelerator.h
+@@ -204,6 +204,7 @@ class MEDIA_GPU_EXPORT VaapiVideoDecodeAccelerator
+     // Using |client_|s provided PictureBuffers and as many internally
+     // allocated.
+     kNormal,
++    kWrapVdpau,
+   };
+
+   // Decides the concrete buffer allocation mode, depending on the hardware
+--- a/media/gpu/vaapi/vaapi_wrapper.cc
++++ b/media/gpu/vaapi/vaapi_wrapper.cc
+@@ -131,6 +131,9 @@ media::VAImplementation VendorStringToImplementationType(
+   } else if (base::StartsWith(va_vendor_string, "Intel iHD driver",
+                               base::CompareCase::SENSITIVE)) {
+     return media::VAImplementation::kIntelIHD;
++  } else if (base::StartsWith(va_vendor_string, "Splitted-Desktop Systems VDPAU",
++                              base::CompareCase::SENSITIVE)) {
++    return media::VAImplementation::kNVIDIAVDPAU;
+   }
+   return media::VAImplementation::kOther;
+ }
+--- a/media/gpu/vaapi/vaapi_wrapper.h
++++ b/media/gpu/vaapi/vaapi_wrapper.h
+@@ -79,6 +79,7 @@ enum class VAImplementation {
+   kIntelIHD,
+   kOther,
+   kInvalid,
++  kNVIDIAVDPAU,
+ };
+
+ // This class handles VA-API calls and ensures proper locking of VA-API calls
