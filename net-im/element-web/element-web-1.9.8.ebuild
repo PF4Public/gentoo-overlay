@@ -7,13 +7,16 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_JS_SDK=15.3.0
-MATRIX_REACT_SDK=3.37.0
-SRC_URI="!build-online? (
+MATRIX_JS_SDK="15.3.0"
+MATRIX_REACT_SDK="3.37.0"
+SRC_URI="build-online? (
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
-	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
+	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz )
+!build-online? (
+	https://codeload.github.com/matrix-org/matrix-analytics-events/tar.gz/1eab4356548c97722a183912fda1ceabbe8cc7c1
 	https://codeload.github.com/matrix-org/eslint-plugin-matrix-org/tar.gz/48ec1e6af2cfb8310b9a6e23edf2dc7a26ddd580
 	https://codeload.github.com/matrix-org/matrix-web-i18n/tar.gz/e5c7071e0cdf715de87ef39dc8260e11d7add2f8
+	https://github.com/matrix-org/matrix-analytics-events.git
 	https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.8.tgz -> @matrix-org-olm-3.2.8.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz
@@ -1163,6 +1166,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/marked/-/marked-2.1.3.tgz
 	https://registry.yarnpkg.com/mathml-tag-names/-/mathml-tag-names-2.1.3.tgz
 	https://registry.yarnpkg.com/math-random/-/math-random-1.0.4.tgz
+	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-15.3.0.tgz
 	https://registry.yarnpkg.com/matrix-mock-request/-/matrix-mock-request-1.2.3.tgz
 	https://registry.yarnpkg.com/matrix-react-sdk/-/matrix-react-sdk-3.37.0.tgz
 	https://registry.yarnpkg.com/matrix-react-test-utils/-/matrix-react-test-utils-0.2.3.tgz
@@ -2105,7 +2109,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	https://registry.yarnpkg.com/zwitch/-/zwitch-1.0.5.tgz
 	https://registry.yarnpkg.com/zxcvbn/-/zxcvbn-4.4.2.tgz
-	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-15.3.0.tgz
 ) "
 
 REPO="https://github.com/vector-im/element-web"
