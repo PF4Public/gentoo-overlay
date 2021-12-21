@@ -2105,6 +2105,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	https://registry.yarnpkg.com/zwitch/-/zwitch-1.0.5.tgz
 	https://registry.yarnpkg.com/zxcvbn/-/zxcvbn-4.4.2.tgz
+	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-15.3.0.tgz
 ) "
 
 REPO="https://github.com/vector-im/element-web"
