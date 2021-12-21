@@ -1336,7 +1336,7 @@ src_prepare() {
 		sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
 		eapply "${FILESDIR}/ungoogled-electron.patch" || die
 	fi
-	popd > /dev/null || die
+	popd > /dev/null ||  die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
