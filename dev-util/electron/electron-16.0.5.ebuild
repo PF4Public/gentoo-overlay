@@ -1332,10 +1332,10 @@ src_prepare() {
 	# sed -i '/web_tests/Q' "patches/chromium/cachestorage_store_partial_opaque_responses.patch" || die
 	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
-	# if use ungoogled; then
+	if use ungoogled; then
 	# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
-	# 	eapply "${FILESDIR}/ungoogled-electron.patch" || die
-	# fi
+		eapply "${FILESDIR}/ungoogled-electron.patch" || die
+	fi
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1399,7 +1399,7 @@ src_prepare() {
 		fi
 
 		# if use pgo; then
-			# ewarn "Keeping binary profile data in source tree for pgo"
+		# 	ewarn "Keeping binary profile data in source tree for pgo"
 			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
 		# fi
 
@@ -1451,10 +1451,10 @@ src_prepare() {
 		for i in "${topatch[@]}";
 		do
 			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
-				einfo "Skipping ${i}: No files to patch."
-				continue;
-			fi
+			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
+			# 	einfo "Skipping ${i}: No files to patch."
+			# 	continue;
+			# fi
 			if [ "$i" = "sysroot.patch" ]; then
 			if use ungoogled; then
 				ewarn "Skipping ${i} due to ungoogled."
