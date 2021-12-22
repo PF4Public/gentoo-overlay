@@ -1330,6 +1330,7 @@ src_prepare() {
 	# sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
 	# sed -i '/web_tests/Q' "patches/chromium/cachestorage_store_partial_opaque_responses.patch" || die
+	sed -i 's/const uint8_t/uint8_t/' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 	if use ungoogled; then
