@@ -1326,14 +1326,10 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
 	# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
-	# sed -i '/ephemeron-pair-unittest/Q' "patches/v8/merged_cppgc_fix_marking_of_ephemerons_with_keys_in_construction.patch" || die
-	# sed -i '/audit_non_blink_usage/Q' "patches/chromium/dpwas_window_control_overlay_api_values_account_for_page_zoom_factor.patch" || die
 	# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
-	# sed -i '/web_tests/Q' "patches/chromium/cachestorage_store_partial_opaque_responses.patch" || die
-	#sed -i 's/const uint8_t/uint8_t/' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
-	#sed -i 's/const uint8_t/uint8_t/' shell/browser/api/electron_api_app.cc || die
-	#sed -i 's/const uint8_t/uint8_t/' shell/browser/api/electron_api_app.h || die
-	#sed -i 's/reinterpret_cast<uint8_t*>(remaining_args.c_str())/const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(remaining_args.c_str()))/' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
+	sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
+	sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
+	sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
 	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 	if use ungoogled; then
@@ -1459,10 +1455,10 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			if	[ "$i" = "feat_add_data_parameter_to_processsingleton.patch" ]; then
-			 	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
-			 	continue;
-			fi
+			# if	[ "$i" = "feat_add_data_parameter_to_processsingleton.patch" ]; then
+			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
+			#  	continue;
+			# fi
 			if [ "$i" = "sysroot.patch" ]; then
 			if use ungoogled; then
 				ewarn "Skipping ${i} due to ungoogled."
