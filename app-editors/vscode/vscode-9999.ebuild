@@ -12,25 +12,26 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.12.1"
+VS_ESBUILD_V="0.14.2"
 SRC_URI="!build-online? (
-	https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.6.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.6.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-0.12.6.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-${VS_ESBUILD_V}.tgz
+	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-${VS_ESBUILD_V}.tgz
+	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-${VS_ESBUILD_V}.tgz
 	)
 	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT="13"
+ELECTRON_SLOT_DEFAULT="13"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-16 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-16 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -51,7 +52,8 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	dev-util/electron:${ELECTRON_SLOT}
+	electron-16? ( dev-util/electron:16 )
+	!electron-16? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
 "
 #TODO: oniguruma?
 
@@ -76,6 +78,11 @@ src_unpack() {
 		fi
 	else
 		unpack "${PN}-${CODE_COMMIT_ID}.tar.gz" || die
+	fi
+	if use electron-16; then
+		export ELECTRON_SLOT=16
+	else
+		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
 }
 
