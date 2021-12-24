@@ -1360,6 +1360,9 @@ src_prepare() {
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 
+	# adjust python interpreter version in electron_node
+	eapply "${FILESDIR}/electron_node_py310.patch"
+
 	if use system-ffmpeg; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
