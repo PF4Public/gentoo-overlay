@@ -1321,6 +1321,8 @@ src_prepare() {
 
 	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
+	# adjust python interpreter version in electron_node
+	eapply "${FILESDIR}/electron_node_py310.patch"
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
@@ -1359,9 +1361,6 @@ src_prepare() {
 
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
-
-	# adjust python interpreter version in electron_node
-	eapply "${FILESDIR}/electron_node_py310.patch"
 
 	if use system-ffmpeg; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
