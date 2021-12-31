@@ -37,7 +37,7 @@ jobs:
         uses: pplanel/hash-calculator-action@v1.3.1
         id: hash
         with:
-          input: ${{ steps.files.outputs.modified }}
+          input: ${{ steps.files.outputs.modified }} ${{ steps.files.outputs.added }}
           method: MD5
 
       - name: Cache distfiles
