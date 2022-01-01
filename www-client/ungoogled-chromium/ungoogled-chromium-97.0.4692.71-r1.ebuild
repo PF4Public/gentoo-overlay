@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Gentoo Authors
+# Copyright 2009-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -298,10 +298,10 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
-	# if use system-ffmpeg; then
-	# 	eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
-	# 	eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
-	# fi
+	if use system-ffmpeg; then
+		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
+		# eapply -R "${FILESDIR}/chromium-94-ffmpeg-roll.patch"
+	fi
 
 	if use system-jsoncpp; then
 		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
