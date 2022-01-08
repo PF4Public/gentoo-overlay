@@ -93,7 +93,7 @@ CDEPEND="
 	>=dev-libs/atk-2.26
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
-	dev-libs/jsoncpp:0/24
+	dev-libs/jsoncpp:0/25
 	dev-libs/libevent
 	media-libs/openjpeg:2/7
 	app-arch/snappy
