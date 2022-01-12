@@ -43,7 +43,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 ~arm64 ~x86"
-IUSE="cfi +clang convert-dict cups custom-cflags debug enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
+IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -85,9 +85,9 @@ COMMON_DEPEND="
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
 	>=media-libs/freetype-2.11.0-r1:=
-	system-harfbuzz? ( >=media-libs/harfbuzz-2.9.0:0=[icu(-)] )
+	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
 	media-libs/libjpeg-turbo:=
-	media-libs/libpng:=
+	system-png? ( media-libs/libpng:=[-apng] )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
 	pulseaudio? (
 		|| (
@@ -134,9 +134,9 @@ COMMON_DEPEND="
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	app-arch/snappy:=
 	dev-libs/libxslt:=
-	system-re2? ( dev-libs/re2:= )
+	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	>=media-libs/openh264-1.6.0:=
-	system-icu? ( >=dev-libs/icu-67.1:= )
+	system-icu? ( >=dev-libs/icu-69.1:= )
 "
 RDEPEND="${COMMON_DEPEND}
 	x11-misc/xdg-utils
@@ -282,6 +282,7 @@ src_prepare() {
 		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-93-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-96-EnumTable-crash.patch"
+		"${FILESDIR}/chromium-97-arm64-mte-clang.patch"
 		"${FILESDIR}/chromium-glibc-2.34.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
@@ -631,6 +632,9 @@ src_prepare() {
 	if ! use system-icu; then
 		keeplibs+=( third_party/icu )
 	fi
+	if ! use system-png; then
+		keeplibs+=( third_party/libpng )
+	fi
 	if use system-harfbuzz; then
 		keeplibs+=( third_party/harfbuzz-ng/utils )
 	else
@@ -734,19 +738,9 @@ src_configure() {
 		freetype
 		libdrm
 		libjpeg
-		libpng
 		libwebp
 		libxml
 		libxslt
-	)
-	use system-openh264 && gn_system_libraries+=(
-		openh264
-	)
-	use system-re2 && gn_system_libraries+=(
-		re2
-	)
-	gn_system_libraries+=(
-		snappy
 		zlib
 	)
 	if use system-ffmpeg; then
@@ -755,12 +749,21 @@ src_configure() {
 	if use system-icu; then
 		gn_system_libraries+=( icu )
 	fi
+	if use system-png; then
+		gn_system_libraries+=( libpng )
+	fi
 	if use system-libvpx; then
 		gn_system_libraries+=( libvpx )
 	fi
 	if use system-libevent; then
 		gn_system_libraries+=( libevent )
 	fi
+	use system-openh264 && gn_system_libraries+=(
+		openh264
+	)
+	use system-re2 && gn_system_libraries+=(
+		re2
+	)
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
 	# See dependency logic in third_party/BUILD.gn
@@ -1054,6 +1057,11 @@ src_compile() {
 		s|\(^Exec=\)/usr/bin/|\1|g;' \
 		chrome/installer/linux/common/desktop.template > \
 		out/Release/chromium-browser-chromium.desktop || die
+
+	## Build vk_swiftshader_icd.json; bug #827861
+	#sed -e 's|${ICD_LIBRARY_PATH}|./libvk_swiftshader.so|g' \
+	#	third_party/swiftshader/src/Vulkan/vk_swiftshader_icd.json.tmpl > \
+	#	out/Release/vk_swiftshader_icd.json || die
 }
 
 src_install() {
