@@ -87,7 +87,7 @@ COMMON_DEPEND="
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
 	media-libs/libjpeg-turbo:=
-	system-png? ( media-libs/libpng:=[-apng] )
+	system-png? ( media-libs/libpng:= )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
 	pulseaudio? (
 		|| (
