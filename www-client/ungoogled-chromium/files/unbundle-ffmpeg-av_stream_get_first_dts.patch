@@ -1,21 +1,12 @@
---- chromium-97.0.4692.71/media/filters/ffmpeg_demuxer.cc
-+++ chromium-97.0.4692.71/media/filters/ffmpeg_demuxer.cc
-@@ -1610,7 +1610,7 @@
-   for (const auto& stream : streams_) {
-     if (!stream || stream->IsEnabled() != enabled)
-       continue;
--    if (av_stream_get_first_dts(stream->av_stream()) == kInvalidPTSMarker)
-+    if ((stream->av_stream()->first_dts) == kInvalidPTSMarker)
-       continue;
-     if (!lowest_start_time_stream ||
-         stream->start_time() < lowest_start_time_stream->start_time()) {
-@@ -1631,7 +1631,7 @@
-     if (stream->type() != DemuxerStream::VIDEO)
-       continue;
+diff --git a/build/linux/unbundle/ffmpeg.gn b/build/linux/unbundle/ffmpeg.gn
+index 16e20744706..6a079b32221 100644
+--- a/build/linux/unbundle/ffmpeg.gn
++++ b/build/linux/unbundle/ffmpeg.gn
+@@ -12,6 +12,7 @@ pkg_config("system_ffmpeg") {
+     "libavformat",
+     "libavutil",
+   ]
++  defines = [ "av_stream_get_first_dts(stream)=stream->first_dts" ]
+ }
  
--    if (av_stream_get_first_dts(stream->av_stream()) == kInvalidPTSMarker)
-+    if ((stream->av_stream()->first_dts) == kInvalidPTSMarker)
-       continue;
- 
-     if (!stream->IsEnabled())
-
+ buildflag_header("ffmpeg_features") {
