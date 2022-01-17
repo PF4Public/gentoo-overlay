@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Gentoo Authors
+# Copyright 2009-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online electron-16 native-modules"
+	IUSE="+build-online +electron-16 native-modules"
 else
-	IUSE="build-online electron-16 native-modules"
+	IUSE="build-online +electron-16 native-modules"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
