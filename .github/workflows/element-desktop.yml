@@ -19,6 +19,7 @@ jobs:
           - 'build-online'
           - 'build-online native-modules'
           - 'electron-16'
+          - '-electron-16'
 
     steps:
       - name: Check out the repo
