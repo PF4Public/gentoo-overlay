@@ -1,4 +1,4 @@
-# Copyright 2009-2021 Gentoo Authors
+# Copyright 2009-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,8 +7,8 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_JS_SDK="15.3.0"
-MATRIX_REACT_SDK="3.37.0"
+MATRIX_JS_SDK="15.4.0"
+MATRIX_REACT_SDK="3.38.0"
 SRC_URI="build-online? (
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
