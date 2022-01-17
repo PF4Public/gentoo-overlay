@@ -2121,7 +2121,7 @@ SRC_URI="build-online? (
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	https://registry.yarnpkg.com/zwitch/-/zwitch-1.0.5.tgz
 	https://registry.yarnpkg.com/zxcvbn/-/zxcvbn-4.4.2.tgz
-	https://codeload.github.com/matrix-org/matrix-analytics-events/tar.gz/1eab4356548c97722a183912fda1ceabbe8cc7c1
+	https://codeload.github.com/matrix-org/matrix-analytics-events/tar.gz/1eab4356548c97722a183912fda1ceabbe8cc7c1 -> matrix-analytics-events.git-1eab4356548c97722a183912fda1ceabbe8cc7c1
 ) "
 
 REPO="https://github.com/vector-im/element-web"
