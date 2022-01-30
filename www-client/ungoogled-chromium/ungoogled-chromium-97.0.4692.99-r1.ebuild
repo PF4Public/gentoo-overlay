@@ -315,6 +315,9 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
+	# Fixes https://bugs.chromium.org/p/chromium/issues/detail?id=1279574
+	use wayland && eapply "${FILESDIR}/chromium-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch"
+
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
 	local ugc_patch_series="${UGC_WD}/patches/series"
