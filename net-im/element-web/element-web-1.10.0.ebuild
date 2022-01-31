@@ -9,10 +9,9 @@ LICENSE="Apache-2.0"
 SLOT="0"
 MATRIX_JS_SDK="15.5.0"
 MATRIX_REACT_SDK="3.39.0"
-SRC_URI="build-online? (
+SRC_URI="!build-online? (
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
-) !build-online? (
 	https://codeload.github.com/matrix-org/matrix-analytics-events/tar.gz/1eab4356548c97722a183912fda1ceabbe8cc7c1
 	https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.8.tgz -> @matrix-org-olm-3.2.8.tgz
 	https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz
