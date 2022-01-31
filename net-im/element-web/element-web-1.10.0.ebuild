@@ -2049,6 +2049,10 @@ src_configure() {
 	sed -i '/sentry/d' "${WORKDIR}/${P}/package.json" || die
 	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
 
+	# Fixing pesky matrix-analytics-events
+	sed -i 's/"matrix-analytics-events@github.*$/matrix-analytics-events@0.0.1:/' "${WORKDIR}/${P}/yarn.lock" || die
+	sed -i 's/matrix-analytics-events "github:.*$/matrix-analytics-events "0.0.1"/' "${WORKDIR}/${P}/yarn.lock" || die
+
 	if ! use build-online
 	then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
