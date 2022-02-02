@@ -300,7 +300,7 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
-	if use system-ffmpeg; then
+	if use system-ffmpeg && has_version "<media-video/ffmpeg-5.0"; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 	fi
@@ -317,7 +317,7 @@ src_prepare() {
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
 	# Fixes https://bugs.chromium.org/p/chromium/issues/detail?id=1279574
-	use wayland && eapply "${FILESDIR}/chromium-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch"
+	#use wayland && eapply "${FILESDIR}/chromium-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
