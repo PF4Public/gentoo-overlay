@@ -117,9 +117,10 @@ src_prepare() {
 		sed -i '/markdown-math/d' build/lib/extensions.ts || die
 	fi
 
-	#sed -i '/"electron"/d' package.json || die
-	#sed -i '/vscode-ripgrep/d' remote/package.json || die
-	sed -i '/"playwright"/d' package.json || die
+	# sed -i '/"electron"/d' package.json || die
+	# sed -i '/vscode-ripgrep/d' remote/package.json || die
+	# sed -i '/"playwright"/d' package.json || die
+	sed -i '/test-web"/d' package.json || die
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
@@ -212,13 +213,13 @@ src_configure() {
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 #	echo "$PATH"
+	yarn config set disable-self-update-check true || die
+	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	if ! use build-online
 	then
 		ONLINE_OFFLINE="--offline"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 #--ignore-optional
@@ -232,7 +233,7 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-${VS_RIPGREP_V}.tgz"
+	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die

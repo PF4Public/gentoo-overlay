@@ -2182,6 +2182,7 @@ src_prepare() {
 	#sed -i '/"electron"/d' package.json || die
 	#sed -i '/vscode-ripgrep/d' remote/package.json || die
 	sed -i '/"playwright"/d' package.json || die
+	sed -i '/test-web"/d' package.json || die
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
@@ -2294,7 +2295,7 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/vscode-ripgrep-${VS_RIPGREP_V}.tgz"
+	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
 	mv package vscode-ripgrep
 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
 	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
