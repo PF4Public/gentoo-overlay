@@ -172,7 +172,6 @@ src_install() {
 	doins ./usr/$(get_libdir)/chromium-browser/*.so
 
 	doins -r ./usr/$(get_libdir)/chromium-browser/locales
-	doins -r ./usr/$(get_libdir)/chromium-browser/resources
 
 	# Install icons and desktop entry
 	newicon -s 48 ./usr/share/icons/hicolor/256x256/apps/chromium-browser.png chromium-browser.png
