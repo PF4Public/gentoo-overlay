@@ -11,14 +11,14 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-VS_RIPGREP_V="1.12.1"
+VS_RIPGREP_V="1.14.1"
 VS_ESBUILD_V="0.14.2"
 SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/esbuild/-/esbuild-${VS_ESBUILD_V}.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-${VS_ESBUILD_V}.tgz
 	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-${VS_ESBUILD_V}.tgz
 	)
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -96,7 +96,7 @@ src_prepare() {
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/"vscode-ripgrep"/d' package.json || die
+	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 

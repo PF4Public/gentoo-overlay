@@ -11,11 +11,10 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-VS_RIPGREP_V="1.12.1"
+VS_RIPGREP_V="1.14.1"
 VS_ESBUILD_V="0.14.2"
 SRC_URI="!build-online? (
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
-	https://codeload.github.com/mjbvz/markdown-it-katex/tar.gz/2bf0b89c6c22ef0b585f55ccab66d1f7c5356bea
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
 	https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz
@@ -2081,7 +2080,7 @@ SRC_URI="!build-online? (
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-${VS_ESBUILD_V}.tgz
 	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-${VS_ESBUILD_V}.tgz
 	)
-	https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -2159,7 +2158,7 @@ src_prepare() {
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/"vscode-ripgrep"/d' package.json || die
+	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
@@ -2322,7 +2321,7 @@ src_configure() {
 	einfo "Restoring esbuild in extensions"
 	mkdir -p extensions/node_modules
 	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
+	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
 		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
