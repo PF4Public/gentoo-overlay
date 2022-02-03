@@ -243,12 +243,12 @@ src_configure() {
 	if ! use build-online; then
 	einfo "Restoring esbuild"
 	pushd build/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
+	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
@@ -259,12 +259,12 @@ src_configure() {
 	einfo "Restoring esbuild in extensions"
 	mkdir -p extensions/node_modules
 	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-0.12.6.tgz"
+	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-0.12.6.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
 	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-0.12.6.tgz"
+		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
 	fi
 	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
