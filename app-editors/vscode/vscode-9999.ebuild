@@ -97,7 +97,7 @@ src_prepare() {
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
-	sed -i '/"vscode-telemetry-extractor"/d' package.json || die
+	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
 	#TODO: applicationinsights
