@@ -23,6 +23,7 @@ jobs:
           - 'openvsx'
           - 'substitute-urls'
           - 'electron-16'
+          - '-electron-16'
 
     steps:
       - name: Check out the repo
