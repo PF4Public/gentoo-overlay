@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="20a02ccb67d8ab4139b31bcc06b04bd8d950fcac"
+#UGC_COMMIT_ID="20a02ccb67d8ab4139b31bcc06b04bd8d950fcac"
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -42,7 +42,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -315,9 +315,6 @@ src_prepare() {
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
-
-	# Fixes https://bugs.chromium.org/p/chromium/issues/detail?id=1279574
-	#use wayland && eapply "${FILESDIR}/chromium-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch"
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
