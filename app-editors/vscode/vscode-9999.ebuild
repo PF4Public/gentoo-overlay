@@ -105,8 +105,10 @@ src_prepare() {
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
 	if ! use build-online; then
+		#TODO: remove after esbuild dep >= 0.13.0 vvvvv
 		sed -i '/"esbuild"/d' extensions/package.json || die
 		sed -i '/"esbuild"/d' build/package.json || die
+		#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
 		einfo "Removing markdown-math. Enable build-online if you need it."
 		rm -r extensions/markdown-math
@@ -241,6 +243,7 @@ src_configure() {
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
+	#TODO: remove after esbuild dep >= 0.13.0 vvvvv
 	if ! use build-online; then
 	einfo "Restoring esbuild in build"
 	pushd build/node_modules > /dev/null || die
@@ -277,6 +280,7 @@ src_configure() {
 	popd > /dev/null || die
 	eend $? || die
 	fi
+	#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
