@@ -2282,7 +2282,8 @@ src_configure() {
 	fi
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
+	#!Error: "The engine "node" is incompatible with this module. Expected version "^12.22.0 || ^14.17.0 || >=16.0.0". Got "14.16.0"" with electron's node
+	/usr/bin/node yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 #--ignore-optional
 #--ignore-engines
