@@ -2294,11 +2294,11 @@ src_configure() {
 	export PATH=${OLD_PATH}
 
 	einfo "Restoring vscode-ripgrep"
-	pushd node_modules > /dev/null || die
+	pushd "node_modules/@vscode" > /dev/null || die
 	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-	mv package vscode-ripgrep
-	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' vscode-ripgrep/lib/index.js || die
-	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
+	mv package ripgrep
+	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
+	sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
