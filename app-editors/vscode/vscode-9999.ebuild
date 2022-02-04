@@ -239,7 +239,7 @@ src_configure() {
 	sed -i '/"postinstall"/d' vscode-ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i "s/\"dependencies\": {/\"dependencies\": {\"vscode-ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
+	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
 	if ! use build-online; then
 	einfo "Restoring esbuild"
