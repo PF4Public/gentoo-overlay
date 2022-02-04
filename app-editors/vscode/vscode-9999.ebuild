@@ -242,16 +242,19 @@ src_configure() {
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
 	if ! use build-online; then
-	einfo "Restoring esbuild"
+	einfo "Restoring esbuild in build"
 	pushd build/node_modules > /dev/null || die
 	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
 		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-64
 	else
 		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-32
 	fi
-	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
 	eend $? || die
 	fi
@@ -264,10 +267,13 @@ src_configure() {
 	mv package esbuild
 	if [[ $myarch = amd64 ]] ; then
 		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-64
 	else
 		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-32
 	fi
-	mv -f package/bin/esbuild esbuild/bin/
 	popd > /dev/null || die
 	eend $? || die
 	fi
