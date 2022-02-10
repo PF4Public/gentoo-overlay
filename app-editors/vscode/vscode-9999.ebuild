@@ -22,7 +22,7 @@ SRC_URI="!build-online? (
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="13"
+ELECTRON_SLOT_DEFAULT="16"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -31,7 +31,7 @@ if [[ ${PV} = *9999* ]]; then
 	DOWNLOAD=""
 	IUSE="badge-providers +build-online +electron-16 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-16 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online +electron-16 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -74,9 +74,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-16; then
-				EGIT_BRANCH="electron-16.x.y"
-			fi
+			# if use electron-16; then
+			# 	EGIT_BRANCH="electron-16.x.y"
+			# fi
 			git-r3_src_unpack
 		fi
 	else
