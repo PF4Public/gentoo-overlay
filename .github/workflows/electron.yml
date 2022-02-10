@@ -16,12 +16,14 @@ jobs:
       fail-fast: false
       matrix:
         use:
+          - -clang
+          - custom-cflags
           - vaapi -system-libvpx
           - vdpau
-          - -clang
           - enable-driver hangouts
           - pulseaudio
           - ungoogled
+          - wayland
         include:
           - use: vaapi system-libvpx
             experimental: true
