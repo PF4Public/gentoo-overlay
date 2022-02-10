@@ -14,7 +14,7 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="13"
+ELECTRON_SLOT_DEFAULT="17"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online +electron-16 native-modules"
+	IUSE="+build-online native-modules"
 else
-	IUSE="build-online +electron-16 native-modules"
+	IUSE="build-online native-modules"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -43,8 +43,7 @@ REQUIRED_USE="native-modules? ( build-online )"
 
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
-	electron-16? ( dev-util/electron:16 )
-	!electron-16? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
+	dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	native-modules? ( dev-db/sqlcipher )
 "
 
@@ -73,11 +72,7 @@ src_unpack() {
 	else
 		unpack "${PN}-${ELEMENT_COMMIT_ID}.tar.gz" || die
 	fi
-	if use electron-16; then
-		export ELECTRON_SLOT=16
-	else
-		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
+	export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 }
 
 src_compile() {
