@@ -22,8 +22,8 @@ jobs:
           - 'liveshare'
           - 'openvsx'
           - 'substitute-urls'
-          - 'electron-16'
-          - '-electron-16'
+          - 'electron-17'
+          - '-electron-17'
 
     steps:
       - name: Check out the repo
