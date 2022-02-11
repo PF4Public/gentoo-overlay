@@ -2191,7 +2191,7 @@ src_install() {
 	fi
 
 	doins -r out/Release/locales
-	#doins -r out/Release/resources
+	doins -r out/Release/resources
 	#doins -r out/Release/MEIPreload
 
 	# Install vk_swiftshader_icd.json; bug #827861
