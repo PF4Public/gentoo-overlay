@@ -29,9 +29,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online +electron-16 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-17 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online +electron-16 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-17 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -52,8 +52,8 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	electron-16? ( dev-util/electron:16 )
-	!electron-16? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
+	electron-17? ( dev-util/electron:17 )
+	!electron-17? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
 "
 #TODO: oniguruma?
 
@@ -82,8 +82,8 @@ src_unpack() {
 	else
 		unpack "${PN}-${CODE_COMMIT_ID}.tar.gz" || die
 	fi
-	if use electron-16; then
-		export ELECTRON_SLOT=16
+	if use electron-17; then
+		export ELECTRON_SLOT=17
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
