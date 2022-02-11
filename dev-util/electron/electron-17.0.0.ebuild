@@ -2067,6 +2067,7 @@ src_configure() {
 
 	# Enable ozone wayland support
 	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
+	myconf_gn+=" ozone_platform_headless=true"
 	myconf_gn+=" ozone_platform_x11=true"
 	if use wayland; then
 		myconf_gn+=" ozone_platform_wayland=true"
