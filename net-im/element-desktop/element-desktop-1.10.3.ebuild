@@ -797,7 +797,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="+build-online native-modules"
 else
 	IUSE="build-online electron-17 native-modules"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
