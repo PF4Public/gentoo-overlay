@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -28,7 +28,7 @@ RDEPEND="gnome-base/gnome-common
 	>=dev-db/sqlite-3.8
 	>=dev-libs/json-glib-0.15
 	>=dev-libs/libxml2-2.9
-	>=media-libs/fontconfig-2.1
+	>=media-libs/fontconfig-2.12
 	>=media-libs/freetype-2.5
 	>=x11-libs/gtk+-3.22
 	>=x11-libs/pango-1.4
