@@ -1332,7 +1332,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 	patch -Rup1 -i "${DISTDIR}/${P}-c899294a1241734178e70bdacafbd56a65fbb426.patch" || die
 	# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
-	# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
+	sed -i '/web_tests/Q' "patches/chromium/fire_iframe_onload_for_cross-origin-initiated_same-document.patch" || die
 	sed -i '/cctest/Q' "patches/v8/cherry-pick-27bc67f761e6.patch" || die
 	sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 	sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
