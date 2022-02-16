@@ -35,6 +35,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
+	https://github.com/electron/electron/commit/c899294a1241734178e70bdacafbd56a65fbb426.patch -> ${P}-c899294a1241734178e70bdacafbd56a65fbb426.patch
 	ungoogled? (
 		https://github.com/Eloston/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
@@ -1329,6 +1330,7 @@ src_prepare() {
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
+	patch -Rup1 -i "${DISTDIR}/${P}-c899294a1241734178e70bdacafbd56a65fbb426.patch" || die
 	# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
 	# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 	sed -i '/cctest/Q' "patches/v8/cherry-pick-27bc67f761e6.patch" || die
