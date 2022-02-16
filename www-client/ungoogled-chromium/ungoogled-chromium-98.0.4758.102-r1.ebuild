@@ -1173,7 +1173,8 @@ pkg_postinst() {
 
 	if use vaapi; then
 		elog "VA-API is disabled by default at runtime. You have to enable it"
-		elog "by adding --enable-features=VaapiVideoDecoder to CHROMIUM_FLAGS"
+		elog "by adding --enable-features=VaapiVideoDecoder and "
+		elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
 		elog "in /etc/chromium/default."
 	fi
 	if use screencast; then
