@@ -1337,18 +1337,23 @@ src_prepare() {
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
-	# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
-	# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
-	# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
-	sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
-	sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
-	sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
-	sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
-	sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
-	if use ungoogled; then
-	# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
-		eapply "${FILESDIR}/ungoogled-electron.patch" || die
-	fi
+		# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
+		# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
+		# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-8af66de55aad.patch" || die
+		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
+		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
+		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
+		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
+		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
+		grep "\'--openssl-no-asm\'" script/generate-config-gypi.py || die
+		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
+		use system-icu && NODE_CONFIG_ARGS+=", '--with-intl=system-icu'"
+		sed -i "s/\'--openssl-no-asm\'/$NODE_CONFIG_ARGS/" script/generate-config-gypi.py || die
+
+		if use ungoogled; then
+		# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
+			eapply "${FILESDIR}/ungoogled-electron.patch" || die
+		fi
 	popd > /dev/null || die
 
 	local PATCHES=(
