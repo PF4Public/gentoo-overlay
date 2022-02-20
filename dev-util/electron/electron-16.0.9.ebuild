@@ -30,12 +30,17 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="4"
 PATCHSET_NAME="chromium-96-patchset-${PATCHSET}"
+PPC64LE_PATCHSET="chromium_98.0.4758.102-1raptor0"
+PPC64LE_PATCHSET_NAME="${PPC64LE_PATCHSET}.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	https://files.pythonhosted.org/packages/ed/7b/bbf89ca71e722b7f9464ebffe4b5ee20a9e5c9a555a56e2d3914bb9119a6/setuptools-44.1.0.zip
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/commit/c899294a1241734178e70bdacafbd56a65fbb426.patch -> ${P}-c899294a1241734178e70bdacafbd56a65fbb426.patch
+	ppc64? (
+		http://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
+	)
 	ungoogled? (
 		https://github.com/Eloston/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
@@ -1137,7 +1142,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64 ~x86"
+KEYWORDS="amd64 ~x86 ~ppc64"
 IUSE="+clang cups custom-cflags debug hangouts js-type-check kerberos optimize-thinlto optimize-webui +partition pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-re2 tcmalloc thinlto ungoogled vaapi vdpau"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1310,6 +1315,7 @@ src_unpack() {
 	unpack "node-v${NODE_VERSION}.tar.xz"
 	unpack "${PATCHSET_NAME}.tar.xz"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
+	use ppc64 && unpack "${PPC64LE_PATCHSET_NAME}.tar.xz"
 }
 
 src_prepare() {
@@ -1354,6 +1360,58 @@ src_prepare() {
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
+	)
+
+	use ppc64 && PATCHES+=(
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-linux-seccomp-bpf-ppc64-glibc-workaround-in-SIGSYS-h.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-Enable-seccomp_bpf-for-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-services-service_manager-sandbox-linux-Fix-TCGETS-de.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-bpf_dsl-Update-syscall-ranges-for-ppc6.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Implement-partial-support-for-ppc64-sy.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Update-IsSyscallAllowed-in-broker_proc.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Update-syscall-helpers-lists-for-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0002-sandbox-linux-bpf_dsl-Modify-seccomp_macros-to-add-s.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0003-sandbox-linux-system_headers-Update-linux-seccomp-he.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0004-sandbox-linux-system_headers-Update-linux-signal-hea.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0005-sandbox-linux-seccomp-bpf-Add-ppc64-syscall-stub.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0005-sandbox-linux-update-unit-test-for-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0006-sandbox-linux-disable-timedwait-time64-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0007-sandbox-linux-add-ppc64-stat.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/Sandbox-linux-services-credentials.cc-PPC.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/0008-sandbox-fix-ppc64le-glibc234.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-angle-Include-missing-header-cstddef-in-.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-boringssl-Properly-detect-ppc64le-in-BUI.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-libvpx-Properly-generate-gni-on-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-lss-Don-t-look-for-mmap2-on-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-pffft-Include-altivec.h-on-ppc64-with-SI.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-libvpx-Add-ppc64-sources-to-gni.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-lss-kernel-structs.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Enable-third-party-libgav1-parser.patch"
+		"${WORKDIR}/debian/patches/ppc64le/webrtc/Modules-desktop_capture-differ_block.cc-PPC.patch"
+		"${WORKDIR}/debian/patches/ppc64le/webrtc/Rtc_base-system-arch.h-PPC.patch"
+		"${WORKDIR}/debian/patches/ppc64le/crashpad/0002-Include-cstddef-to-fix-build.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0004-third_party-crashpad-port-curl-transport-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/workarounds/HACK-third_party-libvpx-use-generic-gnu.patch"
+		"${WORKDIR}/debian/patches/ppc64le/libaom/0001-Add-ppc64-target-to-libaom.patch"
+		"${WORKDIR}/debian/patches/ppc64le/libaom/0001-Add-pregenerated-config-for-libaom-on-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-third_party-libvpx-Add-ppc64-generated-config.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-third_party-ffmpeg-Add-ppc64-generated-config.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0004-third_party-libvpx-work-around-ambiguous-vsx.patch"
+		#"${WORKDIR}/debian/patches/ppc64le/ffmpeg/0001-Add-support-for-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/breakpad/0001-Implement-support-for-ppc64-on-Linux.patch"
+		"${WORKDIR}/debian/patches/ppc64le/crashpad/0001-Implement-support-for-PPC64-on-Linux.patch"
+		"${WORKDIR}/debian/patches/ppc64le/database/0001-Properly-detect-little-endian-PPC64-systems.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Force-baseline-POWER8-AltiVec-VSX-CPU-features-when-.patch"
+		"${FILESDIR}/ppc64le/fixes/fix-breakpad-compile.patch"
+		"${WORKDIR}/debian/patches/ppc64le/v8/0002-Add-ppc64-trap-instructions.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Add-PPC64-support-for-libdav1d.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Fix-libdav1d-compilation-on-clang-ppc.patch"
+		"${WORKDIR}/debian/patches/ppc64le/sandbox/fix-ppc64-linux-syscalls-headers.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-thirdparty-fix-dav1d-gn.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
+		"${WORKDIR}/debian/patches/disable/swiftshader.patch"
+		"${WORKDIR}/debian/patches/disable/swiftshader-2.patch"
+		"${FILESDIR}/ppc64le/fixes/libpng-pdfium-compile-96.patch"
 	)
 
 	default

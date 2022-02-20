@@ -1,0 +1,13 @@
+Index: chromium-96.0.4664.110/third_party/pdfium/BUILD.gn
+===================================================================
+--- chromium-96.0.4664.110.orig/third_party/pdfium/BUILD.gn
++++ chromium-96.0.4664.110/third_party/pdfium/BUILD.gn
+@@ -16,7 +16,7 @@
+ }
+ 
+ config("pdfium_common_config") {
+-  cflags = []
++  cflags = [ "-DPNG_POWERPC_VSX_OPT=0" ]
+   ldflags = []
+   include_dirs = [ "." ]
+   defines = [

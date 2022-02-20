@@ -17,6 +17,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/esbuild/-/esbuild-${VS_ESBUILD_V}.tgz
 	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-${VS_ESBUILD_V}.tgz
 	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-${VS_ESBUILD_V}.tgz
+	https://registry.npmjs.org/esbuild-linux-ppc64le/-/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz
 	)
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
@@ -94,6 +95,9 @@ src_prepare() {
 
 	# einfo "Restoring electron 12 support"
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
+
+	einfo "Add PPC target to package build scripts"
+	patch -p1 -i "${FILESDIR}/ppc64le/add-ppc-target.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
@@ -203,6 +207,8 @@ src_configure() {
 		VSCODE_ARCH="x64"
 	elif [[ $myarch = x86 ]] ; then
 		VSCODE_ARCH="ia32"
+	elif [[ $myarch = ppc64 ]] ; then
+		VSCODE_ARCH="ppc64"
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
@@ -253,6 +259,10 @@ src_configure() {
 		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
 		cp -f package/bin/esbuild esbuild/bin/
 		mv package esbuild-linux-64
+	elif [[ $myarch = ppc64 ]] ; then
+		tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-ppc64le
 	else
 		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
 		cp -f package/bin/esbuild esbuild/bin/
@@ -272,6 +282,10 @@ src_configure() {
 		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
 		cp -f package/bin/esbuild esbuild/bin/
 		mv package esbuild-linux-64
+	elif [[ $myarch = ppc64 ]] ; then
+		tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
+		cp -f package/bin/esbuild esbuild/bin/
+		mv package esbuild-linux-ppc64le
 	else
 		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
 		cp -f package/bin/esbuild esbuild/bin/
