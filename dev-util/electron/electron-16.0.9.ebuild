@@ -39,7 +39,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CH
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/commit/c899294a1241734178e70bdacafbd56a65fbb426.patch -> ${P}-c899294a1241734178e70bdacafbd56a65fbb426.patch
 	ppc64? (
-		http://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
+		https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
 	)
 	ungoogled? (
 		https://github.com/Eloston/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz

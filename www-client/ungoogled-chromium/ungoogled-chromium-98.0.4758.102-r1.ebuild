@@ -41,7 +41,7 @@ PPC64LE_PATCHSET_NAME="${PPC64LE_PATCHSET}.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	ppc64? (
-		http://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
+		https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
 	)
 	${UGC_URL}"
 
