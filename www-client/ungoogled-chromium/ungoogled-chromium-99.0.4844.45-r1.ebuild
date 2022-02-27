@@ -299,7 +299,7 @@ src_prepare() {
 	python_setup
 
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-$(ver_cut 1)-compiler.patch" || die
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/patches/chromium-98-compiler.patch" || die
 	fi
 
 	local PATCHES=(
