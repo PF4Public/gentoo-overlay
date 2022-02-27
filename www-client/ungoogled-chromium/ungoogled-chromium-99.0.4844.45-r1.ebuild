@@ -48,7 +48,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui +partition pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 tcmalloc thinlto vaapi vdpau wayland widevine"
+IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -814,14 +814,6 @@ src_configure() {
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
 	myconf_gn+=" dcheck_always_on=$(usex debug true false)"
 	myconf_gn+=" dcheck_is_configurable=$(usex debug true false)"
-
-	if use tcmalloc; then
-	myconf_gn+=" use_allocator=\"tcmalloc\""
-	fi
-
-	if use partition; then
-	myconf_gn+=" use_allocator=\"partition\""
-	fi
 
 	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
 	myconf_gn+=" enable_nacl=false"
