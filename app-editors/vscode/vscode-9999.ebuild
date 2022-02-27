@@ -30,7 +30,7 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-17 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online +electron-17 insiders liveshare openvsx substitute-urls"
 else
 	IUSE="badge-providers build-online electron-17 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
