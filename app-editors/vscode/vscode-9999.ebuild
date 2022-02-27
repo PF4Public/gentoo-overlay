@@ -75,9 +75,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			# if use electron-16; then
-			# 	EGIT_BRANCH="electron-16.x.y"
-			# fi
+			if use electron-17; then
+				EGIT_BRANCH="electron-17.x.y"
+			fi
 			git-r3_src_unpack
 		fi
 	else
