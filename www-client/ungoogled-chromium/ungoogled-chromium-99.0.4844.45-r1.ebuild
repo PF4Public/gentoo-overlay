@@ -906,7 +906,6 @@ src_configure() {
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
 	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=true"
-	myconf_gn+=" enable_nacl_nonsfi=false"
 	myconf_gn+=" enable_one_click_signin=false"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
