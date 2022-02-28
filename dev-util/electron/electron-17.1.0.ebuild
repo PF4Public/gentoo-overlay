@@ -30,8 +30,7 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="5"
 PATCHSET_NAME="chromium-98-patchset-${PATCHSET}"
-PPC64LE_PATCHSET="chromium_98.0.4758.102-1raptor0"
-PPC64LE_PATCHSET_NAME="${PPC64LE_PATCHSET}.debian"
+PPC64LE_PATCHSET_NAME="chromium_${CHROMIUM_VERSION}-1raptor0.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
