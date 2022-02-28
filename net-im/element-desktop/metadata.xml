@@ -10,7 +10,6 @@
 	<longdescription>A glossy Matrix collaboration client for desktop</longdescription>
 	<use>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
-		<flag name="electron-17">Build against electron-17 instead of the default one. Use at your own risk!</flag>
 		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
 	</use>
 </pkgmetadata>
