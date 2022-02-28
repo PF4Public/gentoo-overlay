@@ -378,6 +378,8 @@ src_prepare() {
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
+	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
+
 	if use system-ffmpeg && has_version "<media-video/ffmpeg-5.0"; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
@@ -1105,7 +1107,7 @@ src_configure() {
 	# The "if" below should not be executed unless testing
 	if [ ! -z "${NODIE}" ]; then
 		# List all args
-		gn args --list out/Release
+		# gn args --list out/Release
 
 		# Quick compiler check
 		eninja -C out/Release protoc torque
