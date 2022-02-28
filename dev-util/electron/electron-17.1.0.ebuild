@@ -1303,6 +1303,11 @@ pkg_pretend() {
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
 	fi
+	if use wayland; then
+		ewarn
+		ewarn "--ozone-platform=wayland might segfault"
+		ewarn
+	fi
 	pre_build_checks
 }
 
