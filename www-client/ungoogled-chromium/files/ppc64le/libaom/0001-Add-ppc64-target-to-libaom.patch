@@ -1,0 +1,57 @@
+From 40309fb53e39477490fd6928ebe67c4fb78de380 Mon Sep 17 00:00:00 2001
+From: Shawn Anastasio <shawnanastasio@gmail.com>
+Date: Sun, 10 Mar 2019 21:01:37 -0500
+Subject: [PATCH] Add ppc64 target to libaom
+
+---
+ third_party/libaom/BUILD.gn        | 12 ++++++++++++
+ third_party/libaom/cmake_update.sh |  3 +++
+ 2 files changed, 15 insertions(+)
+
+Index: chromium-98.0.4758.102/third_party/libaom/BUILD.gn
+===================================================================
+--- chromium-98.0.4758.102.orig/third_party/libaom/BUILD.gn
++++ chromium-98.0.4758.102/third_party/libaom/BUILD.gn
+@@ -206,6 +206,18 @@
+   }
+ }
+ 
++if (current_cpu == "ppc64") {
++  source_set("libaom_intrinsics_vsx") {
++    configs -= [ "//build/config/compiler:chromium_code" ]
++    configs += [ "//build/config/compiler:no_chromium_code" ]
++    configs += [ ":libaom_config" ]
++    sources = [
++      "//third_party/libaom/source/libaom/aom_ports/ppc_cpudetect.c",
++    ]
++    sources += aom_av1_common_intrin_vsx
++  }
++}
++
+ static_library("libaom") {
+   if (!is_debug && is_win) {
+     configs -= [ "//build/config/compiler:default_optimization" ]
+@@ -256,6 +268,9 @@
+       cpu_arch_full == "arm-neon-cpu-detect") {
+     deps += [ ":libaom_intrinsics_neon" ]
+   }
++  if (current_cpu == "ppc64") {
++    deps += [ ":libaom_intrinsics_vsx" ]
++  }
+   if (is_android) {
+     deps += [ "//third_party/android_ndk:cpu_features" ]
+   }
+Index: chromium-98.0.4758.102/third_party/libaom/cmake_update.sh
+===================================================================
+--- chromium-98.0.4758.102.orig/third_party/libaom/cmake_update.sh
++++ chromium-98.0.4758.102/third_party/libaom/cmake_update.sh
+@@ -189,6 +189,9 @@ gen_config_files ios/arm-neon "${toolcha
+ reset_dirs ios/arm64
+ gen_config_files ios/arm64 "${toolchain}/arm64-ios.cmake ${all_platforms}"
+ 
++reset_dirs linux/ppc64
++gen_config_files linux/ppc64 "${toolchain}/ppc-linux-gcc.cmake ${all_platforms}"
++
+ # Copy linux configurations and modify for Windows.
+ reset_dirs win/arm64
+ cp "${CFG}/linux/arm64/config"/* "${CFG}/win/arm64/config/"

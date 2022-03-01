@@ -1,0 +1,153 @@
+Index: chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/address_space_randomization.h
+===================================================================
+--- chromium-98.0.4758.102.orig/third_party/pdfium/third_party/base/allocator/partition_allocator/address_space_randomization.h
++++ chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/address_space_randomization.h
+@@ -140,30 +140,30 @@ AslrMask(uintptr_t bits) {
+         // AIX has 64 bits of virtual addressing, but we limit the address range
+         // to (a) minimize segment lookaside buffer (SLB) misses; and (b) use
+         // extra address space to isolate the mmap regions.
+-        constexpr ALWAYS_INLINE uintptr_t ASLRMask() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLRMask() {
+           return AslrMask(30);
+         }
+-        constexpr ALWAYS_INLINE uintptr_t ASLROffset() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLROffset() {
+           return AslrAddress(0x400000000000ULL);
+         }
+ 
+       #elif defined(ARCH_CPU_BIG_ENDIAN)
+ 
+         // Big-endian Linux PPC has 44 bits of virtual addressing. Use 42.
+-        constexpr ALWAYS_INLINE uintptr_t ASLRMask() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLRMask() {
+           return AslrMask(42);
+         }
+-        constexpr ALWAYS_INLINE uintptr_t ASLROffset() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLROffset() {
+           return AslrAddress(0);
+         }
+ 
+       #else  // !defined(OS_AIX) && !defined(ARCH_CPU_BIG_ENDIAN)
+ 
+         // Little-endian Linux PPC has 48 bits of virtual addressing. Use 46.
+-        constexpr ALWAYS_INLINE uintptr_t ASLRMask() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLRMask() {
+           return AslrMask(46);
+         }
+-        constexpr ALWAYS_INLINE uintptr_t ASLROffset() {
++        PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE uintptr_t ASLROffset() {
+           return AslrAddress(0);
+         }
+ 
+Index: chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/page_allocator_constants.h
+===================================================================
+--- chromium-98.0.4758.102.orig/third_party/pdfium/third_party/base/allocator/partition_allocator/page_allocator_constants.h
++++ chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/page_allocator_constants.h
+@@ -7,6 +7,10 @@
+ 
+ #include <stddef.h>
+ 
++#if defined(ARCH_CPU_PPC64)
++#include <unistd.h>
++#endif
++
+ #include "build/build_config.h"
+ #include "third_party/base/compiler_specific.h"
+ 
+@@ -24,6 +28,11 @@
+ // elimination.
+ #define PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR __attribute__((const))
+ 
++#elif defined(ARCH_CPU_PPC64)
++
++// PPC64 systems have a varying page size based on the currently active kernel
++#define PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR
++
+ #else
+ 
+ // When defined, page size constants are fixed at compile time. When not
+@@ -42,11 +42,7 @@
+ #if !BUILDFLAG(IS_APPLE)
+ 
+ constexpr ALWAYS_INLINE int PageAllocationGranularityShift() {
+-#if BUILDFLAG(IS_WIN) || defined(ARCH_CPU_PPC64)
+-  // Modern ppc64 systems support 4kB (shift = 12) and 64kB (shift = 16) page
+-  // sizes.  Since 64kB is the de facto standard on the platform and binaries
+-  // compiled for 64kB are likely to work on 4kB systems, 64kB is a good choice
+-  // here.
++#if BUILDFLAG(IS_WIN)
+   return 16;  // 64kB
+ #elif defined(_MIPS_ARCH_LOONGSON)
+   return 14;  // 16kB
+@@ -63,7 +59,17 @@
+ 
+ PAGE_ALLOCATOR_CONSTANTS_DECLARE_CONSTEXPR ALWAYS_INLINE size_t
+ PageAllocationGranularity() {
+-#if BUILDFLAG(IS_APPLE)
++#if defined(ARCH_CPU_PPC64)
++  // PPC64 systems can use either 64k or 4k page sizes
++  // Unfortunately, specifying a 64k page size here will cause
++  // random crashes on 4k page size kernels due to missing
++  // validation in the TrimMapping post_slack calculations,
++  // resulting in negative sizes being passed to munmap()
++  // if the kernel page allocator happend to provide a 4k-
++  // aligned chunk of memory instead of a 64k-aligned chunk
++  // of memory...
++  return sysconf(_SC_PAGESIZE);
++#elif BUILDFLAG(IS_APPLE)
+   return vm_page_size;
+ #else
+   return 1ULL << PageAllocationGranularityShift();
+Index: chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/partition_alloc.cc
+===================================================================
+--- chromium-98.0.4758.102.orig/third_party/pdfium/third_party/base/allocator/partition_allocator/partition_alloc.cc
++++ chromium-98.0.4758.102/third_party/pdfium/third_party/base/allocator/partition_allocator/partition_alloc.cc
+@@ -163,6 +163,7 @@ static void PartitionAllocBaseInit(inter
+ void PartitionAllocGlobalInit(OomFunction on_out_of_memory) {
+   // Two partition pages are used as guard / metadata page so make sure the
+   // super page size is bigger.
++#if defined(PAGE_ALLOCATOR_CONSTANTS_ARE_CONSTEXPR)
+   STATIC_ASSERT_OR_CHECK(PartitionPageSize() * 4 <= kSuperPageSize,
+                          "ok super page size");
+   STATIC_ASSERT_OR_CHECK(!(kSuperPageSize % PartitionPageSize()),
+@@ -173,6 +174,7 @@ void PartitionAllocGlobalInit(OomFunctio
+                          "ok partition page size");
+   STATIC_ASSERT_OR_CHECK(!(PartitionPageSize() % SystemPageSize()),
+                          "ok partition page multiple");
++#endif
+   static_assert(sizeof(internal::PartitionPage) <= kPageMetadataSize,
+                 "PartitionPage should not be too big");
+   static_assert(sizeof(internal::PartitionBucket) <= kPageMetadataSize,
+@@ -180,6 +182,7 @@ void PartitionAllocGlobalInit(OomFunctio
+   static_assert(
+       sizeof(internal::PartitionSuperPageExtentEntry) <= kPageMetadataSize,
+       "PartitionSuperPageExtentEntry should not be too big");
++#if defined(PAGE_ALLOCATOR_CONSTANTS_ARE_CONSTEXPR)
+   STATIC_ASSERT_OR_CHECK(
+       kPageMetadataSize * NumPartitionPagesPerSuperPage() <= SystemPageSize(),
+       "page metadata fits in hole");
+@@ -187,11 +190,14 @@ void PartitionAllocGlobalInit(OomFunctio
+   STATIC_ASSERT_OR_CHECK(
+       GenericMaxDirectMapped() <= (1UL << 31) + PageAllocationGranularity(),
+       "maximum direct mapped allocation");
++#endif
+   // Check that some of our zanier calculations worked out as expected.
+   static_assert(kGenericSmallestBucket == 8, "generic smallest bucket");
+   static_assert(kGenericMaxBucketed == 983040, "generic max bucketed");
++#if defined(PAGE_ALLOCATOR_CONSTANTS_ARE_CONSTEXPR)
+   STATIC_ASSERT_OR_CHECK(MaxSystemPagesPerSlotSpan() < (1 << 8),
+                          "System pages per slot span must be less than 128.");
++#endif
+ 
+   DCHECK(on_out_of_memory);
+   internal::PartitionRootBase::g_oom_handling_function = on_out_of_memory;
+@@ -494,6 +500,9 @@ static size_t PartitionPurgePage(interna
+   constexpr size_t kMaxSlotCount = 4 * kMaxPartitionPagesPerSlotSpan;
+   CHECK(kMaxSlotCount == (PartitionPageSize() * kMaxPartitionPagesPerSlotSpan) /
+                              SystemPageSize());
++#else
++  size_t kMaxSlotCount =
++      (PartitionPageSize() * kMaxPartitionPagesPerSlotSpan) / SystemPageSize();
+ #endif
+   DCHECK(bucket_num_slots <= kMaxSlotCount);
+   DCHECK(page->num_unprovisioned_slots < bucket_num_slots);

@@ -1,0 +1,120 @@
+description: additional swiftshader stuff exposed by official builds
+author: Andres Salomon <dilinger@debian.org>
+
+--- a/chrome/BUILD.gn
++++ b/chrome/BUILD.gn
+@@ -959,6 +959,7 @@ if (is_win) {
+       public_deps = [ "//ui/gl:angle_library_copy" ]
+     }
+ 
++if (false) {
+     # Add the SwiftShader .dylibs in the MODULE_DIR of Chromium.app
+     bundle_data("swiftshader_binaries") {
+       sources = [
+@@ -973,6 +974,7 @@ if (is_win) {
+         "//ui/gl:swiftshader_vk_library_copy",
+       ]
+     }
++}
+   }
+ 
+   group("angle_library") {
+@@ -981,12 +983,6 @@ if (is_win) {
+     }
+   }
+ 
+-  group("swiftshader_library") {
+-    if (bundle_egl_libraries) {
+-      deps = [ ":swiftshader_binaries" ]
+-    }
+-  }
+-
+   if (bundle_widevine_cdm) {
+     bundle_data("widevine_cdm_library_binaries") {
+       sources = [ "$root_out_dir/$widevine_cdm_path/libwidevinecdm.dylib" ]
+@@ -1167,7 +1167,6 @@
+       ":chrome_framework_resources",
+       ":keystone_registration_framework",
+       ":optimization_guide_library",
+-      ":swiftshader_library",
+       ":widevine_cdm_library",
+       "//chrome/browser/resources/media/mei_preload:component_bundle",
+     ]
+@@ -1243,9 +1238,6 @@ if (is_win) {
+       "$root_out_dir/chrome_crashpad_handler",
+       "$root_out_dir/libEGL.dylib",
+       "$root_out_dir/libGLESv2.dylib",
+-      "$root_out_dir/libswiftshader_libEGL.dylib",
+-      "$root_out_dir/libswiftshader_libGLESv2.dylib",
+-      "$root_out_dir/libvk_swiftshader.dylib",
+       _framework_binary_path,
+     ]
+ 
+@@ -1278,9 +1270,6 @@ if (is_win) {
+         "//third_party/angle:libEGL",
+         "//third_party/angle:libGLESv2",
+         "//third_party/breakpad:dump_syms",
+-        "//third_party/swiftshader/src/OpenGL/libEGL:swiftshader_libEGL",
+-        "//third_party/swiftshader/src/OpenGL/libGLESv2:swiftshader_libGLESv2",
+-        "//third_party/swiftshader/src/Vulkan:swiftshader_libvulkan",
+       ]
+ 
+       foreach(helper_params, chrome_mac_helpers) {
+@@ -1301,9 +1290,6 @@ if (is_win) {
+         "$root_out_dir/chrome_crashpad_handler.dSYM",
+         "$root_out_dir/libEGL.dylib.dSYM",
+         "$root_out_dir/libGLESv2.dylib.dSYM",
+-        "$root_out_dir/libswiftshader_libEGL.dylib.dSYM",
+-        "$root_out_dir/libswiftshader_libGLESv2.dylib.dSYM",
+-        "$root_out_dir/libvk_swiftshader.dylib.dSYM",
+       ]
+ 
+       deps = [
+@@ -1312,9 +1298,6 @@ if (is_win) {
+         "//components/crash/core/app:chrome_crashpad_handler",
+         "//third_party/angle:libEGL",
+         "//third_party/angle:libGLESv2",
+-        "//third_party/swiftshader/src/OpenGL/libEGL:swiftshader_libEGL",
+-        "//third_party/swiftshader/src/OpenGL/libGLESv2:swiftshader_libGLESv2",
+-        "//third_party/swiftshader/src/Vulkan:swiftshader_libvulkan",
+       ]
+ 
+       foreach(helper_params, chrome_mac_helpers) {
+@@ -1722,12 +1705,7 @@ if (is_linux || is_chromeos) {
+         ":angle_gles_symbols",
+         ":chrome_crashpad_symbols",
+         ":chrome_symbols",
+-        ":swiftshader_egl_symbols",
+-        ":swiftshader_gles_symbols",
+       ]
+-      if (is_linux) {
+-        deps += [ ":swiftshader_vk_symbols" ]
+-      }
+       if (!is_chromeos) {
+         deps += [ ":angle_libvulkan_symbols" ]
+       }
+@@ -1756,6 +1734,7 @@ if (is_linux || is_chromeos) {
+ 
+       deps = [ "//components/crash/core/app:chrome_crashpad_handler" ]
+     }
++if (false) {
+     extract_symbols("swiftshader_egl_symbols") {
+       binary = "$root_out_dir/swiftshader/libEGL.so"
+ 
+@@ -1766,8 +1745,6 @@ if (is_linux || is_chromeos) {
+         symbol_file = "$root_out_dir/swiftshader_libegl.breakpad.$current_cpu"
+       }
+ 
+-      deps =
+-          [ "//third_party/swiftshader/src/OpenGL/libEGL:swiftshader_libEGL" ]
+     }
+     extract_symbols("swiftshader_gles_symbols") {
+       binary = "$root_out_dir/swiftshader/libGLESv2.so"
+@@ -1795,6 +1772,7 @@ if (is_linux || is_chromeos) {
+ 
+       deps = [ "//third_party/swiftshader/src/Vulkan:swiftshader_libvulkan" ]
+     }
++}
+     extract_symbols("angle_egl_symbols") {
+       binary = "$root_out_dir/libEGL.so"
+ 
