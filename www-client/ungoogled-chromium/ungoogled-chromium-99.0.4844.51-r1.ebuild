@@ -47,7 +47,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
