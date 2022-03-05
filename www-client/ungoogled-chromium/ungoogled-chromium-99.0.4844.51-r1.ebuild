@@ -36,8 +36,7 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://github.com/Eloston/ungoogled-chromium"
 PATCHSET="3"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
-PPC64LE_PATCHSET="chromium_98.0.4758.102-1raptor0"
-PPC64LE_PATCHSET_NAME="${PPC64LE_PATCHSET}.debian"
+PPC64LE_PATCHSET_NAME="chromium_98.0.4758.102-1raptor0.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	ppc64? (
