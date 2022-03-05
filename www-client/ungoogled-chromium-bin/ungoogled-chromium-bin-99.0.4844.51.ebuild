@@ -11,20 +11,20 @@ inherit chromium-2 desktop readme.gentoo-r1 xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
-DL_URL="https://github.com/PF4Public/${PN}/releases/download"
+DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
 	core2? (
-		${DL_URL}/${PV}/core2.tar.bz2 -> ${P}-core2.tar.bz2
+		${DL_URL}/core2.tar.bz2 -> ${P}-core2.tar.bz2
 	)
 	haswell? (
-		${DL_URL}/${PV}/haswell.tar.bz2 -> ${P}-haswell.tar.bz2
+		${DL_URL}/haswell.tar.bz2 -> ${P}-haswell.tar.bz2
 	)
 	generic? (
 		amd64? (
-		${DL_URL}/${PV}/x86-64.tar.bz2 -> ${P}-x86-64.tar.bz2
+		${DL_URL}/x86-64.tar.bz2 -> ${P}-x86-64.tar.bz2
 		)
 		x86? (
-		${DL_URL}/${PV}/i686.tar.bz2 -> ${P}-i686.tar.bz2
+		${DL_URL}/i686.tar.bz2 -> ${P}-i686.tar.bz2
 		)
 	)
 "
