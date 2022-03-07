@@ -30,7 +30,7 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="5"
 PATCHSET_NAME="chromium-98-patchset-${PATCHSET}"
-PPC64LE_PATCHSET_NAME="chromium_${CHROMIUM_VERSION}-1raptor0.debian"
+PPC64LE_PATCHSET_NAME="chromium_98.0.4758.102-1raptor0.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
@@ -1491,10 +1491,10 @@ src_prepare() {
 			sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 		fi
 
-		if use pgo; then
+		# if use pgo; then
 		 	ewarn "Keeping binary profile data in source tree for pgo"
 			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-		fi
+		# fi
 
 		if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
 		for p in ${UGC_SKIP_PATCHES}; do
