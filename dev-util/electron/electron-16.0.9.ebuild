@@ -1333,6 +1333,7 @@ src_prepare() {
 	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
 	# adjust python interpreter version in electron_node
 	eapply "${FILESDIR}/electron_node_py310.patch"
+	eapply "${FILESDIR}/electron_node_collections_abc_py310.patch"
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
