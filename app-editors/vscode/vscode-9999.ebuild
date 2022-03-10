@@ -23,7 +23,7 @@ SRC_URI="!build-online? (
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="13"
+ELECTRON_SLOT_DEFAULT="17"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -75,9 +75,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-17; then
-				EGIT_BRANCH="electron-17.x.y"
-			fi
+			# if use electron-17; then
+			# 	EGIT_BRANCH="electron-17.x.y"
+			# fi
 			git-r3_src_unpack
 		fi
 	else
