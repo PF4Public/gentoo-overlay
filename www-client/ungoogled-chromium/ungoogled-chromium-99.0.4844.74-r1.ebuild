@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 UGC_PVR="${PVR/r}"
 UGC_PF="${PN}-${UGC_PVR}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="ff76a76a9e4d988899d369aee16c64b6f1a42d03"
+#UGC_COMMIT_ID="ff76a76a9e4d988899d369aee16c64b6f1a42d03"
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -46,7 +46,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -104,6 +104,7 @@ COMMON_SNAPSHOT_DEPEND="
 				>=media-sound/apulse-0.1.9
 			)
 		)
+		sys-apps/pciutils:=
 		kerberos? ( virtual/krb5 )
 		vaapi? ( >=x11-libs/libva-2.7:=[X,drm] )
 		x11-libs/libX11:=
@@ -138,7 +139,6 @@ COMMON_DEPEND="
 		>=app-accessibility/at-spi2-core-2.26:2
 		>=dev-libs/atk-2.26
 		cups? ( >=net-print/cups-1.3.11:= )
-		sys-apps/pciutils:=
 		virtual/udev
 		x11-libs/cairo:=
 		x11-libs/pango:=
