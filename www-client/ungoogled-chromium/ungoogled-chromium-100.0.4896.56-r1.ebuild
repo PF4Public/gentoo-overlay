@@ -47,7 +47,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 # KEYWORDS="~amd64 ~arm64 ~x86"
-IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 thinlto vaapi vdpau wayland widevine"
+IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -80,6 +80,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
+	system-libusb? ( virtual/libusb )
 	system-icu? ( >=dev-libs/icu-69.1:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/nspr:=
@@ -373,6 +374,11 @@ src_prepare() {
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 
+	cp "${FILESDIR}/jsoncpp.gn" build/linux/unbundle || die
+	cp "${FILESDIR}/libusb.gn" build/linux/unbundle || die
+	sed -i '/^REPLACEMENTS.*$/{s/REPLACEMENTS = \{\'libusb\':\'third_party/libusb/BUILD.gn\',\'jsoncpp\':\'third_party/jsoncpp/BUILD.gn\',/;h};${x;/./{x;q0};x;q1}' \
+		build/linux/unbundle/replace_gn_files.py || die
+
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
@@ -382,14 +388,7 @@ src_prepare() {
 		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 	fi
 
-	if use system-jsoncpp; then
-		eapply "${FILESDIR}/chromium-system-jsoncpp-r2.patch"
-		sed -i '/^#include "third_party\/jsoncpp.*$/{s//#include <json\/value\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.h || die
-		sed -i '/^.*json\/reader.h"$/{s//#include <json\/reader\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.cc || die
-		sed -i '/^.*json\/writer.h"$/{s//#include <json\/writer\.h>/;h};${x;/./{x;q0};x;q1}' components/mirroring/service/receiver_response.cc || die
-	fi
-
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
+	# use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
@@ -578,6 +577,11 @@ src_prepare() {
 		third_party/libsrtp
 		third_party/libsync
 		third_party/libudev
+	)
+	use system-libusb || keeplibs+=(
+		third_party/libusb
+	)
+	keeplibs+=(
 		third_party/libva_protected_content
 	)
 	use system-libvpx || keeplibs+=(
@@ -652,7 +656,11 @@ src_prepare() {
 		third_party/skia/third_party/skcms
 		third_party/skia/third_party/vulkan
 		third_party/smhasher
+	)
+	use system-snappy || keeplibs+=(
 		third_party/snappy
+	)
+	keeplibs+=(
 		third_party/sqlite
 		third_party/swiftshader
 		third_party/swiftshader/third_party/astc-encoder
@@ -830,11 +838,18 @@ src_configure() {
 	if use system-ffmpeg; then
 		gn_system_libraries+=( ffmpeg opus )
 	fi
+	if use system-jsoncpp; then
+		gn_system_libraries+=( jsoncpp )
+	fi
 	if use system-icu; then
 		gn_system_libraries+=( icu )
 	fi
 	if use system-png; then
 		gn_system_libraries+=( libpng )
+		myconf_gn+=" use_system_libpng=true"
+	fi
+	if use system-libusb; then
+		gn_system_libraries+=( libusb )
 	fi
 	if use system-libvpx; then
 		gn_system_libraries+=( libvpx )
@@ -847,6 +862,9 @@ src_configure() {
 	)
 	use system-re2 && gn_system_libraries+=(
 		re2
+	)
+	use system-snappy && gn_system_libraries+=(
+		snappy
 	)
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
@@ -923,9 +941,11 @@ src_configure() {
 	myconf_gn+=" build_with_tflite_lib=false"
 
 	# Additional flags
-	myconf_gn+=" use_system_libjpeg=true"
+	myconf_gn+=" perfetto_use_system_zlib=true"
 	myconf_gn+=" use_system_zlib=true"
+	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" blink_enable_generated_code_formatting=false"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
@@ -1103,7 +1123,7 @@ src_configure() {
 	# The "if" below should not be executed unless testing
 	if [ ! -z "${NODIE}" ]; then
 		# List all args
-		# gn args --list out/Release
+		gn args --list out/Release
 
 		# Quick compiler check
 		eninja -C out/Release protoc torque
