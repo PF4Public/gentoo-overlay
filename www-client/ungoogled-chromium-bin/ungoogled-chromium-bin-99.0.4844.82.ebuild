@@ -96,7 +96,7 @@ CDEPEND="
 	app-arch/snappy
 	dev-libs/libxslt
 	dev-libs/re2
-	media-libs/openh264:0/6
+	media-libs/openh264
 	=dev-libs/icu-70*:0
 "
 RDEPEND="${CDEPEND}
