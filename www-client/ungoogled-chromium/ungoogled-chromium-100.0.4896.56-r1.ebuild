@@ -312,6 +312,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
+		"${FILESDIR}/perfetto-system-zlib.patch"
 	)
 
 	use ppc64 && PATCHES+=(
