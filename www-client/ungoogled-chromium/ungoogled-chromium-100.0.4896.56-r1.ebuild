@@ -75,6 +75,7 @@ COMMON_X_DEPEND="
 	virtual/opengl
 "
 COMMON_SNAPSHOT_DEPEND="
+	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
 	system-openjpeg? ( media-libs/openjpeg:2= )
