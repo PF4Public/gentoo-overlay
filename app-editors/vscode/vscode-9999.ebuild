@@ -70,23 +70,22 @@ BDEPEND="
 "
 
 src_unpack() {
-	if [ -z "$CODE_COMMIT_ID" ]
-	then
+	if use electron-17; then
+		export ELECTRON_SLOT=17
+	else
+		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
+	fi
+	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
 			# if use electron-17; then
-			# 	EGIT_BRANCH="electron-17.x.y"
+			# 	EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
 			# fi
 			git-r3_src_unpack
 		fi
 	else
 		unpack "${PN}-${CODE_COMMIT_ID}.tar.gz" || die
-	fi
-	if use electron-17; then
-		export ELECTRON_SLOT=17
-	else
-		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
 }
 
