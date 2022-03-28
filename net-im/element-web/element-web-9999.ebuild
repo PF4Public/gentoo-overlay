@@ -7,8 +7,8 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_JS_SDK="16.0.0"
-MATRIX_REACT_SDK="3.42.0"
+MATRIX_JS_SDK="16.0.1"
+MATRIX_REACT_SDK="3.42.1"
 SRC_URI="!build-online? (
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
