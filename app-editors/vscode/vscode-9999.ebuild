@@ -30,9 +30,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online +electron-17 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-18 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-17 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-18 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -53,8 +53,8 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	electron-17? ( dev-util/electron:17 )
-	!electron-17? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
+	electron-18? ( dev-util/electron:18 )
+	!electron-18? ( dev-util/electron:${ELECTRON_SLOT_DEFAULT} )
 "
 #TODO: oniguruma?
 
@@ -70,8 +70,8 @@ BDEPEND="
 "
 
 src_unpack() {
-	if use electron-17; then
-		export ELECTRON_SLOT=17
+	if use electron-18; then
+		export ELECTRON_SLOT=18
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -79,7 +79,7 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			# if use electron-17; then
+			# if use electron-18; then
 			# 	EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
 			# fi
 			git-r3_src_unpack
@@ -364,9 +364,9 @@ pkg_postinst() {
 	fi
 
 	elog
-	elog "normally vscode ships some builtin extensions"
-	elog "You may install them manually if you need them"
-	elog "ms-vscode.references-view is one of them"
+	elog "Normally vscode ships some builtin extensions, but they are omitted here"
+	elog "Consult product.json for a list if you want to install them manually"
+	elog "ms-vscode.references-view is one of them, for example"
 	elog
 }
 
