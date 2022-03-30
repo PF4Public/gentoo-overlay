@@ -1140,7 +1140,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-# KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="+clang cups custom-cflags debug gtk4 hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1368,13 +1368,15 @@ src_prepare() {
 		# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 
-		# sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
-		# sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
+		sed -i 's/std::vector<const/std::vector</' ${S}/chrome/browser/process_singleton_posix.cc || die
+		sed -i 's/std::vector<const/std::vector</' ${S}/chrome/browser/process_singleton.h || die
+		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
+		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
 
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
-		grep "'--openssl-no-asm'" script/generate-config-gypi.py || die
+		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
 		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
 		use system-icu && NODE_CONFIG_ARGS+=", '--with-intl=system-icu'"
 		sed -i "s/'--openssl-no-asm'/$NODE_CONFIG_ARGS/" script/generate-config-gypi.py || die
@@ -1511,10 +1513,14 @@ src_prepare() {
 			sed -i '\!third_party/closure_compiler/compiler/compiler.jar!d' "${ugc_pruning_list}" || die
 		fi
 
-		# if use pgo; then
-		 	ewarn "Keeping binary profile data in source tree for pgo"
+		if use pgo || [[ ! "$UGC_PVR" =~ ^${CHROMIUM_VERSION}.* ]]; then
+			if [[ ! "$UGC_PVR" =~ ^${CHROMIUM_VERSION}.* ]]; then
+			 	ewarn "Keeping binary profile data for pruning to succeed"
+			else
+			 	ewarn "Keeping binary profile data in source tree for pgo"
+			fi
 			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-		# fi
+		fi
 
 		if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
 		for p in ${UGC_SKIP_PATCHES}; do
