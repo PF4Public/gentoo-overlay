@@ -17,7 +17,8 @@ jobs:
         use:
           - '-build-online'
           - 'build-online'
-          - 'build-online native-modules'
+          - 'build-online native-modules -electron-18'
+          - 'build-online native-modules electron-18'
 
     steps:
       - name: Check out the repo
