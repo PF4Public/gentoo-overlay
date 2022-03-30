@@ -1368,9 +1368,8 @@ src_prepare() {
 		# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 		# sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 
-		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
-		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
-		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
+		# sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
+		# sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
 
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
