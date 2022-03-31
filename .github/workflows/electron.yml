@@ -20,8 +20,6 @@ jobs:
           - custom-cflags
           - vaapi -system-libvpx
           - vdpau
-          - enable-driver hangouts
-          - pulseaudio
           - ungoogled
           - wayland
         include:

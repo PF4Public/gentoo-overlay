@@ -22,7 +22,6 @@ jobs:
           - vdpau
           - -official
           - headless
-          - pulseaudio
           - wayland
         include:
           - use: vaapi system-libvpx
