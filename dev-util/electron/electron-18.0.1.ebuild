@@ -11,6 +11,7 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 
 inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
+CHROMIUM_VERSION_WARNING="false"
 CHROMIUM_VERSION="100.0.4896.60"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="16.13.2"
@@ -1140,7 +1141,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="~amd64 ~ppc64 ~x86"
+KEYWORDS="amd64 ~x86"
 IUSE="+clang cups custom-cflags debug gtk4 hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo +proprietary-codecs pulseaudio selinux +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1174,7 +1175,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
-	system-libusb? ( virtual/libusb )
+	system-libusb? ( virtual/libusb:1 )
 	system-icu? ( >=dev-libs/icu-69.1:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/nspr:=
@@ -1321,9 +1322,11 @@ pkg_pretend() {
 		ewarn "--ozone-platform=wayland might segfault"
 		ewarn
 	fi
-	# ewarn
-	# ewarn "Chromium ${CHROMIUM_VERSION} will be used instead of 98.0.4758.141"
-	# ewarn
+	if [ "$CHROMIUM_VERSION_WARNING" = "true" ]; then
+		ewarn
+		ewarn "Chromium ${CHROMIUM_VERSION} will be used instead of the required one"
+		ewarn
+	fi
 	pre_build_checks
 }
 
