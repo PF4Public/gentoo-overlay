@@ -14,17 +14,17 @@ HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chr
 DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
 	core2? (
-		${DL_URL}/core2.tar.bz2 -> ${P}-core2.tar.bz2
+		${DL_URL}/core2.tar.bz2 -> ${PF}-core2.tar.bz2
 	)
 	haswell? (
-		${DL_URL}/haswell.tar.bz2 -> ${P}-haswell.tar.bz2
+		${DL_URL}/haswell.tar.bz2 -> ${PF}-haswell.tar.bz2
 	)
 	generic? (
 		amd64? (
-		${DL_URL}/x86-64.tar.bz2 -> ${P}-x86-64.tar.bz2
+		${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2
 		)
 		x86? (
-		${DL_URL}/i686.tar.bz2 -> ${P}-i686.tar.bz2
+		${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2
 		)
 	)
 "
