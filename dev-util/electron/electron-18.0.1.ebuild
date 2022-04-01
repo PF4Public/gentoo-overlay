@@ -1366,13 +1366,13 @@ src_prepare() {
 	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
 	popd > /dev/null || die
 
-	sed -i 's/std::vector<const/std::vector</' chrome/browser/process_singleton_posix.cc || die
-	sed -i 's/std::vector<const/std::vector</' chrome/browser/process_singleton.h || die
 	pushd "${WORKDIR}/${P}" > /dev/null || die
+		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
+
+		sed -i 's/std::vector<const/std::vector</' "$S/chrome/browser/process_singleton_posix.cc" || die
+		sed -i 's/std::vector<const/std::vector</' "$S/chrome/browser/process_singleton.h" || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
-
-		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
