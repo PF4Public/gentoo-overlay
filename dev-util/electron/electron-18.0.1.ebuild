@@ -1367,12 +1367,11 @@ src_prepare() {
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
-		# sed -i '/test\/mjsunit/Q' "patches/v8/cherry-pick-1231950.patch" || die
-		# sed -i '/cctest.status/Q' "patches/v8/regexp_allow_reentrant_irregexp_execution.patch" || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 
-		sed -i 's/std::vector<const/std::vector</' "${S}/chrome/browser/process_singleton_posix.cc" || die
-		sed -i 's/std::vector<const/std::vector</' "${S}/chrome/browser/process_singleton.h" || die
+		# Doesn't work with quotes                 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+		sed -i 's/std::vector<const/std::vector</' ${S}/chrome/browser/process_singleton_posix.cc || die
+		sed -i 's/std::vector<const/std::vector</' ${S}/chrome/browser/process_singleton.h || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
 
