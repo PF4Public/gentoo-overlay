@@ -2243,10 +2243,6 @@ src_configure() {
 	append-cxxflags -Wno-builtin-macro-redefined
 	append-cppflags "-D__DATE__= -D__TIME__= -D__TIMESTAMP__="
 
-	if has ccache $FEATURES ; then
-		myconf_gn+=" cc_wrapper=\"ccache\""
-	fi
-
 	myconf_gn+=" import(\"//electron/build/args/release.gn\")"
 
 	local flags
