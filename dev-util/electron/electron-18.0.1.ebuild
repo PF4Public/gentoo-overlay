@@ -1369,7 +1369,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 
-		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
+		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_transfer_to_requestsingleinstancelock.patch || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
 
