@@ -15,11 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - '-build-online'
           - 'build-online'
-          - 'badge-providers builtin-extensions'
-          - 'insiders'
-          - 'liveshare'
+          - 'badge-providers insiders liveshare'
           - 'openvsx'
           - 'substitute-urls'
           - 'electron-18'
