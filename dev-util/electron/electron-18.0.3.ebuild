@@ -12,7 +12,7 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
 CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="100.0.4896.60"
+CHROMIUM_VERSION="100.0.4896.75"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="16.13.2"
 NODE_P="node-v${NODE_VERSION}"
