@@ -2062,9 +2062,7 @@ src_configure() {
 	myconf_gn+=" enable_one_click_signin=false"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
-	if use ungoogled; then
-		myconf_gn+=" enable_reporting=false"
-	fi
+	myconf_gn+=" enable_reporting=false"
 	myconf_gn+=" enable_service_discovery=false"
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" use_official_google_api_keys=false"
