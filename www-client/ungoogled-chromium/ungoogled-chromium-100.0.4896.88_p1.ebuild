@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="dd5bfad4eb9e0a23abf8000d82053f1cb4fe1dc0"
+# UGC_COMMIT_ID="dd5bfad4eb9e0a23abf8000d82053f1cb4fe1dc0"
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -46,7 +46,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -81,7 +81,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
-	system-libusb? ( virtual/libusb )
+	system-libusb? ( virtual/libusb:1 )
 	system-icu? ( >=dev-libs/icu-69.1:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
 	dev-libs/nspr:=
