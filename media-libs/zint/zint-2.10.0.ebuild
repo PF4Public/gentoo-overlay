@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Gentoo Authors
+# Copyright 2020-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Taken from Jorgicio's Gentoo overlay and modified
@@ -26,12 +26,12 @@ fi
 
 COMMON_DEPEND="
 	qt5? (
-		dev-qt/qthelp:5
-		dev-qt/linguist:5
-		dev-qt/qdbusviewer:5
-		dev-qt/designer:5
-		dev-qt/assistant:5
-		dev-qt/qtgui:5 )"
+		dev-qt/qthelp
+		dev-qt/linguist
+		dev-qt/qdbusviewer
+		dev-qt/designer
+		dev-qt/assistant
+		dev-qt/qtgui )"
 
 DEPEND="
 	${COMMON_DEPEND}
