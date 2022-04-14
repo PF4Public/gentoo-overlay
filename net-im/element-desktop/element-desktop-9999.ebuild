@@ -114,7 +114,8 @@ src_compile() {
 		node /usr/bin/yarn run build:native || die
 	fi
 
-	#!Error: "Unknown argument" with electron's node
+	#!Error: With electron's node: "Unknown argument" electron/electron#25379
+	#!Error: With electron's node: "Invalid package app.asar"
 	/usr/bin/node node_modules/.bin/electron-builder --dir || die
 
 	#cp -r /usr/share/element-web webapp
