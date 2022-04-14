@@ -8,7 +8,7 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 MATRIX_JS_SDK="17.0.0"
-MATRIX_REACT_SDK="3.42.3"
+MATRIX_REACT_SDK="3.42.4"
 SRC_URI="!build-online? (
 	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
 	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
