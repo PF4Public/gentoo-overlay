@@ -865,6 +865,9 @@ src_compile() {
 	#! Until electron-builder >=22.11.5
 	yarn config set ignore-engines true || die
 
+	einfo "asarUnpack"
+	sed -i 's/"im.riot.app",/"im.riot.app","asarUnpack": "**\/*.node",/' package.json || die
+	
 	if ! use build-online
 	then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
