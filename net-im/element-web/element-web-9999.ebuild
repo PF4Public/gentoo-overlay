@@ -52,6 +52,7 @@ BDEPEND="
 "
 
 #TODO: Jitsi
+#TODO: inherit webapp?
 
 src_unpack() {
 	if [ -z "$ELEMENT_COMMIT_ID" ]
