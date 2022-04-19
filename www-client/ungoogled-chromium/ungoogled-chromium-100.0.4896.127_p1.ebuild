@@ -36,12 +36,11 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://github.com/Eloston/ungoogled-chromium"
 PATCHSET="4"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
-PPC64LE_PATCHSET_NAME="chromium_98.0.4758.102-1raptor0.debian"
+PATCHSET_PPC64="1"
+PATCHSET_NAME_PPC64="chromium-$(ver_cut 1)-patchset-ppc64le-${PATCHSET_PPC64}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	ppc64? (
-		https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PPC64LE_PATCHSET_NAME}.tar.xz
-	)
+	ppc64? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/${PATCHSET_NAME_PPC64}.tar.xz )
 	${UGC_URL}"
 
 LICENSE="BSD"
@@ -74,6 +73,7 @@ COMMON_X_DEPEND="
 	x11-libs/libxshmfence:=
 	virtual/opengl
 "
+
 COMMON_SNAPSHOT_DEPEND="
 	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
@@ -107,7 +107,7 @@ COMMON_SNAPSHOT_DEPEND="
 			)
 		)
 		kerberos? ( virtual/krb5 )
-		vaapi? ( >=x11-libs/libva-2.7:=[X,drm] )
+		vaapi? ( >=x11-libs/libva-2.7:=[X] )
 		x11-libs/libX11:=
 		x11-libs/libXext:=
 		x11-libs/libxcb:=
@@ -118,6 +118,7 @@ COMMON_SNAPSHOT_DEPEND="
 		)
 	)
 "
+
 COMMON_DEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
 	app-arch/bzip2:=
@@ -316,57 +317,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 	)
 
-	use ppc64 && PATCHES+=(
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-linux-seccomp-bpf-ppc64-glibc-workaround-in-SIGSYS-h.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-Enable-seccomp_bpf-for-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-services-service_manager-sandbox-linux-Fix-TCGETS-de.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-bpf_dsl-Update-syscall-ranges-for-ppc6.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Implement-partial-support-for-ppc64-sy.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Update-IsSyscallAllowed-in-broker_proc.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0001-sandbox-linux-Update-syscall-helpers-lists-for-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0002-sandbox-linux-bpf_dsl-Modify-seccomp_macros-to-add-s.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0003-sandbox-linux-system_headers-Update-linux-seccomp-he.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0004-sandbox-linux-system_headers-Update-linux-signal-hea.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0005-sandbox-linux-seccomp-bpf-Add-ppc64-syscall-stub.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0005-sandbox-linux-update-unit-test-for-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0006-sandbox-linux-disable-timedwait-time64-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0007-sandbox-linux-add-ppc64-stat.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/Sandbox-linux-services-credentials.cc-PPC.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/0008-sandbox-fix-ppc64le-glibc234.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-angle-Include-missing-header-cstddef-in-.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-boringssl-Properly-detect-ppc64le-in-BUI.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-libvpx-Properly-generate-gni-on-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-lss-Don-t-look-for-mmap2-on-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-pffft-Include-altivec.h-on-ppc64-with-SI.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-libvpx-Add-ppc64-sources-to-gni.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-lss-kernel-structs.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Enable-third-party-libgav1-parser.patch"
-		"${WORKDIR}/debian/patches/ppc64le/webrtc/Modules-desktop_capture-differ_block.cc-PPC.patch"
-		"${WORKDIR}/debian/patches/ppc64le/webrtc/Rtc_base-system-arch.h-PPC.patch"
-		"${WORKDIR}/debian/patches/ppc64le/crashpad/0002-Include-cstddef-to-fix-build.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0004-third_party-crashpad-port-curl-transport-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/workarounds/HACK-third_party-libvpx-use-generic-gnu.patch"
-		"${WORKDIR}/debian/patches/ppc64le/libaom/0001-Add-ppc64-target-to-libaom.patch"
-		"${WORKDIR}/debian/patches/ppc64le/libaom/0001-Add-pregenerated-config-for-libaom-on-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-third_party-libvpx-Add-ppc64-generated-config.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-third_party-ffmpeg-Add-ppc64-generated-config.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0004-third_party-libvpx-work-around-ambiguous-vsx.patch"
-		"${WORKDIR}/debian/patches/ppc64le/ffmpeg/0001-Add-support-for-ppc64.patch"
-		"${WORKDIR}/debian/patches/ppc64le/breakpad/0001-Implement-support-for-ppc64-on-Linux.patch"
-		"${WORKDIR}/debian/patches/ppc64le/crashpad/0001-Implement-support-for-PPC64-on-Linux.patch"
-		"${WORKDIR}/debian/patches/ppc64le/database/0001-Properly-detect-little-endian-PPC64-systems.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Force-baseline-POWER8-AltiVec-VSX-CPU-features-when-.patch"
-		"${FILESDIR}/ppc64le/fixes/fix-breakpad-compile.patch"
-		"${WORKDIR}/debian/patches/ppc64le/v8/0002-Add-ppc64-trap-instructions.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Add-PPC64-support-for-libdav1d.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Fix-libdav1d-compilation-on-clang-ppc.patch"
-		"${WORKDIR}/debian/patches/ppc64le/sandbox/fix-ppc64-linux-syscalls-headers.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-thirdparty-fix-dav1d-gn.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
-		"${WORKDIR}/debian/patches/disable/swiftshader.patch"
-		"${WORKDIR}/debian/patches/disable/swiftshader-2.patch"
-		"${FILESDIR}/ppc64le/fixes/libpng-pdfium-compile-98.patch"
-	)
+	use ppc64 && PATCHES+=( "${WORKDIR}/patches-ppc64" )
 
 	default
 
@@ -645,8 +596,6 @@ src_prepare() {
 		third_party/protobuf/third_party/six
 		third_party/pyjson5
 		third_party/qcms
-	)
-	keeplibs+=(
 		third_party/rnnoise
 		third_party/s2cellid
 		third_party/securemessage
@@ -749,6 +698,11 @@ src_prepare() {
 			generate_gni.sh || die
 		./generate_gni.sh || die
 		popd >/dev/null || die
+
+		pushd third_party/ffmpeg >/dev/null || die
+		cp libavcodec/ppc/h264dsp.c libavcodec/ppc/h264dsp_ppc.c || die
+		cp libavcodec/ppc/h264qpel.c libavcodec/ppc/h264qpel_ppc.c || die
+		popd >/dev/null || die
 	fi
 
 	# Remove most bundled libraries. Some are still needed.
@@ -774,8 +728,15 @@ src_configure() {
 
 	if use clang && ! tc-is-clang ; then
 		einfo "Enforcing the use of clang due to USE=clang ..."
-		CC=${CHOST}-clang
-		CXX=${CHOST}-clang++
+		if tc-is-cross-compiler; then
+			CC="${CBUILD}-clang -target ${CHOST} --sysroot ${ESYSROOT}"
+			CXX="${CBUILD}-clang++ -target ${CHOST} --sysroot ${ESYSROOT}"
+			BUILD_CC=${CBUILD}-clang
+			BUILD_CXX=${CBUILD}-clang++
+		else
+			CC=${CHOST}-clang
+			CXX=${CHOST}-clang++
+		fi
 		AR=llvm-ar #thinlto fails otherwise
 		strip-unsupported-flags
 	elif ! use clang && ! tc-is-gcc ; then
@@ -799,7 +760,7 @@ src_configure() {
 		tc-export BUILD_{AR,CC,CXX,NM}
 		myconf_gn+=" host_toolchain=\"//build/toolchain/linux/unbundle:host\""
 		myconf_gn+=" v8_snapshot_toolchain=\"//build/toolchain/linux/unbundle:host\""
-		myconf_gn+=" pkg_config=\"$(tc-get_PKG_CONFIG)\""
+		myconf_gn+=" pkg_config=\"$(tc-getPKG_CONFIG)\""
 		myconf_gn+=" host_pkg_config=\"$(tc-getBUILD_PKG_CONFIG)\""
 
 		# setup cups-config, build system only uses --libs option
@@ -880,6 +841,7 @@ src_configure() {
 	myconf_gn+=" enable_js_type_check=$(usex js-type-check true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" enable_widevine=$(usex widevine true false)"
+
 	if use headless; then
 		myconf_gn+=" use_cups=false"
 		myconf_gn+=" use_kerberos=false"
@@ -1031,6 +993,14 @@ src_configure() {
 
 	# Disable fatal linker warnings, bug 506268.
 	myconf_gn+=" fatal_linker_warnings=false"
+
+	# Disable external code space for V8 for ppc64. It is disabled for ppc64
+	# by default, but cross-compiling on amd64 enables it again.
+	if tc-is-cross-compiler; then
+		if ! use amd64 && ! use arm64; then
+			myconf_gn+=" v8_enable_external_code_space=false"
+		fi
+	fi
 
 	# Bug 491582.
 	export TMPDIR="${WORKDIR}/temp"
@@ -1204,6 +1174,7 @@ src_install() {
 	fi
 
 	use enable-driver && doexe out/Release/chromedriver
+	#doexe out/Release/chrome_crashpad_handler
 
 	ozone_auto_session () {
 		use wayland && ! use headless && echo true || echo false
@@ -1243,7 +1214,7 @@ src_install() {
 		[[ ${#files[@]} -gt 0 ]] && doins "${files[@]}"
 	)
 
-	if ! use system-icu; then
+	if ! use system-icu && ! use headless; then
 		doins out/Release/icudtl.dat
 	fi
 
