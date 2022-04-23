@@ -32,7 +32,6 @@
 		<flag name="official">Enable Official build instead of Developer build.</flag>
 		<flag name="optimize-thinlto">Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on can substantially increase link time and binary size, but they generally also make binaries a fair bit faster.</flag>
 		<flag name="optimize-webui">Optimize parts of Chromium's UI written with web technologies (HTML/CSS/JS) for runtime performance purposes. This does more work at compile time for speed benefits at runtime.</flag>
-		<flag name="partition">Use PartitionAlloc explicitly</flag>
 		<flag name="pgo">Enable PGO. Requires clang and bundled binary profile data in sources tree.</flag>
 		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
@@ -50,7 +49,6 @@
 		<flag name="system-png">Use system libpng instead of the bundled one</flag>
 		<flag name="system-re2">Use the system-wide <pkg>dev-libs/re2</pkg> instead of the bundled one</flag>
 		<flag name="system-snappy">Use the system-wide <pkg>app-arch/snappy</pkg> instead of the bundled one</flag>
-		<flag name="tcmalloc">Use tcmalloc explicitly</flag>
 		<flag name="thinlto">Build with ThinLTO support. LTO (Link Time Optimization) achieves better runtime performance through whole-program analysis and cross-module optimization (highly recommended).</flag>
 		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
 	</use>
