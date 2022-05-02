@@ -7,12 +7,7 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-MATRIX_JS_SDK="17.1.0"
-MATRIX_REACT_SDK="3.43.0"
-SRC_URI="!build-online? (
-	https://github.com/matrix-org/matrix-js-sdk/archive/v${MATRIX_JS_SDK}.tar.gz -> matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz
-	https://github.com/matrix-org/matrix-react-sdk/archive/v${MATRIX_REACT_SDK}.tar.gz -> matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz
-) "
+SRC_URI=""
 
 REPO="https://github.com/vector-im/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
@@ -87,17 +82,7 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-
-	pushd node_modules/matrix-js-sdk > /dev/null || die
-		use build-online || tar -xf "${DISTDIR}/matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-	popd > /dev/null || die
-
-	pushd node_modules/matrix-react-sdk > /dev/null || die
-		use build-online || tar -xf "${DISTDIR}/matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-	popd > /dev/null || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
 }
 
 src_compile() {
