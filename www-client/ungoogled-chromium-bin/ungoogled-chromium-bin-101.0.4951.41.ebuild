@@ -66,7 +66,6 @@ CDEPEND="
 	>=media-libs/harfbuzz-3.1.1:0[icu(-)]
 	media-libs/libjpeg-turbo
 	media-libs/libpng
-	media-libs/libvpx:0/6[postproc]
 	|| (
 		media-sound/pulseaudio
 		>=media-sound/apulse-0.1.9
