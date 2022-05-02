@@ -2179,17 +2179,17 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
 
-	pushd node_modules/matrix-js-sdk > /dev/null || die
-		use build-online || tar -xf "${DISTDIR}/matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-	popd > /dev/null || die
+	# pushd node_modules/matrix-js-sdk > /dev/null || die
+	# 	use build-online || tar -xf "${DISTDIR}/matrix-js-sdk-${MATRIX_JS_SDK}.tar.gz" --strip-components=1 --overwrite
+	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	# popd > /dev/null || die
 
-	pushd node_modules/matrix-react-sdk > /dev/null || die
-		use build-online || tar -xf "${DISTDIR}/matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz" --strip-components=1 --overwrite
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-	popd > /dev/null || die
+	# pushd node_modules/matrix-react-sdk > /dev/null || die
+	# 	use build-online || tar -xf "${DISTDIR}/matrix-react-sdk-${MATRIX_REACT_SDK}.tar.gz" --strip-components=1 --overwrite
+	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	# popd > /dev/null || die
 }
 
 src_compile() {
