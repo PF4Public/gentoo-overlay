@@ -182,7 +182,6 @@ BDEPEND="
 	js-type-check? ( virtual/jre )
 	clang? ( sys-devel/clang sys-devel/lld )
 	cfi? ( sys-devel/clang-runtime[sanitize] )
-	pgo? ( >=sys-devel/clang-15 >=sys-devel/lld-15 )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then

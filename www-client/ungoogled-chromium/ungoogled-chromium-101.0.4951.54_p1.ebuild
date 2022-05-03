@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/Eloston/${PN}/archive/"
-UGC_COMMIT_ID="01d284552def7bb7e244cbae35a54ef80caf9fd3"
+UGC_COMMIT_ID="e3ba1f8579e898af4faf83dec02cf4f57a92525f"
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -182,7 +182,6 @@ BDEPEND="
 	js-type-check? ( virtual/jre )
 	clang? ( sys-devel/clang sys-devel/lld )
 	cfi? ( sys-devel/clang-runtime[sanitize] )
-	pgo? ( >=sys-devel/clang-15 >=sys-devel/lld-15 )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
