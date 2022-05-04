@@ -1338,14 +1338,9 @@ pkg_pretend() {
 		ewarn
 		ewarn "New vaapi code depends heavily on libvpx-1.9, see #43"
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
-		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
+		ewarn "A patch to make vaapi compatible with system libvpx is welcome"
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
-	fi
-	if use wayland; then
-		ewarn
-		ewarn "--ozone-platform=wayland might segfault"
-		ewarn
 	fi
 	if [ "$CHROMIUM_VERSION_WARNING" = "true" ]; then
 		ewarn
