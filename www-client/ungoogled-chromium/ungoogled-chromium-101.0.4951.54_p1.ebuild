@@ -265,9 +265,9 @@ pkg_pretend() {
 	fi
 	if use system-libvpx && use vaapi; then
 		ewarn
-		ewarn "New vaapi code depends heavily on libvpx-1.9, see #43"
+		ewarn "New vaapi code depends heavily on libvpx, see #43"
 		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
-		ewarn "A patch to make vaapi compatible with system libvpx-1.9 is welcome"
+		ewarn "A patch to make vaapi compatible with system libvpx is welcome"
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
 	fi
