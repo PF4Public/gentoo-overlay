@@ -12,13 +12,7 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.14.2"
-VS_ESBUILD_V="0.14.2"
-SRC_URI="!build-online? (
-	https://registry.yarnpkg.com/esbuild/-/esbuild-${VS_ESBUILD_V}.tgz
-	https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-${VS_ESBUILD_V}.tgz
-	https://registry.npmjs.org/esbuild-linux-32/-/esbuild-linux-32-${VS_ESBUILD_V}.tgz
-	https://registry.npmjs.org/esbuild-linux-ppc64le/-/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz
-	)
+SRC_URI="
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
 "
 
