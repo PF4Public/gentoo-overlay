@@ -197,6 +197,11 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
+	elog "VA-API is disabled by default at runtime. You have to enable it"
+	elog "by adding --enable-features=VaapiVideoDecoder and "
+	elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
+	elog "in /etc/chromium/default."
+	
 	xdg_icon_cache_update
 	xdg_desktop_database_update
 	readme.gentoo_print_elog
