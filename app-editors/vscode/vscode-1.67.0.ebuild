@@ -14,6 +14,7 @@ SLOT="0"
 VS_RIPGREP_V="1.14.2"
 VS_ESBUILD_V="0.14.2"
 SRC_URI="!build-online? (
+	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.2.tgz -> @azure-abort-controller-1.0.2.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
