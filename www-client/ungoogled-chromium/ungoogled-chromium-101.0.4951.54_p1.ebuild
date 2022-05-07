@@ -1260,10 +1260,6 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
-	readme.gentoo_print_elog
-
 	if ! use headless; then
 		if use vaapi; then
 			elog "VA-API is disabled by default at runtime. You have to enable it"
@@ -1287,4 +1283,8 @@ pkg_postinst() {
 			elog "Make sure you have www-plugins/chrome-binary-plugins installed"
 		fi
 	fi
+	
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+	readme.gentoo_print_elog
 }
