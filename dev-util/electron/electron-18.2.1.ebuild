@@ -2314,12 +2314,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	electron-config update
-}
-
-pkg_postrm() {
-	electron-config update
-
+	#? How to supply these flags to Electron?
 	if use vaapi; then
 		elog "VA-API is disabled by default at runtime. You have to enable it"
 		elog "by adding --enable-features=VaapiVideoDecoder and "
@@ -2331,4 +2326,10 @@ pkg_postrm() {
 		elog "behavior you need to pass --gtk-version=4, e.g. by adding it"
 		elog "to CHROMIUM_FLAGS in /etc/chromium/default."
 	fi
+
+	electron-config update
+}
+
+pkg_postrm() {
+	electron-config update
 }
