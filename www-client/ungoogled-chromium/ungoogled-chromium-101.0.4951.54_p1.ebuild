@@ -313,6 +313,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
+		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 	)
 
 	use ppc64 && PATCHES+=( "${WORKDIR}/patches-ppc64" )
