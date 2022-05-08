@@ -2263,6 +2263,7 @@ src_configure() {
 #--no-progress
 #--skip-integrity-check
 #--verbose
+	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die # workaround md4 see https://github.com/webpack/webpack/issues/14560
 
 	export PATH=${OLD_PATH}
 
