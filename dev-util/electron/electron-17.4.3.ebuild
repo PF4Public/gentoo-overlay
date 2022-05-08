@@ -1905,6 +1905,7 @@ src_configure() {
 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	yarn config set disable-self-update-check true || die
 	yarn install --frozen-lockfile --offline --no-progress || die
+	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die # workaround md4 see https://github.com/webpack/webpack/issues/14560
 	popd > /dev/null || die
 	eend $? || die
 
