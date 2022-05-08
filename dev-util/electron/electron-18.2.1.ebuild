@@ -2126,6 +2126,8 @@ src_configure() {
 		# same on two of the thinLTO configurations, we got 1% slowdown
 		# on speedometer when changing import-instr-limit from 100 to 30.
 		# append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
+		sed -i '/import_instr_limit = 5/{s++import_instr_limit = 30+;h};${x;/./{x;q0};x;q1}' \
+			build/config/compiler/BUILD.gn || die
 
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 		myconf_gn+=" use_lld=true"
