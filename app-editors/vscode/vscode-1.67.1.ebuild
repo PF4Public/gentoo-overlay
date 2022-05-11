@@ -2141,13 +2141,13 @@ src_prepare() {
 		sed -i '/"esbuild"/d' build/package.json || die
 		#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
-		# einfo "Removing markdown-math. Enable build-online if you need it."
-		# rm -r extensions/markdown-math
-		# sed -i '/markdown-math/d' build/filters.js || die
-		# sed -i '/markdown-math/d' build/npm/dirs.js || die
-		# sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
-		# sed -i '/markdown-math/d' build/lib/extensions.js || die
-		# sed -i '/markdown-math/d' build/lib/extensions.ts || die
+		einfo "Removing markdown-math. Enable build-online if you need it."
+		rm -r extensions/markdown-math
+		sed -i '/markdown-math/d' build/filters.js || die
+		sed -i '/markdown-math/d' build/npm/dirs.js || die
+		sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
+		sed -i '/markdown-math/d' build/lib/extensions.js || die
+		sed -i '/markdown-math/d' build/lib/extensions.ts || die
 	fi
 
 	# sed -i '/"electron"/d' package.json || die
