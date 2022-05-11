@@ -14,6 +14,7 @@ SLOT="0"
 VS_RIPGREP_V="1.14.2"
 VS_ESBUILD_V="0.14.2"
 SRC_URI="!build-online? (
+	https://codeload.github.com/mjbvz/markdown-it-katex/tar.gz/b1ed14de467031f5d4f9c1588dd1868cab0b8744
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.2.tgz -> @azure-abort-controller-1.0.2.tgz
@@ -2140,13 +2141,13 @@ src_prepare() {
 		sed -i '/"esbuild"/d' build/package.json || die
 		#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
-		einfo "Removing markdown-math. Enable build-online if you need it."
-		rm -r extensions/markdown-math
-		sed -i '/markdown-math/d' build/filters.js || die
-		sed -i '/markdown-math/d' build/npm/dirs.js || die
-		sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
-		sed -i '/markdown-math/d' build/lib/extensions.js || die
-		sed -i '/markdown-math/d' build/lib/extensions.ts || die
+		# einfo "Removing markdown-math. Enable build-online if you need it."
+		# rm -r extensions/markdown-math
+		# sed -i '/markdown-math/d' build/filters.js || die
+		# sed -i '/markdown-math/d' build/npm/dirs.js || die
+		# sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
+		# sed -i '/markdown-math/d' build/lib/extensions.js || die
+		# sed -i '/markdown-math/d' build/lib/extensions.ts || die
 	fi
 
 	# sed -i '/"electron"/d' package.json || die
