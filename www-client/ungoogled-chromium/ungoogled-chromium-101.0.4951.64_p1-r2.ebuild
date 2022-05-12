@@ -345,10 +345,10 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
+	#* Testing UGC PRs here
 	pushd "${UGC_WD}" >/dev/null
-	eapply "${FILESDIR}/${PN}-13a8145c71df76381b1149f781edc4293a16054b.patch"
+	eapply "${DISTDIR}/${PN}-13a8145c71df76381b1149f781edc4293a16054b.patch"
 	popd >/dev/null
-
 
 	# From here we adapt ungoogled-chromium's patches to our needs
 	local ugc_pruning_list="${UGC_WD}/pruning.list"
