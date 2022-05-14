@@ -99,12 +99,6 @@ src_compile() {
 	einfo "Installing node_modules"
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
-	einfo "Editing ElectronFramework.js"
-	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-
 	node node_modules/.bin/tsc || die
 	node scripts/copy-res.js || die
 
@@ -112,6 +106,12 @@ src_compile() {
 	then
 		node /usr/bin/yarn run build:native || die
 	fi
+
+	einfo "Editing ElectronFramework.js"
+	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
+		node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
+		node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
 	#!Error: With electron's node: "Unknown argument" electron/electron#25379
 	#!Error: With electron's node: "Invalid package app.asar"
