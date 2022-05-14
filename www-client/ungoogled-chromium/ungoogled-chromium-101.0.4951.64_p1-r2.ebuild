@@ -39,7 +39,7 @@ PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	${UGC_URL}
-	https://github.com/Eloston/ungoogled-chromium/commit/13a8145c71df76381b1149f781edc4293a16054b.patch -> ${PN}-13a8145c71df76381b1149f781edc4293a16054b.patch"
+	https://github.com/Eloston/ungoogled-chromium/commit/3fe28b04cf3723eaf73f99557d5389d445b9d0c9.patch -> ${PN}-3fe28b04cf3723eaf73f99557d5389d445b9d0c9.patch"
 
 LICENSE="BSD"
 SLOT="0"
@@ -347,7 +347,7 @@ src_prepare() {
 
 	#* Testing UGC PRs here
 	pushd "${UGC_WD}" >/dev/null
-	eapply "${DISTDIR}/${PN}-13a8145c71df76381b1149f781edc4293a16054b.patch"
+	eapply "${DISTDIR}/${PN}-3fe28b04cf3723eaf73f99557d5389d445b9d0c9.patch"
 	popd >/dev/null
 
 	# From here we adapt ungoogled-chromium's patches to our needs
