@@ -403,6 +403,10 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
+	if has_version ">=sys-devel/clang-15"; then
+		eapply "${FILESDIR}/clang-15.patch"
+	fi
+
 	#* Testing UGC PRs here
 	pushd "${UGC_WD}" >/dev/null
 	eapply "${DISTDIR}/${PN}-3fe28b04cf3723eaf73f99557d5389d445b9d0c9.patch"
