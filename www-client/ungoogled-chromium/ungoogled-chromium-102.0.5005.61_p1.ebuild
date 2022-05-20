@@ -318,6 +318,7 @@ src_prepare() {
 		"${FILESDIR}/sql-VirtualCursor-standard-layout.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
+		"${FILESDIR}/restore-x86.patch"
 	)
 
 	use ppc64 && PATCHES+=(
