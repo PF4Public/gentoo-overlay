@@ -34,7 +34,7 @@ fi
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/Eloston/ungoogled-chromium"
-PATCHSET="5"
+PATCHSET="6"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 PATCHSET_NAME_PPC64="chromium_101.0.4951.41-2raptor0.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
@@ -376,11 +376,6 @@ src_prepare() {
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
-
-	# only required to fulfill gn dependencies
-	touch third_party/blink/tools/merge_web_test_results.pydeps || die
-	mkdir -p third_party/blink/tools/blinkpy/web_tests || die
-	touch third_party/blink/tools/blinkpy/web_tests/merge_results.pydeps || die
 
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
