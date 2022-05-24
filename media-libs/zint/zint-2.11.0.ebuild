@@ -12,7 +12,7 @@ HOMEPAGE="http://zint.org.uk"
 LICENSE="GPL-2"
 SLOT="0"
 
-IUSE="qt5"
+IUSE="debug +png qt5 static-libs"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -31,20 +31,26 @@ COMMON_DEPEND="
 		dev-qt/qdbusviewer
 		dev-qt/designer
 		dev-qt/assistant
-		dev-qt/qtgui )"
+		dev-qt/qtgui )
+	png? ( media-libs/libpng:0= )
+"
 
 DEPEND="
 	${COMMON_DEPEND}
-	media-libs/libpng:0=
 	sys-libs/zlib:0=
 "
 RDEPEND="${COMMON_DEPEND}
 	x11-themes/hicolor-icon-theme
 "
 
-src_prepare(){
-	use qt5 || sed -i "s/^else()$/elseif(false)/" CMakeLists.txt
-	cmake_src_prepare
+src_configure() {
+	local mycmakeargs=(
+		-DZINT_DEBUG=$(usex debug)
+		-DZINT_STATIC=$(usex static-libs)
+		-DZINT_USE_PNG=$(usex png)
+		-DZINT_USE_QT=$(usex qt5)
+	)
+	cmake_src_configure
 }
 
 src_install() {
