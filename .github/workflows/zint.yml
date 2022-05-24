@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - 'qt'
-          - '-qt'
+          - 'qt5'
+          - '-qt5'
 
     steps:
       - name: Check out the repo
