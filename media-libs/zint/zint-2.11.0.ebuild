@@ -21,7 +21,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	KEYWORDS="~amd64 ~x86"
 	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
-	S="${WORKDIR}/${P}-src"
+	S="${WORKDIR}"
 fi
 
 COMMON_DEPEND="
