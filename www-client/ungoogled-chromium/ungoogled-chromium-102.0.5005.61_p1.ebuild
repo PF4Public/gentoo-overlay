@@ -392,6 +392,7 @@ src_prepare() {
 	if use system-ffmpeg && has_version "<media-video/ffmpeg-5.0"; then
 		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
 		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
+		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
