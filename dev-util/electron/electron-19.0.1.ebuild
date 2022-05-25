@@ -1388,7 +1388,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 		sed -i '/test-list/Q' "patches/node/macos_avoid_posix_spawnp_cwd_bug_3597.patch" || die
-		sed -i '/test-embed/Q' "patches/node/feat_add_uv_loop_interrupt_on_io_change_option_to_uv_loop_configure.patch" || die
+		# sed -i '/test-embed/Q' "patches/node/feat_add_uv_loop_interrupt_on_io_change_option_to_uv_loop_configure.patch" || die
 
 		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
@@ -1540,6 +1540,13 @@ src_prepare() {
 		einfo "- ${patch_folder}"
 		for i in "${topatch[@]}";
 		do
+			if	[ "$i" = "feat_add_uv_loop_interrupt_on_io_change_option_to_uv_loop_configure.patch" ]; then
+				einfo "Applying trimmed down version of ${i}"
+				pushd "${patches[$patch_folder]}" > /dev/null || die
+				eapply "${FILESDIR}/$i" || die
+				popd > /dev/null || die
+				continue;
+			fi
 			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
 			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
 			# 	einfo "Skipping ${i}: No files to patch."
@@ -1555,13 +1562,13 @@ src_prepare() {
 				continue;
 			fi
 			fi
-			# if [ "$i" = "fix_apply_tzdata2020f_to_icu.patch" ]; then
-			# 	einfo "Git binary patch: ${i}"
-			# 	pushd "${patches[$patch_folder]}" > /dev/null || die
-			# 	git apply -p1 < "${S}/${patch_folder}/$i" || die
-			# 	popd > /dev/null || die
-			# 	continue;
-			# fi
+			if [ "$i" = "fix_preserve_proper_method_names_as-is_in_error_stack.patch" ]; then
+				einfo "Git binary patch: ${i}"
+				pushd "${patches[$patch_folder]}" > /dev/null || die
+				git apply -p1 < "${S}/${patch_folder}/$i" || die
+				popd > /dev/null || die
+				continue;
+			fi
 			pushd "${patches[$patch_folder]}" > /dev/null || die
 			eapply "${S}/${patch_folder}/$i" || die
 			popd > /dev/null || die

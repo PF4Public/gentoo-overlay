@@ -1,0 +1,220 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Cheng Zhao <zcbenz@gmail.com>
+Date: Mon, 31 Jan 2022 20:56:58 +0900
+Subject: feat: add UV_LOOP_INTERRUPT_ON_IO_CHANGE option to uv_loop_configure
+
+https://github.com/libuv/libuv/pull/3308
+
+diff --git a/deps/uv/include/uv.h b/deps/uv/include/uv.h
+index 606083c87de5790d7e66fc34aeaae9a58acb8ef4..824b0b77cf5f0a46dcb3855c44ac73faaba2055f 100644
+--- a/deps/uv/include/uv.h
++++ b/deps/uv/include/uv.h
+@@ -252,7 +252,8 @@ typedef struct uv_statfs_s uv_statfs_t;
+ 
+ typedef enum {
+   UV_LOOP_BLOCK_SIGNAL = 0,
+-  UV_METRICS_IDLE_TIME
++  UV_METRICS_IDLE_TIME,
++  UV_LOOP_INTERRUPT_ON_IO_CHANGE
+ } uv_loop_option;
+ 
+ typedef enum {
+diff --git a/deps/uv/src/unix/async.c b/deps/uv/src/unix/async.c
+index e1805c323795e5b0c465d80100eebeb7bf838caa..dd4358c0cdaa97ba8fadf4d9755993803beddd18 100644
+--- a/deps/uv/src/unix/async.c
++++ b/deps/uv/src/unix/async.c
+@@ -38,7 +38,6 @@
+ #include <sys/eventfd.h>
+ #endif
+ 
+-static void uv__async_send(uv_loop_t* loop);
+ static int uv__async_start(uv_loop_t* loop);
+ 
+ 
+@@ -70,7 +69,7 @@ int uv_async_send(uv_async_t* handle) {
+     return 0;
+ 
+   /* Wake up the other thread's event loop. */
+-  uv__async_send(handle->loop);
++  uv__loop_interrupt(handle->loop);
+ 
+   /* Tell the other thread we're done. */
+   if (cmpxchgi(&handle->pending, 1, 2) != 1)
+@@ -165,40 +164,6 @@ static void uv__async_io(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+ }
+ 
+ 
+-static void uv__async_send(uv_loop_t* loop) {
+-  const void* buf;
+-  ssize_t len;
+-  int fd;
+-  int r;
+-
+-  buf = "";
+-  len = 1;
+-  fd = loop->async_wfd;
+-
+-#if defined(__linux__)
+-  if (fd == -1) {
+-    static const uint64_t val = 1;
+-    buf = &val;
+-    len = sizeof(val);
+-    fd = loop->async_io_watcher.fd;  /* eventfd */
+-  }
+-#endif
+-
+-  do
+-    r = write(fd, buf, len);
+-  while (r == -1 && errno == EINTR);
+-
+-  if (r == len)
+-    return;
+-
+-  if (r == -1)
+-    if (errno == EAGAIN || errno == EWOULDBLOCK)
+-      return;
+-
+-  abort();
+-}
+-
+-
+ static int uv__async_start(uv_loop_t* loop) {
+   int pipefd[2];
+   int err;
+diff --git a/deps/uv/src/unix/core.c b/deps/uv/src/unix/core.c
+index 7cd3a2a954ff7d70e6ba7a6f7538648841bc54b2..f89b7158218be60ac10e61484a2d5e5e28a3182f 100644
+--- a/deps/uv/src/unix/core.c
++++ b/deps/uv/src/unix/core.c
+@@ -887,6 +887,9 @@ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+     loop->watchers[w->fd] = w;
+     loop->nfds++;
+   }
++
++  if (uv__get_internal_fields(loop)->flags & UV_LOOP_INTERRUPT_ON_IO_CHANGE)
++    uv__loop_interrupt(loop);
+ }
+ 
+ 
+@@ -918,6 +921,9 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+   }
+   else if (QUEUE_EMPTY(&w->watcher_queue))
+     QUEUE_INSERT_TAIL(&loop->watcher_queue, &w->watcher_queue);
++
++  if (uv__get_internal_fields(loop)->flags & UV_LOOP_INTERRUPT_ON_IO_CHANGE)
++    uv__loop_interrupt(loop);
+ }
+ 
+ 
+@@ -934,6 +940,9 @@ void uv__io_close(uv_loop_t* loop, uv__io_t* w) {
+ void uv__io_feed(uv_loop_t* loop, uv__io_t* w) {
+   if (QUEUE_EMPTY(&w->pending_queue))
+     QUEUE_INSERT_TAIL(&loop->pending_queue, &w->pending_queue);
++
++  if (uv__get_internal_fields(loop)->flags & UV_LOOP_INTERRUPT_ON_IO_CHANGE)
++    uv__loop_interrupt(loop);
+ }
+ 
+ 
+diff --git a/deps/uv/src/unix/loop.c b/deps/uv/src/unix/loop.c
+index a88e71c339351f2ebcdd6c3f933fc3b1122910ed..353143e5ebecae598425dc036f4458bb7c43bb0b 100644
+--- a/deps/uv/src/unix/loop.c
++++ b/deps/uv/src/unix/loop.c
+@@ -217,6 +217,11 @@ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap) {
+     return 0;
+   }
+ 
++  if (option == UV_LOOP_INTERRUPT_ON_IO_CHANGE) {
++    lfields->flags |= UV_LOOP_INTERRUPT_ON_IO_CHANGE;
++    return 0;
++  }
++
+   if (option != UV_LOOP_BLOCK_SIGNAL)
+     return UV_ENOSYS;
+ 
+@@ -226,3 +231,37 @@ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap) {
+   loop->flags |= UV_LOOP_BLOCK_SIGPROF;
+   return 0;
+ }
++
++
++void uv__loop_interrupt(uv_loop_t* loop) {
++  const void* buf;
++  ssize_t len;
++  int fd;
++  int r;
++
++  buf = "";
++  len = 1;
++  fd = loop->async_wfd;
++
++#if defined(__linux__)
++  if (fd == -1) {
++    static const uint64_t val = 1;
++    buf = &val;
++    len = sizeof(val);
++    fd = loop->async_io_watcher.fd;  /* eventfd */
++  }
++#endif
++
++  do
++    r = write(fd, buf, len);
++  while (r == -1 && errno == EINTR);
++
++  if (r == len)
++    return;
++
++  if (r == -1)
++    if (errno == EAGAIN || errno == EWOULDBLOCK)
++      return;
++
++  abort();
++}
+diff --git a/deps/uv/src/uv-common.h b/deps/uv/src/uv-common.h
+index 6001b0cf68d0b0268b578218b664a737f43c9521..5d2212571f4bcb648ab332f0c5650d0fdb37c03a 100644
+--- a/deps/uv/src/uv-common.h
++++ b/deps/uv/src/uv-common.h
+@@ -140,6 +140,8 @@ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap);
+ 
+ void uv__loop_close(uv_loop_t* loop);
+ 
++void uv__loop_interrupt(uv_loop_t* loop);
++
+ int uv__read_start(uv_stream_t* stream,
+                    uv_alloc_cb alloc_cb,
+                    uv_read_cb read_cb);
+@@ -268,6 +270,10 @@ void uv__threadpool_cleanup(void);
+     if (((h)->flags & UV_HANDLE_ACTIVE) != 0) break;                          \
+     (h)->flags |= UV_HANDLE_ACTIVE;                                           \
+     if (((h)->flags & UV_HANDLE_REF) != 0) uv__active_handle_add(h);          \
++    int loop_flags = uv__get_internal_fields((h)->loop)->flags;               \
++    if (loop_flags & UV_LOOP_INTERRUPT_ON_IO_CHANGE) {                        \
++      uv__loop_interrupt((h)->loop);                                          \
++    }                                                                         \
+   }                                                                           \
+   while (0)
+ 
+diff --git a/deps/uv/src/win/core.c b/deps/uv/src/win/core.c
+index e53a0f8e28637a58ceec7852d1a79874fc1a9548..dd4065c1cc68763bfe258492e3119669311394dc 100644
+--- a/deps/uv/src/win/core.c
++++ b/deps/uv/src/win/core.c
+@@ -381,10 +381,20 @@ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap) {
+     return 0;
+   }
+ 
++  if (option == UV_LOOP_INTERRUPT_ON_IO_CHANGE) {
++    lfields->flags |= UV_LOOP_INTERRUPT_ON_IO_CHANGE;
++    return 0;
++  }
++
+   return UV_ENOSYS;
+ }
+ 
+ 
++void uv__loop_interrupt(uv_loop_t* loop) {
++  PostQueuedCompletionStatus(loop->iocp, 0, 0, NULL);
++}
++
++
+ int uv_backend_fd(const uv_loop_t* loop) {
+   return -1;
+ }
