@@ -389,13 +389,15 @@ src_prepare() {
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
-	if use system-ffmpeg && has_version "<media-video/ffmpeg-5.0"; then
-		eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
-		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
+	if use system-ffmpeg; then
+		if has_version "<media-video/ffmpeg-5.0"; then
+			eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
+			eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
+		fi
 		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
 	fi
 
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
+	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r3.patch"
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
