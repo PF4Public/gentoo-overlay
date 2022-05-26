@@ -35,8 +35,8 @@ PATCHSET_PPC64="1"
 PATCHSET_NAME_PPC64="chromium-100-patchset-ppc64le-${PATCHSET_PPC64}"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
+	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	ppc64? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/${PATCHSET_NAME_PPC64}.tar.xz )
 	ungoogled? (
 		https://github.com/Eloston/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
