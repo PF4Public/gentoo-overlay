@@ -77,6 +77,7 @@ src_configure() {
 
 	#! 1. License of external_api.min.js in unclear
 	#! 2. Unpackageable file → maybe enable in "build-online"?
+	#! 3. Maybe package jitsi-meet? No idea if they are compatible
 	einfo "Removing Jitsi"
 	sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 		package.json || die
