@@ -16,6 +16,7 @@
 		<flag name="badge-providers">Allow various badge providers</flag>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="electron-18">Build against electron-18 instead of the default one. Use at your own risk!</flag>
+		<flag name="electron-19">Build against electron-19 instead of the default one. Use at your own risk!</flag>
 		<flag name="insiders">Allow insiders API !WARNING! Enabling this might be illegal!</flag>
 		<flag name="liveshare">Allow liveshare API</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
