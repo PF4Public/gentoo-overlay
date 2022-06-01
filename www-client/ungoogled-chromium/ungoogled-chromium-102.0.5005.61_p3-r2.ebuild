@@ -66,7 +66,7 @@ fi
 
 SRC_URI+="${UGC_URL}
 "
-for i in $UGC_PR_COMMITS; do
+for i in "${UGC_PR_COMMITS[@]}"; do
 	SRC_URI+="https://github.com/ungoogled-software/${PN}/commit/$i.patch -> ${PN}-$i.patch
 	"
 done
@@ -416,9 +416,9 @@ src_prepare() {
 		eapply "${FILESDIR}/clang-15.patch"
 	fi
 
-	#* Testing UGC PRs here
+	#* Applying UGC PRs here
 	pushd "${UGC_WD}" >/dev/null
-	for i in $UGC_PR_COMMITS; do
+	for i in "${UGC_PR_COMMITS[@]}"; do
 		eapply "${DISTDIR}/${PN}-$i.patch"
 	done
 	popd >/dev/null
