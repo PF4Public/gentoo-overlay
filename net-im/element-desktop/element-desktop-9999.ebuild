@@ -14,7 +14,7 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="17"
+ELECTRON_SLOT_DEFAULT="19"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online electron-18 electron-19 native-modules"
+	IUSE="+build-online native-modules"
 else
-	IUSE="build-online electron-18 electron-19 native-modules"
+	IUSE="build-online native-modules"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -41,18 +41,12 @@ SRC_URI+="${DOWNLOAD}"
 RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE="
 	native-modules? ( build-online )
-	?? ( electron-18 electron-19 )
 "
 
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-	electron-18? ( dev-util/electron:18 )
-	electron-19? ( dev-util/electron:19 )
-	!electron-18? (
-	!electron-19? (
-		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) )
+	dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -70,13 +64,13 @@ BDEPEND="
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	if use electron-18; then
-		export ELECTRON_SLOT=18
-	elif use electron-19; then
-		export ELECTRON_SLOT=19
-	else
+	# if use electron-18; then
+	# 	export ELECTRON_SLOT=18
+	# elif use electron-19; then
+	# 	export ELECTRON_SLOT=19
+	# else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
+	# fi
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
