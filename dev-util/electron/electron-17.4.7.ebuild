@@ -1454,7 +1454,7 @@ src_prepare() {
 			"${WORKDIR}/debian/patches/ppc64le/crashpad/0001-Implement-support-for-PPC64-on-Linux.patch"
 			"${WORKDIR}/debian/patches/ppc64le/database/0001-Properly-detect-little-endian-PPC64-systems.patch"
 			"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Force-baseline-POWER8-AltiVec-VSX-CPU-features-when-.patch"
-			"${FILESDIR}/ppc64le/fixes/fix-breakpad-compile.patch"
+			"${FILESDIR}/ppc64le/fix-breakpad-compile.patch"
 			"${WORKDIR}/debian/patches/ppc64le/v8/0002-Add-ppc64-trap-instructions.patch"
 			"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Add-PPC64-support-for-libdav1d.patch"
 			"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Fix-libdav1d-compilation-on-clang-ppc.patch"
@@ -1463,7 +1463,7 @@ src_prepare() {
 			"${WORKDIR}/debian/patches/ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
 			"${WORKDIR}/debian/patches/disable/swiftshader.patch"
 			"${WORKDIR}/debian/patches/disable/swiftshader-2.patch"
-			"${FILESDIR}/ppc64le/fixes/libpng-pdfium-compile-98.patch"
+			"${FILESDIR}/ppc64le/libpng-pdfium-compile-98.patch"
 		)
 
 		#if ! use system-png; then
