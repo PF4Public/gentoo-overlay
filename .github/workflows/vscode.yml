@@ -18,8 +18,9 @@ jobs:
           - 'badge-providers insiders liveshare'
           - 'openvsx'
           - 'substitute-urls'
-          - 'electron-19'
-          - '-electron-19'
+          - 'electron-18 -electron-19'
+          - '-electron-18 electron-19'
+          - '-electron-18 -electron-19'
           - 'build-online'
 
     steps:
