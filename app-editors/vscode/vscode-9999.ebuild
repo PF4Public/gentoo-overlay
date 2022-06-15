@@ -105,6 +105,7 @@ src_prepare() {
 
 	einfo "Removing extensions/npm. Seems to be broken. PRs with fixes are always welcome."
 	rm -r extensions/npm
+	sed -i '/extensions\/npm/d' build/npm/dirs.js || die
 
 	#TODO: applicationinsights
 	# sed -i '/applicationinsights/d' package.json || die
