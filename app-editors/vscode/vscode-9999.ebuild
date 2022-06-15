@@ -103,6 +103,9 @@ src_prepare() {
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
+	einfo "Removing extensions/npm. Seems to be broken. PRs with fixes are always welcome."
+	rm -r extensions/npm
+
 	#TODO: applicationinsights
 	# sed -i '/applicationinsights/d' package.json || die
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
