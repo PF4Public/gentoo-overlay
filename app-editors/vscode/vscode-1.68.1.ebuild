@@ -2114,7 +2114,6 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/yarn
-	net-libs/nodejs
 "
 
 src_unpack() {
@@ -2152,6 +2151,9 @@ src_prepare() {
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+
+	einfo "Allowing any nodejs version"
+	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
 	#TODO: applicationinsights
 	# sed -i '/applicationinsights/d' package.json || die
@@ -2373,7 +2375,7 @@ src_compile() {
 }
 
 src_install() {
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
