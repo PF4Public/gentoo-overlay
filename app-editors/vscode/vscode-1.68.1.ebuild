@@ -2067,16 +2067,16 @@ SRC_URI="!build-online? (
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="18"
+ELECTRON_SLOT_DEFAULT="17"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-19 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-18 electron-19 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-19 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-18 electron-19 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -2097,10 +2097,12 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
+	electron-18? ( dev-util/electron:18 )
 	electron-19? ( dev-util/electron:19 )
 	!electron-19? (
+	!electron-18? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	)
+	) )
 "
 #TODO: oniguruma?
 
@@ -2118,8 +2120,8 @@ BDEPEND="
 src_unpack() {
 	if use electron-19; then
 		export ELECTRON_SLOT=19
-	# elif use electron-18; then
-	# 	export ELECTRON_SLOT=18
+	elif use electron-18; then
+	 	export ELECTRON_SLOT=18
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
