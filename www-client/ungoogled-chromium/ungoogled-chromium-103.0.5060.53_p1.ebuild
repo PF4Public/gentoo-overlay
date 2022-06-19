@@ -1238,7 +1238,7 @@ src_compile() {
 
 	pax-mark m out/Release/chrome
 
-	use enable-driver && mv out/Release/chromedriver{.unstripped,} || die
+	use enable-driver && mv out/Release/chromedriver{.unstripped,}
 
 	# Build manpage; bug #684550
 	sed -e 's|@@PACKAGE@@|chromium-browser|g;
