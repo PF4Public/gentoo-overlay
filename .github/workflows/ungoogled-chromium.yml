@@ -21,9 +21,10 @@ jobs:
           - vaapi -system-libvpx
           - vdpau
           - -official
-          - headless -X -wayland
           - wayland
         include:
+          - use: headless -X -wayland
+            experimental: true
           - use: vaapi system-libvpx
             experimental: true
           - use: system-libvpx
