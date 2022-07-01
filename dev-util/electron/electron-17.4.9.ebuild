@@ -1381,6 +1381,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 		sed -i '/cctest/Q' "patches/v8/cherry-pick-36b66b5cc991.patch" || die
 		sed -i '/cctest/Q' "patches/v8/cherry-pick-f546ac11eec7.patch" || die
+		sed -i '/cctest/Q' "patches/v8/cherry-pick-44c4e56fea2c.patch" || die
 		sed -i '/web_tests/Q' "patches/chromium/cherry-pick-a1dc371d6680.patch" || die
 		sed -i '/web_tests/Q' "patches/chromium/cherry-pick-b03797bdb1df.patch" || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
