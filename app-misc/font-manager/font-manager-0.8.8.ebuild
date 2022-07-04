@@ -51,7 +51,7 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	default
-	vala_src_prepare
+	vala_setup
 	gnome2_src_prepare
 }
 
