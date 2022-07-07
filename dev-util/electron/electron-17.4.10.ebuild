@@ -1587,10 +1587,10 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			# if	[ "$i" = "feat_add_data_parameter_to_processsingleton.patch" ]; then
-			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
-			#  	continue;
-			# fi
+			if	[ "$i" = "version_10_2_154_10_cherry-pick.patch" ]; then
+			 	einfo "Skipping ${i}: how about we do not apply it?"
+			 	continue;
+			fi
 			if [ "$i" = "sysroot.patch" ]; then
 			if use ungoogled; then
 				ewarn "Skipping ${i} due to ungoogled."
