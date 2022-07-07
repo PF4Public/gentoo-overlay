@@ -795,7 +795,7 @@ src_prepare() {
 	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 
 	if use js-type-check; then
-		mkdir -p third_party/jdk/current/bin/java || die
+		mkdir -p third_party/jdk/current/bin/ || die
 		ln -s "${EPREFIX}"/usr/bin/java third_party/jdk/current/bin/java || die
 	fi
 
