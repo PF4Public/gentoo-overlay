@@ -632,7 +632,6 @@ src_prepare() {
 		third_party/libxcb-keysyms
 		third_party/libxml/chromium
 		third_party/libyuv
-		third_party/llvm
 		third_party/lottie
 		third_party/lss
 		third_party/lzma_sdk
