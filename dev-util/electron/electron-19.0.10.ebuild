@@ -1397,7 +1397,7 @@ src_prepare() {
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 		sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
 		sed -i '/test-list/Q' "patches/node/macos_avoid_posix_spawnp_cwd_bug_3597.patch" || die
-		# sed -i '/test-embed/Q' "patches/node/feat_add_uv_loop_interrupt_on_io_change_option_to_uv_loop_configure.patch" || die
+		sed -i '/web_tests/Q' "patches/chromium/keep_handling_scroll_update_if_you_can.patch" || die
 
 		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
