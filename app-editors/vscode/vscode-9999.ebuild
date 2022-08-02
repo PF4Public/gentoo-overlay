@@ -334,11 +334,17 @@ src_compile() {
 	export PATH
 
 	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
-	
+
 	export PATH=${OLD_PATH}
 }
 
 src_install() {
+	OLD_PATH=$PATH
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
+
 	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
@@ -371,6 +377,7 @@ src_install() {
 	doins appdata/*
 
 	popd > /dev/null || die
+	export PATH=${OLD_PATH}
 }
 
 pkg_postinst() {
