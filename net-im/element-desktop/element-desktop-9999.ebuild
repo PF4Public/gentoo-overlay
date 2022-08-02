@@ -85,7 +85,10 @@ src_unpack() {
 
 src_compile() {
 	OLD_PATH=$PATH
-	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
