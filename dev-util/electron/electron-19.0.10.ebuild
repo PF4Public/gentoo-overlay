@@ -2390,8 +2390,9 @@ src_install() {
 	#	doins out/Release/swiftshader/*.so
 	#fi
 
+	insinto "${CHROMIUM_HOME}/node_modules"
 	doins -r "${WORKDIR}/${NODE_P}/deps/npm"
-	fperms -R 755 "${CHROMIUM_HOME}/npm/bin/"
+	fperms -R 755 "${CHROMIUM_HOME}/node_modules/npm/bin/"
 
 	insinto "/usr/include/electron-${PV%%.*}/"
 	doins -r out/Release/gen/node_headers/include/node
