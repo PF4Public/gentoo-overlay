@@ -150,6 +150,7 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
+	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
@@ -220,7 +221,10 @@ src_configure() {
 	ebegin "Installing node_modules"
 #	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
-	export PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
@@ -323,7 +327,15 @@ src_compile() {
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
 
+	OLD_PATH=$PATH
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
+
 	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	
+	export PATH=${OLD_PATH}
 }
 
 src_install() {
