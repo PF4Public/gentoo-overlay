@@ -2203,6 +2203,8 @@ src_prepare() {
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.js || die
 
 	einfo "Editing product.json"
 
