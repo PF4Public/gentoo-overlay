@@ -25,7 +25,7 @@ PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 PATCHSET_NAME_PPC64="chromium_102.0.5005.61-1raptor0~deb11u1.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	ppc64? ( https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PATCHSET_NAME_PPC64}.tar.xz )
+    ppc64? ( https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PATCHSET_NAME_PPC64}.tar.xz )
 "
 
 LICENSE="BSD"
