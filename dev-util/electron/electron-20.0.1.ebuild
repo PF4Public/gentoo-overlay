@@ -1423,7 +1423,6 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86.patch"
-		"${FILESDIR}/disable-GlobalMediaControlsCastStartStop.patch"
 	)
 
 	use ppc64 && PATCHES+=(
