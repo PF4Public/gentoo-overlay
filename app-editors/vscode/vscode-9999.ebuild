@@ -17,16 +17,16 @@ SRC_URI="
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="18"
+ELECTRON_SLOT_DEFAULT="19"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-19 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-20 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-19 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-20 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -47,8 +47,8 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
-	electron-19? ( dev-util/electron:19 )
-	!electron-19? (
+	electron-20? ( dev-util/electron:20 )
+	!electron-20? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	)
 "
@@ -65,8 +65,8 @@ BDEPEND="
 "
 
 src_unpack() {
-	if use electron-19; then
-		export ELECTRON_SLOT=19
+	if use electron-20; then
+		export ELECTRON_SLOT=20
 	# elif use electron-18; then
 	# 	export ELECTRON_SLOT=18
 	else
@@ -156,7 +156,7 @@ src_prepare() {
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.js || die
 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.js || die
-	
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
