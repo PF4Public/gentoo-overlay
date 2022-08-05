@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online native-modules"
+	IUSE="+build-online electron-20 native-modules"
 else
-	IUSE="build-online native-modules"
+	IUSE="build-online electron-20 native-modules"
 	KEYWORDS="~amd64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -46,7 +46,10 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-	dev-util/electron:${ELECTRON_SLOT_DEFAULT}
+	electron-20? ( dev-util/electron:20 )
+	!electron-20? (
+		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
+	)
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -64,13 +67,13 @@ BDEPEND="
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	# if use electron-18; then
-	# 	export ELECTRON_SLOT=18
+	if use electron-20; then
+		export ELECTRON_SLOT=20
 	# elif use electron-19; then
 	# 	export ELECTRON_SLOT=19
-	# else
+	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	# fi
+	fi
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
