@@ -227,6 +227,12 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
+	#TODO: remove after electron/electron#35193 is fixed
+	if use electron-20; then
+		CFLAGS="${CFLAGS} -std=c++17"
+		sed -i 's$"resolutions": {$"resolutions": {"nan": "github:jkleinsc/nan#remove_accessor_signature",$' package.json || die
+	fi
+	#TODO: remove after electron/electron#35193 is fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
