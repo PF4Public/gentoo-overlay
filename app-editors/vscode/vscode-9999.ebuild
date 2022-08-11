@@ -229,7 +229,7 @@ src_configure() {
 	export PATH
 	#TODO: remove after electron/electron#35193 is fixed
 	if use electron-20; then
-		CFLAGS="${CFLAGS} -std=c++17"
+		CPPFLAGS="${CFLAGS} -std=c++17"
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "github:jkleinsc/nan#remove_accessor_signature",$' package.json || die
 	fi
 	#TODO: remove after electron/electron#35193 is fixed
