@@ -1450,7 +1450,7 @@ src_prepare() {
 		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 	fi
 
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
+	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r3.patch"
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
