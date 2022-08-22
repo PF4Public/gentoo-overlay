@@ -35,6 +35,7 @@ COMMON_DEPEND="
 		dev-qt/designer
 		dev-qt/assistant
 		dev-qt/qtgui
+		dev-qt/qtsvg
 	)
 	png? ( media-libs/libpng:0= )
 "

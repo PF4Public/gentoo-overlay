@@ -21,7 +21,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://git.code.sf.net/p/zint/code"
 	SRC_URI=""
 else
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
 	S="${WORKDIR}/${P}-src"
 fi
@@ -35,6 +35,7 @@ COMMON_DEPEND="
 		dev-qt/designer
 		dev-qt/assistant
 		dev-qt/qtgui
+		dev-qt/qtsvg
 	)
 	png? ( media-libs/libpng:0= )
 "
