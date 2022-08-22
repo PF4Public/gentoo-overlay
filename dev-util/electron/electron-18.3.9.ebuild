@@ -1410,6 +1410,7 @@ src_prepare() {
 		# See #166
 		sed -i '/proprietary_codecs/d' build/args/all.gn || die
 		sed -i '/ffmpeg_branding/d' build/args/all.gn || die
+		sed -i '/rtc_use_h264/d' build/args/release.gn || die
 
 		if use ungoogled; then
 		# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
@@ -2076,6 +2077,7 @@ src_configure() {
 
 	ffmpeg_branding="$(usex proprietary-codecs Chrome Chromium)"
 	myconf_gn+=" proprietary_codecs=$(usex proprietary-codecs true false)"
+	myconf_gn+=" rtc_use_h264=$(usex proprietary-codecs true false)"
 	myconf_gn+=" ffmpeg_branding=\"${ffmpeg_branding}\""
 
 	local myarch="$(tc-arch)"
