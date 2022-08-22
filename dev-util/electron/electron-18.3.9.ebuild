@@ -1407,6 +1407,10 @@ src_prepare() {
 		use system-icu && NODE_CONFIG_ARGS+=", '--with-intl=system-icu'"
 		sed -i "s/'--openssl-no-asm'/$NODE_CONFIG_ARGS/" script/generate-config-gypi.py || die
 
+		# See #166
+		sed -i '/proprietary_codecs/d' build/args/all.gn || die
+		sed -i '/ffmpeg_branding/d' build/args/all.gn || die
+
 		if use ungoogled; then
 		# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
