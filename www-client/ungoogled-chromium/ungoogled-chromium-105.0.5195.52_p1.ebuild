@@ -333,7 +333,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
-		"${FILESDIR}/restore-x86.patch"
+		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/disable-GlobalMediaControlsCastStartStop.patch"
 	)
 
