@@ -31,7 +31,7 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="2"
 PATCHSET_NAME="chromium-104-patchset-${PATCHSET}"
-PATCHSET_NAME_PPC64="chromium_102.0.5005.61-1raptor0~deb11u1.debian"
+PATCHSET_NAME_PPC64="chromium_104.0.5112.101-1raptor0~deb11u1.debian"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
@@ -1163,7 +1163,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64 ~x86"
+KEYWORDS="amd64 ~ppc64 ~x86"
 IUSE="+X +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts js-type-check kerberos optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1455,10 +1455,7 @@ src_prepare() {
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-libvpx-Properly-generate-gni-on-ppc64.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-lss-Don-t-look-for-mmap2-on-ppc64.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-third_party-pffft-Include-altivec.h-on-ppc64-with-SI.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-libvpx-Add-ppc64-sources-to-gni.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0002-third_party-lss-kernel-structs.patch"
-		"${WORKDIR}/debian/patches/ppc64le/third_party/0001-Enable-third-party-libgav1-parser.patch"
-		"${WORKDIR}/debian/patches/ppc64le/webrtc/Modules-desktop_capture-differ_block.cc-PPC.patch"
 		"${WORKDIR}/debian/patches/ppc64le/webrtc/Rtc_base-system-arch.h-PPC.patch"
 		"${WORKDIR}/debian/patches/ppc64le/crashpad/0002-Include-cstddef-to-fix-build.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0004-third_party-crashpad-port-curl-transport-ppc64.patch"
@@ -1929,7 +1926,8 @@ src_prepare() {
 		# requires git and clang, bug #832803
 		sed -i -e "s|^update_readme||g; s|clang-format|${EPREFIX}/bin/true|g" \
 			generate_gni.sh || die
-		./generate_gni.sh || die
+		# had to remove || die: see https://bugs.gentoo.org/669748#c45
+		./generate_gni.sh
 		popd >/dev/null || die
 
 		pushd third_party/ffmpeg >/dev/null || die
