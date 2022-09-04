@@ -59,9 +59,11 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - 'electron-20'
           - 'build-online'
           - 'build-online native-modules'
+        include:
+          - use: 'electron-20'
+            experimental: true
 
     steps:
       - name: Check out the repo

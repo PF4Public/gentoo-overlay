@@ -62,8 +62,10 @@ jobs:
           - 'badge-providers insiders liveshare'
           - 'openvsx'
           - 'substitute-urls'
-          - 'electron-20'
           - 'build-online'
+        include:
+          - use: 'electron-20'
+            experimental: true
 
     steps:
       - name: Check out the repo
