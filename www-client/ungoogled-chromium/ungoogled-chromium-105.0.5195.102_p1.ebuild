@@ -67,7 +67,7 @@ fi
 SRC_URI+="${UGC_URL}
 "
 
-if [ ! -z "${UGC_PR_COMMITS[@]}" ]; then
+if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	for i in "${UGC_PR_COMMITS[@]}"; do
 		SRC_URI+="https://github.com/ungoogled-software/${PN}/commit/$i.patch -> ${PN}-$i.patch
 		"
@@ -417,7 +417,7 @@ src_prepare() {
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
 	#* Applying UGC PRs here
-	if [ ! -z "${UGC_PR_COMMITS[@]}" ]; then
+	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 		pushd "${UGC_WD}" >/dev/null
 		for i in "${UGC_PR_COMMITS[@]}"; do
 			eapply "${DISTDIR}/${PN}-$i.patch"
