@@ -31,7 +31,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 # KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
+IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -401,6 +401,11 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+
+	if use hevc; then
+		sed -i '/^bool IsHevcProfileSupported\(const VideoType& type\) \{$/{s++bool IsHevcProfileSupported(const VideoType& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
+			media/base/supported_types.cc || die
+	fi
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
@@ -976,6 +981,8 @@ src_configure() {
 	myconf_gn+=" enable_pdf=true"
 	myconf_gn+=" use_system_lcms2=true"
 	myconf_gn+=" enable_print_preview=true"
+	myconf_gn+=" enable_platform_hevc=$(usex hevc true false)"
+	myconf_gn+=" enable_platform_hevc_decoding=$(usex hevc true false)"
 
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
@@ -1368,6 +1375,11 @@ pkg_postinst() {
 			elog "VA-API is disabled by default at runtime. You have to enable it"
 			elog "by adding --enable-features=VaapiVideoDecoder and "
 			elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
+			elog "in /etc/chromium/default."
+		fi
+		if use hevc; then
+			elog "HEVC decoding is disabled by default at runtime. You have to enable it"
+			elog "by adding --enable-features=PlatformHEVCDecoderSupport to CHROMIUM_FLAGS"
 			elog "in /etc/chromium/default."
 		fi
 		if use screencast; then
