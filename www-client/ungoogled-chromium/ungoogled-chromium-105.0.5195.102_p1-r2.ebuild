@@ -403,7 +403,7 @@ src_prepare() {
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
 	if use hevc; then
-		sed -i '/^bool IsHevcProfileSupported\(const VideoType& type\) \{$/{s++bool IsHevcProfileSupported(const VideoType& type) \{ return true;+;h};${x;/./{x;q0};x;q1}' \
+		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
 	fi
 
