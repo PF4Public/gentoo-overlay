@@ -230,7 +230,7 @@ src_configure() {
 	#TODO: remove after electron/electron#35193 is fixed
 	if use electron-20; then
 		CPPFLAGS="${CFLAGS} -std=c++17"
-		sed -i 's$"resolutions": {$"resolutions": {"nan": "github:jkleinsc/nan#remove_accessor_signature",$' package.json || die
+		sed -i 's$"resolutions": {$"resolutions": {"nan": "github:VerteDinde/nan#deprecate_accessor_signature",$' package.json || die
 	fi
 	#TODO: remove after electron/electron#35193 is fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
