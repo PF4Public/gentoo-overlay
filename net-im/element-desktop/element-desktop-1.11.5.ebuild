@@ -1140,6 +1140,9 @@ src_compile() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 
+	einfo "Removing playwright from dependencies"
+	sed -i '/playwright":/d' package.json || die
+
 	einfo "Installing node_modules"
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
