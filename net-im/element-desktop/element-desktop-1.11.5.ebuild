@@ -1154,15 +1154,42 @@ src_compile() {
 		node /usr/bin/yarn run build:native || die
 	fi
 
-	einfo "Editing ElectronFramework.js"
-	sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
-		node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-	sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
-		node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+	# Electron-Builder doesn't support ppc64 due to using precompiled binaries
+	if ! use ppc64; then
+		einfo "Editing ElectronFramework.js"
+		sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
+			node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+		sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
+			node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
-	#!Error: With electron's node: "Unknown argument" electron/electron#25379
-	#!Error: With electron's node: "Invalid package app.asar"
-	/usr/bin/node node_modules/.bin/electron-builder --dir || die
+		#!Error: With electron's node: "Unknown argument" electron/electron#25379
+		#!Error: With electron's node: "Invalid package app.asar"
+		/usr/bin/node node_modules/.bin/electron-builder --dir || die
+	else
+		einfo "Manually preparing app.asar"
+		local distdir="dist/linux-unpacked/resources"
+		mkdir -p ${distdir}/node_modules || die
+		cp -r lib ${distdir} || die
+		# Copying yarn.lock allows freezing versions to the build versions
+		cp package.json yarn.lock ${distdir} || die
+		pushd ${distdir} &> /dev/null || die
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --production \
+			--no-progress --frozen-lockfile || die
+		popd &> /dev/null || die
+		rm ${distdir}/yarn.lock || die
+		if use native-modules; then
+			cp -r .hak/hakModules/keytar .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
+		fi
+
+		einfo "Creating archive"
+		/usr/bin/node node_modules/asar/bin/asar.js pack ${distdir} ${distdir}/app.asar \
+			--unpack-dir '{**/*.node}' || die
+		# Remove unarchived copies of files (they are still in app.asar)
+		rm -r ${distdir}/node_modules || die
+		rm -r ${distdir}/lib || die
+
+		cp -r res/img ${distdir} || die
+	fi
 
 	#cp -r /usr/share/element-web webapp
 	#rm -f webapp/config.json
