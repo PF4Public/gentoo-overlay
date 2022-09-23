@@ -415,6 +415,7 @@ src_prepare() {
 			eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 		fi
 		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
+		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r3.patch"
