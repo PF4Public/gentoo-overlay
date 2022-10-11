@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Prepare cache dir
         id: prepare
@@ -36,7 +36,7 @@ jobs:
 
       - name: Cache distfiles
         id: cache-distfiles
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Prepare cache dir
         id: prepare
@@ -92,7 +92,7 @@ jobs:
       - name: Cache distfiles
         if: ${{ ! contains( matrix.use, 'build-online') || contains( matrix.use, '-build-online')}}
         id: cache-distfiles
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
