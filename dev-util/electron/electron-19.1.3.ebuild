@@ -1410,6 +1410,7 @@ src_prepare() {
 		sed -i '/test-list/Q' "patches/node/macos_avoid_posix_spawnp_cwd_bug_3597.patch" || die
 		sed -i '/web_tests/Q' "patches/chromium/keep_handling_scroll_update_if_you_can.patch" || die
 		sed -i '/web_tests/Q' "patches/chromium/dpwa_enable_window_controls_overlay_by_default.patch" || die
+		sed -i '/web_tests/Q' "patches/chromium/cherry-pick-1eb1e18ad41d.patch" || die
 
 		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
