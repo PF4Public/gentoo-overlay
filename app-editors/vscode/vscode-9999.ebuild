@@ -227,12 +227,13 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	#TODO: remove after electron/electron#35193 is fixed
+	#TODO: remove after all related issues are fixed
 	if use electron-20; then
-		CPPFLAGS="${CFLAGS} -std=c++17"
-		sed -i 's$"resolutions": {$"resolutions": {"nan": "github:VerteDinde/nan#deprecate_accessor_signature",$' package.json || die
+        CPPFLAGS="${CPPFLAGS} -std=c++17";
+		use build-online || ewarn "build-online should be enabled for nan substitution to work";
+        sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	fi
-	#TODO: remove after electron/electron#35193 is fixed
+	#TODO: remove after all related issues are fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
