@@ -1241,7 +1241,7 @@ COMMON_SNAPSHOT_DEPEND="
 	)
 	sys-apps/pciutils:=
 	kerberos? ( virtual/krb5 )
-	vaapi? ( >=x11-libs/libva-2.7:=[X] )
+	vaapi? ( >=media-libs/libva-2.7:=[X] )
 	x11-libs/libX11:=
 	x11-libs/libXext:=
 	x11-libs/libxcb:=
