@@ -53,7 +53,7 @@ CDEPEND="
 	x11-libs/libXrender
 	x11-libs/libXtst
 	x11-libs/libxcb
-	media-libs/libva:0/2
+	media-libs/libva
 	>=net-print/cups-1.3.11
 	dev-libs/expat
 	dev-libs/glib:2
