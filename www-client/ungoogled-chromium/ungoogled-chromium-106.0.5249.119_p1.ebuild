@@ -22,15 +22,15 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET="3"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
-PATCHSET_NAME_PPC64="chromium_105.0.5195.52-1raptor0~deb11u1.debian"
+PATCHSET_NAME_PPC64="chromium_106.0.5249.103-1raptor1~deb11u2.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	ppc64? ( https://ppa.quickbuild.io/raptor-engineering-public/chromium/ubuntu/pool/main/c/chromium/${PATCHSET_NAME_PPC64}.tar.xz )
+	ppc64? ( https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz )
 "
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -382,6 +382,9 @@ src_prepare() {
 		"${WORKDIR}/debian/patches/ppc64le/sandbox/fix-ppc64-linux-syscalls-headers.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/0003-thirdparty-fix-dav1d-gn.patch"
 		"${WORKDIR}/debian/patches/ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/dawn-fix-typos.patch"
+		"${WORKDIR}/debian/patches/ppc64le/third_party/dawn-fix-ppc64le-detection.patch"
+		"${WORKDIR}/debian/patches/ppc64le/workarounds/HACK-debian-clang-disable-skia-musttail.patch"
 		"${FILESDIR}/ppc64le/libpng-pdfium-compile-98.patch"
 		"${FILESDIR}/ppc64le/fix-swiftshader-compile.patch"
 	)
@@ -793,8 +796,7 @@ src_prepare() {
 		# requires git and clang, bug #832803
 		sed -i -e "s|^update_readme||g; s|clang-format|${EPREFIX}/bin/true|g" \
 			generate_gni.sh || die
-		# had to remove || die: see https://bugs.gentoo.org/669748#c45
-		./generate_gni.sh
+		./generate_gni.sh || die
 		popd >/dev/null || die
 
 		pushd third_party/ffmpeg >/dev/null || die
