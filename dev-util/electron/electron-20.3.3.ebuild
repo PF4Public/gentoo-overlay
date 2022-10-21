@@ -1629,7 +1629,7 @@ src_prepare() {
 			# eapply "${S}/${patch_folder}/$i" || die
 			# popd > /dev/null || die
 			pushd "${patches[$patch_folder]}" > /dev/null || die
-			ebegin "Applying $i"
+			ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				-p1 < "${S}/${patch_folder}/$i"
