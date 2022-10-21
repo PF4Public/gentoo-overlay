@@ -1392,9 +1392,6 @@ src_prepare() {
 	popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
-		# sed -i '/test-list/Q' "patches/node/process_monitor_for_exit_with_kqueue_on_bsds_3441.patch" || die
-		# sed -i '/test-list/Q' "patches/node/macos_avoid_posix_spawnp_cwd_bug_3597.patch" || die
-		# sed -i '/web_tests/Q' "patches/chromium/dpwa_enable_window_controls_overlay_by_default.patch" || die
 		# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-1eb1e18ad41d.patch" || die
 
 		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
@@ -1415,7 +1412,8 @@ src_prepare() {
 		sed -i '/rtc_use_h264/d' build/args/release.gn || die
 
 		if use ungoogled; then
-		# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
+			# sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
+			sed -i "s/https/trk:173:https/" "patches/chromium/feat_add_support_for_overriding_the_base_spellchecker_download_url.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
@@ -1631,9 +1629,11 @@ src_prepare() {
 			# eapply "${S}/${patch_folder}/$i" || die
 			# popd > /dev/null || die
 			pushd "${patches[$patch_folder]}" > /dev/null || die
+			ebegin "Applying $i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
-				-p1 < "${S}/${patch_folder}/$i" || die
+				-p1 < "${S}/${patch_folder}/$i"
+			eend $? || die
 			popd > /dev/null || die
 		done
 	done
