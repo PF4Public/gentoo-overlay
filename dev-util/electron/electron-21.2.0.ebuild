@@ -1600,9 +1600,11 @@ src_prepare() {
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
 		["electron/patches/devtools_frontend"]="third_party/devtools-frontend/src"
+		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
+		["electron/patches/nan"]="third_party/nan"
 		["electron/patches/perfetto"]="third_party/perfetto"
 	)
 	for patch_folder in "${!patches[@]}";
@@ -1628,11 +1630,12 @@ src_prepare() {
 			#  	continue;
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
-			[ "$i" = "build_disable_print_content_analysis.patch" ] ; then
-			if use ungoogled; then
-				ewarn "Skipping ${i} due to ungoogled."
-				continue;
-			fi
+				[ "$i" = "build_disable_print_content_analysis.patch" ] ||
+				[ "$i" = "fix_the_gn_gen_for_components_segmentation_platform.patch" ] ; then
+				if use ungoogled; then
+					ewarn "Skipping ${i} due to ungoogled."
+					continue;
+				fi
 			fi
 			# if [ "$i" = "fix_preserve_proper_method_names_as-is_in_error_stack.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
