@@ -1604,7 +1604,6 @@ src_prepare() {
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
-		["electron/patches/nan"]="third_party/nan"
 		["electron/patches/perfetto"]="third_party/perfetto"
 	)
 	for patch_folder in "${!patches[@]}";
