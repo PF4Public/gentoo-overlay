@@ -24,9 +24,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-20 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-20 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -48,9 +48,11 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
 	electron-20? ( dev-util/electron:20 )
+	electron-21? ( dev-util/electron:21 )
 	!electron-20? (
+	!electron-21? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	)
+	) )
 "
 #TODO: oniguruma?
 
@@ -67,8 +69,8 @@ BDEPEND="
 src_unpack() {
 	if use electron-20; then
 		export ELECTRON_SLOT=20
-	# elif use electron-18; then
-	# 	export ELECTRON_SLOT=18
+	elif use electron-21; then
+		export ELECTRON_SLOT=21
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -228,9 +230,9 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	#TODO: remove after all related issues are fixed
-	if use electron-20; then
+	if use electron-20 ||use electron-21 ; then
         CPPFLAGS="${CPPFLAGS} -std=c++17";
-		use build-online || ewarn "build-online should be enabled for nan substitution to work";
+		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
         sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	fi
 	#TODO: remove after all related issues are fixed
