@@ -85,8 +85,7 @@ CDEPEND="
 	media-libs/flac
 	>=media-libs/libwebp-0.4.0
 	sys-libs/zlib[minizip]
-	>=app-accessibility/at-spi2-atk-2.26:2
-	>=dev-libs/atk-2.26
+	app-accessibility/at-spi2-core
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
 	dev-libs/jsoncpp:0/25
