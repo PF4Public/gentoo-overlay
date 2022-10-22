@@ -38,6 +38,7 @@
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
+		<flag name="system-av1">Use the system <pkg>media-libs/libaom</pkg> and <pkg>media-libs/dav1d</pkg> instead of the bundled ones</flag>
 		<flag name="system-ffmpeg">Use the system <pkg>media-video/ffmpeg</pkg> instead of the bundled one</flag>
 		<flag name="system-harfbuzz">Use the system <pkg>media-libs/harfbuzz</pkg> instead of the bundled one</flag>
 		<flag name="system-icu">Use the system <pkg>dev-libs/icu</pkg> instead of the bundled one</flag>

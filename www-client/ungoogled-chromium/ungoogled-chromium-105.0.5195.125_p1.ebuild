@@ -152,7 +152,7 @@ COMMON_DEPEND="
 	sys-libs/zlib:=[minizip]
 	!headless? (
 		X? ( ${COMMON_X_DEPEND} )
-		>=app-accessibility/at-spi2-core-2.26:2
+		app-accessibility/at-spi2-core
 		media-libs/mesa:=[X?,wayland?]
 		cups? ( >=net-print/cups-1.3.11:= )
 		virtual/udev
