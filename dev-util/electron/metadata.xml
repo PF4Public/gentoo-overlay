@@ -18,6 +18,7 @@
 		<flag name="dev-dependencies">Keep Electron's devDependencies. This makes them available in node_modules. For example "asar" utility is one of them.</flag>
 		<flag name="gtk4">Build with GTK4 headers.</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
+		<flag name="hevc">Enable HEVC decoding support. Should work with system-ffmpeg, but might require additional patching for the built-in one.</flag>
 		<flag name="js-type-check">Enable JavaScript type-checking for Chrome's web technology-based UI. Requires Java.</flag>
 		<flag name="optimize-thinlto">Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on can substantially increase link time and binary size, but they generally also make binaries a fair bit faster.</flag>
 		<flag name="optimize-webui">Optimize parts of Chromium's UI written with web technologies (HTML/CSS/JS) for runtime performance purposes. This does more work at compile time for speed benefits at runtime.</flag>
