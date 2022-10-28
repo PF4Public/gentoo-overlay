@@ -31,7 +31,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
+IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 reuse-work screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -320,6 +320,22 @@ pkg_setup() {
 }
 
 src_unpack() {
+	if use reuse-work; then
+		if [ ! -d ${WORKDIR}/chromium-* ]; then
+			array=( $(find "${PORTAGE_TMPDIR}/portage/${CATEGORY}/" -maxdepth 1 -type d -name "${PN}-*" -print| sort -r) )
+			for i in "${array[@]}"; do
+				if [[ $i == *${PVR}* ]] ; then continue; fi
+				if [ -d ${i}/work/chromium-* ]; then
+					mv ${i}/work/chromium-* ${WORKDIR}/chromium-${PV%%_*}
+					rm -rf ${i}
+					rm ${WORKDIR}/chromium-${PV%%_*}/buildtools/third_party/eu-strip/bin/eu-strip
+					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/jdk/current/bin/java
+					break
+				fi
+			done
+		fi
+	fi
+
 	default
 }
 
