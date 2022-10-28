@@ -319,6 +319,10 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+	default
+}
+
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
