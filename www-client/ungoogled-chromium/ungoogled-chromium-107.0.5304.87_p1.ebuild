@@ -330,6 +330,7 @@ src_unpack() {
 					rm -rf ${i}
 					rm ${WORKDIR}/chromium-${PV%%_*}/buildtools/third_party/eu-strip/bin/eu-strip
 					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/jdk/current/bin/java
+					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/node/linux/node-linux-x64/bin/node
 					break
 				fi
 			done
