@@ -327,10 +327,23 @@ src_unpack() {
 				if [[ $i == *${PVR}* ]] ; then continue; fi
 				if [ -d ${i}/work/chromium-* ]; then
 					mv ${i}/work/chromium-* ${WORKDIR}/chromium-${PV%%_*}
+					pushd "${S}" > /dev/null || die
+						rm buildtools/third_party/eu-strip/bin/eu-strip
+						rm third_party/jdk/current/bin/java
+						rm third_party/node/linux/node-linux-x64/bin/node
+
+						ebegin "Reverting domain substitution"
+						"${UGC_WD}/utils/domain_substitution.py" -q revert . -c build/domsubcache.tar.gz
+						eend $? || die
+
+						einfo "Reverting ungoogled-chromium patches"
+						readarray -t topatch < $(tac ${i}/work/ungoogled-chromium-*/patches/series)
+						for y in "${topatch[@]}"; do
+							patch -Rup1 -i "${i}/work/ungoogled-chromium-*/patches/${y}" || die
+						done
+
+					popd > /dev/null || die
 					rm -rf ${i}
-					rm ${WORKDIR}/chromium-${PV%%_*}/buildtools/third_party/eu-strip/bin/eu-strip
-					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/jdk/current/bin/java
-					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/node/linux/node-linux-x64/bin/node
 					break
 				fi
 			done
