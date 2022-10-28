@@ -321,18 +321,20 @@ pkg_setup() {
 
 src_unpack() {
 	if use reuse-work; then
-		array=( $(find "${PORTAGE_TMPDIR}/portage/${CATEGORY}/" -maxdepth 1 -type d -name "${PN}-*" -print| sort -r) )
-		for i in "${array[@]}"; do
-			if [[ $i == *${PVR}* ]] ; then continue; fi
-			if [ -d ${i}/work/chromium-* ]; then
-				mv ${i}/work/chromium-* ${WORKDIR}/chromium-${PV%%_*}
-				rm -rf ${i}
-				rm ${WORKDIR}/chromium-${PV%%_*}/buildtools/third_party/eu-strip/bin/eu-strip
-				rm ${WORKDIR}/chromium-${PV%%_*}/third_party/jdk/current/bin/java
-				rm ${WORKDIR}/chromium-${PV%%_*}/third_party/node/linux/node-linux-x64/bin/node
-				break
-			fi
-		done
+		if [ ! -d ${WORKDIR}/chromium-* ]; then
+			array=( $(find "${PORTAGE_TMPDIR}/portage/${CATEGORY}/" -maxdepth 1 -type d -name "${PN}-*" -print| sort -r) )
+			for i in "${array[@]}"; do
+				if [[ $i == *${PVR}* ]] ; then continue; fi
+				if [ -d ${i}/work/chromium-* ]; then
+					mv ${i}/work/chromium-* ${WORKDIR}/chromium-${PV%%_*}
+					rm -rf ${i}
+					rm ${WORKDIR}/chromium-${PV%%_*}/buildtools/third_party/eu-strip/bin/eu-strip
+					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/jdk/current/bin/java
+					rm ${WORKDIR}/chromium-${PV%%_*}/third_party/node/linux/node-linux-x64/bin/node
+					break
+				fi
+			done
+		fi
 	fi
 
 	default
