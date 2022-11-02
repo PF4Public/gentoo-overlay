@@ -2043,7 +2043,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="badge-providers +build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
 else
 	IUSE="badge-providers build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
 	then
