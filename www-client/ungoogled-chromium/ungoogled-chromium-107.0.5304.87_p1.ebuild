@@ -250,19 +250,20 @@ python_check_deps() {
 }
 
 pre_build_checks() {
-	if [[ ${MERGE_TYPE} != binary ]]; then
-		local -x CPP="$(tc-getCXX) -E"
-		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
-			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
-		fi
-		if use clang || tc-is-clang; then
-			tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
-			CPP+=" -E"
-			if ! ver_test "$(clang-major-version)" -ge 12; then
-				[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
-			fi
-		fi
-	fi
+	# Commented due to #86
+	# if [[ ${MERGE_TYPE} != binary ]]; then
+	# 	local -x CPP="$(tc-getCXX) -E"
+	# 	if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
+	# 		[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
+	# 	fi
+	# 	if use clang || tc-is-clang; then
+	# 		tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
+	# 		CPP+=" -E"
+	# 		if ! ver_test "$(clang-major-version)" -ge 12; then
+	# 			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
+	# 		fi
+	# 	fi
+	# fi
 
 	# Check build requirements, bug #541816 and bug #471810 .
 	CHECKREQS_MEMORY="4G"
