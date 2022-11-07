@@ -40,6 +40,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	ungoogled? (
 		https://github.com/ungoogled-software/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
+	https://github.com/chromium/chromium/commit/d7a5d6b38ea87fcc742a05bb7e1d0b6c937bd9c6.patch -> ${PN}-d7a5d6b38ea87fcc742a05bb7e1d0b6c937bd9c6.patch
 
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
@@ -1450,6 +1451,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86.patch"
+		"${DISTDIR}/${PN}-d7a5d6b38ea87fcc742a05bb7e1d0b6c937bd9c6.patch"
 	)
 
 	use ppc64 && PATCHES+=(
