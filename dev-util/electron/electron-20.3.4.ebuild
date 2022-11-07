@@ -1305,19 +1305,19 @@ python_check_deps() {
 }
 
 pre_build_checks() {
-	if [[ ${MERGE_TYPE} != binary ]]; then
-		local -x CPP="$(tc-getCXX) -E"
-		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
-			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
-		fi
-		if use clang || tc-is-clang; then
-			tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
-			CPP+=" -E"
-			if ! ver_test "$(clang-major-version)" -ge 12; then
-				[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
-			fi
-		fi
-	fi
+	# if [[ ${MERGE_TYPE} != binary ]]; then
+	# 	local -x CPP="$(tc-getCXX) -E"
+	# 	if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
+	# 		[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
+	# 	fi
+	# 	if use clang || tc-is-clang; then
+	# 		tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
+	# 		CPP+=" -E"
+	# 		if ! ver_test "$(clang-major-version)" -ge 12; then
+	# 			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
+	# 		fi
+	# 	fi
+	# fi
 
 	# Check build requirements, bug #541816 and bug #471810 .
 	CHECKREQS_MEMORY="4G"
@@ -1399,6 +1399,11 @@ src_prepare() {
 
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
+
+		#? Funny, huh?
+		sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
+			script/lib/get-version.js || die
+		mkdir -p .git/packed-refs .git/HEAD;
 
 		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
 		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
