@@ -96,6 +96,8 @@ CDEPEND="
 	dev-libs/re2
 	media-libs/openh264
 	=dev-libs/icu-71*:0
+	media-libs/libaom
+	media-libs/dav1d
 "
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
