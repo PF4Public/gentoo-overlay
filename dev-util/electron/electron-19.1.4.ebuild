@@ -1431,6 +1431,7 @@ src_prepare() {
 		if use ungoogled; then
 		# 	sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
 			sed -i "s/https/trk:173:https/" "patches/chromium/feat_add_support_for_overriding_the_base_spellchecker_download_url.patch" || die
+			sed -i "s/shuuran@chromium\.org/shuuran@ch40m1um.qjz9zk/" "patches/chromium/feat_move_firstpartysets_to_content_browser_client.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
