@@ -1319,19 +1319,19 @@ python_check_deps() {
 }
 
 pre_build_checks() {
-	if [[ ${MERGE_TYPE} != binary ]]; then
-		local -x CPP="$(tc-getCXX) -E"
-		if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
-			[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
-		fi
-		if use clang || tc-is-clang; then
-			tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
-			CPP+=" -E"
-			if ! ver_test "$(clang-major-version)" -ge 12; then
-				[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
-			fi
-		fi
-	fi
+	# if [[ ${MERGE_TYPE} != binary ]]; then
+	# 	local -x CPP="$(tc-getCXX) -E"
+	# 	if tc-is-gcc && ! ver_test "$(gcc-version)" -ge 9.2; then
+	# 		[[ -z "${NODIE}" ]] && die "At least gcc 9.2 is required"
+	# 	fi
+	# 	if use clang || tc-is-clang; then
+	# 		tc-is-cross-compiler && CPP=${CBUILD}-clang++ || CPP=${CHOST}-clang++
+	# 		CPP+=" -E"
+	# 		if ! ver_test "$(clang-major-version)" -ge 12; then
+	# 			[[ -z "${NODIE}" ]] && die "At least clang 12 is required"
+	# 		fi
+	# 	fi
+	# fi
 
 	# Check build requirements, bug #541816 and bug #471810 .
 	CHECKREQS_MEMORY="4G"
@@ -1611,6 +1611,7 @@ src_prepare() {
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/perfetto"]="third_party/perfetto"
+		["electron/patches/skia"]="third_party/skia"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
@@ -1652,9 +1653,11 @@ src_prepare() {
 			# eapply "${S}/${patch_folder}/$i" || die
 			# popd > /dev/null || die
 			pushd "${patches[$patch_folder]}" > /dev/null || die
+			ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
-				-p1 < "${S}/${patch_folder}/$i" || die
+				-p1 < "${S}/${patch_folder}/$i"
+			eend $? || die
 			popd > /dev/null || die
 		done
 	done
