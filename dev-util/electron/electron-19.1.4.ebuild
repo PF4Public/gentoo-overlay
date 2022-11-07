@@ -1420,7 +1420,9 @@ src_prepare() {
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
 		#? Funny, huh?
-		sed -i "s/cached_electron_version = None/cached_electron_version = '${PV}'/" script/lib/util.py || die
+		sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
+			script/lib/get-version.js || die
+
 		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
 		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
 		use system-icu && NODE_CONFIG_ARGS+=", '--with-intl=system-icu'"
