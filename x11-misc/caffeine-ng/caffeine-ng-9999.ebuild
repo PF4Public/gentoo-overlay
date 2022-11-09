@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Taken from Jorgicio's Gentoo overlay and modified
@@ -7,10 +7,10 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{8..10} )
 
-inherit distutils-r1 gnome2-utils
+inherit distutils-r1 gnome2 meson
 
 DESCRIPTION="Stop the desktop from becoming idle in full-screen mode. (Fork of Caffeine)"
-HOMEPAGE="https://github.com/caffeine-ng/caffeine-ng"
+HOMEPAGE="https://codeberg.org/WhyNotHugo/caffeine-ng"
 
 if [[ ${PV} == 9999 ]];then
 	inherit git-r3
@@ -18,7 +18,7 @@ if [[ ${PV} == 9999 ]];then
 	KEYWORDS=""
 	EGIT_REPO_URI="${HOMEPAGE}.git"
 else
-	SRC_URI="${HOMEPAGE}/releases/download/v${PV}/${P}.tar.gz"
+	SRC_URI="${HOMEPAGE}/archive/v${PV}/${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
 fi
 
@@ -44,17 +44,3 @@ DEPEND="
 "
 RDEPEND="${DEPEND}
 	!x11-misc/caffeine"
-
-pkg_preinst(){
-	gnome2_schemas_savelist
-}
-
-pkg_postinst(){
-	gnome2_gconf_install
-	gnome2_schemas_update
-}
-
-pkg_postrm(){
-	gnome2_gconf_uninstall
-	gnome2_schemas_update
-}
