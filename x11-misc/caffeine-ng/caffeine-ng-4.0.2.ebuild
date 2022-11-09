@@ -15,11 +15,11 @@ HOMEPAGE="https://codeberg.org/WhyNotHugo/caffeine-ng"
 if [[ ${PV} == 9999 ]];then
 	inherit git-r3
 	SRC_URI=""
-	KEYWORDS=""
+	KEYWORDS="amd64 x86"
 	EGIT_REPO_URI="${HOMEPAGE}.git"
 else
 	SRC_URI="https://files.pythonhosted.org/packages/source/c/caffeine-ng/caffeine-ng-4.0.2.tar.gz"
-	KEYWORDS="~amd64 ~arm ~x86"
+	KEYWORDS="amd64 x86"
 	# S="${WORKDIR}/${PN}"
 fi
 
