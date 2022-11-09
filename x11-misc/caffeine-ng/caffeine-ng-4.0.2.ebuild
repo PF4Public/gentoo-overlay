@@ -18,9 +18,9 @@ if [[ ${PV} == 9999 ]];then
 	KEYWORDS=""
 	EGIT_REPO_URI="${HOMEPAGE}.git"
 else
-	SRC_URI="${HOMEPAGE}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://files.pythonhosted.org/packages/source/c/caffeine-ng/caffeine-ng-4.0.2.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
-	S="${WORKDIR}/${PN}"
+	# S="${WORKDIR}/${PN}"
 fi
 
 LICENSE="GPL-3"
