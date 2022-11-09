@@ -26,6 +26,8 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE=""
 
+S="${WORKDIR}/${PN}"
+
 DEPEND="
 	${PYTHON_DEPS}
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
