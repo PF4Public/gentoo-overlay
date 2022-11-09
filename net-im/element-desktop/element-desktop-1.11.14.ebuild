@@ -986,7 +986,7 @@ else
 		S="${WORKDIR}/${PN}-${ELEMENT_COMMIT_ID}"
 	fi
 fi
-
+ 
 SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
