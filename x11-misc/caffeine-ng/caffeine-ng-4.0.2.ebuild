@@ -20,13 +20,12 @@ if [[ ${PV} == 9999 ]];then
 else
 	SRC_URI="${HOMEPAGE}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
+	S="${WORKDIR}/${PN}"
 fi
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE=""
-
-S="${WORKDIR}/${PN}"
 
 DEPEND="
 	${PYTHON_DEPS}
