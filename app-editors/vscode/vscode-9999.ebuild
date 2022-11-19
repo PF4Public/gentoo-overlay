@@ -78,9 +78,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-21; then
-				EGIT_BRANCH="electron-22.x.y"
-			fi
+			# if use electron-22; then
+			# 	EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
+			# fi
 			git-r3_src_unpack
 		fi
 	else
@@ -232,7 +232,7 @@ src_configure() {
 	#TODO: -std=c++17 should probably go to a gypi file?
 	if use electron-20 || use electron-21 ; then
         CPPFLAGS="${CPPFLAGS} -std=c++17";
-		if use electron-20; then
+		if use electron-20 || use electron-21 ; then
 			use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 			sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 		fi
