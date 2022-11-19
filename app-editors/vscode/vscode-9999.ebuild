@@ -229,12 +229,14 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	#TODO: remove after all related issues are fixed
-	# if use electron-20 ||use electron-21 ; then
-    #     CPPFLAGS="${CPPFLAGS} -std=c++17";
-	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-    #     sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	# fi
+	#TODO: -std=c++17 should probably go to a gypi file?
+	if use electron-20 || use electron-21 ; then
+        CPPFLAGS="${CPPFLAGS} -std=c++17";
+		if use electron-20; then
+			use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
+			sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
+		fi
+	fi
 	#TODO: remove after all related issues are fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
