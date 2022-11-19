@@ -78,9 +78,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			# if use electron-18; then
-			# 	EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
-			# fi
+			if use electron-21; then
+				EGIT_BRANCH="electron-22.x.y"
+			fi
 			git-r3_src_unpack
 		fi
 	else
@@ -230,11 +230,11 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	#TODO: remove after all related issues are fixed
-	if use electron-20 ||use electron-21 ; then
-        CPPFLAGS="${CPPFLAGS} -std=c++17";
-		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-        sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	fi
+	# if use electron-20 ||use electron-21 ; then
+    #     CPPFLAGS="${CPPFLAGS} -std=c++17";
+	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
+    #     sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
+	# fi
 	#TODO: remove after all related issues are fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
