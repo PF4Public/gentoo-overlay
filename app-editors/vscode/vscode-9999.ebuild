@@ -222,26 +222,24 @@ src_configure() {
 		die "Failed to determine target arch, got '$myarch'."
 	fi
 
+	#TODO: should work starting with electron-22
+	if use electron-20 || use electron-21 ; then
+		CPPFLAGS="${CPPFLAGS} -std=c++17";
+		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
+		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
+	fi
+
 	ebegin "Installing node_modules"
-#	yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	#TODO: -std=c++17 should probably go to a gypi file?
-	if use electron-20 || use electron-21 ; then
-        CPPFLAGS="${CPPFLAGS} -std=c++17";
-		if use electron-20 || use electron-21 ; then
-			use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-			sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-		fi
-	fi
-	#TODO: remove after all related issues are fixed
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-#	echo "$PATH"
+	# echo "$PATH"
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	if ! use build-online
@@ -251,12 +249,12 @@ src_configure() {
 	fi
 	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
-#--ignore-optional
-#--ignore-engines
-#--production=true
-#--no-progress
-#--skip-integrity-check
-#--verbose
+	# --ignore-optional
+	# --ignore-engines
+	# --production=true
+	# --no-progress
+	# --skip-integrity-check
+	# --verbose
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die # workaround md4 see https://github.com/webpack/webpack/issues/14560
 
 	export PATH=${OLD_PATH}
