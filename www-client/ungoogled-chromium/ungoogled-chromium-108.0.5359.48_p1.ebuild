@@ -970,7 +970,7 @@ src_configure() {
 	myconf_gn+=" use_system_lcms2=true"
 	myconf_gn+=" enable_print_preview=true"
 	myconf_gn+=" enable_platform_hevc=$(usex hevc true false)"
-	myconf_gn+=" enable_platform_hevc_decoding=$(usex hevc true false)"
+	myconf_gn+=" enable_hevc_parser_and_hw_decoder=$(usex hevc true false)"
 
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
