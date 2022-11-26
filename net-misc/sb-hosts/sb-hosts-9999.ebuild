@@ -7,7 +7,7 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/StevenBlack/hosts.git"
 	SRC_URI=""
-	KEYWORDS="~amd64 ~x86"
+	# KEYWORDS="~amd64 ~x86"
 else
 	SRC_URI="https://github.com/StevenBlack/hosts/archive/${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="amd64 x86"
