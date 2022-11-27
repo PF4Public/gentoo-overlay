@@ -5,8 +5,8 @@
 		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
 	<upstream>
-		<remote-id type="github">Eloston/ungoogled-chromium</remote-id>
-		<bugs-to>https://github.com/Eloston/ungoogled-chromium/issues</bugs-to>
+		<remote-id type="github">ungoogled-software/ungoogled-chromium</remote-id>
+		<bugs-to>https://github.com/ungoogled-software/ungoogled-chromium</bugs-to>
 		<doc>https://ungoogled-software.github.io/ungoogled-chromium-wiki/</doc>
 	</upstream>
 	<longdescription>

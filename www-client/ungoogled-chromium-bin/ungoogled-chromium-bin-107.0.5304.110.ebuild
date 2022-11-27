@@ -10,7 +10,7 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 inherit chromium-2 desktop readme.gentoo-r1 xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
-HOMEPAGE="https://www.chromium.org/Home https://github.com/Eloston/ungoogled-chromium"
+HOMEPAGE="https://www.chromium.org/Home https://github.com/ungoogled-software/ungoogled-chromium"
 DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
 	core2? (
