@@ -3,7 +3,7 @@
 
 # Taken from Jorgicio's Gentoo overlay and modified
 
-EAPI=7
+EAPI=8
 
 inherit cmake desktop
 
