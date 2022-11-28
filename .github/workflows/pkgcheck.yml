@@ -33,4 +33,4 @@ jobs:
             modified: ${{ steps.files.outputs.modified }}
             tool: pkgcheck
             action: scan
-            params: -v
+            params: -v --exit error
