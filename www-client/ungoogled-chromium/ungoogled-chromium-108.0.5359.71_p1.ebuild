@@ -44,6 +44,7 @@ REQUIRED_USE="
 	x86? ( !thinlto !widevine )
 	screencast? ( wayland )
 	!headless ( || ( X wayland ) )
+	!proprietary-codecs? ( !hevc )
 "
 
 UGC_COMMIT_ID="159a0e654b5b30f4926c31f611c901a946f2ea30"
@@ -974,7 +975,7 @@ src_configure() {
 
 	# Ungoogled flags
 	myconf_gn+=" enable_mdns=false"
-	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=true"
+	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
 	myconf_gn+=" enable_reporting=false"
