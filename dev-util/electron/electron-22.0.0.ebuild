@@ -40,7 +40,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	ungoogled? (
 		https://github.com/ungoogled-software/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
-	
+
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz
 	https://registry.yarnpkg.com/acorn/-/acorn-7.3.1.tgz
@@ -986,7 +986,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="~amd64 ~arm64 ~x86"
-IUSE="+X +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc js-type-check kerberos optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
+IUSE="+X +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc js-type-check kerberos optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1087,10 +1087,6 @@ COMMON_DEPEND="
 	x11-libs/cairo:=
 	x11-libs/gdk-pixbuf:2
 	x11-libs/pango:=
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtwidgets:5
-	)
 "
 RDEPEND="${COMMON_DEPEND}
 	|| (
@@ -2108,8 +2104,6 @@ src_configure() {
 	myconf_gn+=" use_system_libdrm=true"
 	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_xkbcommon=true"
-	use qt5 && export PATH="${PATH}:$(qt5_get_bindir)"
-	myconf_gn+=" use_qt=$(usex qt5 true false)"
 	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
 	myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
 	myconf_gn+=" ozone_platform=$(usex wayland \"wayland\" \"x11\")"
