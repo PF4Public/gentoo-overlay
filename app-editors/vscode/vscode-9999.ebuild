@@ -24,9 +24,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-20 electron-21 electron-22 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-20 electron-21 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-20 electron-21 electron-22 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -49,10 +49,12 @@ COMMON_DEPEND="
 	sys-apps/ripgrep
 	electron-20? ( dev-util/electron:20 )
 	electron-21? ( dev-util/electron:21 )
+	electron-22? ( dev-util/electron:22 )
 	!electron-20? (
 	!electron-21? (
+	!electron-22? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) )
+	) ) )
 "
 #TODO: oniguruma?
 
@@ -71,6 +73,8 @@ src_unpack() {
 		export ELECTRON_SLOT=20
 	elif use electron-21; then
 		export ELECTRON_SLOT=21
+	elif use electron-22; then
+		export ELECTRON_SLOT=22
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -78,9 +82,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			# if use electron-22; then
-			# 	EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
-			# fi
+			if use electron-22; then
+				EGIT_BRANCH="electron-$ELECTRON_SLOT.x.y"
+			fi
 			git-r3_src_unpack
 		fi
 	else
@@ -255,7 +259,11 @@ src_configure() {
 	# --no-progress
 	# --skip-integrity-check
 	# --verbose
-	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die # workaround md4 see https://github.com/webpack/webpack/issues/14560
+
+	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
+	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
+	# For webpack >= 5.61.0
+	# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 
 	export PATH=${OLD_PATH}
 
