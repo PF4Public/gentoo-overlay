@@ -1772,10 +1772,13 @@ src_configure() {
 
 	ebegin "Installing node_modules"
 	pushd electron > /dev/null || die
-	yarn config set disable-self-update-check true || die
-	yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	yarn install --frozen-lockfile --offline --no-progress || die
-	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die # workaround md4 see https://github.com/webpack/webpack/issues/14560
+		yarn config set disable-self-update-check true || die
+		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		yarn install --frozen-lockfile --offline --no-progress || die
+		# Workaround md4 see https://github.com/webpack/webpack/issues/14560
+		find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
+		# For webpack >= 5.61.0
+		sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 	popd > /dev/null || die
 	eend $? || die
 
