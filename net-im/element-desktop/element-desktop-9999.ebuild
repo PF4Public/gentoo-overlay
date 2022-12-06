@@ -48,7 +48,7 @@ COMMON_DEPEND="
 	native-modules? ( dev-db/sqlcipher )
 	electron-20? ( dev-util/electron:20 )
 	electron-21? ( dev-util/electron:21 )
-	electron-22? ( dev-util/electron:21 )
+	electron-22? ( dev-util/electron:22 )
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
