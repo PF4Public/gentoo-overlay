@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
-KEYWORDS="~alpha hppa ~ia64 ~m68k ~mips ppc ~s390 sparc"
+KEYWORDS="~m68k ~mips ppc ~s390"
 
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
