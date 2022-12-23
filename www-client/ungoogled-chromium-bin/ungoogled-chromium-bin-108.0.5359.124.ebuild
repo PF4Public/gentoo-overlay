@@ -39,7 +39,7 @@ IUSE="convert-dict core2 +generic haswell widevine"
 REQUIRED_USE="
 	^^ ( core2 generic haswell )
 	x86? ( !core2 !haswell !widevine )
-	widevine ( !core2 !haswell )
+	widevine? ( !core2 !haswell )
 "
 
 CDEPEND="
