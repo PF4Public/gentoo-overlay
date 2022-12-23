@@ -34,11 +34,12 @@ RESTRICT="mirror"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="convert-dict core2 +generic haswell"
+IUSE="convert-dict core2 +generic haswell widevine"
 
 REQUIRED_USE="
 	^^ ( core2 generic haswell )
-	x86? ( !core2 !haswell )
+	x86? ( !core2 !haswell !widevine )
+	widevine ( !core2 !haswell )
 "
 
 CDEPEND="
@@ -133,6 +134,15 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 QA_PREBUILT="*"
 S="${WORKDIR}"
 
+pkg_pretend() {
+	if ! use widevine && ! use core2 && ! use haswell; then
+		ewarn
+		ewarn "widevine was enabled in this build"
+		ewarn "If you think this is a mistake let me know in #193"
+		ewarn
+	fi
+}
+
 src_install() {
 	local CHROMIUM_HOME="/opt/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
@@ -202,6 +212,11 @@ pkg_postinst() {
 	elog "by adding --enable-features=VaapiVideoDecoder and "
 	elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
 	elog "in /etc/chromium/default."
+
+	if use widevine; then
+		elog "widevine requires binary plugins, which are distributed separately"
+		elog "Make sure you have www-plugins/chrome-binary-plugins installed"
+	fi
 
 	xdg_icon_cache_update
 	xdg_desktop_database_update
