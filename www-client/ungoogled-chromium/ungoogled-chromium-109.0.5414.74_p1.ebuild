@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -30,7 +30,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc js-type-check kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi vdpau wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -47,7 +47,7 @@ REQUIRED_USE="
 	!proprietary-codecs? ( !hevc )
 "
 
-UGC_COMMIT_ID="8d48a884504c5184a9197f9128ffae8b7f106032"
+# UGC_COMMIT_ID="8d48a884504c5184a9197f9128ffae8b7f106032"
 # UGC_PR_COMMITS=(
 # 	f2fbbb954431dcb4f1a62779053692fa2b5c7971
 # 	08aaf6a0c81eb14b5eee59dd92281cd05043f3a7
