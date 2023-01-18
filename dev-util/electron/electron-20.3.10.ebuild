@@ -1578,6 +1578,10 @@ src_prepare() {
 			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
 			#  	continue;
 			# fi
+			if	[ "$i" = "cherry-pick-c79148742421.patch" ]; then
+			 	einfo "Skipping ${i}: Trust me, I'm an engineer! :D"
+			 	continue;
+			fi
 			if [ "$i" = "sysroot.patch" ] ||
 			[ "$i" = "build_disable_print_content_analysis.patch" ] ; then
 			if use ungoogled; then
