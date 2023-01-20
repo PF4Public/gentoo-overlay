@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="xml(+)"
 
 CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
@@ -20,12 +20,16 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PATCHSET="1"
+PATCHSET="2"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
-PATCHSET_NAME_PPC64="chromium_108.0.5359.71-2raptor0~deb11u1.debian"
+PATCHSET_URI_PPC64="https://quickbuild.io/~raptor-engineering-public"
+PATCHSET_NAME_PPC64="chromium_109.0.5414.74-2raptor0~deb11u1.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
-	ppc64? ( https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz )
+	ppc64? (
+		${PATCHSET_URI_PPC64}/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz
+		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
+	)
 "
 
 LICENSE="BSD"
@@ -198,6 +202,9 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	>=app-arch/gzip-1.7
+	!headless? (
+		qt5? ( dev-qt/qtcore:5 )
+	)
 	dev-lang/perl
 	>=dev-util/gn-0.1807
 	>=dev-util/gperf-3.0.3
@@ -333,13 +340,6 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/patches/chromium-*-compiler.patch || die
 	fi
 
-	# some web pages are crashing
-	if use system-icu; then
-		sed -i -e \
-			"/\"TextCodecCJKEnabled\",/{n;s/ENABLED/DISABLED/;}" \
-			"third_party/blink/common/features.cc" || die
-	fi
-
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
@@ -352,6 +352,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
+		"${FILESDIR}/chromium-109-system-icu.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -363,14 +364,11 @@ src_prepare() {
 	if use ppc64 ; then
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ $p =~ "fix-breakpad-compile.patch" ]]; then
-				eapply "${FILESDIR}/ppc64le/fix-breakpad-compile.patch"
-			else
+			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
 				eapply "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
-		eapply "${FILESDIR}/ppc64le/libpng-pdfium-compile-98.patch"
-		eapply "${FILESDIR}/ppc64le/fix-swiftshader-compile.patch"
+		PATCHES+=( "${WORKDIR}/ppc64le" )
 	fi
 
 	default
@@ -1153,13 +1151,23 @@ src_configure() {
 		myconf_gn+=" use_system_libdrm=true"
 		myconf_gn+=" use_system_minigbm=true"
 		myconf_gn+=" use_xkbcommon=true"
-		use qt5 && export PATH="${PATH}:$(qt5_get_bindir)"
+		if use qt5; then
+			local moc_dir="$(qt5_get_bindir)"
+			if tc-is-cross-compiler; then
+				# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
+				local cbuild_libdir=$($(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libxslt)
+				cbuild_libdir=${cbuild_libdir:2}
+				moc_dir="${EPREFIX}"/${cbuild_libdir/% }/qt5/bin
+			fi
+			export PATH="${PATH}:${moc_dir}"
+		fi
 		myconf_gn+=" use_qt=$(usex qt5 true false)"
 		myconf_gn+=" ozone_platform_x11=$(usex X true false)"
 		myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
 		myconf_gn+=" ozone_platform=$(usex wayland \"wayland\" \"x11\")"
 		if use wayland; then
 			myconf_gn+=" use_system_libwayland=true"
+			myconf_gn+=" use_system_wayland_scanner=true"
 		fi
 	fi
 
@@ -1227,8 +1235,6 @@ src_compile() {
 
 	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
 	local -x PYTHONPATH=
-
-	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
 
 	use convert-dict && eninja -C out/Release convert_dict
 
