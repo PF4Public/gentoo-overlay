@@ -94,11 +94,14 @@ CDEPEND="
 	media-libs/openjpeg:2/7
 	app-arch/snappy
 	dev-libs/libxslt
-	dev-libs/re2
+	dev-libs/re2:0/9
 	media-libs/openh264
 	=dev-libs/icu-72*:0
 	media-libs/libaom
 	media-libs/dav1d
+	dev-qt/qtcore:5/5.15.8
+	dev-qt/qtwidgets:5/5.15.8
+	dev-qt/qtgui:5/5.15.8
 "
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
