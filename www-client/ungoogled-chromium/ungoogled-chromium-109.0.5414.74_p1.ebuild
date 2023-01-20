@@ -343,7 +343,7 @@ src_prepare() {
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
-		"third_party/blink/common/features.cc" || die
+		"chrome/browser/media/router/media_router_feature.cc" || die
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
