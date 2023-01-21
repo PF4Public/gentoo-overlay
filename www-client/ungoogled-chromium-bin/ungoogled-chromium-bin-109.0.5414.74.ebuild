@@ -100,7 +100,7 @@ CDEPEND="
 	media-libs/libaom
 	media-libs/dav1d
 	dev-qt/qtcore:5/5.15.8
-	dev-qt/qtwidgets:5/5.15.8
+	dev-qt/qtwidgets:5/5.15
 	dev-qt/qtgui:5/5.15.8
 "
 RDEPEND="${CDEPEND}
