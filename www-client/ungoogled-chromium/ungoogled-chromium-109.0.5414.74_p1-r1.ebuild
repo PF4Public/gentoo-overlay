@@ -582,6 +582,7 @@ src_prepare() {
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
 		third_party/googletest
 		third_party/hunspell
+		third_party/hyphenation-patterns
 		third_party/iccjpeg
 		third_party/inspector_protocol
 		third_party/ipcz
