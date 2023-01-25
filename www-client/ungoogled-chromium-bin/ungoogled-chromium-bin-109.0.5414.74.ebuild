@@ -124,7 +124,7 @@ QA_PREBUILT="*"
 S="${WORKDIR}"
 
 pkg_pretend() {
-	if ! use widevine && ! use core2 && ! use haswell; then
+	if ! use widevine; then
 		ewarn
 		ewarn "widevine was enabled in this build"
 		ewarn "If you think this is a mistake let me know in #193"
