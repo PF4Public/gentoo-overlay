@@ -13,20 +13,8 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/ungoogled-software/ungoogled-chromium"
 DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
-	core2? (
-		${DL_URL}/core2.tar.bz2 -> ${PF}-core2.tar.bz2
-	)
-	haswell? (
-		${DL_URL}/haswell.tar.bz2 -> ${PF}-haswell.tar.bz2
-	)
-	generic? (
-		amd64? (
-		${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2
-		)
-		x86? (
-		${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2
-		)
-	)
+	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )
+	x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )
 "
 
 RESTRICT="mirror"
@@ -34,12 +22,10 @@ RESTRICT="mirror"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="convert-dict core2 +generic haswell widevine"
+IUSE="convert-dict widevine"
 
 REQUIRED_USE="
-	^^ ( core2 generic haswell )
-	x86? ( !core2 !haswell !widevine )
-	widevine? ( !core2 !haswell )
+	x86? ( !widevine )
 "
 
 CDEPEND="
@@ -214,6 +200,9 @@ pkg_postinst() {
 	elog "VA-API is disabled by default at runtime. You have to enable it"
 	elog "by adding --enable-features=VaapiVideoDecoder and "
 	elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
+	elog "in /etc/chromium/default."
+	elog "HEVC decoding is disabled by default at runtime. You have to enable it"
+	elog "by adding --enable-features=PlatformHEVCDecoderSupport to CHROMIUM_FLAGS"
 	elog "in /etc/chromium/default."
 
 	if use widevine; then
