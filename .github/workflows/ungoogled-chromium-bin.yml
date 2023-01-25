@@ -15,9 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - core2 -generic
-          - haswell -generic
-          - generic
+          - ""
           - convert-dict
 
     steps:
