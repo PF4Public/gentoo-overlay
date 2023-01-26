@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,8 +14,7 @@ HOMEPAGE="https://www.chromium.org/Home https://github.com/ungoogled-software/un
 DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
 	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )
-	x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )
-"
+	x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )"
 
 RESTRICT="mirror"
 
@@ -25,8 +24,7 @@ KEYWORDS="amd64 x86"
 IUSE="convert-dict widevine"
 
 REQUIRED_USE="
-	x86? ( !widevine )
-"
+	x86? ( !widevine )"
 
 CDEPEND="
 	x11-libs/libX11
@@ -50,24 +48,16 @@ CDEPEND="
 	>=media-libs/alsa-lib-1.0.19
 	media-libs/fontconfig
 	media-libs/freetype
-	>=media-libs/harfbuzz-3.1.1:0[icu(-)]
 	media-libs/libjpeg-turbo
 	media-libs/libpng
 	|| (
 		media-sound/pulseaudio
 		>=media-sound/apulse-0.1.9
 	)
-	>=media-video/ffmpeg-3.4.5
-	|| (
-		media-video/ffmpeg[-samba]
-		>=net-fs/samba-4.5.16[-debug(-)]
-	)
-	media-libs/opus
 	sys-apps/dbus
 	sys-apps/pciutils
 	virtual/udev
 	x11-libs/cairo
-	x11-libs/gdk-pixbuf:2
 	x11-libs/pango
 	media-libs/flac
 	>=media-libs/libwebp-0.4.0
@@ -75,28 +65,16 @@ CDEPEND="
 	app-accessibility/at-spi2-core
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
-	dev-libs/jsoncpp:0/25
-	dev-libs/libevent
-	media-libs/openjpeg:2/7
-	app-arch/snappy
 	dev-libs/libxslt
-	dev-libs/re2:0/9
-	media-libs/openh264
-	=dev-libs/icu-72*:0
-	media-libs/libaom
-	media-libs/dav1d
-	dev-qt/qtcore:5/5.15.8
-	dev-qt/qtwidgets:5/5.15
-	dev-qt/qtgui:5/5.15.8
-"
+	=dev-libs/icu-72*:0"
+
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
 	virtual/opengl
 	virtual/ttf-fonts
 	!www-client/chromium
 	!www-client/chromium-bin
-	!www-client/ungoogled-chromium
-"
+	!www-client/ungoogled-chromium"
 
 DISABLE_AUTOFORMATTING="yes"
 DOC_CONTENTS="
@@ -117,8 +95,7 @@ To fix broken icons on the Downloads page, you should install an icon
 theme that covers the appropriate MIME types, and configure this as your
 GTK+ icon theme.
 
-For native file dialogs in KDE, install kde-apps/kdialog.
-"
+For native file dialogs in KDE, install kde-apps/kdialog."
 
 QA_PREBUILT="*"
 S="${WORKDIR}"
@@ -166,6 +143,7 @@ src_install() {
 	doins ./usr/$(get_libdir)/chromium-browser/*.bin
 	doins ./usr/$(get_libdir)/chromium-browser/*.pak
 	doins ./usr/$(get_libdir)/chromium-browser/*.so
+	doins ./usr/$(get_libdir)/chromium-browser/icudtl.dat
 
 	doins -r ./usr/$(get_libdir)/chromium-browser/locales
 
