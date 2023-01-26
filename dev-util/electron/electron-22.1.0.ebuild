@@ -1483,6 +1483,10 @@ src_prepare() {
 			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
 			#  	continue;
 			# fi
+			if	[ "$i" = "axselectedtextmarkerrange_should_not_be_backwards.patch" ]; then
+			 	einfo "Skipping ${i}: Mac targeted patch."
+			 	continue;
+			fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ] ||
 				[ "$i" = "fix_the_gn_gen_for_components_segmentation_platform.patch" ] ; then
