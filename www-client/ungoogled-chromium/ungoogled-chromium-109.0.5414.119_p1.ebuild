@@ -1398,11 +1398,6 @@ pkg_postinst() {
 			elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
 			elog "in /etc/chromium/default."
 		fi
-		if use hevc; then
-			elog "HEVC decoding is disabled by default at runtime. You have to enable it"
-			elog "by adding --enable-features=PlatformHEVCDecoderSupport to CHROMIUM_FLAGS"
-			elog "in /etc/chromium/default."
-		fi
 		if use screencast; then
 			elog "Screencast is disabled by default at runtime. Either enable it"
 			elog "by navigating to chrome://flags/#enable-webrtc-pipewire-capturer"
