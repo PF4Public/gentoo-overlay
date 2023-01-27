@@ -179,9 +179,6 @@ pkg_postinst() {
 	elog "by adding --enable-features=VaapiVideoDecoder and "
 	elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
 	elog "in /etc/chromium/default."
-	elog "HEVC decoding is disabled by default at runtime. You have to enable it"
-	elog "by adding --enable-features=PlatformHEVCDecoderSupport to CHROMIUM_FLAGS"
-	elog "in /etc/chromium/default."
 
 	if use widevine; then
 		elog "widevine requires binary plugins, which are distributed separately"
