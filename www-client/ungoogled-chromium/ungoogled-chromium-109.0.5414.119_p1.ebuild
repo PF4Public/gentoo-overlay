@@ -406,6 +406,8 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r3.patch"
 
+	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
+
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
 	#* Applying UGC PRs here
