@@ -2166,6 +2166,33 @@ index 4994a3a..f4b7da0 100644
 -
  }  // namespace internal
  }  // namespace v8
+--- a/v8/src/heap/heap.h
++++ b/v8/src/heap/heap.h
+@@ -2685,16 +2685,6 @@
+   Heap* heap_;
+ };
+ 
+-// TODO(v8:13493): This class will move to src/heap/base/stack.h once its
+-// implementation no longer needs access to V8 flags.
+-class V8_EXPORT_PRIVATE V8_NODISCARD SaveStackContextScope {
+- public:
+-  explicit SaveStackContextScope(::heap::base::Stack* stack);
+-  ~SaveStackContextScope();
+-
+- protected:
+-  ::heap::base::Stack* stack_;
+-};
+ 
+ class V8_NODISCARD DisableConservativeStackScanningScopeForTesting {
+  public:
+@@ -2777,7 +2767,6 @@
+   SpaceIterator* space_iterator_;
+   // Object iterator for the space currently being iterated.
+   std::unique_ptr<ObjectIterator> object_iterator_;
+-  SaveStackContextScope stack_context_scope_;
+ 
+   DISALLOW_GARBAGE_COLLECTION(no_heap_allocation_)
+ };
 diff --git a/src/profiler/heap-snapshot-generator.cc b/src/profiler/heap-snapshot-generator.cc
 index e076418..f0b3058 100644
 --- a/v8/src/profiler/heap-snapshot-generator.cc
