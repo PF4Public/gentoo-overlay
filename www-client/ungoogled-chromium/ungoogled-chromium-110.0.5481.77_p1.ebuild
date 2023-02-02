@@ -405,7 +405,7 @@ src_prepare() {
 		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
 	fi
 
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r3.patch"
+	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
 	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
 
