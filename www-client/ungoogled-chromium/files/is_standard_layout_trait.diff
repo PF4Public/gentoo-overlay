@@ -25,8 +25,8 @@ Cr-Commit-Position: refs/heads/main@{#85445}
 
 diff --git a/src/execution/isolate.cc b/src/execution/isolate.cc
 index 2746e89..e26d608 100644
---- a/src/execution/isolate.cc
-+++ b/src/execution/isolate.cc
+--- a/v8/src/execution/isolate.cc
++++ b/v8/src/execution/isolate.cc
 @@ -3069,21 +3069,23 @@
  void Isolate::RecordStackSwitchForScanning() {
    Object current = root(RootIndex::kActiveContinuation);
@@ -99,8 +99,8 @@ index 2746e89..e26d608 100644
      DCHECK_NOT_NULL(current_isolate);
 diff --git a/src/execution/isolate.h b/src/execution/isolate.h
 index 8376116..63cc4c7 100644
---- a/src/execution/isolate.h
-+++ b/src/execution/isolate.h
+--- a/v8/src/execution/isolate.h
++++ b/v8/src/execution/isolate.h
 @@ -32,6 +32,7 @@
  #include "src/execution/stack-guard.h"
  #include "src/handles/handles.h"
@@ -130,8 +130,8 @@ index 8376116..63cc4c7 100644
  #endif
 diff --git a/src/execution/thread-local-top.cc b/src/execution/thread-local-top.cc
 index c115ae0..05cc20b 100644
---- a/src/execution/thread-local-top.cc
-+++ b/src/execution/thread-local-top.cc
+--- a/v8/src/execution/thread-local-top.cc
++++ b/v8/src/execution/thread-local-top.cc
 @@ -37,7 +37,6 @@
    current_embedder_state_ = nullptr;
    failed_access_check_callback_ = nullptr;
@@ -155,8 +155,8 @@ index c115ae0..05cc20b 100644
    simulator_ = Simulator::current(isolate);
 diff --git a/src/execution/thread-local-top.h b/src/execution/thread-local-top.h
 index 43fec0a..989c817 100644
---- a/src/execution/thread-local-top.h
-+++ b/src/execution/thread-local-top.h
+--- a/v8/src/execution/thread-local-top.h
++++ b/v8/src/execution/thread-local-top.h
 @@ -10,7 +10,6 @@
  #include "include/v8-unwinder.h"
  #include "src/common/globals.h"
@@ -186,8 +186,8 @@ index 43fec0a..989c817 100644
  }  // namespace internal
 diff --git a/src/heap/heap.cc b/src/heap/heap.cc
 index bc2c07d..e48b294 100644
---- a/src/heap/heap.cc
-+++ b/src/heap/heap.cc
+--- a/v8/src/heap/heap.cc
++++ b/v8/src/heap/heap.cc
 @@ -5813,9 +5813,7 @@
  #endif  // V8_ENABLE_WEBASSEMBLY
  }
@@ -199,128 +199,4 @@ index bc2c07d..e48b294 100644
  
  void Heap::StartTearDown() {
    // Finish any ongoing sweeping to avoid stray background tasks still accessing
-diff --git a/test/cctest/test-api.cc b/test/cctest/test-api.cc
-index 4f17f22..2ade476 100644
---- a/test/cctest/test-api.cc
-+++ b/test/cctest/test-api.cc
-@@ -13043,12 +13043,13 @@
- 
- 
- void ApiTestFuzzer::Run() {
--  // When it is our turn...
-+  // Wait until it is our turn.
-   gate_.Wait();
-   {
--    // ... get the V8 lock
-+    // Get the V8 lock.
-     v8::Locker locker(CcTest::isolate());
--    // ... and start running the test.
-+    // Start running the test, which will enter the isolate and exit it when it
-+    // finishes.
-     CallTest();
-   }
-   // This test finished.
-@@ -13089,11 +13090,18 @@
- 
- 
- void ApiTestFuzzer::RunAllTests() {
-+  // This method is called when running each THREADING_TEST, which is an
-+  // initialized test and has entered the isolate at this point. We need to exit
-+  // the isolate, so that the fuzzer threads can enter it in turn, while running
-+  // their tests.
-+  CcTest::isolate()->Exit();
-   // Set off the first test.
-   current_ = -1;
-   NextThread();
-   // Wait till they are all done.
-   all_tests_done_.Wait();
-+  // We enter the isolate again, to prepare for teardown.
-+  CcTest::isolate()->Enter();
- }
- 
- 
-@@ -13111,10 +13119,16 @@
- void ApiTestFuzzer::ContextSwitch() {
-   // If the new thread is the same as the current thread there is nothing to do.
-   if (NextThread()) {
--    // Now it can start.
--    v8::Unlocker unlocker(CcTest::isolate());
--    // Wait till someone starts us again.
--    gate_.Wait();
-+    // Exit the isolate from this thread.
-+    CcTest::i_isolate()->Exit();
-+    {
-+      // Now the new thread can start.
-+      v8::Unlocker unlocker(CcTest::isolate());
-+      // Wait till someone starts us again.
-+      gate_.Wait();
-+    }
-+    // Enter the isolate from this thread again.
-+    CcTest::i_isolate()->Enter();
-     // And we're off.
-   }
- }
-diff --git a/test/cctest/test-cpu-profiler.cc b/test/cctest/test-cpu-profiler.cc
-index 59cef18..5b3d08d 100644
---- a/test/cctest/test-cpu-profiler.cc
-+++ b/test/cctest/test-cpu-profiler.cc
-@@ -3457,8 +3457,12 @@
-       env, "YieldIsolate", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-         v8::Isolate* isolate = info.GetIsolate();
-         if (!info[0]->IsTrue()) return;
--        v8::Unlocker unlocker(isolate);
--        v8::base::OS::Sleep(v8::base::TimeDelta::FromMilliseconds(1));
-+        isolate->Exit();
-+        {
-+          v8::Unlocker unlocker(isolate);
-+          v8::base::OS::Sleep(v8::base::TimeDelta::FromMilliseconds(1));
-+        }
-+        isolate->Enter();
-       });
- 
-   CompileRun(varying_frame_size_script);
-@@ -3470,11 +3474,13 @@
- 
-   // For good measure, profile on our own thread
-   UnlockingThread::Profile(env, 0);
-+  isolate->Exit();
-   {
-     v8::Unlocker unlocker(isolate);
-     thread1.Join();
-     thread2.Join();
-   }
-+  isolate->Enter();
- }
- 
- // Tests that StopProfiling doesn't wait for the next sample tick in order to
-diff --git a/test/cctest/test-debug.cc b/test/cctest/test-debug.cc
-index 06e0849..7b39bb3 100644
---- a/test/cctest/test-debug.cc
-+++ b/test/cctest/test-debug.cc
-@@ -4211,6 +4211,12 @@
-       // child.GetBreakCount() will return 1 if the debugger fails to stop
-       // on the `next()` line after the grandchild thread returns.
-       CHECK_EQ(child.GetBreakCount(), 5);
-+
-+      // This test on purpose unlocks the isolate without exiting and
-+      // re-entering. It must however update the stack start, which would have
-+      // been done automatically if the isolate was properly re-entered.
-+      reinterpret_cast<i::Isolate*>(isolate_)->heap()->SetStackStart(
-+          v8::base::Stack::GetStackStart());
-     }
-   }
- 
-diff --git a/test/cctest/test-lockers.cc b/test/cctest/test-lockers.cc
-index c33c94a..b75e68b 100644
---- a/test/cctest/test-lockers.cc
-+++ b/test/cctest/test-lockers.cc
-@@ -871,7 +871,9 @@
-       threads.push_back(new LockUnlockLockDefaultIsolateThread(context));
-     }
-   }
-+  CcTest::isolate()->Exit();
-   StartJoinAndDeleteThreads(threads);
-+  CcTest::isolate()->Enter();
- }
- 
- 
+
