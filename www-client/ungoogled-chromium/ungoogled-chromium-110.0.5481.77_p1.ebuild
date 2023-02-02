@@ -359,6 +359,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/callee_saved_registers.diff"
 		"${FILESDIR}/is_standard_layout_trait.diff"
 	)
 
