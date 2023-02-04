@@ -51,7 +51,7 @@ REQUIRED_USE="
 	!proprietary-codecs? ( !hevc )
 "
 
-UGC_COMMIT_ID="e289b9465b710f731d6cc79665fb3270dab1ff39"
+UGC_COMMIT_ID="515cd084ce0889c4b84002eb9c6d1eb7c8fa77d2"
 # UGC_PR_COMMITS=(
 # 	f2fbbb954431dcb4f1a62779053692fa2b5c7971
 # 	08aaf6a0c81eb14b5eee59dd92281cd05043f3a7
@@ -1185,6 +1185,8 @@ src_configure() {
 			tools/generate_shim_headers/generate_shim_headers.py || die
 		# Don't add symbols to build
 		myconf_gn+=" symbol_level=0"
+	else
+		myconf_gn+=" devtools_skip_typecheck=false"
 	fi
 
 	# user CXXFLAGS might overwrite -march=armv8-a+crc+crypto, bug #851639
