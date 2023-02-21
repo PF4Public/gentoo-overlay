@@ -1281,9 +1281,9 @@ src_prepare() {
 	einfo "Disabling dugite"
 	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
-	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
-	eapply "${FILESDIR}/openssl_fips-r2.patch" || die
-	popd > /dev/null || die
+	# pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
+	# eapply "${FILESDIR}/openssl_fips-r2.patch" || die
+	# popd > /dev/null || die
 
 	pushd "${WORKDIR}/${P}" > /dev/null || die
 		# sed -i '/web_tests/Q' "patches/chromium/cherry-pick-1eb1e18ad41d.patch" || die
