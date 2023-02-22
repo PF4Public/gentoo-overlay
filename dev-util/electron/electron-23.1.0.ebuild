@@ -1303,7 +1303,6 @@ src_prepare() {
 		# See #166
 		sed -i '/proprietary_codecs/d' build/args/all.gn || die
 		sed -i '/ffmpeg_branding/d' build/args/all.gn || die
-		sed -i '/use_qt/d' build/args/all.gn || die
 		sed -i '/rtc_use_h264/d' build/args/release.gn || die
 
 		if use ungoogled; then
