@@ -1049,7 +1049,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc js-type-check kerberos optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
+IUSE="+X +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc js-type-check kerberos optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio screencast selinux suid +system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto ungoogled vaapi vdpau wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1150,10 +1150,6 @@ COMMON_DEPEND="
 	x11-libs/cairo:=
 	x11-libs/gdk-pixbuf:2
 	x11-libs/pango:=
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtwidgets:5
-	)
 "
 RDEPEND="${COMMON_DEPEND}
 	|| (
@@ -1174,7 +1170,6 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	>=app-arch/gzip-1.7
-	qt5? ( dev-qt/qtcore:5 )
 	dev-lang/perl
 	>=dev-util/gn-0.1807
 	>=dev-util/gperf-3.0.3
@@ -2181,17 +2176,6 @@ src_configure() {
 	myconf_gn+=" use_system_libdrm=true"
 	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_xkbcommon=true"
-	if use qt5; then
-		local moc_dir="$(qt5_get_bindir)"
-		if tc-is-cross-compiler; then
-			# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
-			local cbuild_libdir=$($(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libxslt)
-			cbuild_libdir=${cbuild_libdir:2}
-			moc_dir="${EPREFIX}"/${cbuild_libdir/% }/qt5/bin
-		fi
-		export PATH="${PATH}:${moc_dir}"
-	fi
-	myconf_gn+=" use_qt=$(usex qt5 true false)"
 	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
 	myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
 	myconf_gn+=" ozone_platform=$(usex wayland \"wayland\" \"x11\")"
