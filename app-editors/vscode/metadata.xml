@@ -18,6 +18,7 @@
 		<flag name="electron-20">Build against electron-20 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-21">Build against electron-21 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-22">Build against electron-22 instead of the default one. Use at your own risk!</flag>
+		<flag name="electron-23">Build against electron-23 instead of the default one. Use at your own risk!</flag>
 		<flag name="insiders">Allow insiders API !WARNING! Enabling this might be illegal!</flag>
 		<flag name="liveshare">Allow liveshare API</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
