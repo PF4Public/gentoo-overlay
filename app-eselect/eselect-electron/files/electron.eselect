@@ -118,11 +118,15 @@ do_set() {
 			ln -sf "${USR_PATH}/${x}/electron-${slot}" "${USR_PATH}/${x}/electron" || \
 				die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot} -> ${USR_PATH}/${x}/electron"
 		fi
+	done
 
 	# Link binaries to /usr/bin/
-        ln -sf "${USR_PATH}/${x}/electron-${slot}/electron" "${USR_PATH}/bin/electron" || \
-            die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot}/electron -> ${USR_PATH}/bin/electron"
-	done
+	if [[ -f "${USR_PATH}/bin/electron-${slot}" ]] ; then
+	        ln -sf "${USR_PATH}/bin/electron-${slot}" "${USR_PATH}/bin/electron" || \
+			die -q "SYMLINK FAILED: ${USR_PATH}/bin/electron-${slot} -> ${USR_PATH}/bin/electron"
+	else
+		die -q "${USR_PATH}/bin/electron-${slot} does not exist"
+	fi
 
 	echo "success!"
 }
