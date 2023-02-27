@@ -31,12 +31,17 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="2"
 PATCHSET_NAME="chromium-108-patchset-${PATCHSET}"
+PATCHSET_URI_PPC64="https://quickbuild.io/~raptor-engineering-public"
 PATCHSET_NAME_PPC64="chromium_108.0.5359.71-2raptor0~deb11u1.debian"
+PATCHSET_NAME_PPC64_GENTOO="chromium-ppc64le-gentoo-patches-1"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	ppc64? ( https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz )
+	ppc64? (
+		${PATCHSET_URI_PPC64}/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz
+		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/${PATCHSET_NAME_PPC64_GENTOO}.tar.xz
+	)
 	ungoogled? (
 		https://github.com/ungoogled-software/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
@@ -1268,7 +1273,10 @@ src_unpack() {
 	unpack "node-v${NODE_VERSION}.tar.xz"
 	unpack "${PATCHSET_NAME}.tar.xz"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
-	use ppc64 && unpack "${PATCHSET_NAME_PPC64}.tar.xz"
+	if (use ppc64); then
+		unpack "${PATCHSET_NAME_PPC64}.tar.xz"
+		unpack "${PATCHSET_NAME_PPC64_GENTOO}.tar.xz"
+	fi
 }
 
 src_prepare() {
@@ -1338,14 +1346,11 @@ src_prepare() {
 	if use ppc64 ; then
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ $p =~ "fix-breakpad-compile.patch" ]]; then
-				eapply "${FILESDIR}/ppc64le/fix-breakpad-compile.patch"
-			else
+			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
 				eapply "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
-		eapply "${FILESDIR}/ppc64le/libpng-pdfium-compile-98.patch"
-		eapply "${FILESDIR}/ppc64le/fix-swiftshader-compile.patch"
+		PATCHES+=( "${WORKDIR}/ppc64le" )
 	fi
 
 	default
