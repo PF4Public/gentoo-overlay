@@ -373,12 +373,16 @@ src_install() {
 
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
+
+	awk -i inplace -v text="$(cat ${FILESDIR}/read_flags_file)" '!/^#/ && !p {print text; p=1} 1' "${WORKDIR}"/V*/bin/code-oss
+	sed -i "s|@ELECTRON@|electron-${ELECTRON_SLOT}|" "${WORKDIR}"/V*/bin/code-oss
+
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
+	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
