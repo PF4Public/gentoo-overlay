@@ -2504,6 +2504,7 @@ src_install() {
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
+	fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
 
