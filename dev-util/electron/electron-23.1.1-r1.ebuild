@@ -32,7 +32,7 @@ HOMEPAGE="https://electronjs.org/"
 PATCHSET="4"
 PATCHSET_NAME="chromium-110-patchset-${PATCHSET}"
 PATCHSET_URI_PPC64="https://quickbuild.io/~raptor-engineering-public"
-PATCHSET_NAME_PPC64="chromium_109.0.5414.74-2raptor0~deb11u1.debian"
+PATCHSET_NAME_PPC64="chromium_110.0.5481.77-1raptor0~deb11u1.debian"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
