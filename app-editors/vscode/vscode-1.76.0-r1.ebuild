@@ -2357,6 +2357,7 @@ src_configure() {
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	# echo "$PATH"
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
