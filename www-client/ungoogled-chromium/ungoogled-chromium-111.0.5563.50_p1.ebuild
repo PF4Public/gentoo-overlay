@@ -339,17 +339,13 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/patches/chromium-*-compiler.patch || die
 	fi
 
-	rm ${WORKDIR}/patches/chromium-110-dpf-arm64.patch || die
-	rm ${WORKDIR}/patches/chromium-111-v8-std-layout1.patch || die
-	rm ${WORKDIR}/patches/chromium-111-v8-std-layout2.patch || die
-
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
+		# "${WORKDIR}/patches"
 	local PATCHES=(
-		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-93-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
