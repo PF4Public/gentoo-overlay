@@ -341,6 +341,7 @@ src_prepare() {
 
 	rm ${WORKDIR}/patches/chromium-110-dpf-arm64.patch || die
 	rm ${WORKDIR}/patches/chromium-111-v8-std-layout1.patch || die
+	rm ${WORKDIR}/patches/chromium-111-v8-std-layout2.patch || die
 
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
