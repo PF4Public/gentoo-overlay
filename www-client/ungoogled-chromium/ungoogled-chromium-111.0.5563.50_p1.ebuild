@@ -339,6 +339,8 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/patches/chromium-*-compiler.patch || die
 	fi
 
+	rm ${WORKDIR}/patches/chromium-110-dpf-arm64.patch || die
+
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
