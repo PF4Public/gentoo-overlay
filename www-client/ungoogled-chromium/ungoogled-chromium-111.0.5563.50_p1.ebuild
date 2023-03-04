@@ -346,6 +346,7 @@ src_prepare() {
 
 		# "${WORKDIR}/patches"
 	local PATCHES=(
+		"${WORKDIR}/patches/chromium-110-compiler.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
