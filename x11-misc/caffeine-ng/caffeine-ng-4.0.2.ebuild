@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Taken from Jorgicio's Gentoo overlay and modified
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 gnome2-utils
 
@@ -37,7 +37,7 @@ DEPEND="
 	>=dev-python/setproctitle-1.1.10[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	>=dev-python/wheel-0.29.0[${PYTHON_USEDEP}]
-	dev-python/setuptools_scm[${PYTHON_USEDEP}]
+	dev-python/setuptools-scm[${PYTHON_USEDEP}]
 	dev-libs/libappindicator:3[introspection]
 	x11-libs/gtk+:3
 	x11-libs/libnotify[introspection]
