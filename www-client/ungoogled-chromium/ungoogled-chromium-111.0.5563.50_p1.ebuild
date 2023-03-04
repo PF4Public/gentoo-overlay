@@ -346,7 +346,6 @@ src_prepare() {
 
 		# "${WORKDIR}/patches"
 	local PATCHES=(
-		"${FILESDIR}/chromium-93-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
@@ -356,8 +355,6 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/callee_saved_registers.diff"
-		"${FILESDIR}/is_standard_layout_trait.diff"
 	)
 
 	if use ppc64 ; then
