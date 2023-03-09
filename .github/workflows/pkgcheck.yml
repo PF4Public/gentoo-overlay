@@ -21,16 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: lots0logs/gh-action-get-changed-files@2.1.4
-        id: files
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Calculate the hash of changed files
+        id: hash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}${{ github.event.before }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MODIFIED_FILES=$(gh api repos/{owner}/{repo}/compare/${{ env.BASE_SHA }}...HEAD \
+            --jq '.files | .[] | select(.status|IN("added", "modified", "renamed", "copied", "changed")) | .filename')
+          echo "digest=$( echo "${MODIFIED_FILES}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${MODIFIED_FILES}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
 
       - name: Run pkgcheck
         uses: pf4public/gentoo-docker-action@master
         with:
-            added: ${{ steps.files.outputs.added }}
-            modified: ${{ steps.files.outputs.modified }}
+            modified: ${{ steps.hash.outputs.modified }}
             tool: pkgcheck
             action: scan
             params: -v --exit error

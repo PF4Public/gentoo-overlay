@@ -25,21 +25,19 @@ jobs:
       - name: Prepare cache dir
         id: prepare
         run: |
-          echo "::set-output name=workspace::${GITHUB_WORKSPACE}"
+          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
 
-      - name: Find modifications
-        uses: lots0logs/gh-action-get-changed-files@2.1.4
-        id: files
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Calculate the hash of changed files
-        uses: pplanel/hash-calculator-action@v1.3.1
         id: hash
-        with:
-          input: ${{ steps.files.outputs.modified }} ${{ steps.files.outputs.added }}
-          method: MD5
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}${{ github.event.before }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MODIFIED_FILES=$(gh api repos/{owner}/{repo}/compare/${{ env.BASE_SHA }}...HEAD \
+            --jq '.files | .[] | select(.status|IN("added", "modified", "renamed", "copied", "changed")) | .filename')
+          echo "digest=$( echo "${MODIFIED_FILES}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${MODIFIED_FILES}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
 
       - name: Cache distfiles
         if: ${{ ! contains( matrix.use, 'build-online') || contains( matrix.use, '-build-online')}}
@@ -53,8 +51,7 @@ jobs:
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
-            added: ${{ steps.files.outputs.added }}
-            modified: ${{ steps.files.outputs.modified }}
+            modified: ${{ steps.hash.outputs.modified }}
             tool: ebuild
             action: install
             params: ${{ matrix.use }}
