@@ -17,7 +17,7 @@ SRC_URI="!build-online? (
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://github.com/joaomoreno/node-tree-sitter/releases/download/v0.20.0/tree-sitter-0.20.0.tgz
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
-	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
+	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz  -> @ampproject-remapping-2.2.0.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.2.tgz -> @azure-abort-controller-1.0.2.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.1.0.tgz -> @azure-abort-controller-1.1.0.tgz
