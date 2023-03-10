@@ -100,6 +100,10 @@ src_unpack() {
 src_prepare() {
 	# Electron-Builder doesn't support ppc64 out of the box due to using precompiled binaries, so let's patch it
 	use ppc64 && PATCHES+=( "${FILESDIR}/builder-util-ppc64.patch" )
+
+	cp "${FILESDIR}/flipper" "${WORKDIR}" || die
+	sed -i "s|@ELECTRON@|electron-${ELECTRON_SLOT}|" "${WORKDIR}/flipper" || die
+	sed -i "s|@LIBDIR@|$(get_libdir)|" "${WORKDIR}/flipper" || die
 	default
 }
 
@@ -132,8 +136,9 @@ src_install() {
 	doins dist/linux-*-unpacked/resources/app.asar
 	doins desktop/static/icon.png
 
-	make_desktop_entry "electron-${ELECTRON_SLOT} /usr/$(get_libdir)/${PN}/app.asar" \
-		Flipper "/usr/$(get_libdir)/${PN}/icon.png" "Development;Debugger"
+	dobin "${WORKDIR}/flipper"
+
+	make_desktop_entry "/usr/bin/flipper" Flipper "/usr/$(get_libdir)/${PN}/icon.png" "Development;Debugger"
 }
 
 pkg_postrm() {
