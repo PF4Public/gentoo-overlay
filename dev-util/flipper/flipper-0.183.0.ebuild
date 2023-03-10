@@ -16,12 +16,12 @@ ELECTRON_SLOT_DEFAULT="19"
 #FLIPPER_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 PATCHES=(
-        # We don't need to ship zip archives, prefer uncompressed directory
-        "${FILESDIR}/dir-target-not-zip.patch"
-        # We won't bundle electron with the application so we don't need to download it
-        "${FILESDIR}/dont-download-electron.patch"
-        # watchman will break the build if you have dev-util/watchman installed
-        "${FILESDIR}/no-watchman.patch"
+	# We don't need to ship zip archives, prefer uncompressed directory
+	"${FILESDIR}/dir-target-not-zip.patch"
+	# We won't bundle electron with the application so we don't need to download it
+	"${FILESDIR}/dont-download-electron.patch"
+	# watchman will break the build if you have dev-util/watchman installed
+	"${FILESDIR}/metro-no-watchman.patch"
 )
 
 if [[ ${PV} = *9999* ]]; then
