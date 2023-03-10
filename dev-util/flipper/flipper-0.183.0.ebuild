@@ -133,7 +133,7 @@ src_compile() {
 src_install() {
 	insinto "/usr/$(get_libdir)/${PN}"
 
-	doins dist/linux-*-unpacked/resources/app.asar
+	doins -r dist/linux-*-unpacked/resources/*
 	doins desktop/static/icon.png
 
 	dobin "${WORKDIR}/flipper"
