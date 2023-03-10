@@ -15,6 +15,15 @@ REPO="https://github.com/facebook/flipper"
 ELECTRON_SLOT_DEFAULT="19"
 #FLIPPER_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
+PATCHES=(
+        # We don't need to ship zip archives, prefer uncompressed directory
+        "${FILESDIR}/dir-target-not-zip.patch"
+        # We won't bundle electron with the application so we don't need to download it
+        "${FILESDIR}/dont-download-electron.patch"
+        # watchman will break the build if you have dev-util/watchman installed
+        "${FILESDIR}/no-watchman.patch"
+)
+
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
@@ -24,6 +33,8 @@ if [[ ${PV} = *9999* ]]; then
 else
 	IUSE="+build-online electron-20 electron-21 electron-22 electron-23"
 	KEYWORDS="~ppc64"
+	# https://github.com/facebook/flipper/pull/4586
+	PATCHES+=( "${FILESDIR}/await-stripSourceMapComment.patch" )
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$FLIPPER_COMMIT_ID" ]
 	then
@@ -35,13 +46,6 @@ else
 fi
 
 SRC_URI+="${DOWNLOAD}"
-
-PATCHES=(
-	# https://github.com/facebook/flipper/pull/4586
-	"${FILESDIR}/await-stripSourceMapComment.patch"
-	# We don't need to ship zip archives, prefer uncompressed directory
-	"${FILESDIR}/dir-target-not-zip.patch"
-)
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
@@ -93,6 +97,12 @@ src_unpack() {
 	fi
 }
 
+src_prepare() {
+	# Electron-Builder doesn't support ppc64 out of the box due to using precompiled binaries, so let's patch it
+	use ppc64 && PATCHES+=( "${FILESDIR}/builder-util-ppc64.patch" )
+	default
+}
+
 src_compile() {
 	pushd desktop >/dev/null || die
 
@@ -105,21 +115,11 @@ src_compile() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 
-	# Electron-Builder doesn't support ppc64 out of the box due to using precompiled binaries, so let's patch it
-	use ppc64 && cp "${FILESDIR}/builder-util+23.0.2.patch" patches/ || die
-
 	einfo "Installing node_modules"
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
 	# TypeScript compiler
 	node node_modules/.bin/tsc || die
-
-	# We won't bundle electron with the application so we don't need to download it
-	einfo "Editing ElectronFramework.js"
-	sed -i 's/return unpack(options, createDownloadOpts.*$/return;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
-	sed -i 's/return beforeCopyExtraFiles(options);$/return;/' \
-		node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
 	node node_modules/.bin/cross-env NODE_ENV=production node_modules/.bin/ts-node scripts/build-release.tsx --linux --version ${PV} || die
 

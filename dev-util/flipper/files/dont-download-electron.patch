@@ -1,0 +1,21 @@
+diff --git a/desktop/patches/app-builder-lib+23.0.3.patch b/desktop/patches/app-builder-lib+23.0.3.patch
+new file mode 100644
+index 000000000..d3254645e
+--- /dev/null
++++ b/desktop/patches/app-builder-lib+23.0.3.patch
+@@ -0,0 +1,15 @@
++diff --git a/node_modules/app-builder-lib/out/electron/ElectronFramework.js b/node_modules/app-builder-lib/out/electron/ElectronFramework.js
++index b409046..95e9642 100644
++--- a/node_modules/app-builder-lib/out/electron/ElectronFramework.js
+++++ b/node_modules/app-builder-lib/out/electron/ElectronFramework.js
++@@ -89,10 +89,8 @@ class ElectronFramework {
++         }
++     }
++     prepareApplicationStageDirectory(options) {
++-        return unpack(options, createDownloadOpts(options.packager.config, options.platformName, options.arch, this.version), this.distMacOsAppName);
++     }
++     beforeCopyExtraFiles(options) {
++-        return beforeCopyExtraFiles(options);
++     }
++ }
++ async function createElectronFrameworkSupport(configuration, packager) {
