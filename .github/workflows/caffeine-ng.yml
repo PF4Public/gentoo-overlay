@@ -30,10 +30,14 @@ jobs:
       - name: Calculate the hash of changed files
         id: hash
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_SHA: ${{ github.event.before }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          MODIFIED_FILES=$(gh api repos/{owner}/{repo}/compare/${{ env.BASE_SHA }}...HEAD \
+          COMPARE_BASE=${{ env.BASE_SHA }}
+          COMPARE_HEAD=${{ env.HEAD_SHA }}
+          MODIFIED_FILES=$(gh api repos/{owner}/{repo}/compare/${COMPARE_BASE:-${{ env.EVENT_SHA }}}...${COMPARE_HEAD:-HEAD} \
             --jq '.files | .[] | select(.status|IN("added", "modified", "renamed", "copied", "changed")) | .filename')
           echo "digest=$( echo "${MODIFIED_FILES}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
           echo "modified=$( echo "${MODIFIED_FILES}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
