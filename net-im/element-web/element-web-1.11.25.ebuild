@@ -9,7 +9,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI="!build-online? (
 	https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.12.tgz -> @matrix-org-olm-3.2.12.tgz
-	https://registry.yarnpkg.com/@actions/core/-/core-1.10.0.tgz -> @actions-core-1.10.0.tgz
+	https://registry.yarnpkg.com/@actions/core/-/core-1.10.0.tgz ->  @actions-core-1.10.0.tgz
 	https://registry.yarnpkg.com/@actions/github/-/github-5.1.1.tgz -> @actions-github-5.1.1.tgz
 	https://registry.yarnpkg.com/@actions/http-client/-/http-client-2.0.1.tgz -> @actions-http-client-2.0.1.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
