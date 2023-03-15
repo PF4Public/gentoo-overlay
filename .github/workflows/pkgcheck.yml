@@ -26,8 +26,8 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          EVENT_SHA: ${{ github.event.commits[0][sha] }}
-          EVENT_HEAD: ${{ github.event.commits[-1][sha] }}
+          EVENT_SHA: ${{ github.event.commits[0].sha }}
+          EVENT_HEAD: ${{ github.event.commits[-1].sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           COMPARE_BASE=${{ env.BASE_SHA }}
