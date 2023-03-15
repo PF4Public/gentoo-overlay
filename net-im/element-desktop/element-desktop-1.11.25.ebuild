@@ -17,7 +17,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@actions/github/-/github-5.1.1.tgz -> @actions-github-5.1.1.tgz
 	https://registry.yarnpkg.com/@actions/http-client/-/http-client-2.0.1.tgz -> @actions-http-client-2.0.1.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
-	https://registry.yarnpkg.com/@aws-crypto/crc32/-/crc32-3.0.0.tgz ->  @aws-crypto-crc32-3.0.0.tgz
+	https://registry.yarnpkg.com/@aws-crypto/crc32/-/crc32-3.0.0.tgz ->   @aws-crypto-crc32-3.0.0.tgz
 	https://registry.yarnpkg.com/@aws-crypto/crc32c/-/crc32c-3.0.0.tgz -> @aws-crypto-crc32c-3.0.0.tgz
 	https://registry.yarnpkg.com/@aws-crypto/ie11-detection/-/ie11-detection-3.0.0.tgz -> @aws-crypto-ie11-detection-3.0.0.tgz
 	https://registry.yarnpkg.com/@aws-crypto/sha1-browser/-/sha1-browser-3.0.0.tgz -> @aws-crypto-sha1-browser-3.0.0.tgz
