@@ -13,7 +13,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@actions/github/-/github-5.1.1.tgz -> @actions-github-5.1.1.tgz
 	https://registry.yarnpkg.com/@actions/http-client/-/http-client-2.0.1.tgz -> @actions-http-client-2.0.1.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
-	https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz -> @babel-code-frame-7.18.6.tgz
+	https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz ->  @babel-code-frame-7.18.6.tgz
 	https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.21.0.tgz -> @babel-compat-data-7.21.0.tgz
 	https://registry.yarnpkg.com/@babel/core/-/core-7.21.0.tgz -> @babel-core-7.21.0.tgz
 	https://registry.yarnpkg.com/@babel/eslint-parser/-/eslint-parser-7.19.1.tgz -> @babel-eslint-parser-7.19.1.tgz
