@@ -52,10 +52,9 @@ REQUIRED_USE="
 "
 
 #UGC_COMMIT_ID="6d4e4813f98aa2217c8f5d1e1f64d6fa5c30866e"
-# UGC_PR_COMMITS=(
-# 	f2fbbb954431dcb4f1a62779053692fa2b5c7971
-# 	08aaf6a0c81eb14b5eee59dd92281cd05043f3a7
-# )
+UGC_PR_COMMITS=(
+	65351b70c750167efb566047bbcb1150e00749c3
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -448,7 +447,7 @@ src_prepare() {
 	eend $? || die
 
 	ebegin "Applying domain substitution"
-	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
+	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 	eend $? || die
 
 	local keeplibs=(
