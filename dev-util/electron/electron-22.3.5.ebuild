@@ -1490,6 +1490,10 @@ src_prepare() {
 			 	einfo "Skipping ${i}: webrtc patch. Maybe fix it."
 			 	continue;
 			fi
+			if	[ "$i" = "cherry-pick-56bd20b295b4.patch" ]; then
+			 	einfo "Skipping ${i}: Win targeted patch."
+			 	continue;
+			fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ] ||
 				[ "$i" = "fix_the_gn_gen_for_components_segmentation_platform.patch" ] ; then
