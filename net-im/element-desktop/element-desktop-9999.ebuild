@@ -107,8 +107,8 @@ src_compile() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	#! Until electron-builder >=22.11.5
-	yarn config set ignore-engines true || die
+	# #! Until electron-builder >=22.11.5
+	# yarn config set ignore-engines true || die
 
 	if ! use build-online; then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
@@ -133,9 +133,9 @@ src_compile() {
 	if ! use ppc64; then
 		einfo "Editing ElectronFramework.js"
 		sed -i 's/return unpack(options, createDownloadOpts.*$/return true;/' \
-			node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+			node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 		sed -i 's/return beforeCopyExtraFiles(options);$/return true;/' \
-			node_modules/electron-builder/node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
+			node_modules/app-builder-lib/out/electron/ElectronFramework.js || die
 
 		#!Error: With electron's node: "Unknown argument" electron/electron#25379
 		#!Error: With electron's node: "Invalid package app.asar"
