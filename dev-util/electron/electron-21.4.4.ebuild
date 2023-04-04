@@ -42,13 +42,6 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	)
 	https://github.com/chromium/chromium/commit/ff5696ba4bc0f8782e3de40e04685507d9f17fd2.patch -> ${PN}-ff5696ba4bc0f8782e3de40e04685507d9f17fd2.patch
 
-
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
-	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
 	https://registry.yarnpkg.com/@azure/core-asynciterator-polyfill/-/core-asynciterator-polyfill-1.0.2.tgz -> @azure-core-asynciterator-polyfill-1.0.2.tgz
@@ -1634,6 +1627,10 @@ src_prepare() {
 			# fi
 			if	[ "$i" = "cherry-pick-c79148742421.patch" ]; then
 			 	einfo "Skipping ${i}: Trust me, I'm an engineer! :D"
+			 	continue;
+			fi
+			if	[ "$i" = "cherry-pick-56bd20b295b4.patch" ]; then
+			 	einfo "Skipping ${i}: Win targeted patch."
 			 	continue;
 			fi
 			if [ "$i" = "sysroot.patch" ] ||
