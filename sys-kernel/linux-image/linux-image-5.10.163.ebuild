@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
-KEYWORDS="hppa sparc"
+KEYWORDS="sparc"
 
 #TODO vanilla/kernel.org etc.
 IUSE="+savedconfig"
