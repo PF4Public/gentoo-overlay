@@ -1447,17 +1447,11 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			# if	[ "$i" = "feat_add_data_parameter_to_processsingleton.patch" ]; then
-			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
-			#  	continue;
-			# fi
-			if	[ "$i" = "axselectedtextmarkerrange_should_not_be_backwards.patch" ]; then
+			if	[ "$i" = "mas_avoid_usage_of_private_macos_apis.patch" ]; then
 			 	einfo "Skipping ${i}: Mac targeted patch."
 			 	continue;
 			fi
-			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "build_disable_print_content_analysis.patch" ] ||
-				[ "$i" = "fix_the_gn_gen_for_components_segmentation_platform.patch" ] ; then
+			if [ "$i" = "sysroot.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
 					continue;
@@ -1474,11 +1468,12 @@ src_prepare() {
 			# eapply "${S}/${patch_folder}/$i" || die
 			# popd > /dev/null || die
 			pushd "${patches[$patch_folder]}" > /dev/null || die
-			ebegin "$i"
+			einfo "$i"
+			# ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				-p1 < "${S}/${patch_folder}/$i"
-			eend $? || die
+			# eend $? || die
 			popd > /dev/null || die
 		done
 	done
