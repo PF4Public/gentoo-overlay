@@ -61,6 +61,8 @@ jobs:
           - 'build-online'
           - 'build-online native-modules'
         include:
+          - use: 'electron-19'
+            experimental: true
           - use: 'electron-20'
             experimental: true
           - use: 'electron-21'
@@ -68,8 +70,6 @@ jobs:
           - use: 'electron-22'
             experimental: true
           - use: 'electron-23'
-            experimental: true
-          - use: 'electron-24'
             experimental: true
 
     steps:
