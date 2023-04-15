@@ -24,9 +24,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-20 electron-21 electron-22 electron-23 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-20 electron-21 electron-22 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-20 electron-21 electron-22 electron-23 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-20 electron-21 electron-22 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -51,12 +51,14 @@ COMMON_DEPEND="
 	electron-21? ( dev-util/electron:21 )
 	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
+	electron-24? ( dev-util/electron:24 )
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
 	!electron-23? (
+	!electron-24? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) )
+	) ) ) ) )
 "
 #TODO: oniguruma?
 
@@ -79,6 +81,8 @@ src_unpack() {
 		export ELECTRON_SLOT=22
 	elif use electron-23; then
 		export ELECTRON_SLOT=23
+	elif use electron-24; then
+		export ELECTRON_SLOT=24
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -86,8 +90,8 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-22 || use electron-23; then
-				EGIT_BRANCH="electron-22.x.y"
+			if use electron-24; then
+				EGIT_BRANCH="electron-24.x.y"
 			fi
 			git-r3_src_unpack
 		fi
@@ -231,7 +235,7 @@ src_configure() {
 	fi
 
 	#TODO: should work starting with electron-22
-	if use electron-20 || use electron-21 || use electron-22 || use electron-23 ; then
+	if use electron-20 || use electron-21 || use electron-22 || use electron-23 || use electron-24 ; then
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
