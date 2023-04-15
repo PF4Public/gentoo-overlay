@@ -14,7 +14,7 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="19"
+ELECTRON_SLOT_DEFAULT="24"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online electron-20 electron-21 electron-22 electron-23 native-modules"
+	IUSE="+build-online electron-19 electron-20 electron-21 electron-22 electron-23 native-modules"
 else
-	IUSE="build-online electron-20 electron-21 electron-22 electron-23 native-modules"
+	IUSE="build-online electron-19 electron-20 electron-21 electron-22 electron-23 native-modules"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -46,16 +46,18 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
+	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
 	electron-21? ( dev-util/electron:21 )
 	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
+	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
 	!electron-23? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) )
+	) ) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -73,7 +75,9 @@ BDEPEND="
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	if use electron-20; then
+	if use electron-19; then
+		export ELECTRON_SLOT=19
+	elif use electron-20; then
 		export ELECTRON_SLOT=20
 	elif use electron-21; then
 		export ELECTRON_SLOT=21
