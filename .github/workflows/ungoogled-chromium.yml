@@ -61,7 +61,6 @@ jobs:
           - -clang
           - custom-cflags
           - vaapi -system-libvpx
-          - vdpau
           - -official
           - wayland
         include:
