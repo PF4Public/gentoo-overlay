@@ -339,8 +339,9 @@ src_configure() {
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
 
-	einfo "Fixing l10n-dev"
-	sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
+	#! Although this allows the build to continue, it renders vscode unusable
+	# einfo "Fixing l10n-dev"
+	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
 }
 
 src_compile() {
