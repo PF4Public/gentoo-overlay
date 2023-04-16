@@ -161,9 +161,6 @@ src_prepare() {
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
-	einfo "Skipping api-proposal-names"
-	sed -i '/compileApiProposalNamesTask/d' build/gulpfile.compile.js || die
-
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
@@ -242,8 +239,6 @@ src_configure() {
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-		sed -i 's$.*vscode/l10n-dev.*$"@vscode/l10n-dev": "0.0.24",$' package.json || die;
-
 	fi
 
 	ebegin "Installing node_modules"
@@ -262,10 +257,10 @@ src_configure() {
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	if ! use build-online
 	then
-		ONLINE_OFFLINE="--offline --frozen-lockfile"
+		ONLINE_OFFLINE="--offline"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	yarn install ${ONLINE_OFFLINE} \
+	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 	# --ignore-optional
 	# --ignore-engines
@@ -343,6 +338,9 @@ src_configure() {
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
+
+	einfo "Fixing l10n-dev"
+	sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
 }
 
 src_compile() {
