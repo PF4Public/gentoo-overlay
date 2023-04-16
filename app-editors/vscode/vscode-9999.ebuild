@@ -241,7 +241,7 @@ src_configure() {
 	if use electron-20 || use electron-21 || use electron-22 || use electron-23 || use electron-24 ; then
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0","@vscode/l10n-dev": "^0.0.24",$' package.json || die;
+		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0","@vscode/l10n-dev": "0.0.24",$' package.json || die;
 	fi
 
 	ebegin "Installing node_modules"
@@ -263,8 +263,9 @@ src_configure() {
 		ONLINE_OFFLINE="--offline"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
+	yarn install ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
+	#--frozen-lockfile
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
