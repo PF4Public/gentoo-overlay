@@ -242,7 +242,7 @@ src_configure() {
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-		sed -i 's$vscode/l10n-dev$"@vscode/l10n-dev": "0.0.24",$' package.json || die;
+		sed -i 's$.*vscode/l10n-dev.*$"@vscode/l10n-dev": "0.0.24",$' package.json || die;
 
 	fi
 
