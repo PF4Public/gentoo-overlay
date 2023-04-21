@@ -17,16 +17,16 @@ SRC_URI="
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="19"
+ELECTRON_SLOT_DEFAULT="22"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-20 electron-21 electron-22 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-20 electron-21 electron-22 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]
@@ -47,14 +47,14 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
 	sys-apps/ripgrep
+	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
 	electron-21? ( dev-util/electron:21 )
-	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
+	!electron-19? (
 	!electron-20? (
 	!electron-21? (
-	!electron-22? (
 	!electron-23? (
 	!electron-24? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
@@ -73,12 +73,12 @@ BDEPEND="
 "
 
 src_unpack() {
-	if use electron-20; then
+	if use electron-19; then
+		export ELECTRON_SLOT=19
+	elif use electron-20; then
 		export ELECTRON_SLOT=20
 	elif use electron-21; then
 		export ELECTRON_SLOT=21
-	elif use electron-22; then
-		export ELECTRON_SLOT=22
 	elif use electron-23; then
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
@@ -235,7 +235,7 @@ src_configure() {
 	fi
 
 	#TODO: should work starting with electron-22
-	if use electron-20 || use electron-21 || use electron-22 || use electron-23 || use electron-24 ; then
+	if use electron-20 || use electron-21 || use electron-23 || use electron-24 ; then
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
