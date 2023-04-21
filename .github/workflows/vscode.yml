@@ -63,11 +63,11 @@ jobs:
           - 'substitute-urls'
           - 'build-online'
         include:
+          - use: 'electron-19'
+            experimental: true
           - use: 'electron-20'
             experimental: true
           - use: 'electron-21'
-            experimental: true
-          - use: 'electron-22'
             experimental: true
           - use: 'electron-23'
             experimental: true
