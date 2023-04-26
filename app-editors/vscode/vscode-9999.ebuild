@@ -46,6 +46,7 @@ COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
+	net-libs/nodejs
 	sys-apps/ripgrep
 	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
@@ -338,10 +339,6 @@ src_configure() {
 
 	einfo "Editing build/lib/util.js"
 	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
-
-	#! Although this allows the build to continue, it renders vscode unusable
-	# einfo "Fixing l10n-dev"
-	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
 }
 
 src_compile() {
@@ -365,7 +362,8 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	# Real nodejs needed. See https://github.com/microsoft/vscode-l10n/issues/104
+	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 
 	export PATH=${OLD_PATH}
 }
@@ -377,7 +375,8 @@ src_install() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	# Real nodejs needed. See https://github.com/microsoft/vscode-l10n/issues/104
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
