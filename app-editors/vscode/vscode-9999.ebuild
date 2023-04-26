@@ -46,7 +46,6 @@ COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
-	net-libs/nodejs
 	sys-apps/ripgrep
 	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
@@ -70,6 +69,7 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	${PYTHON_DEPS}
+	net-libs/nodejs
 	sys-apps/yarn
 "
 
