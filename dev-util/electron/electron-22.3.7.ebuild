@@ -1391,7 +1391,7 @@ src_prepare() {
 		local ugc_patch_series="${UGC_WD}/patches/series"
 		local ugc_substitution_list="${UGC_WD}/domain_substitution.list"
 
-		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} service_worker_global_scope.cc"
+		# UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} service_worker_global_scope.cc"
 
 		local ugc_unneeded=(
 			# GN bootstrap
