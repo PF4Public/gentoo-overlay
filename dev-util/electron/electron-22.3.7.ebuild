@@ -1492,6 +1492,11 @@ src_prepare() {
 			 	einfo "Skipping ${i}: webrtc patch. Maybe fix it."
 			 	continue;
 			fi
+			if	[ "$i" = "cherry-pick-2b30a50d0e62.patch" ]; then
+				einfo "Substitute ${i}: seems to be fixing a CVE."
+				i = "${FILESDIR}/cherry-pick-2b30a50d0e62.patch"
+			 	continue;
+			fi
 			if	[ "$i" = "cherry-pick-56bd20b295b4.patch" ]; then
 			 	einfo "Skipping ${i}: Win targeted patch."
 			 	continue;
