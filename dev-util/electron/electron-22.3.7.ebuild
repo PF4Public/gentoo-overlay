@@ -1494,7 +1494,12 @@ src_prepare() {
 			fi
 			if	[ "$i" = "cherry-pick-2b30a50d0e62.patch" ]; then
 				einfo "Substitute ${i}: seems to be fixing a CVE."
-				i = "${FILESDIR}/cherry-pick-2b30a50d0e62.patch"
+				eapply "${FILESDIR}/cherry-pick-2b30a50d0e62.patch" || die
+			 	continue;
+			fi
+			if	[ "$i" = "cherry-pick-f58218891f8c.patch" ]; then
+				einfo "Substitute ${i}"
+				eapply "${FILESDIR}/cherry-pick-f58218891f8c.patch" || die
 			 	continue;
 			fi
 			if	[ "$i" = "cherry-pick-56bd20b295b4.patch" ]; then

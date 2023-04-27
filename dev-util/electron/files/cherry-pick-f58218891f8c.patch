@@ -1,0 +1,13 @@
+--- a/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc
++++ b/third_party/blink/renderer/modules/service_worker/service_worker_global_scope.cc
+@@ -2609,8 +2609,8 @@
+   for (RegisteredEventListener& e : *elv) {
+     EventTarget* et = EventTarget::Create(ScriptController()->GetScriptState());
+     v8::Local<v8::Value> v =
+-        To<JSBasedEventListener>(e.Callback())->GetEffectiveFunction(*et);
+-    if (!v.As<v8::Function>()->Experimental_IsNopFunction()) {
++        To<JSBasedEventListener>(e.Callback())->GetListenerObject(*et);
++    if (v.IsEmpty() || !v->IsFunction() || !v.As<v8::Function>()->Experimental_IsNopFunction()) {
+       return mojom::blink::ServiceWorkerFetchHandlerType::kNotSkippable;
+     }
+   }
