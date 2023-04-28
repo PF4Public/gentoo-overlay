@@ -336,7 +336,6 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-112-sql-relax.patch"
 	)
 
 	if use custom-cflags; then #See #25 #92
