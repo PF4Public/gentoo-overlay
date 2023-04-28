@@ -315,9 +315,9 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' ${WORKDIR}/patches/chromium-*-compiler.patch || die
-	fi
+	# if ! use custom-cflags; then #See #25 #92
+	# 	sed -i '/default_stack_frames/Q' ${WORKDIR}/patches/chromium-*-compiler.patch || die
+	# fi
 
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
@@ -326,7 +326,6 @@ src_prepare() {
 
 		# "${WORKDIR}/patches"
 	local PATCHES=(
-		"${WORKDIR}/patches/chromium-110-compiler.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
@@ -341,6 +340,12 @@ src_prepare() {
 		"${FILESDIR}/chromium-112-libstdc++-1.patch"
 		"${FILESDIR}/chromium-112-sql-relax.patch"
 	)
+
+	if use custom-cflags; then #See #25 #92
+		PATCHES+=( "${FILESDIR}/chromium-113-compiler-custom-cflags.patch" )
+	else
+		PATCHES+=( "${FILESDIR}/chromium-113-compiler.patch" )
+	fi
 
 	if use ppc64 ; then
 		local p
