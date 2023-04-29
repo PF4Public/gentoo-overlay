@@ -283,14 +283,14 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	if use system-libvpx && use vaapi; then
-		ewarn
-		ewarn "New vaapi code depends heavily on libvpx, see #43"
-		ewarn "Consider disabling system-libvpx USE flag if using vaapi"
-		ewarn "A patch to make vaapi compatible with system libvpx is welcome"
-		ewarn
-		[[ -z "${NODIE}" ]] && die "The build will fail!"
-	fi
+	# if use system-libvpx && use vaapi; then
+	# 	ewarn
+	# 	ewarn "New vaapi code depends heavily on libvpx, see #43"
+	# 	ewarn "Consider disabling system-libvpx USE flag if using vaapi"
+	# 	ewarn "A patch to make vaapi compatible with system libvpx is welcome"
+	# 	ewarn
+	# 	[[ -z "${NODIE}" ]] && die "The build will fail!"
+	# fi
 	pre_build_checks
 
 	if use headless; then
@@ -326,7 +326,7 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
-		# "${WORKDIR}/patches"
+	# "${WORKDIR}/patches"
 	local PATCHES=(
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
@@ -394,7 +394,12 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
-	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
+	if use use vaapi; then
+		eapply "${FILESDIR}/vaapi-av1.diff"
+		if use system-libvpx; then
+			eapply "${FILESDIR}/chromium-system-libvpx-vaapi.patch"
+		fi
+	fi
 
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
