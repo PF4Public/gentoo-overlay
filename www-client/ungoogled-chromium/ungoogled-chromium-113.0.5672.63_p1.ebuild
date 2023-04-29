@@ -30,6 +30,8 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 		${PATCHSET_URI_PPC64}/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
 	)
+	https://github.com/chromium/chromium/commit/e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch -> ${PN}-e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch
+	https://github.com/chromium/chromium/commit/2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch -> ${PN}-2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch
 "
 
 LICENSE="BSD"
@@ -336,6 +338,8 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${DISTDIR}/${PN}-e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch"
+		"${DISTDIR}/${PN}-2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch"
 	)
 
 	if use custom-cflags; then #See #25 #92
