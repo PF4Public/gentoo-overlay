@@ -96,7 +96,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-libevent? ( dev-libs/libevent )
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
-	system-libvpx? ( >=media-libs/libvpx-1.8.2:=[postproc] )
+	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
 	system-libusb? ( virtual/libusb:1 )
 	system-icu? ( >=dev-libs/icu-71.1:= )
 	>=dev-libs/libxml2-2.9.4-r3:=[icu]
@@ -113,7 +113,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/openh264-1.6.0:=
 	system-av1? (
 		>=media-libs/dav1d-1.0.0:=
-		>=media-libs/libaom-3.4.0:=
+		>media-libs/libaom-3.6.0:=
 	)
 	sys-libs/zlib:=
 	x11-libs/libdrm:=
