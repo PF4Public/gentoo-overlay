@@ -394,7 +394,7 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
-	if use use vaapi; then
+	if use vaapi; then
 		eapply "${FILESDIR}/vaapi-av1.diff"
 		if use system-libvpx; then
 			eapply "${FILESDIR}/chromium-system-libvpx-vaapi.patch"
