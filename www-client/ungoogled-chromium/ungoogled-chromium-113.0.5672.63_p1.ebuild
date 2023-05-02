@@ -30,8 +30,6 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 		${PATCHSET_URI_PPC64}/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
 	)
-	https://github.com/chromium/chromium/commit/e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch -> ${PN}-e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch
-	https://github.com/chromium/chromium/commit/2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch -> ${PN}-2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch
 "
 
 LICENSE="BSD"
@@ -58,6 +56,11 @@ UGC_COMMIT_ID="7cc6ebed027babca3dfd884940753b307877d267"
 # 	65351b70c750167efb566047bbcb1150e00749c3
 # )
 
+CHROMIUM_COMMITS=(
+	e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763
+	2e14a3ac178ee87aa9154e5a15dcd986af1b6059
+)
+
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
 UGC_URL="https://github.com/ungoogled-software/${PN}/archive/"
@@ -76,6 +79,13 @@ SRC_URI+="${UGC_URL}
 if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	for i in "${UGC_PR_COMMITS[@]}"; do
 		SRC_URI+="https://github.com/ungoogled-software/${PN}/commit/$i.patch -> ${PN}-$i.patch
+		"
+	done
+fi
+
+if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
+	for i in "${CHROMIUM_COMMITS[@]}"; do
+		SRC_URI+="https://github.com/chromium/chromium/commit/$i.patch -> ${PN}-$i.patch
 		"
 	done
 fi
@@ -338,9 +348,13 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${DISTDIR}/${PN}-e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763.patch"
-		"${DISTDIR}/${PN}-2e14a3ac178ee87aa9154e5a15dcd986af1b6059.patch"
 	)
+
+	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
+		for i in "${CHROMIUM_COMMITS[@]}"; do
+			PATCHES+=( "${DISTDIR}/${PN}-$i.patch" )
+		done
+	fi
 
 	if use custom-cflags; then #See #25 #92
 		PATCHES+=( "${FILESDIR}/chromium-113-compiler-custom-cflags.patch" )
