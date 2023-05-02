@@ -51,7 +51,7 @@ REQUIRED_USE="
 	!proprietary-codecs? ( !hevc )
 "
 
-UGC_COMMIT_ID="7cc6ebed027babca3dfd884940753b307877d267"
+UGC_COMMIT_ID="6f64ff61f02524138aa707a999e4b29467bdd67d"
 # UGC_PR_COMMITS=(
 # 	65351b70c750167efb566047bbcb1150e00749c3
 # )
@@ -359,7 +359,7 @@ src_prepare() {
 	if use custom-cflags; then #See #25 #92
 		PATCHES+=( "${FILESDIR}/chromium-113-compiler-custom-cflags.patch" )
 	else
-		PATCHES+=( "${FILESDIR}/chromium-113-compiler.patch"  )
+		PATCHES+=( "${FILESDIR}/chromium-113-compiler.patch" )
 	fi
 
 	if use ppc64 ; then
