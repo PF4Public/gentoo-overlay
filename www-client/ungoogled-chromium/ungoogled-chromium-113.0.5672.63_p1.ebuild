@@ -35,7 +35,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid system-av1 +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy thinlto vaapi wayland widevine"
+IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy system-woff2 thinlto vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -49,6 +49,7 @@ REQUIRED_USE="
 	screencast? ( wayland )
 	!headless ( || ( X wayland ) )
 	!proprietary-codecs? ( !hevc )
+	hevc? ( system-ffmpeg )
 "
 
 UGC_COMMIT_ID="6f64ff61f02524138aa707a999e4b29467bdd67d"
@@ -103,6 +104,11 @@ COMMON_X_DEPEND="
 "
 
 COMMON_SNAPSHOT_DEPEND="
+	system-abseil-cpp? ( dev-cpp/abseil-cpp )
+	system-brotli? ( app-arch/brotli )
+	system-crc32c? ( dev-libs/crc32c )
+	system-double-conversion? ( dev-libs/double-conversion )
+	system-woff2? ( media-libs/woff2 )
 	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
@@ -501,7 +507,11 @@ src_prepare() {
 
 	local keeplibs=(
 		base/third_party/cityhash
+	)
+	use system-double-conversion || keeplibs+=(
 		base/third_party/double_conversion
+	)
+	keeplibs+=(
 		base/third_party/dynamic_annotations
 		base/third_party/icu
 		base/third_party/nspr
@@ -518,11 +528,19 @@ src_prepare() {
 		net/third_party/nss
 		net/third_party/quic
 		net/third_party/uri_template
+	)
+	use system-abseil-cpp || keeplibs+=(
 		third_party/abseil-cpp
+	)
+	keeplibs+=(
 		third_party/angle
 		third_party/angle/src/common/third_party/xxhash
 		third_party/angle/src/third_party/ceval
+	)
+	use nvidia || keeplibs+=(
 		third_party/angle/src/third_party/libXNVCtrl
+	)
+	keeplibs+=(
 		third_party/angle/src/third_party/systeminfo
 		third_party/angle/src/third_party/volk
 		third_party/apple_apsl
@@ -533,7 +551,11 @@ src_prepare() {
 		third_party/boringssl/src/third_party/fiat
 		third_party/breakpad
 		third_party/breakpad/breakpad/src/third_party/curl
+	)
+	use system-brotli || keeplibs+=(
 		third_party/brotli
+	)
+	keeplibs+=(
 		third_party/catapult
 		third_party/catapult/common/py_vulcanize/third_party/rcssmin
 		third_party/catapult/common/py_vulcanize/third_party/rjsmin
@@ -556,7 +578,11 @@ src_prepare() {
 		third_party/crashpad
 		third_party/crashpad/crashpad/third_party/lss
 		third_party/crashpad/crashpad/third_party/zlib
+	)
+	use system-crc32c || keeplibs+=(
 		third_party/crc32c
+	)
+	keeplibs+=(
 		third_party/cros_system_api
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
@@ -742,7 +768,11 @@ src_prepare() {
 		third_party/webrtc/rtc_base/third_party/base64
 		third_party/webrtc/rtc_base/third_party/sigslot
 		third_party/widevine
+	)
+	use system-woff2 || keeplibs+=(
 		third_party/woff2
+	)
+	keeplibs+=(
 		third_party/wuffs
 		third_party/x11proto
 		third_party/xcbproto
@@ -810,8 +840,10 @@ src_prepare() {
 		popd >/dev/null || die
 	fi
 
+	ebegin "Removing bundled libraries"
 	# Remove most bundled libraries. Some are still needed.
-	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
+	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
+	eend $? || die
 
 	# bundled eu-strip is for amd64 only and we don't want to pre-stripped binaries
 	mkdir -p buildtools/third_party/eu-strip/bin || die
@@ -922,6 +954,45 @@ src_configure() {
 		libxslt
 		zlib
 	)
+	if use system-abseil-cpp; then
+	gn_system_libraries+=(
+		absl_algorithm
+		absl_base
+		absl_cleanup
+		absl_container
+		absl_debugging
+		absl_flags
+		absl_functional
+		absl_hash
+		absl_log
+		absl_log_internal
+		absl_memory
+		absl_meta
+		absl_numeric
+		absl_random
+		absl_status
+		absl_strings
+		absl_synchronization
+		absl_time
+		absl_types
+		absl_utility
+	)
+	fi
+	if use system-brotli; then
+		gn_system_libraries+=( brotli )
+	fi
+	if use system-crc32c; then
+		gn_system_libraries+=( crc32c )
+	fi
+	if use system-double-conversion; then
+		gn_system_libraries+=( double-conversion )
+	fi
+	if use system-woff2; then
+		gn_system_libraries+=( woff2 )
+	fi
+	if use nvidia; then
+		gn_system_libraries+=( libXNVCtrl )
+	fi
 	if use system-ffmpeg; then
 		gn_system_libraries+=( ffmpeg opus )
 	fi
