@@ -2303,8 +2303,9 @@ src_configure() {
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
-	einfo "Editing build/lib/util.js"
-	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
+	einfo "Editing build/lib/getVersion.js"
+	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
+		build/lib/getVersion.js || die
 
 	#TODO Although this allows the build to continue, it renders vscode unusable
 	#TODO Does it really? Investigate later
