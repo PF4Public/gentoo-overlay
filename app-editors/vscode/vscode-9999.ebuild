@@ -126,20 +126,20 @@ src_prepare() {
 	# sed -i '/applicationinsights/d' package.json || die
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
-	if ! use build-online; then
-		#TODO: remove after esbuild dep >= 0.13.0 vvvvv
-		sed -i '/"esbuild"/d' extensions/package.json || die
-		sed -i '/"esbuild"/d' build/package.json || die
-		#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
+	# if ! use build-online; then
+	# 	#TODO: remove after esbuild dep >= 0.13.0 vvvvv
+	# 	sed -i '/"esbuild"/d' extensions/package.json || die
+	# 	sed -i '/"esbuild"/d' build/package.json || die
+	# 	#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
-		# einfo "Removing markdown-math. Enable build-online if you need it."
-		# rm -r extensions/markdown-math
-		# sed -i '/markdown-math/d' build/filters.js || die
-		# sed -i '/markdown-math/d' build/npm/dirs.js || die
-		# sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
-		# sed -i '/markdown-math/d' build/lib/extensions.js || die
-		# sed -i '/markdown-math/d' build/lib/extensions.ts || die
-	fi
+	# 	# einfo "Removing markdown-math. Enable build-online if you need it."
+	# 	# rm -r extensions/markdown-math
+	# 	# sed -i '/markdown-math/d' build/filters.js || die
+	# 	# sed -i '/markdown-math/d' build/npm/dirs.js || die
+	# 	# sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
+	# 	# sed -i '/markdown-math/d' build/lib/extensions.js || die
+	# 	# sed -i '/markdown-math/d' build/lib/extensions.ts || die
+	# fi
 
 	# sed -i '/"electron"/d' package.json || die
 	# sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -287,52 +287,52 @@ src_configure() {
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
-	#TODO: remove after esbuild dep >= 0.13.0 vvvvv
-	if ! use build-online; then
-	einfo "Restoring esbuild in build"
-	pushd build/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
-	mv package esbuild
-	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-64
-	elif [[ $myarch = ppc64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-ppc64le
-	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-32
-	fi
-	popd > /dev/null || die
-	eend $? || die
-	fi
+	# #TODO: remove after esbuild dep >= 0.13.0 vvvvv
+	# if ! use build-online; then
+	# einfo "Restoring esbuild in build"
+	# pushd build/node_modules > /dev/null || die
+	# tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
+	# mv package esbuild
+	# if [[ $myarch = amd64 ]] ; then
+	# 	tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-64
+	# elif [[ $myarch = ppc64 ]] ; then
+	# 	tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-ppc64le
+	# else
+	# 	tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-32
+	# fi
+	# popd > /dev/null || die
+	# eend $? || die
+	# fi
 
-	if ! use build-online; then
-	einfo "Restoring esbuild in extensions"
-	mkdir -p extensions/node_modules
-	pushd extensions/node_modules > /dev/null || die
-	tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
-	mv package esbuild
-	if [[ $myarch = amd64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-64
-	elif [[ $myarch = ppc64 ]] ; then
-		tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-ppc64le
-	else
-		tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
-		cp -f package/bin/esbuild esbuild/bin/
-		mv package esbuild-linux-32
-	fi
-	popd > /dev/null || die
-	eend $? || die
-	fi
-	#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
+	# if ! use build-online; then
+	# einfo "Restoring esbuild in extensions"
+	# mkdir -p extensions/node_modules
+	# pushd extensions/node_modules > /dev/null || die
+	# tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
+	# mv package esbuild
+	# if [[ $myarch = amd64 ]] ; then
+	# 	tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-64
+	# elif [[ $myarch = ppc64 ]] ; then
+	# 	tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-ppc64le
+	# else
+	# 	tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
+	# 	cp -f package/bin/esbuild esbuild/bin/
+	# 	mv package esbuild-linux-32
+	# fi
+	# popd > /dev/null || die
+	# eend $? || die
+	# fi
+	# #TODO: remove after esbuild dep >= 0.13.0 ^^^^^
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
