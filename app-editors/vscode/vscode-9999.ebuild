@@ -29,8 +29,7 @@ else
 	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
-	if [ -z "$CODE_COMMIT_ID" ]
-	then
+	if [ -z "$CODE_COMMIT_ID" ]; then
 		DOWNLOAD+="${PV}.tar.gz -> ${P}.tar.gz"
 	else
 		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
@@ -126,21 +125,6 @@ src_prepare() {
 	# sed -i '/applicationinsights/d' package.json || die
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
-	# if ! use build-online; then
-	# 	#TODO: remove after esbuild dep >= 0.13.0 vvvvv
-	# 	sed -i '/"esbuild"/d' extensions/package.json || die
-	# 	sed -i '/"esbuild"/d' build/package.json || die
-	# 	#TODO: remove after esbuild dep >= 0.13.0 ^^^^^
-
-	# 	# einfo "Removing markdown-math. Enable build-online if you need it."
-	# 	# rm -r extensions/markdown-math
-	# 	# sed -i '/markdown-math/d' build/filters.js || die
-	# 	# sed -i '/markdown-math/d' build/npm/dirs.js || die
-	# 	# sed -i '/markdown-math/d' build/gulpfile.extensions.js || die
-	# 	# sed -i '/markdown-math/d' build/lib/extensions.js || die
-	# 	# sed -i '/markdown-math/d' build/lib/extensions.ts || die
-	# fi
-
 	# sed -i '/"electron"/d' package.json || die
 	# sed -i '/vscode-ripgrep/d' remote/package.json || die
 	# sed -i '/"playwright"/d' package.json || die
@@ -177,26 +161,22 @@ src_prepare() {
 	mv product.json product.json.bak || die
 	sed -i '1d' product.json.bak || die
 
-	if use liveshare
-	then
-	sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.vscode-js-profile-flame", "ms-vsliveshare.vsliveshare",/' product.json.bak || die
+	if use liveshare; then
+		sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.vscode-js-profile-flame", "ms-vsliveshare.vsliveshare",/' product.json.bak || die
 	fi
 
-	if use insiders
-	then
-	sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.references-view", "ms-vsliveshare.vsliveshare", "ms-vsliveshare.cloudenv", "ms-vsliveshare.cloudenv-explorer", "ms-vsonline.vsonline", "GitHub.vscode-pull-request-github", "GitHub.vscode-pull-request-github-insiders", "Microsoft.vscode-nmake-tools", "ms-vscode-remote.remote-containers", "ms-vscode-remote.remote-containers-nightly", "ms-vscode-remote.remote-ssh", "ms-vscode-remote.remote-ssh-nightly", "ms-vscode-remote.remote-ssh-edit", "ms-vscode-remote.remote-ssh-edit-nightly", "ms-vscode-remote.remote-wsl", "ms-vscode-remote.remote-wsl-nightly", "ms-vscode-remote.vscode-remote-extensionpack", "ms-vscode-remote.vscode-remote-extensionpack-nightly", "ms-azuretools.vscode-docker", "ms-vscode.azure-account", "ms-vscode.js-debug", "ms-vscode.js-debug-nightly", "ms-vscode.vscode-js-profile-table", "ms-vscode.vscode-js-profile-flame", "ms-vscode.vscode-github-issue-notebooks", "ms-vscode.vscode-markdown-notebook", "ms-azuretools.vscode-azurestaticwebapps", "ms-dotnettools.dotnet-interactive-vscode", "ms-python.python", "ms-ai-tools.notebook-renderers",/' product.json.bak || die
+	if use insiders; then
+		sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.references-view", "ms-vsliveshare.vsliveshare", "ms-vsliveshare.cloudenv", "ms-vsliveshare.cloudenv-explorer", "ms-vsonline.vsonline", "GitHub.vscode-pull-request-github", "GitHub.vscode-pull-request-github-insiders", "Microsoft.vscode-nmake-tools", "ms-vscode-remote.remote-containers", "ms-vscode-remote.remote-containers-nightly", "ms-vscode-remote.remote-ssh", "ms-vscode-remote.remote-ssh-nightly", "ms-vscode-remote.remote-ssh-edit", "ms-vscode-remote.remote-ssh-edit-nightly", "ms-vscode-remote.remote-wsl", "ms-vscode-remote.remote-wsl-nightly", "ms-vscode-remote.vscode-remote-extensionpack", "ms-vscode-remote.vscode-remote-extensionpack-nightly", "ms-azuretools.vscode-docker", "ms-vscode.azure-account", "ms-vscode.js-debug", "ms-vscode.js-debug-nightly", "ms-vscode.vscode-js-profile-table", "ms-vscode.vscode-js-profile-flame", "ms-vscode.vscode-github-issue-notebooks", "ms-vscode.vscode-markdown-notebook", "ms-azuretools.vscode-azurestaticwebapps", "ms-dotnettools.dotnet-interactive-vscode", "ms-python.python", "ms-ai-tools.notebook-renderers",/' product.json.bak || die
 	fi
 
 	cat "${FILESDIR}/heading.json" > product.json
-	if use openvsx
-	then
+	if use openvsx; then
 		cat "${FILESDIR}/openvsx.json" >> product.json
 	else
 		cat "${FILESDIR}/marketplace.json" >> product.json
 	fi
 
-	if use badge-providers
-	then
+	if use badge-providers; then
 		cat "${FILESDIR}/badge_prov.json" >> product.json
 	fi
 
@@ -210,14 +190,13 @@ src_prepare() {
 	einfo "Disabling automatic updates by default"
 	perl -0777 -pi -e "s/enum: \['none', 'manual', 'start', 'default'\],\n\s*default: 'default',/enum: ['none', 'manual', 'start', 'default'], default: 'none',/m or die" src/vs/platform/update/common/update.config.contribution.ts || die
 
-	if use substitute-urls
-	then
-		ebegin "Substituting urls"
-			#Taken from VSCodium
-			TELEMETRY_URLS="[^/]+\.data\.microsoft\.com"
-			REPLACEMENT="s/$TELEMETRY_URLS/0\.0\.0\.0/g"
-			grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
-		eend $? || die
+	if use substitute-urls; then
+	ebegin "Substituting urls"
+		#Taken from VSCodium
+		TELEMETRY_URLS="[^/]+\.data\.microsoft\.com"
+		REPLACEMENT="s/$TELEMETRY_URLS/0\.0\.0\.0/g"
+		grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
+	eend $? || die
 	fi
 }
 
@@ -225,18 +204,18 @@ src_configure() {
 
 	local myarch="$(tc-arch)"
 
-	if [[ $myarch = amd64 ]] ; then
+	if [[ $myarch = amd64 ]]; then
 		VSCODE_ARCH="x64"
-	elif [[ $myarch = x86 ]] ; then
+	elif [[ $myarch = x86 ]]; then
 		VSCODE_ARCH="ia32"
-	elif [[ $myarch = ppc64 ]] ; then
+	elif [[ $myarch = ppc64 ]]; then
 		VSCODE_ARCH="ppc64"
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
 
 	#TODO: should work starting with electron-22
-	if use electron-20 || use electron-21 || use electron-23 || use electron-24 ; then
+	if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
 		CPPFLAGS="${CPPFLAGS} -std=c++17";
 		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
@@ -256,8 +235,7 @@ src_configure() {
 	# echo "$PATH"
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	if ! use build-online
-	then
+	if ! use build-online; then
 		ONLINE_OFFLINE="--offline"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
@@ -279,66 +257,20 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd "node_modules/@vscode" > /dev/null || die
-	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-	mv package ripgrep
-	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
-	sed -i '/"postinstall"/d' ripgrep/package.json || die
+		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
+		mv package ripgrep
+		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
+		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
-	# #TODO: remove after esbuild dep >= 0.13.0 vvvvv
-	# if ! use build-online; then
-	# einfo "Restoring esbuild in build"
-	# pushd build/node_modules > /dev/null || die
-	# tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
-	# mv package esbuild
-	# if [[ $myarch = amd64 ]] ; then
-	# 	tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-64
-	# elif [[ $myarch = ppc64 ]] ; then
-	# 	tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-ppc64le
-	# else
-	# 	tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-32
-	# fi
-	# popd > /dev/null || die
-	# eend $? || die
-	# fi
-
-	# if ! use build-online; then
-	# einfo "Restoring esbuild in extensions"
-	# mkdir -p extensions/node_modules
-	# pushd extensions/node_modules > /dev/null || die
-	# tar -xf "${DISTDIR}/esbuild-${VS_ESBUILD_V}.tgz"
-	# mv package esbuild
-	# if [[ $myarch = amd64 ]] ; then
-	# 	tar -xf "${DISTDIR}/esbuild-linux-64-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-64
-	# elif [[ $myarch = ppc64 ]] ; then
-	# 	tar -xf "${DISTDIR}/esbuild-linux-ppc64le-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-ppc64le
-	# else
-	# 	tar -xf "${DISTDIR}/esbuild-linux-32-${VS_ESBUILD_V}.tgz"
-	# 	cp -f package/bin/esbuild esbuild/bin/
-	# 	mv package esbuild-linux-32
-	# fi
-	# popd > /dev/null || die
-	# eend $? || die
-	# fi
-	# #TODO: remove after esbuild dep >= 0.13.0 ^^^^^
-
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
-	einfo "Editing build/lib/util.js"
-	sed -i 's/.*\!version.*/if \(false\)\{/' build/lib/util.js || die
+	einfo "Editing build/lib/getVersion.js"
+	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
+		build/lib/getVersion.js || die
 
 	#TODO Although this allows the build to continue, it renders vscode unusable
 	#TODO Does it really? Investigate later
@@ -348,12 +280,10 @@ src_configure() {
 
 src_compile() {
 
-	if [ -d ".git" ]
-	then
+	if [ -d ".git" ]; then
 	    COMMIT_ID="$(git rev-parse HEAD)"
 	else
-		if [ -z "$CODE_COMMIT_ID" ]
-		then
+		if [ -z "$CODE_COMMIT_ID" ]; then
 			COMMIT_ID="${PV}"
 		else
 			COMMIT_ID="${CODE_COMMIT_ID}"
