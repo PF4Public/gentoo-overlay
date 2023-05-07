@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
 PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="xml(+)"
 
@@ -9,7 +10,8 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
+inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs virtualx xdg-utils
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -188,6 +190,7 @@ COMMON_DEPEND="
 		)
 	)
 "
+
 RDEPEND="${COMMON_DEPEND}
 	!headless? (
 		|| (
@@ -202,12 +205,14 @@ RDEPEND="${COMMON_DEPEND}
 	!www-client/chromium-bin
 	!www-client/ungoogled-chromium-bin
 "
+
 DEPEND="${COMMON_DEPEND}
 	!headless? (
 		gtk4? ( gui-libs/gtk:4[X?,wayland?] )
 		!gtk4? ( x11-libs/gtk+:3[X?,wayland?] )
 	)
 "
+
 BDEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
 	${PYTHON_DEPS}
@@ -227,7 +232,10 @@ BDEPEND="
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
-	clang? ( sys-devel/clang sys-devel/lld )
+	clang? (
+		pgo? ( >=sys-devel/clang-16 >=sys-devel/lld-16	)
+		!pgo? ( sys-devel/clang sys-devel/lld )
+	)
 	cfi? ( sys-devel/clang-runtime[sanitize] )
 "
 
@@ -275,7 +283,7 @@ pre_build_checks() {
 	CHECKREQS_MEMORY="4G"
 	CHECKREQS_DISK_BUILD="12G"
 	tc-is-cross-compiler && CHECKREQS_DISK_BUILD="14G"
-	if ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
+	if is-flagq '-g?(gdb)?([1-9])'; then
 		CHECKREQS_DISK_BUILD="16G"
 	fi
 	check-reqs_${EBUILD_PHASE_FUNC}
@@ -351,27 +359,8 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0001-openscreen.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0003-ruy.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0004-swiftshader.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0005-tensorflow-tflite.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0006-vulkanmemoryallocator.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0007-misc.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0008-dawn.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0009-base.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0010-components.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0011-s2cellid.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0014-maldoca.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0015-net.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0016-cc-targetproperty.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0017-gpu_feature_info.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0018-encounteredsurfacetracker.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0019-documentattachmentinfo.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0020-pdfium.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0021-gcc-copy-list-init-net-HostCache.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0022-gcc-ambiguous-ViewTransitionElementId-type.patch"
-		"${FILESDIR}/chromium-112-gcc-13-0023-gcc-incomplete-type-v8-subtype.patch"
-		"${FILESDIR}/chromium-113-gcc-13-vulkan-build-fixes.patch"
+		"${FILESDIR}/gcc-13"
+		"${FILESDIR}/clang"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
@@ -1132,6 +1121,11 @@ src_configure() {
 		# Prevent libvpx/xnnpack build failures. Bug 530248, 544702, 546984, 853646.
 		if [[ ${myarch} == amd64 || ${myarch} == x86 ]]; then
 			filter-flags -mno-mmx -mno-sse2 -mno-ssse3 -mno-sse4.1 -mno-avx -mno-avx2 -mno-fma -mno-fma4 -mno-xop -mno-sse4a
+		fi
+
+		if tc-is-gcc; then
+			# https://bugs.gentoo.org/904455
+			append-cxxflags "$(test-flags-CXX -fno-tree-vectorize)"
 		fi
 	fi
 
