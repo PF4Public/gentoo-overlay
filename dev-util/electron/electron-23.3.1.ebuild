@@ -1273,7 +1273,10 @@ src_unpack() {
 	unpack "node-v${NODE_VERSION}.tar.xz"
 	unpack "${PATCHSET_NAME}.tar.xz"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
-	use ppc64 && unpack "${PATCHSET_NAME_PPC64}.tar.xz"
+	if use ppc64; then
+		unpack "${PATCHSET_NAME_PPC64}.tar.xz"
+		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
+	fi
 }
 
 src_prepare() {
