@@ -13,7 +13,7 @@ LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.0"
 VS_ESBUILD_V="0.17.14"
-SRC_URI="!build-online? (
+SRC_URI="!build-online? ( 
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://github.com/joaomoreno/node-tree-sitter/releases/download/v0.20.0/tree-sitter-0.20.0.tgz
 	https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz
