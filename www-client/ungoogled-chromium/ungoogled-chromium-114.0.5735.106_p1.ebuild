@@ -370,9 +370,9 @@ src_prepare() {
 	fi
 
 	if use custom-cflags; then #See #25 #92
-		PATCHES+=( "${FILESDIR}/chromium-113-compiler-custom-cflags.patch" )
+		PATCHES+=( "${FILESDIR}/chromium-114-compiler-custom-cflags.patch" )
 	else
-		PATCHES+=( "${FILESDIR}/chromium-113-compiler.patch" )
+		PATCHES+=( "${FILESDIR}/chromium-114-compiler.patch" )
 	fi
 
 	if use ppc64 ; then
