@@ -220,16 +220,16 @@ index bd039fc..4d3759a 100644
    cflags = [ "-O1" ] + common_optimize_on_cflags
    rustflags = [ "-Copt-level=1" ]
    ldflags = common_optimize_on_ldflags
-@@ -2356,7 +2253,8 @@ config("win_pdbaltpath") {
+@@ -2403,7 +2403,8 @@
  }
  
  # Full symbols.
 -config("symbols") {
 +config("symbols") { }
 +config("xsymbols") {
+   rustflags = []
    if (is_win) {
      if (is_clang) {
-       cflags = [
 @@ -2495,7 +2393,8 @@ config("symbols") {
  # Minimal symbols.
  # This config guarantees to hold symbol for stack trace which are shown to user
