@@ -741,7 +741,6 @@ src_prepare() {
 		third_party/utf
 		third_party/vulkan
 		third_party/wayland
-		third_party/web-animations-js
 		third_party/webdriver
 		third_party/webgpu-cts
 		third_party/webrtc
