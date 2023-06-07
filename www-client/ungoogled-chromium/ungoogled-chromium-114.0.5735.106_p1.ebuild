@@ -56,10 +56,9 @@ UGC_COMMIT_ID="b8c27b2133864ac753e8e4086e2c0e60db10115b"
 # 	65351b70c750167efb566047bbcb1150e00749c3
 # )
 
-# CHROMIUM_COMMITS=(
-# 	e55c0bf35f4c54610c3bb40fcdc1b961bfd9f763
-# 	2e14a3ac178ee87aa9154e5a15dcd986af1b6059
-# )
+CHROMIUM_COMMITS=(
+	2914039316d4ed3f53c3393dc2ba48f637807689
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -233,7 +232,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >=sys-devel/clang-16 >=sys-devel/lld-16	)
+		pgo? ( >=sys-devel/clang-17 >=sys-devel/lld-17	)
 		!pgo? ( sys-devel/clang sys-devel/lld )
 	)
 	cfi? ( sys-devel/clang-runtime[sanitize] )
@@ -348,8 +347,8 @@ src_prepare() {
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
 	# "${WORKDIR}/patches"
-#		"${FILESDIR}/gcc-13"
-#		"${FILESDIR}/clang"
+	# "${FILESDIR}/gcc-13"
+	# "${FILESDIR}/clang"
 	local PATCHES=(
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
