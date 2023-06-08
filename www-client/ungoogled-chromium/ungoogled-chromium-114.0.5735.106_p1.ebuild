@@ -1093,6 +1093,7 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" enable_rust=false"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
