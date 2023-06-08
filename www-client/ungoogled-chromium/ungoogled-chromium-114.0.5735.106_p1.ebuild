@@ -868,7 +868,7 @@ src_configure() {
 	fi
 
 	# Force lld for lto or pgo builds only, otherwise disable, bug 641556
-	if use thinlto || use pgo; then
+	if use thinlto || use pgo || use nvidia; then
 		myconf_gn+=" use_lld=true"
 	else
 		myconf_gn+=" use_lld=false"
