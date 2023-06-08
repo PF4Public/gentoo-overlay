@@ -58,6 +58,7 @@ UGC_COMMIT_ID="b8c27b2133864ac753e8e4086e2c0e60db10115b"
 
 CHROMIUM_COMMITS=(
 	2914039316d4ed3f53c3393dc2ba48f637807689
+	-54969766fd2029c506befc46e9ce14d67c7ed02a
 )
 
 UGC_PV="${PV/_p/-}"
@@ -84,7 +85,7 @@ fi
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
-		SRC_URI+="https://github.com/chromium/chromium/commit/$i.patch -> ${PN}-$i.patch
+		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch -> ${PN}-${i/-}.patch
 		"
 	done
 fi
@@ -364,7 +365,11 @@ src_prepare() {
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${CHROMIUM_COMMITS[@]}"; do
-			PATCHES+=( "${DISTDIR}/${PN}-$i.patch" )
+			if [[ $i = -*  ]]; then
+				eapply -R "${DISTDIR}/${PN}-${i/-}.patch" || die
+			else
+				PATCHES+=( "${DISTDIR}/${PN}-$i.patch" )
+			fi
 		done
 	fi
 
