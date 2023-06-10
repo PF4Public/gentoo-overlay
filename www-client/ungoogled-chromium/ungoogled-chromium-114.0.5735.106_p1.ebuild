@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="xml(+)"
 
 CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
@@ -23,8 +23,9 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_URI_PPC64="https://quickbuild.io/~raptor-engineering-public"
-PATCHSET_NAME_PPC64="chromium_112.0.5615.49-2raptor0~deb11u1.debian"
+PATCHSET_NAME_PPC64="chromium_114.0.5735.106-1raptor0~deb11u1.debian"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
+	https://dev.gentoo.org/~sam/distfiles/www-client/chromium/chromium-112-gcc-13-patches.tar.xz
 	ppc64? (
 		${PATCHSET_URI_PPC64}/+archive/ubuntu/chromium/+files/${PATCHSET_NAME_PPC64}.tar.xz
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
@@ -46,7 +47,7 @@ REQUIRED_USE="
 	pgo? ( clang )
 	x86? ( !thinlto !widevine )
 	screencast? ( wayland )
-	!headless ( || ( X wayland ) )
+	!headless? ( || ( X wayland ) )
 	!proprietary-codecs? ( !hevc )
 	hevc? ( system-ffmpeg )
 "
@@ -59,6 +60,8 @@ UGC_COMMIT_ID="b8c27b2133864ac753e8e4086e2c0e60db10115b"
 CHROMIUM_COMMITS=(
 	2914039316d4ed3f53c3393dc2ba48f637807689
 	-54969766fd2029c506befc46e9ce14d67c7ed02a
+	a1fec6273f3ad7c73b35bb420a5540355df35b74
+	2af2d08972d14d5bdd91e0515eb5b15b4444aee9
 )
 
 UGC_PV="${PV/_p/-}"
@@ -326,12 +329,6 @@ pkg_setup() {
 	pre_build_checks
 
 	chromium_suid_sandbox_check_kernel_config
-
-	# nvidia-drivers does not work correctly with Wayland due to unsupported EGLStreams
-	if use wayland && ! use headless && has_version "x11-drivers/nvidia-drivers"; then
-		ewarn "Proprietary nVidia driver does not work with Wayland. You can disable"
-		ewarn "Wayland by setting DISABLE_OZONE_PLATFORM=true in /etc/chromium/default."
-	fi
 }
 
 src_prepare() {
@@ -347,17 +344,39 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
-	# "${WORKDIR}/patches"
-	# "${FILESDIR}/gcc-13"
-	# "${FILESDIR}/clang"
+	# Tis lazy, but tidy this up in 115.
+	pushd "${WORKDIR}/chromium-112-gcc-13-patches/" || die
+		rm chromium-112-gcc-13-0002-perfetto.patch || die
+		rm chromium-112-gcc-13-0004-swiftshader.patch || die
+		rm chromium-112-gcc-13-0007-misc.patch || die
+		rm chromium-112-gcc-13-0008-dawn.patch || die
+		rm chromium-112-gcc-13-0009-base.patch || die
+		rm chromium-112-gcc-13-0010-components.patch || die
+		rm chromium-112-gcc-13-0011-s2cellid.patch || die
+		rm chromium-112-gcc-13-0012-webrtc-base64.patch || die
+		rm chromium-112-gcc-13-0013-quiche.patch || die
+		rm chromium-112-gcc-13-0015-net.patch || die
+		rm chromium-112-gcc-13-0016-cc-targetproperty.patch || die
+		rm chromium-112-gcc-13-0017-gpu_feature_info.patch || die
+		rm chromium-112-gcc-13-0018-encounteredsurfacetracker.patch || die
+		rm chromium-112-gcc-13-0019-documentattachmentinfo.patch  || die
+		rm chromium-112-gcc-13-0020-pdfium.patch || die
+		rm chromium-112-gcc-13-0021-gcc-copy-list-init-net-HostCache.patch || die
+		rm chromium-112-gcc-13-0022-gcc-ambiguous-ViewTransitionElementId-type.patch || die
+		rm chromium-112-gcc-13-0023-gcc-incomplete-type-v8-subtype.patch || die
+	popd || die
+
 	local PATCHES=(
+		"${FILESDIR}/chromium-cross-compile.patch"
+		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
-		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
+		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
-		"${FILESDIR}/chromium-cross-compile.patch"
+		"${WORKDIR}/chromium-112-gcc-13-patches"
+		"${FILESDIR}/chromium-113-gcc-13-0001-vulkanmemoryallocator.patch"
+		"${FILESDIR}/chromium-113-swiftshader-cstdint.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
@@ -637,7 +656,6 @@ src_prepare() {
 		third_party/libevent
 	)
 	keeplibs+=(
-
 		third_party/libgav1
 		third_party/libjingle
 		third_party/libphonenumber
@@ -911,14 +929,8 @@ src_configure() {
 		myconf_gn+=" host_toolchain=\"//build/toolchain/linux/unbundle:default\""
 	fi
 
-	# Create dummy pkg-config file for libsystemd, only dependency of installer
-	mkdir "${T}/libsystemd" || die
-	cat <<- EOF > "${T}/libsystemd/libsystemd.pc"
-		Name:
-		Description:
-		Version:
-	EOF
-	local -x PKG_CONFIG_PATH="${PKG_CONFIG_PATH:+"${PKG_CONFIG_PATH}:"}${T}/libsystemd"
+	# Disable rust for now; it's only used for testing and we don't need the additional bdep
+	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=false"
@@ -1093,7 +1105,6 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
-	myconf_gn+=" enable_rust=false"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
