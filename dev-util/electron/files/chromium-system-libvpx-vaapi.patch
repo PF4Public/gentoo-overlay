@@ -1,0 +1,24 @@
+--- a/build/linux/unbundle/libvpx.gn
++++ b/build/linux/unbundle/libvpx.gn
+@@ -5,7 +5,7 @@
+ import("//build/config/linux/pkg_config.gni")
+ import("//build/shim_headers.gni")
+ 
+-pkg_config("system_libvpx") {
++pkg_config("libvpx_config") {
+   packages = [ "vpx" ]
+ }
+ 
+@@ -28,5 +28,10 @@
+ 
+ source_set("libvpx") {
+   deps = [ ":libvpx_shim" ]
+-  public_configs = [ ":system_libvpx" ]
++  public_configs = [ ":libvpx_config" ]
+ }
++
++source_set("libvpxrc") {
++  deps = [ ":libvpx_shim" ]
++  public_configs = [ ":libvpx_config" ]
++}
+
