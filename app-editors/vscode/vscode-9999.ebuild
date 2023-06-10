@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
@@ -24,9 +24,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls"
 else
-	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -51,13 +51,15 @@ COMMON_DEPEND="
 	electron-21? ( dev-util/electron:21 )
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
+	electron-25? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-23? (
 	!electron-24? (
+	!electron-25? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) )
+	) ) ) ) ) )
 "
 #TODO: oniguruma?
 
@@ -83,6 +85,8 @@ src_unpack() {
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
 		export ELECTRON_SLOT=24
+	elif use electron-25; then
+		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -90,9 +94,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-24; then
-				EGIT_BRANCH="electron-24.x.y"
-			fi
+			# if use electron-24; then
+			# 	EGIT_BRANCH="electron-24.x.y"
+			# fi
 			git-r3_src_unpack
 		fi
 	else
