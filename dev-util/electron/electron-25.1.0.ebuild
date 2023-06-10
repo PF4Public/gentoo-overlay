@@ -1314,7 +1314,7 @@ src_unpack() {
 	unpack "${CHROMIUM_P}.tar.xz"
 	unpack "${P}.tar.gz"
 	unpack "node-v${NODE_VERSION}.tar.xz"
-	unpack "${PATCHSET_NAME}.tar.xz"
+	unpack "chromium-112-gcc-13-patches.tar.xz"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
 	if use ppc64; then
 		unpack "${PATCHSET_NAME_PPC64}.tar.xz"
