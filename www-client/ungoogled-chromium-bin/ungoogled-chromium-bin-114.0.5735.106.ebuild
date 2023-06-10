@@ -66,7 +66,7 @@ CDEPEND="
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
 	dev-libs/libxslt
-	=dev-libs/icu-72*:0"
+	=dev-libs/icu-73*:0"
 
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
