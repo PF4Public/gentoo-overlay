@@ -218,6 +218,7 @@ src_configure() {
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
+	#TODO: exported but unavailable if emerge/ebuild restarted
 	export VSCODE_ARCH
 
 	#TODO: should work starting with electron-22
