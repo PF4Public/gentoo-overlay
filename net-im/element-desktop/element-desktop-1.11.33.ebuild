@@ -1033,7 +1033,7 @@ if [[ ${PV} = *9999* ]]; then
 	DOWNLOAD=""
 	IUSE="+build-online electron-19 electron-20 electron-21 electron-22 electron-23 native-modules"
 else
-	IUSE="build-online electron-19 electron-20 electron-21 electron-22 electron-23 native-modules"
+	IUSE="build-online electron-19 electron-20 electron-21 electron-22 electron-25 electron-23 native-modules"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -1060,13 +1060,15 @@ COMMON_DEPEND="
 	electron-21? ( dev-util/electron:21 )
 	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
+	electron-25? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
 	!electron-23? (
+	!electron-25? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) )
+	) ) ) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -1094,6 +1096,8 @@ src_unpack() {
 		export ELECTRON_SLOT=22
 	elif use electron-23; then
 		export ELECTRON_SLOT=23
+	elif use electron-25; then
+		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
