@@ -377,6 +377,7 @@ src_prepare() {
 		"${WORKDIR}/chromium-112-gcc-13-patches"
 		"${FILESDIR}/chromium-113-gcc-13-0001-vulkanmemoryallocator.patch"
 		"${FILESDIR}/chromium-113-swiftshader-cstdint.patch"
+		"${FILESDIR}/clang-15-fixes.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
