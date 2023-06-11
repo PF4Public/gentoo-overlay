@@ -68,9 +68,9 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 "
 
+	# net-libs/nodejs
 BDEPEND="
 	${PYTHON_DEPS}
-	net-libs/nodejs
 	sys-apps/yarn
 "
 
@@ -302,8 +302,8 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	# Real nodejs needed. See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 
 	export PATH=${OLD_PATH}
 }
@@ -315,8 +315,8 @@ src_install() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	# Real nodejs needed. See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
