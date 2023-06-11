@@ -1578,7 +1578,8 @@ src_prepare() {
 			 	einfo "Skipping ${i}: Mac targeted patch."
 			 	continue;
 			fi
-			if [ "$i" = "sysroot.patch" ]; then
+			if [ "$i" = "sysroot.patch" ] ||
+				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
 					continue;
@@ -1599,7 +1600,7 @@ src_prepare() {
 			# ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
-				-p1 < "${S}/${patch_folder}/$i"
+				-p1 < "${S}/${patch_folder}/$i" || die
 			# eend $? || die
 			popd > /dev/null || die
 		done
