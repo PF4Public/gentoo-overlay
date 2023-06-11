@@ -68,9 +68,9 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 "
 
-	# net-libs/nodejs
 BDEPEND="
 	${PYTHON_DEPS}
+	net-libs/nodejs
 	sys-apps/yarn
 "
 
@@ -218,6 +218,7 @@ src_configure() {
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
+	export VSCODE_ARCH
 
 	#TODO: should work starting with electron-22
 	if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
@@ -303,7 +304,7 @@ src_compile() {
 	export PATH
 
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 
 	export PATH=${OLD_PATH}
 }
@@ -316,7 +317,7 @@ src_install() {
 	export PATH
 
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
