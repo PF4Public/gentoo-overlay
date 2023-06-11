@@ -37,7 +37,7 @@
                                  row_auto_repetitions);
  
    bool has_nested_subgrid = false;
--auto& [grid_items, layout_data, subtree_size] =
+-  auto& [grid_items, layout_data, subtree_size] =
 +  auto& sizing_data =
        sizing_tree->CreateSizingData(opt_subgrid_data);
 +  auto& grid_items = sizing_data.grid_items;

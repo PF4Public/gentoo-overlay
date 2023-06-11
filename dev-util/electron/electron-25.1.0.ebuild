@@ -90,7 +90,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/@azure/core-asynciterator-polyfill/-/core-asynciterator-polyfill-1.0.2.tgz -> @azure-core-asynciterator-polyfill-1.0.2.tgz
 	https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.3.2.tgz -> @azure-core-auth-1.3.2.tgz
 	https://registry.yarnpkg.com/@azure/core-http/-/core-http-2.2.4.tgz -> @azure-core-http-2.2.4.tgz
-	https://registry.yarnpkg.com/@azure/core-lro/-/core-lro-2.2.4.tgz -> @azure-core-lro-2.2.4.tgz
+	https://registry.yarnpkg.com/@azure/core-lro/-/core-lro-2.2.4.tgz ->  @azure-core-lro-2.2.4.tgz
 	https://registry.yarnpkg.com/@azure/core-paging/-/core-paging-1.2.1.tgz -> @azure-core-paging-1.2.1.tgz
 	https://registry.yarnpkg.com/@azure/core-tracing/-/core-tracing-1.0.0-preview.13.tgz -> @azure-core-tracing-1.0.0-preview.13.tgz
 	https://registry.yarnpkg.com/@azure/logger/-/logger-1.0.3.tgz -> @azure-logger-1.0.3.tgz
@@ -1571,7 +1571,7 @@ src_prepare() {
 			# 	continue;
 			# fi
 			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch"  ]; then
+			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
