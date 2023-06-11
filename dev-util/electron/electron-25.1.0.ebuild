@@ -1571,7 +1571,7 @@ src_prepare() {
 			# 	continue;
 			# fi
 			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
+			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch"  ]; then
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
