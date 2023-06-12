@@ -20,7 +20,7 @@
 		Chromium.
 	</longdescription>
 	<use>
-		<flag name="convert-dict">Install also the convert_dict utility. The script will be installed into /opt/chromium-browser/update-dicts.sh More info here: https://github.com/Eloston/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
+		<flag name="convert-dict">Install also the convert_dict utility. The script will be installed into /opt/chromium-browser/update-dicts.sh More info here: https://github.com/ungoogled-software/ungoogled-chromium/issues/188#issuecomment-444752907</flag>
 		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
 	</use>
 </pkgmetadata>
