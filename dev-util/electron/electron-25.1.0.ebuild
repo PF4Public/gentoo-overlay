@@ -1170,7 +1170,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/openh264-1.6.0:=
 	system-av1? (
 		>=media-libs/dav1d-1.0.0:=
-		>=media-libs/libaom-9999:=
+		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
 	x11-libs/libdrm:=
