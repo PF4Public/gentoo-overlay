@@ -1482,6 +1482,9 @@ src_prepare() {
 		if use system-libvpx; then
 			eapply "${FILESDIR}/chromium-system-libvpx-vaapi.patch"
 		fi
+		if use system-av1; then
+			eapply "${FILESDIR}/chromium-system-libaom-vaapi.patch"
+		fi
 	fi
 
 	if use ungoogled; then
