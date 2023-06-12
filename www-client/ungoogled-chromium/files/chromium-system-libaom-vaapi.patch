@@ -1,0 +1,12 @@
+--- a/build/linux/unbundle/libaom.gn
++++ b/build/linux/unbundle/libaom.gn
+@@ -32,3 +32,8 @@
+   deps = [ ":aom_shim" ]
+   public_configs = [ ":system_aom" ]
+ }
++
++source_set("libaomrc") {
++  deps = [ ":aom_shim" ]
++  public_configs = [ ":system_aom" ]
++}
+
