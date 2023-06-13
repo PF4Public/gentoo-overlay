@@ -60,14 +60,10 @@ jobs:
         use:
           - -clang
           - custom-cflags
-          - vaapi -system-libvpx
+          - vaapi -system-libvpx -system-av1
           - ungoogled
           - wayland
         include:
-          - use: vaapi system-libvpx
-            experimental: true
-          - use: system-libvpx
-            experimental: true
           - use: pgo
             experimental: true
           - use: thinlto optimize-thinlto
