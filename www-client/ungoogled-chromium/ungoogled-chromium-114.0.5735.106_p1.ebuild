@@ -50,6 +50,7 @@ REQUIRED_USE="
 	!headless? ( || ( X wayland ) )
 	!proprietary-codecs? ( !hevc )
 	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
 "
 
 #UGC_COMMIT_ID="b8c27b2133864ac753e8e4086e2c0e60db10115b"
@@ -307,14 +308,6 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	# if use system-libvpx && use vaapi; then
-	# 	ewarn
-	# 	ewarn "New vaapi code depends heavily on libvpx, see #43"
-	# 	ewarn "Consider disabling system-libvpx USE flag if using vaapi"
-	# 	ewarn "A patch to make vaapi compatible with system libvpx is welcome"
-	# 	ewarn
-	# 	[[ -z "${NODIE}" ]] && die "The build will fail!"
-	# fi
 	pre_build_checks
 
 	if use headless; then
@@ -446,15 +439,7 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
-	if use vaapi; then
-		eapply "${FILESDIR}/vaapi-av1.diff"
-		if use system-libvpx; then
-			eapply "${FILESDIR}/chromium-system-libvpx-vaapi.patch"
-		fi
-		if use system-av1; then
-			eapply "${FILESDIR}/chromium-system-libaom-vaapi.patch"
-		fi
-	fi
+	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
 
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
