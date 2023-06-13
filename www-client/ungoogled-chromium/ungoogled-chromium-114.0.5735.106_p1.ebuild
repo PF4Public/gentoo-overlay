@@ -436,8 +436,8 @@ src_prepare() {
 	if use system-ffmpeg; then
 		if has_version "<media-video/ffmpeg-5.0"; then
 			eapply "${FILESDIR}/chromium-93-ffmpeg-4.4.patch"
-			eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 		fi
+		eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
 		eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
 	fi
