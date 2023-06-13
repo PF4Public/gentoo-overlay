@@ -1126,7 +1126,7 @@ CHROMIUM_COMMITS=(
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
-		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch -> ${PN}-${i/-}.patch
+		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch -> chromium-${i/-}.patch
 		"
 	done
 fi
@@ -1411,9 +1411,9 @@ src_prepare() {
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${CHROMIUM_COMMITS[@]}"; do
 			if [[ $i = -*  ]]; then
-				eapply -R "${DISTDIR}/${PN}-${i/-}.patch" || die
+				eapply -R "${DISTDIR}/chromium-${i/-}.patch" || die
 			else
-				PATCHES+=( "${DISTDIR}/${PN}-$i.patch" )
+				PATCHES+=( "${DISTDIR}/chromium-$i.patch" )
 			fi
 		done
 	fi
