@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
@@ -121,8 +121,8 @@ src_prepare() {
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
-	einfo "Removing extensions/npm"
-	einfo "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
+	ewarn "Removing extensions/npm"
+	ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
 	rm -r extensions/npm
 	sed -i '/extensions\/npm/d' build/npm/dirs.js || die
 
