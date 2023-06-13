@@ -1114,6 +1114,7 @@ REQUIRED_USE="
 	x86? ( !thinlto )
 	!proprietary-codecs? ( !hevc )
 	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
 "
 
 CHROMIUM_COMMITS=(
@@ -1287,14 +1288,6 @@ pkg_pretend() {
 		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 #119 for details"
 		ewarn
 	fi
-	# if use system-libvpx && use vaapi; then
-	# 	ewarn
-	# 	ewarn "New vaapi code depends heavily on libvpx, see #43"
-	# 	ewarn "Consider disabling system-libvpx USE flag if using vaapi"
-	# 	ewarn "A patch to make vaapi compatible with system libvpx is welcome"
-	# 	ewarn
-	# 	[[ -z "${NODIE}" ]] && die "The build will fail!"
-	# fi
 	pre_build_checks
 
 	if [ "$CHROMIUM_VERSION_WARNING" = "true" ]; then
@@ -1477,15 +1470,7 @@ src_prepare() {
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
-	if use vaapi; then
-		eapply "${FILESDIR}/vaapi-av1.diff"
-		if use system-libvpx; then
-			eapply "${FILESDIR}/chromium-system-libvpx-vaapi.patch"
-		fi
-		if use system-av1; then
-			eapply "${FILESDIR}/chromium-system-libaom-vaapi.patch"
-		fi
-	fi
+	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
 
 	if use ungoogled; then
 		# From here we adapt ungoogled-chromium's patches to our needs
