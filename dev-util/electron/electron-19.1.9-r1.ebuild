@@ -3,7 +3,7 @@
 
 EAPI=8
 PYTHON_COMPAT=( python3_{10..12} )
-PYTHON_REQ_USE="xml"
+PYTHON_REQ_USE="xml(+)"
 
 CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
