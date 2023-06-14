@@ -1498,6 +1498,10 @@ src_prepare() {
 			#  	einfo "Skipping ${i}: Not adding data parameter to ProcessSingleton, which will also be absent from app.requestSingleInstanceLock API."
 			#  	continue;
 			# fi
+			if	[ "$i" = "cherry-pick-3b0607d14060.patch" ]; then
+			 	einfo "Skipping ${i}: Does not apply."
+			 	continue;
+			fi
 			if	[ "$i" = "axselectedtextmarkerrange_should_not_be_backwards.patch" ]; then
 			 	einfo "Skipping ${i}: Mac targeted patch."
 			 	continue;
@@ -1525,6 +1529,7 @@ src_prepare() {
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
+				--exclude="*/test/data/*" \
 				-p1 < "${S}/${patch_folder}/$i"
 			eend $? || die
 			popd > /dev/null || die
