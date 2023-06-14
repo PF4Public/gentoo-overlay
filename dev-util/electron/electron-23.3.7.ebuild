@@ -1524,6 +1524,7 @@ src_prepare() {
 			ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
+				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				-p1 < "${S}/${patch_folder}/$i"
 			eend $? || die
 			popd > /dev/null || die
