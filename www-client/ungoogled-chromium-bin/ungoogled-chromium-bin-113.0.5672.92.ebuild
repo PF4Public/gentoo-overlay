@@ -147,6 +147,8 @@ src_install() {
 
 	doins -r ./usr/$(get_libdir)/chromium-browser/locales
 
+	use widevine && dosym "../../usr/$(get_libdir)/chromium-browser/WidevineCdm" "${CHROMIUM_HOME}/WidevineCdm"
+
 	# Install icons and desktop entry
 	newicon -s 48 ./usr/share/icons/hicolor/256x256/apps/chromium-browser.png chromium-browser.png
 
