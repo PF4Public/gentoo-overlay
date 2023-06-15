@@ -466,11 +466,6 @@ src_prepare() {
 		sed -i "\!${p}.patch!d" "${ugc_patch_series}" || die
 	done
 
-	if use pgo || [ ! -z "$UGC_COMMIT_ID" ]; then
-		ewarn "Keeping binary profile data in source tree for pgo"
-		sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-	fi
-
 	if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
 	for p in ${UGC_SKIP_PATCHES}; do
 		ewarn "Removing ${p}"
