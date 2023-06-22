@@ -67,6 +67,8 @@ jobs:
         include:
           - use: pgo
             experimental: true
+          - use: uazo-bromite
+            experimental: true
           - use: thinlto optimize-thinlto
             experimental: true
           - use: cfi thinlto
