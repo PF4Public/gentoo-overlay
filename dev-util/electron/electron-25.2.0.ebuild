@@ -1495,16 +1495,6 @@ src_prepare() {
 			sed -i "\!${p}.patch!d" "${ugc_patch_series}" || die
 		done
 
-
-		if use pgo || [[ ! "$UGC_PVR" =~ ^${CHROMIUM_VERSION}.* ]]; then
-			if [[ ! "$UGC_PVR" =~ ^${CHROMIUM_VERSION}.* ]]; then
-			 	ewarn "Keeping binary profile data for pruning to succeed"
-			else
-			 	ewarn "Keeping binary profile data in source tree for pgo"
-			fi
-			sed -i '\!chrome/build/pgo_profiles/.*!d' "${ugc_pruning_list}" || die
-		fi
-
 		if [ ! -z "${UGC_SKIP_PATCHES}" ]; then
 		for p in ${UGC_SKIP_PATCHES}; do
 			ewarn "Removing ${p}"
