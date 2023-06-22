@@ -32,13 +32,14 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 	)
 "
 
-LICENSE="BSD"
+LICENSE="BSD uazo-bromite? ( GPL-3 )"
 SLOT="0"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui pax-kernel pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy system-woff2 thinlto vaapi wayland widevine"
+IUSE="+X cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui pax-kernel pgo pic +proprietary-codecs pulseaudio qt5 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png +system-re2 +system-snappy system-woff2 thinlto uazo-bromite vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
+	uazo-bromite? ( bindist )
 "
 REQUIRED_USE="
 	thinlto? ( clang )
@@ -57,6 +58,8 @@ REQUIRED_USE="
 # UGC_PR_COMMITS=(
 # 	65351b70c750167efb566047bbcb1150e00749c3
 # )
+
+UAZO_BROMITE_COMMIT_ID="4c5f4ee4027f63ffc584014f1391e2413fb899cd"
 
 CHROMIUM_COMMITS=(
 	2914039316d4ed3f53c3393dc2ba48f637807689
@@ -93,6 +96,9 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 	done
 fi
+
+SRC_URI+="uazo-bromite? ( https://github.com/uazo/bromite/archive/${UAZO_BROMITE_COMMIT_ID}.tar.gz -> bromite-${UAZO_BROMITE_COMMIT_ID}.tar.gz )
+"
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -308,6 +314,14 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
+	if use uazo-bromite; then
+		ewarn
+		ewarn "uazo-bromite patches are very experimental and unstable"
+		ewarn "Please consider testing them and giving feedback upstream:"
+		ewarn "https://github.com/uazo/bromite-buildtools/issues"
+		ewarn "Not all patches are applied, let me know if any other are worthy of inclusion"
+		ewarn
+	fi
 	pre_build_checks
 
 	if use headless; then
@@ -400,6 +414,37 @@ src_prepare() {
 			fi
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
+	fi
+
+	if use uazo-bromite ; then
+		PATCHES+=(
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/disable-battery-status-updater.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Battery-API-return-nothing.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Add-a-proxy-configuration-page.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Offer-builtin-autocomplete-for-chrome-flags.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Disable-requests-for-single-word-Omnibar-searches.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Hardening-against-incognito-mode-detection.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Client-hints-overrides.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Disable-idle-detection.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Disable-TLS-resumption.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Remove-navigator.connection-info.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/AudioBuffer-AnalyserNode-fp-mitigations.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/00Fonts-fingerprinting-mitigation.patch"
+
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/bromite-build-utils.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Content-settings-infrastructure.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Add-autoplay-site-setting.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Site-setting-for-images.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/JIT-site-settings.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Add-webGL-site-setting.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Add-webRTC-site-settings.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Show-site-settings-for-cookies-javascript-and-ads.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Viewport-Protection-flag.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Viewport-Protection-Site-Setting.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/Timezone-customization.patch"
+			"${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/patches/00Disable-speechSynthesis-getVoices-API.patch"
+		)
 	fi
 
 	default
