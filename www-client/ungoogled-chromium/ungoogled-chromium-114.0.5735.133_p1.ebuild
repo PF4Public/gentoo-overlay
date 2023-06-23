@@ -449,6 +449,7 @@ src_prepare() {
 			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
+			einfo "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 					--exclude="*/uv/test/*" --exclude="*.rst" \
 					--exclude="*/cctest/*" --exclude="*/unittests/*" \
@@ -456,7 +457,7 @@ src_prepare() {
 					-p1 < "$i" || die
 		done
 	fi
-	
+
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
