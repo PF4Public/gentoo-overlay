@@ -1543,8 +1543,7 @@ src_prepare() {
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
 		einfo "- ${patch_folder}"
-		for i in "${topatch[@]}";
-		do
+		for i in "${topatch[@]}"; do
 			# if	[ "$i" = "feat_add_uv_loop_interrupt_on_io_change_option_to_uv_loop_configure.patch" ]; then
 			# 	einfo "Partially applying ${i}"
 			# 	pushd "${patches[$patch_folder]}" > /dev/null || die
