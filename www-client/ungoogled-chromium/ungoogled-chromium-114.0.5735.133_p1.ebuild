@@ -416,40 +416,47 @@ src_prepare() {
 		PATCHES+=( "${WORKDIR}/ppc64le" )
 	fi
 
-	if use uazo-bromite ; then
-		BROMITE_PATCHES="${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/build/patches/"
-		PATCHES+=(
-			"${BROMITE_PATCHES}/disable-battery-status-updater.patch"
-			"${BROMITE_PATCHES}/Battery-API-return-nothing.patch"
-			"${BROMITE_PATCHES}/Add-a-proxy-configuration-page.patch"
-			"${BROMITE_PATCHES}/Offer-builtin-autocomplete-for-chrome-flags.patch"
-			"${BROMITE_PATCHES}/Disable-requests-for-single-word-Omnibar-searches.patch"
-			"${BROMITE_PATCHES}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
-			"${BROMITE_PATCHES}/Hardening-against-incognito-mode-detection.patch"
-			"${BROMITE_PATCHES}/Client-hints-overrides.patch"
-			"${BROMITE_PATCHES}/Disable-idle-detection.patch"
-			"${BROMITE_PATCHES}/Disable-TLS-resumption.patch"
-			"${BROMITE_PATCHES}/Remove-navigator.connection-info.patch"
-			"${BROMITE_PATCHES}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
-			"${BROMITE_PATCHES}/00Fonts-fingerprinting-mitigation.patch"
-
-			"${BROMITE_PATCHES}/bromite-build-utils.patch"
-			"${BROMITE_PATCHES}/Content-settings-infrastructure.patch"
-			"${BROMITE_PATCHES}/Add-autoplay-site-setting.patch"
-			"${BROMITE_PATCHES}/Site-setting-for-images.patch"
-			"${BROMITE_PATCHES}/JIT-site-settings.patch"
-			"${BROMITE_PATCHES}/Add-webGL-site-setting.patch"
-			"${BROMITE_PATCHES}/Add-webRTC-site-settings.patch"
-			"${BROMITE_PATCHES}/Show-site-settings-for-cookies-javascript-and-ads.patch"
-			"${BROMITE_PATCHES}/Viewport-Protection-flag.patch"
-			"${BROMITE_PATCHES}/Viewport-Protection-Site-Setting.patch"
-			"${BROMITE_PATCHES}/Timezone-customization.patch"
-			"${BROMITE_PATCHES}/00Disable-speechSynthesis-getVoices-API.patch"
-		)
-	fi
-
 	default
 
+	if use uazo-bromite ; then
+		BR_PA_PATH="${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/build/patches"
+		BROMITE_PATCHES=(
+			"${BR_PA_PATH}/disable-battery-status-updater.patch"
+			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
+			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
+			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
+			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
+			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
+			"${BR_PA_PATH}/Hardening-against-incognito-mode-detection.patch"
+			"${BR_PA_PATH}/Client-hints-overrides.patch"
+			"${BR_PA_PATH}/Disable-idle-detection.patch"
+			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
+			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
+			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
+			"${BR_PA_PATH}/00Fonts-fingerprinting-mitigation.patch"
+
+			"${BR_PA_PATH}/bromite-build-utils.patch"
+			"${BR_PA_PATH}/Content-settings-infrastructure.patch"
+			"${BR_PA_PATH}/Add-autoplay-site-setting.patch"
+			"${BR_PA_PATH}/Site-setting-for-images.patch"
+			"${BR_PA_PATH}/JIT-site-settings.patch"
+			"${BR_PA_PATH}/Add-webGL-site-setting.patch"
+			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
+			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
+			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
+			"${BR_PA_PATH}/Viewport-Protection-Site-Setting.patch"
+			"${BR_PA_PATH}/Timezone-customization.patch"
+			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
+		)
+		for i in "${BROMITE_PATCHES[@]}"; do
+			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
+					--exclude="*/uv/test/*" --exclude="*.rst" \
+					--exclude="*/cctest/*" --exclude="*/unittests/*" \
+					--exclude="*/test/data/*" \
+					-p1 < "$i" || die
+		done
+	fi
+	
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
