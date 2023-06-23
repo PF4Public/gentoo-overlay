@@ -449,12 +449,13 @@ src_prepare() {
 			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
-			einfo "$i"
-			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
-					--exclude="*/uv/test/*" --exclude="*.rst" \
-					--exclude="*/cctest/*" --exclude="*/unittests/*" \
-					--exclude="*/test/data/*" \
-					-p1 < "$i" || die
+			if [ "$i" = "Add-autoplay-site-setting.patch" ]; then
+				einfo "Git binary patch: ${i##*/}"
+				git apply -p1 < "$i" || die
+			else
+				einfo "${i##*/}"
+				eapply  "$i"
+			fi
 		done
 	fi
 
