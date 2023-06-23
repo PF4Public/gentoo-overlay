@@ -442,7 +442,6 @@ src_prepare() {
 			"${BR_PA_PATH}/JIT-site-settings.patch"
 			"${BR_PA_PATH}/Add-webGL-site-setting.patch"
 			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
-			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
 			"${BR_PA_PATH}/Viewport-Protection-Site-Setting.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
@@ -450,6 +449,7 @@ src_prepare() {
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
+				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
 				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
 				einfo "Git binary patch: ${i##*/}"
 				git apply -p1 < "$i" || die
