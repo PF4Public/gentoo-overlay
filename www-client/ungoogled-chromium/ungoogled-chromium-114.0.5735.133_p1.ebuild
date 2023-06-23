@@ -421,7 +421,6 @@ src_prepare() {
 	if use uazo-bromite ; then
 		BR_PA_PATH="${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/build/patches"
 		BROMITE_PATCHES=(
-			"${BR_PA_PATH}/disable-battery-status-updater.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
 			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
@@ -454,7 +453,7 @@ src_prepare() {
 				einfo "Git binary patch: ${i##*/}"
 				git apply -p1 < "$i" || die
 			else
-				einfo "${i##*/}"
+				# einfo "${i##*/}"
 				eapply  "$i"
 			fi
 		done
