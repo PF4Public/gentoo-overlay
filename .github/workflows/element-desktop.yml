@@ -71,7 +71,7 @@ jobs:
             experimental: true
           - use: 'electron-23'
             experimental: true
-          - use: 'electron-25'
+          - use: 'electron-24'
             experimental: true
 
     steps:
