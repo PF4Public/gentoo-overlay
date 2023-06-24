@@ -431,6 +431,9 @@ src_prepare() {
 			"${BR_PA_PATH}/Disable-idle-detection.patch"
 			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
 			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
+
+			"${BR_PA_PATH}/00WIN-ADDTO-Add-a-proxy-configuration-page.patch"
+
 			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
 			"${BR_PA_PATH}/00Fonts-fingerprinting-mitigation.patch"
 
