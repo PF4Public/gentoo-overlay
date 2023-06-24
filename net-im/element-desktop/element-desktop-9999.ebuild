@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit desktop flag-o-matic multilib python-any-r1 xdg-utils
 
@@ -14,7 +14,7 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="24"
+ELECTRON_SLOT_DEFAULT="25"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -22,9 +22,9 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE="+build-online electron-19 electron-20 electron-21 electron-22 electron-23 electron-25 native-modules"
+	IUSE="+build-online electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 native-modules"
 else
-	IUSE="build-online electron-19 electron-20 electron-21 electron-22 electron-23 electron-25 native-modules"
+	IUSE="build-online electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 native-modules"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -51,13 +51,13 @@ COMMON_DEPEND="
 	electron-21? ( dev-util/electron:21 )
 	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
-	electron-25? ( dev-util/electron:25 )
+	electron-24? ( dev-util/electron:24 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
 	!electron-23? (
-	!electron-25? (
+	!electron-24? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	) ) ) ) ) )
 "
@@ -87,8 +87,8 @@ src_unpack() {
 		export ELECTRON_SLOT=22
 	elif use electron-23; then
 		export ELECTRON_SLOT=23
-	elif use electron-25; then
-		export ELECTRON_SLOT=25
+	elif use electron-24; then
+		export ELECTRON_SLOT=24
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
