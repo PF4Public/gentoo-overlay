@@ -481,7 +481,7 @@ src_prepare() {
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
 	fi
-	
+
 	use system-abseil-cpp && eapply "${FILESDIR}/chromium-system-abseil.patch"
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
@@ -582,6 +582,7 @@ src_prepare() {
 		net/third_party/nss
 		net/third_party/quic
 		net/third_party/uri_template
+		third_party/abseil-cpp/absl/base
 	)
 	use system-abseil-cpp || keeplibs+=(
 		third_party/abseil-cpp

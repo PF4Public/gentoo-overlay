@@ -90,3 +90,33 @@
          "absl/types:optional_test",
          "absl/types:variant_test",
          "//third_party/googletest:gtest_main",
+--- a/build/linux/unbundle/absl_base.gn
++++ b/build/linux/unbundle/absl_base.gn
+@@ -1,5 +1,6 @@
+ import("//build/config/linux/pkg_config.gni")
+ import("//build/shim_headers.gni")
++import("//third_party/abseil-cpp/absl.gni")
+ 
+ pkg_config("system_absl_base") {
+   packages = [ "absl_base" ]
+@@ -27,18 +28,12 @@
+   public_configs = [ ":system_absl_base" ]
+ }
+ 
+-shim_headers("config_shim") {
+-  root_path = "."
+-  prefix = "absl/base/"
+-  headers = [
++absl_source_set("config") {
++  public = [
+     "config.h",
+     "options.h",
+     "policy_checks.h",
+   ]
+-}
+-
+-source_set("config") {
+-  deps = [ ":config_shim" ]
+   public_configs = [ ":system_absl_config" ]
+ }
+ 
