@@ -1181,7 +1181,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/alsa-lib-1.0.19:=
 	pulseaudio? (
 		|| (
-			media-sound/pulseaudio
+			media-libs/libpulse
 			>=media-sound/apulse-0.1.9
 		)
 	)

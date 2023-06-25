@@ -3,7 +3,7 @@
 
 EAPI=8
 PYTHON_COMPAT=( python3_{10..12} )
-PYTHON_REQ_USE="xml"
+PYTHON_REQ_USE="xml(+)"
 
 CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
@@ -1431,6 +1431,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86.patch"
+		"${FILESDIR}/python-3.11.patch"
 		"${DISTDIR}/${PN}-94814e869b2a9a61c80c3da22bd6b5bd0133933b.patch"
 	)
 
