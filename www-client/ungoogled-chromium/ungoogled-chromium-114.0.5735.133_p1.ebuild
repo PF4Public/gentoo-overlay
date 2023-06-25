@@ -113,7 +113,7 @@ COMMON_X_DEPEND="
 "
 
 COMMON_SNAPSHOT_DEPEND="
-	system-abseil-cpp? ( dev-cpp/abseil-cpp )
+	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20230125.2 )
 	system-brotli? ( app-arch/brotli )
 	system-crc32c? ( dev-libs/crc32c )
 	system-double-conversion? ( dev-libs/double-conversion )
@@ -149,7 +149,7 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/alsa-lib-1.0.19:=
 		pulseaudio? (
 			|| (
-				media-sound/pulseaudio
+				media-libs/libpulse
 				>=media-sound/apulse-0.1.9
 			)
 		)
@@ -481,6 +481,8 @@ src_prepare() {
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
 	fi
+	
+	use system-abseil-cpp && eapply "${FILESDIR}/chromium-system-abseil.patch"
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
