@@ -482,7 +482,12 @@ src_prepare() {
 			media/base/supported_types.cc || die
 	fi
 
-	use system-abseil-cpp && eapply "${FILESDIR}/chromium-system-abseil.patch"
+	if use system-abseil-cpp; then
+		eapply "${FILESDIR}/chromium-system-abseil.patch"
+		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
+		sed -i '/^#define ABSL_OPTION_USE_STD_OPTIONAL.*$/{s++#define ABSL_OPTION_USE_STD_OPTIONAL 0+;h};${x;/./{x;q0};x;q1}' \
+			third_party/abseil-cpp/absl/base/options.h || die
+	fi
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
