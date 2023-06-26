@@ -1290,6 +1290,13 @@ pkg_pretend() {
 		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 #119 for details"
 		ewarn
 	fi
+	if use system-abseil-cpp; then
+		ewarn
+		ewarn "Chromium code is not very friendly to system abseil-cpp, see #218"
+		ewarn "If you know how to fix this, feel free to submit a PR"
+		ewarn
+		[[ -z "${NODIE}" ]] && die "The build will fail!"
+	fi
 	pre_build_checks
 
 	if [ "$CHROMIUM_VERSION_WARNING" = "true" ]; then
