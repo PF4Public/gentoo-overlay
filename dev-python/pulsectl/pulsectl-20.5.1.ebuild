@@ -5,13 +5,14 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="High-level interface and ctypes-based bindings for PulseAudio"
 HOMEPAGE="https://github.com/mk-fg/python-pulse-control"
-SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="$(pypi_sdist_url "${PN^}" "${PV}")"
+S=${WORKDIR}/${P^}
 
 LICENSE="MIT"
 SLOT="0"
