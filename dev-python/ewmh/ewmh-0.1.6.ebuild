@@ -7,11 +7,12 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="An implementation of Extended Window Manager Hints, based on Xlib"
 HOMEPAGE="https://github.com/parkouss/pyewmh https://pypi.python.org/pypi/ewmh"
-SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="$(pypi_sdist_url "${PN^}" "${PV}")"
+S=${WORKDIR}/${P^}
 
 LICENSE="LGPL-3"
 KEYWORDS="amd64 x86"
