@@ -322,6 +322,13 @@ pkg_pretend() {
 		ewarn "Not all patches are applied, let me know if any other are worthy of inclusion"
 		ewarn
 	fi
+	if use system-abseil-cpp; then
+		ewarn
+		ewarn "Chromium code is not very friendly to system abseil-cpp, see #218"
+		ewarn "If you know how to fix this, feel free to submit a PR"
+		ewarn
+		[[ -z "${NODIE}" ]] && die "The build will fail!"
+	fi
 	pre_build_checks
 
 	if use headless; then
