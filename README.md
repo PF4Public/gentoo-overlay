@@ -10,4 +10,4 @@ Throughout this overlay following keywords are used: **Missing**, **Testing**, *
 **Stable** keywords _( arch )_ are given to ebuilds, which were at least compiled, installed and executed. Unfortunately it is impossible to verify each and every configuration, so they may still fail under some circumstances.
 
 ## Add to your system
-`layman -a pf4public`
+`eselect repository enable pf4public`
