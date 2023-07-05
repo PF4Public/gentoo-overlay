@@ -429,6 +429,8 @@ src_prepare() {
 		BR_PA_PATH="${WORKDIR}/bromite-${UAZO_BROMITE_COMMIT_ID}/build/patches"
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
+			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
+			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
 			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
 			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
@@ -533,6 +535,15 @@ src_prepare() {
 		# GN bootstrap
 		extra/debian/gn/parallel
 	)
+
+	if use uazo-bromite ; then
+		einfo "Using bromite fingerprinting patches instead"
+		ugc_unneeded+=(
+			extra/bromite/fingerprinting-flags-client-rects-and-measuretext
+			extra/bromite/flag-max-connections-per-host
+			extra/bromite/flag-fingerprinting-canvas-image-data-noise
+		)
+	fi
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
