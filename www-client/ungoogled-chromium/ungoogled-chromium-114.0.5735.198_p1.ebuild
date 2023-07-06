@@ -542,6 +542,7 @@ src_prepare() {
 			extra/bromite/fingerprinting-flags-client-rects-and-measuretext
 			extra/bromite/flag-max-connections-per-host
 			extra/bromite/flag-fingerprinting-canvas-image-data-noise
+			extra/ungoogled-chromium/add-components-ungoogled
 		)
 	fi
 
