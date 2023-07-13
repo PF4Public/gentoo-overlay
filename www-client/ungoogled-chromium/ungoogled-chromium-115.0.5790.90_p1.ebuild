@@ -392,12 +392,6 @@ src_prepare() {
 		done
 	fi
 
-	if use custom-cflags; then #See #25 #92
-		PATCHES+=( "${FILESDIR}/chromium-114-compiler-custom-cflags.patch" )
-	else
-		PATCHES+=( "${FILESDIR}/chromium-114-compiler.patch" )
-	fi
-
 	if use ppc64 ; then
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
