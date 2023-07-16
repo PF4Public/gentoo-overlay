@@ -24,9 +24,9 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls temp-fix"
 else
-	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls"
+	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls temp-fix"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -52,14 +52,16 @@ COMMON_DEPEND="
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
 	electron-25? ( dev-util/electron:25 )
+	temp-fix? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-23? (
 	!electron-24? (
 	!electron-25? (
+	!temp-fix? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) )
+	) ) ) ) ) ) )
 "
 #TODO: oniguruma?
 
@@ -85,7 +87,7 @@ src_unpack() {
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
 		export ELECTRON_SLOT=24
-	elif use electron-25; then
+	elif use electron-25 || use temp-fix ; then
 		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
@@ -304,8 +306,12 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
+	if use temp-fix; then
+	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
 	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	fi
 
 	export PATH=${OLD_PATH}
 }
@@ -317,8 +323,12 @@ src_install() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
+	if use temp-fix; then
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
 	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
