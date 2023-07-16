@@ -63,6 +63,8 @@ jobs:
           - 'substitute-urls'
           - 'build-online'
         include:
+          - use: 'temp-fix'
+            experimental: true
           - use: 'electron-19'
             experimental: true
           - use: 'electron-20'
