@@ -41,6 +41,10 @@ SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
+REQUIRED_USE="
+	temp-fix? ( electron-25 )
+"
+
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
@@ -52,16 +56,14 @@ COMMON_DEPEND="
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
 	electron-25? ( dev-util/electron:25 )
-	temp-fix? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-23? (
 	!electron-24? (
 	!electron-25? (
-	!temp-fix? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) )
+	) ) ) ) ) )
 "
 #TODO: oniguruma?
 
@@ -87,7 +89,7 @@ src_unpack() {
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
 		export ELECTRON_SLOT=24
-	elif use electron-25 || use temp-fix ; then
+	elif use electron-25; then
 		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
