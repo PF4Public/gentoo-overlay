@@ -101,7 +101,7 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
-SRC_URI+="uazo-bromite? ( https://github.com/uazo/bromite/archive/${UAZO_BROMITE_COMMIT_ID}.tar.gz -> bromite-${UAZO_BROMITE_COMMIT_ID}.tar.gz )
+SRC_URI+="uazo-bromite? ( https://github.com/uazo/cromite/archive/${UAZO_BROMITE_COMMIT_ID}.tar.gz -> cromite-${UAZO_BROMITE_COMMIT_ID}.tar.gz )
 "
 
 COMMON_X_DEPEND="
