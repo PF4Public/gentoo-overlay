@@ -449,6 +449,9 @@ src_prepare() {
 				eapply  "$i"
 			fi
 		done
+
+		#! conflicting patches
+		sed -i '/FeatureParam/Q' ${UGC_WD}/patches/extra/ungoogled-chromium/remove-uneeded-ui.patch || die
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
