@@ -451,7 +451,7 @@ src_prepare() {
 		done
 
 		#! conflicting patches
-		sed -i '/FeatureParam/Q' ${UGC_WD}/patches/extra/ungoogled-chromium/remove-uneeded-ui.patch || die
+		sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
