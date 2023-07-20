@@ -406,6 +406,10 @@ src_prepare() {
 
 	if use uazo-bromite ; then
 		BR_PA_PATH="${WORKDIR}/cromite-${UAZO_BROMITE_COMMIT_ID}/build/patches"
+
+		#! conflicting patches
+		sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
+
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
@@ -449,9 +453,6 @@ src_prepare() {
 				eapply  "$i"
 			fi
 		done
-
-		#! conflicting patches
-		sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
