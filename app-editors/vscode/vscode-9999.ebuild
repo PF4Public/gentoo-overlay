@@ -19,14 +19,14 @@ SRC_URI="
 REPO="https://github.com/microsoft/vscode"
 ELECTRON_SLOT_DEFAULT="22"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 openvsx substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="badge-providers +build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls temp-fix"
+	IUSE+=" +build-online"
 else
-	IUSE="badge-providers build-online electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 insiders liveshare openvsx substitute-urls temp-fix"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -35,6 +35,7 @@ else
 		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${CODE_COMMIT_ID}"
 	fi
+	IUSE+=" build-online"
 fi
 
 SRC_URI+="${DOWNLOAD}"
@@ -146,7 +147,9 @@ src_prepare() {
 	sed -i '/git config pull/d' build/npm/postinstall.js || die
 
 	einfo "Editing dirs.js"
-	sed -i '/remote/d' build/npm/dirs.js || die
+	if ! use api-proposals; then
+		sed -i '/remote/d' build/npm/dirs.js || die
+	fi
 	sed -i '/test\/automation/d' build/npm/dirs.js || die
 	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
 	sed -i '/test\/smoke/d' build/npm/dirs.js || die
@@ -170,15 +173,8 @@ src_prepare() {
 	mv product.json product.json.bak || die
 	sed -i '1d' product.json.bak || die
 
-	if use liveshare; then
-		sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.vscode-js-profile-flame", "ms-vsliveshare.vsliveshare",/' product.json.bak || die
-	fi
-
-	if use insiders; then
-		sed -i 's/"ms-vscode.vscode-js-profile-flame",/"ms-vscode.references-view", "ms-vsliveshare.vsliveshare", "ms-vsliveshare.cloudenv", "ms-vsliveshare.cloudenv-explorer", "ms-vsonline.vsonline", "GitHub.vscode-pull-request-github", "GitHub.vscode-pull-request-github-insiders", "Microsoft.vscode-nmake-tools", "ms-vscode-remote.remote-containers", "ms-vscode-remote.remote-containers-nightly", "ms-vscode-remote.remote-ssh", "ms-vscode-remote.remote-ssh-nightly", "ms-vscode-remote.remote-ssh-edit", "ms-vscode-remote.remote-ssh-edit-nightly", "ms-vscode-remote.remote-wsl", "ms-vscode-remote.remote-wsl-nightly", "ms-vscode-remote.vscode-remote-extensionpack", "ms-vscode-remote.vscode-remote-extensionpack-nightly", "ms-azuretools.vscode-docker", "ms-vscode.azure-account", "ms-vscode.js-debug", "ms-vscode.js-debug-nightly", "ms-vscode.vscode-js-profile-table", "ms-vscode.vscode-js-profile-flame", "ms-vscode.vscode-github-issue-notebooks", "ms-vscode.vscode-markdown-notebook", "ms-azuretools.vscode-azurestaticwebapps", "ms-dotnettools.dotnet-interactive-vscode", "ms-python.python", "ms-ai-tools.notebook-renderers",/' product.json.bak || die
-	fi
-
 	cat "${FILESDIR}/heading.json" > product.json
+	
 	if use openvsx; then
 		cat "${FILESDIR}/openvsx.json" >> product.json
 	else
@@ -187,6 +183,10 @@ src_prepare() {
 
 	if use badge-providers; then
 		cat "${FILESDIR}/badge_prov.json" >> product.json
+	fi
+
+	if use api-proposals; then
+		cat "${FILESDIR}/api-proposals.json" >> product.json
 	fi
 
 	cat product.json.bak >> product.json

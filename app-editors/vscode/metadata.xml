@@ -13,6 +13,7 @@
 		Visual Studio Code - Open Source
 	</longdescription>
 	<use>
+		<flag name="api-proposals">Enable API proposals !WARNING! Enabling them might be forbidden by Microsoft licensing terms!</flag>
 		<flag name="badge-providers">Allow various badge providers</flag>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="electron-19">Build against electron-19 instead of the default one. Use at your own risk!</flag>
