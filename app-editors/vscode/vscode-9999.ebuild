@@ -19,7 +19,7 @@ SRC_URI="
 REPO="https://github.com/microsoft/vscode"
 ELECTRON_SLOT_DEFAULT="22"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 openvsx substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -147,7 +147,7 @@ src_prepare() {
 	sed -i '/git config pull/d' build/npm/postinstall.js || die
 
 	einfo "Editing dirs.js"
-	if ! use api-proposals; then
+	if ! ( use reh || use reh-web ); then
 		sed -i '/remote/d' build/npm/dirs.js || die
 	fi
 	sed -i '/test\/automation/d' build/npm/dirs.js || die
@@ -174,7 +174,7 @@ src_prepare() {
 	sed -i '1d' product.json.bak || die
 
 	cat "${FILESDIR}/heading.json" > product.json
-	
+
 	if use openvsx; then
 		cat "${FILESDIR}/openvsx.json" >> product.json
 	else
@@ -315,6 +315,24 @@ src_compile() {
 	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
+	#TODO: make reh use the same node as main vscode
+	if use reh; then
+		if use temp-fix; then
+		node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		else
+		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+		/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		fi
+	fi
+	if use reh-web; then
+		if use temp-fix; then
+		node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		else
+		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+		/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		fi
+	fi
+
 	export PATH=${OLD_PATH}
 }
 
@@ -357,6 +375,15 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
+
+	if use reh; then
+		tar cf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
+		doins vscode-server-linux-x64.tar.gz
+	fi
+	if use reh-web; then
+		tar cf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
+		doins vscode-server-linux-x64-web.tar.gz
+	fi
 
 	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
 

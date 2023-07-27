@@ -26,6 +26,8 @@
 		<flag name="insiders">Allow insiders API !WARNING! Enabling this might be illegal!</flag>
 		<flag name="liveshare">Allow liveshare API</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
+		<flag name="reh">Build Remote Extension Host</flag>
+		<flag name="reh-web">Build Remote Extension Host for Web</flag>
 		<flag name="substitute-urls">Even though telemetry is disabled by default in this ebuild, one might want to replace telemetry reporting urls with 0.0.0.0</flag>
 		<flag name="temp-fix">Enable this if vscode does not build for you by default, this could help</flag>
 	</use>
