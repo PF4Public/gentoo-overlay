@@ -58,12 +58,14 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - 'badge-providers insiders liveshare'
+          - 'api-proposals badge-providers'
           - 'openvsx'
           - 'substitute-urls'
           - 'build-online'
         include:
-          - use: 'temp-fix'
+          - use: 'reh reh-web'
+            experimental: true
+          - use: 'temp-fix electron-25'
             experimental: true
           - use: 'electron-19'
             experimental: true
