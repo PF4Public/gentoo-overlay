@@ -375,7 +375,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-114-gcc12.patch"
 		"${FILESDIR}/chromium-114-remove-evdev-dep.patch"
 		"${FILESDIR}/chromium-115-binutils-2.41.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
