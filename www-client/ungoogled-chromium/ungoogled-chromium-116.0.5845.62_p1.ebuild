@@ -364,8 +364,9 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
+		# "${WORKDIR}/patches"
 	local PATCHES=(
-		"${WORKDIR}/patches"
+		"${WORKDIR}/patches/chromium-*-compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-qt6.patch"
