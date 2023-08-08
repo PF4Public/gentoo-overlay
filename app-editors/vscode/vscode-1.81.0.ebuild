@@ -2136,6 +2136,9 @@ src_prepare() {
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
+	#TODO: Might break http.proxyAuthorization
+	sed -i '/kerberos"/d' package.json || die
+
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
