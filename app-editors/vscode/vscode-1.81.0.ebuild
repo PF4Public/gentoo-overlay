@@ -2063,6 +2063,7 @@ COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
+	virtual/krb5
 	sys-apps/ripgrep
 	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
@@ -2088,7 +2089,7 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	${PYTHON_DEPS}
-	net-libs/nodejs
+	!temp-fix? ( net-libs/nodejs )
 	sys-apps/yarn
 "
 
@@ -2135,9 +2136,6 @@ src_prepare() {
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
-
-	#TODO: Might break http.proxyAuthorization
-	sed -i '/kerberos"/d' package.json || die
 
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
