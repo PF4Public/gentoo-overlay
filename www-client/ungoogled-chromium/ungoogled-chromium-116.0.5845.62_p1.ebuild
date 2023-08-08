@@ -117,7 +117,7 @@ COMMON_X_DEPEND="
 
 COMMON_SNAPSHOT_DEPEND="
 	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20230125.2 )
-	system-brotli? ( app-arch/brotli )
+	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
 	system-double-conversion? ( dev-libs/double-conversion )
 	system-woff2? ( media-libs/woff2 )
@@ -482,6 +482,8 @@ src_prepare() {
 		sed -i '/^#define ABSL_OPTION_USE_STD_OPTIONAL.*$/{s++#define ABSL_OPTION_USE_STD_OPTIONAL 0+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
+
+	use system-brotli && eapply "${FILESDIR}/chromium-system-brotli.patch"
 
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
