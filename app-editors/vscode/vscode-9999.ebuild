@@ -17,9 +17,9 @@ SRC_URI="
 "
 
 REPO="https://github.com/microsoft/vscode"
-ELECTRON_SLOT_DEFAULT="22"
+ELECTRON_SLOT_DEFAULT="25"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-23 electron-24 electron-25 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -42,27 +42,26 @@ SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-REQUIRED_USE="
-	temp-fix? ( electron-25 )
-"
+REQUIRED_USE=""
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
+	virtual/krb5
 	sys-apps/ripgrep
 	electron-19? ( dev-util/electron:19 )
 	electron-20? ( dev-util/electron:20 )
 	electron-21? ( dev-util/electron:21 )
+	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
-	electron-25? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
+	!electron-22? (
 	!electron-23? (
 	!electron-24? (
-	!electron-25? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	) ) ) ) ) )
 "
@@ -70,12 +69,13 @@ COMMON_DEPEND="
 
 RDEPEND="${COMMON_DEPEND}
 "
+
 DEPEND="${COMMON_DEPEND}
 "
 
 BDEPEND="
 	${PYTHON_DEPS}
-	net-libs/nodejs
+	!temp-fix? ( net-libs/nodejs )
 	sys-apps/yarn
 "
 
@@ -86,12 +86,12 @@ src_unpack() {
 		export ELECTRON_SLOT=20
 	elif use electron-21; then
 		export ELECTRON_SLOT=21
+	elif use electron-22; then
+		export ELECTRON_SLOT=22
 	elif use electron-23; then
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
 		export ELECTRON_SLOT=24
-	elif use electron-25; then
-		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -126,7 +126,7 @@ src_prepare() {
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
-	ewarn "Removing extensions/npm"
+	ewarn "Removing extensions/npm, see #203"
 	ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
 	rm -r extensions/npm
 	sed -i '/extensions\/npm/d' build/npm/dirs.js || die
@@ -225,12 +225,12 @@ src_configure() {
 	#TODO: exported but unavailable if emerge/ebuild restarted
 	export VSCODE_ARCH
 
-	#TODO: should work starting with electron-22
-	if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
-		CPPFLAGS="${CPPFLAGS} -std=c++17";
-		use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	fi
+	# #TODO: should work starting with electron-22
+	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
+	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
+	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
+	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
+	# fi
 
 	ebegin "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
@@ -315,7 +315,7 @@ src_compile() {
 	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
-	#TODO: make reh use the same node as main vscode
+	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
 		if use temp-fix; then
 		node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
