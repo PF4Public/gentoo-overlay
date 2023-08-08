@@ -56,7 +56,7 @@ REQUIRED_USE="
 	qt6? ( qt5 )
 "
 
-UGC_COMMIT_ID="08c7d3f88317e037c3c95f27f54c5b947a391c7d"
+UGC_COMMIT_ID="157d9dcf3e52af5ec38539a34f23b3d0e2c2a0bf"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -441,6 +441,7 @@ src_prepare() {
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
 			"${BR_PA_PATH}/00Remove-support-for-device-memory-and-cpu-recovery.patch"
+			"${BR_PA_PATH}/00Disable-remote-altsvc-for-h3-connections.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
@@ -498,8 +499,6 @@ src_prepare() {
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
-
-	use vaapi && eapply "${FILESDIR}/vaapi-av1.diff"
 
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
