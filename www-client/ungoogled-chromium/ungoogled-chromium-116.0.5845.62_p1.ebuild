@@ -650,6 +650,7 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/cros_system_api
+		third_party/d3
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
 		third_party/dawn/third_party/khronos
