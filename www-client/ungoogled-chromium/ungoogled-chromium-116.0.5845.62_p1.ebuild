@@ -364,6 +364,9 @@ src_prepare() {
 		# "${WORKDIR}/patches"
 	local PATCHES=(
 		"${WORKDIR}/patches/chromium-115-compiler.patch"
+		"${WORKDIR}/patches/chromium-114-maldoca-include.patch"
+		"${WORKDIR}/patches/chromium-114-ruy-include.patch"
+		"${WORKDIR}/patches/chromium-114-vk_mem_alloc-include.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-qt6.patch"
