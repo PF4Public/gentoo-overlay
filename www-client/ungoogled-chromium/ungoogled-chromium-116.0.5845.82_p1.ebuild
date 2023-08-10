@@ -62,7 +62,7 @@ UGC_COMMIT_ID="1951a830f78307537b7c3d97b537e174799e5f11"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-UAZO_BROMITE_COMMIT_ID="1b5b2306d33e2d6f01ec581f8247273bd5a3d252"
+UAZO_BROMITE_COMMIT_ID="d9c17daf78353f958e8e0fcc49ae0377d2767c7e"
 
 CHROMIUM_COMMITS=(
 	ddfcc907907a20d9f8fbc1416492e2093b339b22
@@ -652,6 +652,7 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/cros_system_api
+		third_party/d3
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
 		third_party/dawn/third_party/khronos
