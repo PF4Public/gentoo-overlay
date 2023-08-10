@@ -66,6 +66,8 @@ UAZO_BROMITE_COMMIT_ID="0596bf43a76da4b2f74e1c3029d76a6d85a5888b"
 
 CHROMIUM_COMMITS=(
 	ddfcc907907a20d9f8fbc1416492e2093b339b22
+	6ab6fdfe3d403b6917069957c707e6822b873962
+	a818a8afbb4e21efb3f261543ccd83081fc30636
 )
 
 UGC_PV="${PV/_p/-}"
@@ -650,7 +652,6 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/cros_system_api
-		third_party/d3
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
 		third_party/dawn/third_party/khronos
