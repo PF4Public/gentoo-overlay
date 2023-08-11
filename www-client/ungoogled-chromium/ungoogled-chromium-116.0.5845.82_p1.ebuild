@@ -323,7 +323,7 @@ pkg_pretend() {
 		ewarn
 		ewarn "uazo-bromite patches are very experimental and unstable"
 		ewarn "Please consider testing them and giving feedback upstream:"
-		ewarn "https://github.com/uazo/bromite-buildtools/issues"
+		ewarn "https://github.com/uazo/cromite/issues"
 		ewarn "Not all patches are applied, let me know if any other are worthy of inclusion"
 		ewarn
 	fi
@@ -470,6 +470,8 @@ src_prepare() {
 		build/linux/unbundle/replace_gn_files.py || die
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps = [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
+
+	use bluetooth || eapply "${FILESDIR}/disable-bluez.patch"
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
