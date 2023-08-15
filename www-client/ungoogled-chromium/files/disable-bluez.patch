@@ -3,7 +3,7 @@ License: BSD
 Subject: Fix building with use_bluez=false
 
 This is a quick and dirty fix for building chromium with use_bluez=false
-It prevents initializing and using Bluetooth
+It prevents initialization and usage of Bluetooth by the browser
 It is not supposed to be applied for use_bluez=true
 The browser will SEGFAULT upon accessing chrome://bluetooth-internals/
 

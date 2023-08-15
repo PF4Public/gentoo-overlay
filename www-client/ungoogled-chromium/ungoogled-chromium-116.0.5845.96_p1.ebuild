@@ -23,7 +23,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET="2"
-PATCHSET_NAME="chromium-115-patchset-${PATCHSET}"
+PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 PATCHSET_PPC64="115.0.5790.102-1raptor0~deb11u2"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
@@ -64,11 +64,11 @@ UGC_COMMIT_ID="1951a830f78307537b7c3d97b537e174799e5f11"
 
 UAZO_BROMITE_COMMIT_ID="d9c17daf78353f958e8e0fcc49ae0377d2767c7e"
 
-CHROMIUM_COMMITS=(
-	ddfcc907907a20d9f8fbc1416492e2093b339b22
-	6ab6fdfe3d403b6917069957c707e6822b873962
-	a818a8afbb4e21efb3f261543ccd83081fc30636
-)
+# CHROMIUM_COMMITS=(
+# 	ddfcc907907a20d9f8fbc1416492e2093b339b22
+# 	6ab6fdfe3d403b6917069957c707e6822b873962
+# 	a818a8afbb4e21efb3f261543ccd83081fc30636
+# )
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -363,12 +363,8 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
-		# "${WORKDIR}/patches"
 	local PATCHES=(
-		"${WORKDIR}/patches/chromium-115-compiler.patch"
-		"${WORKDIR}/patches/chromium-114-maldoca-include.patch"
-		"${WORKDIR}/patches/chromium-114-ruy-include.patch"
-		"${WORKDIR}/patches/chromium-114-vk_mem_alloc-include.patch"
+		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-qt6.patch"
@@ -471,7 +467,7 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps = [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
-	use bluetooth || eapply  "${FILESDIR}/disable-bluez.patch"
+	use bluetooth || eapply "${FILESDIR}/disable-bluez.patch"
 
 	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
 
@@ -1098,9 +1094,6 @@ src_configure() {
 
 	# See dependency logic in third_party/BUILD.gn
 	myconf_gn+=" use_system_harfbuzz=$(usex system-harfbuzz true false)"
-
-	# # Disable deprecated libgnome-keyring dependency, bug #713012
-	# myconf_gn+=" use_gnome_keyring=false"
 
 	# Optional dependencies.
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
