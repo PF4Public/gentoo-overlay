@@ -1572,6 +1572,10 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
+			if	[ "$i" = "cherry-pick-abb3ebd3d2ef.patch" ]; then
+			 	einfo "Skipping ${i}: Does not apply."
+			 	continue;
+			fi
 			if	[ "$i" = "mas_avoid_usage_of_private_macos_apis.patch" ]; then
 			 	einfo "Skipping ${i}: Mac targeted patch."
 			 	continue;
