@@ -1282,7 +1282,9 @@ src_prepare() {
 		#? Funny, huh?
 		sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
 			script/lib/get-version.js || die
-		mkdir -p .git/packed-refs .git/HEAD;
+		# mkdir -p .git/packed-refs .git/HEAD;
+		sed -i '$git/packed-refs$d' BUILD.gn || die
+		sed -i '$git/HEAD$d' BUILD.gn || die
 
 		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
 		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
