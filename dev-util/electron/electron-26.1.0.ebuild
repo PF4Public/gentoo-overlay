@@ -2367,7 +2367,7 @@ src_install() {
 	)
 
 	# Install bundled xdg-utils, avoids installing X11 libraries with USE="-X wayland"
-	doins out/Release/xdg-{settings,mime}
+	# doins out/Release/xdg-{settings,mime}
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat
