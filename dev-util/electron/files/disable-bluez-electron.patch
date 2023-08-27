@@ -11,15 +11,32 @@ disable-bluez.patch should be also applied
 ---
 --- a/shell/browser/lib/power_observer_linux.cc
 +++ b/shell/browser/lib/power_observer_linux.cc
-@@ -34,11 +34,8 @@
+@@ -34,28 +34,7 @@
      base::PowerSuspendObserver* suspend_observer)
      : suspend_observer_(suspend_observer),
        lock_owner_name_(GetExecutableBaseName()) {
 -  auto* bus = bluez::BluezDBusThreadManager::Get()->GetSystemBus();
 -  if (!bus) {
      LOG(WARNING) << "Failed to get system bus connection";
-     return;
+-    return;
 -  }
+-
+-  // set up the logind proxy
+-
+-  const auto weakThis = weak_ptr_factory_.GetWeakPtr();
+-
+-  logind_ = bus->GetObjectProxy(kLogindServiceName,
+-                                dbus::ObjectPath(kLogindObjectPath));
+-  logind_->ConnectToSignal(
+-      kLogindManagerInterface, "PrepareForShutdown",
+-      base::BindRepeating(&PowerObserverLinux::OnPrepareForShutdown, weakThis),
+-      base::BindRepeating(&PowerObserverLinux::OnSignalConnected, weakThis));
+-  logind_->ConnectToSignal(
+-      kLogindManagerInterface, "PrepareForSleep",
+-      base::BindRepeating(&PowerObserverLinux::OnPrepareForSleep, weakThis),
+-      base::BindRepeating(&PowerObserverLinux::OnSignalConnected, weakThis));
+-  logind_->WaitForServiceToBeAvailable(base::BindRepeating(
+-      &PowerObserverLinux::OnLoginServiceAvailable, weakThis));
+ }
  
-   // set up the logind proxy
- 
+ PowerObserverLinux::~PowerObserverLinux() = default;
