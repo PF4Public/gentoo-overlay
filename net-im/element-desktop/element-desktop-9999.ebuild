@@ -14,9 +14,9 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="25"
+ELECTRON_SLOT_DEFAULT="26"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 native-modules"
+IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -53,14 +53,14 @@ COMMON_DEPEND="
 	electron-22? ( dev-util/electron:22 )
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
-	electron-26? ( dev-util/electron:26 )
+	electron-25? ( dev-util/electron:25 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
 	!electron-22? (
 	!electron-23? (
 	!electron-24? (
-	!electron-26? (
+	!electron-25? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	) ) ) ) ) ) )
 "
@@ -92,8 +92,8 @@ src_unpack() {
 		export ELECTRON_SLOT=23
 	elif use electron-24; then
 		export ELECTRON_SLOT=24
-	elif use electron-26; then
-		export ELECTRON_SLOT=26
+	elif use electron-25; then
+		export ELECTRON_SLOT=25
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
