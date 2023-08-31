@@ -67,19 +67,7 @@ jobs:
             experimental: true
           - use: 'temp-fix electron-25'
             experimental: true
-          - use: 'electron-19'
-            experimental: true
-          - use: 'electron-20'
-            experimental: true
-          - use: 'electron-21'
-            experimental: true
-          - use: 'electron-22'
-            experimental: true
-          - use: 'electron-23'
-            experimental: true
-          - use: 'electron-24'
-            experimental: true
-          - use: 'electron-26'
+          - use: 'temp-fix electron-26'
             experimental: true
 
     steps:
