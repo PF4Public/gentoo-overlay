@@ -33,7 +33,7 @@ DESCRIPTION="Cross platform application development framework based on web techn
 HOMEPAGE="https://electronjs.org/"
 PATCHSET="2"
 PATCHSET_NAME="chromium-116-patchset-${PATCHSET}"
-PATCHSET_PPC64="115.0.5790.102-1raptor0~deb11u2"
+PATCHSET_PPC64="116.0.5845.110-2raptor0~deb11u1"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
