@@ -431,6 +431,9 @@ src_prepare() {
 
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt"
 	for i in "${topatch[@]}"; do
+		if [ -z "$i" ]; then
+			continue
+		fi
 		einfo "$i"
 		# ebegin "$i"
 		git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
