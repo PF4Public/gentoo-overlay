@@ -1254,7 +1254,8 @@ src_configure() {
 	append-cxxflags -Wno-builtin-macro-redefined
 	append-cppflags "-D__DATE__= -D__TIME__= -D__TIMESTAMP__="
 
-	myconf_gn+=" import(\"${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite.gn_args\")"
+	# TODO: uncomment
+	# myconf_gn+=" import(\"${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite.gn_args\")"
 
 	local flags
 	einfo "Building with the following compiler settings:"
