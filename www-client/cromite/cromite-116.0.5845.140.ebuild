@@ -439,7 +439,6 @@ src_prepare() {
 			--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 			-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
 		# eend $? || die
-		popd > /dev/null || die
 	done
 
 	local keeplibs=(
