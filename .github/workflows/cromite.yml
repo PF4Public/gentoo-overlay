@@ -1,0 +1,111 @@
+name: cromite
+on:
+  push:
+    paths:
+    - 'www-client/cromite/**'
+  pull_request:
+    paths:
+    - 'www-client/cromite/**'
+
+jobs:
+  default:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+
+      - name: Prepare cache dir
+        id: prepare
+        run: |
+          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Calculate the hash of changed files
+        id: hash
+        run: |
+          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Cache distfiles
+        id: cache-distfiles
+        uses: actions/cache@v3
+        with:
+          path: "${{ steps.prepare.outputs.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Configure ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.hash.outputs.modified }}
+            tool: ebuild
+            action: configure
+            params: ' '
+
+  ebuild:
+    needs: default
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - -clang
+          - custom-cflags
+          - vaapi -system-libvpx -system-av1
+          - -official
+          - wayland
+          - headless -X -wayland
+        include:
+          - use: pgo
+            experimental: true
+          - use: thinlto optimize-thinlto
+            experimental: true
+          - use: cfi thinlto
+            experimental: true
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+
+      - name: Prepare cache dir
+        id: prepare
+        run: |
+          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Calculate the hash of changed files
+        id: hash
+        run: |
+          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Cache distfiles
+        id: cache-distfiles
+        uses: actions/cache@v3
+        with:
+          path: "${{ steps.prepare.outputs.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Configure ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.hash.outputs.modified }}
+            tool: ebuild
+            action: configure
+            params: ${{ matrix.use }}
