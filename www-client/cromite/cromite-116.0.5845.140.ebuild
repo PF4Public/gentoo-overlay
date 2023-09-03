@@ -296,14 +296,6 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	if use uazo-bromite; then
-		ewarn
-		ewarn "uazo-bromite patches are very experimental and unstable"
-		ewarn "Please consider testing them and giving feedback upstream:"
-		ewarn "https://github.com/uazo/cromite/issues"
-		ewarn "Not all patches are applied, let me know if any other are worthy of inclusion"
-		ewarn
-	fi
 	if use system-abseil-cpp; then
 		ewarn
 		ewarn "Chromium code is not very friendly to system abseil-cpp, see #218"
