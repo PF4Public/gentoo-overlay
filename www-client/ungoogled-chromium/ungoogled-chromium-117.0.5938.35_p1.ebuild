@@ -612,7 +612,6 @@ src_prepare() {
 		third_party/angle/src/third_party/libXNVCtrl
 	)
 	keeplibs+=(
-		third_party/angle/src/third_party/systeminfo
 		third_party/angle/src/third_party/volk
 		third_party/apple_apsl
 		third_party/axe-core
@@ -780,7 +779,6 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/pdfium/third_party/libtiff
-		third_party/pdfium/third_party/skia_shared
 		third_party/perfetto
 		third_party/perfetto/protos/third_party/chromium
 		third_party/pffft
