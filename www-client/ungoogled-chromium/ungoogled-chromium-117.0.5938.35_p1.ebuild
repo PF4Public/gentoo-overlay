@@ -364,6 +364,7 @@ src_prepare() {
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
 	rm ${WORKDIR}/patches/chromium-116-abseil-arm64.patch
+	rm ${WORKDIR}/patches/chromium-116-object_paint_properties_sparse-include.patch
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
