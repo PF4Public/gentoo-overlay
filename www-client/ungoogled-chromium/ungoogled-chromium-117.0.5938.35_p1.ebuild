@@ -365,6 +365,7 @@ src_prepare() {
 
 	rm ${WORKDIR}/patches/chromium-116-abseil-arm64.patch
 	rm ${WORKDIR}/patches/chromium-116-object_paint_properties_sparse-include.patch
+	rm ${WORKDIR}/patches/chromium-116-profile_view_utils-include.patch
 
 	local PATCHES=(
 		"${WORKDIR}/patches"
