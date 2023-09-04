@@ -363,6 +363,8 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
+	rm ${WORKDIR}/patches/chromium-116-abseil-arm64.patch
+
 	local PATCHES=(
 		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-cross-compile.patch"
