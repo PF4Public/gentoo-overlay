@@ -848,6 +848,7 @@ src_prepare() {
 		third_party/xnnpack
 		third_party/zxcvbn-cpp
 		third_party/zlib/google
+		third_party/zstd
 		url/third_party/mozilla
 		v8/src/third_party/siphash
 		v8/src/third_party/valgrind
