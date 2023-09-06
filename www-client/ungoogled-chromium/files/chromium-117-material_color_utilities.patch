@@ -1,0 +1,11 @@
+--- a/third_party/material_color_utilities/src/cpp/utils/utils.h
++++ b/third_party/material_color_utilities/src/cpp/utils/utils.h
+@@ -17,6 +17,7 @@
+ #ifndef CPP_UTILS_UTILS_H_
+ #define CPP_UTILS_UTILS_H_
+ 
++#include <cmath>
+ #include <cstdint>
+ #include <string>
+ 
+

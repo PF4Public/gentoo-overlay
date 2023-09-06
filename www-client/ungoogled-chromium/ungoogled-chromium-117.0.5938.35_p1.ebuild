@@ -56,13 +56,13 @@ REQUIRED_USE="
 	qt6? ( qt5 )
 "
 
-UGC_COMMIT_ID="747b7024585c8338653eb4cf5bdbc7fa8edb1335"
+UGC_COMMIT_ID="9973e83fc2f3c2df1723fffb6b1cba021f91ce65"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-UAZO_BROMITE_COMMIT_ID="bf086af7df35bef641790d3f00c4d9ab27392b83"
+UAZO_BROMITE_COMMIT_ID="250b213a99ca257dc1812b840165d6b1dcd56836"
 
 CHROMIUM_COMMITS=(
 	5a8dfcaf84b5af5aeb738702651e98bfc43d6d45
@@ -381,6 +381,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/chromium-117-material_color_utilities.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
