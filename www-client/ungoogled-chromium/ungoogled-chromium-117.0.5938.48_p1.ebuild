@@ -369,11 +369,11 @@ src_prepare() {
 		# "${FILESDIR}/chromium-qt6.patch"
 		# "${FILESDIR}/chromium-114-remove-evdev-dep.patch"
 		# "${FILESDIR}/chromium-115-binutils-2.41.patch"
+		# "${FILESDIR}/chromium-98-gtk4-build.patch"
 	local PATCHES=(
 		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
-		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
