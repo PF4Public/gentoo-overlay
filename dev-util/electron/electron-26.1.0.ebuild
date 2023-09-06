@@ -41,6 +41,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	ppc64? (
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
+		https://raw.githubusercontent.com/darkbasic/gentoo-files/master/chromium-116-0001-Add-PPC64-support-for-boringssl.patch.gz
 	)
 	ungoogled? (
 		https://github.com/ungoogled-software/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
@@ -1247,8 +1248,9 @@ src_unpack() {
 	unpack "${PATCHSET_NAME}.tar.xz"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
 	if use ppc64; then
-		unpack "${PATCHSET_NAME_PPC64}.tar.xz"
+		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
 		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
+		unpack "chromium-116-0001-Add-PPC64-support-for-boringssl.patch.gz"
 	fi
 }
 
@@ -1339,11 +1341,12 @@ src_prepare() {
 	if use ppc64 ; then
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
+			if [[ ! ($p =~ "fix-breakpad-compile.patch" || $p =~ "Add-PPC64-support-for-boringssl.patch") ]]; then
 				eapply "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
+		PATCHES+=( "${WORKDIR}/chromium-116-0001-Add-PPC64-support-for-boringssl.patch" )
 	fi
 
 	default
