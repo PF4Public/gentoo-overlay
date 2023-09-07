@@ -1439,6 +1439,7 @@ src_prepare() {
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86.patch"
 		"${DISTDIR}/${PN}-d7a5d6b38ea87fcc742a05bb7e1d0b6c937bd9c6.patch"
+		"${FILESDIR}/0003-Fix-build-in-Python-3.11-invalid-mode-rU.patch"
 	)
 
 	if use ppc64 ; then
@@ -2241,10 +2242,11 @@ src_configure() {
 
 	# Disable unknown warning message from clang.
 	if tc-is-clang; then
-		append-flags -Wno-unknown-warning-option
+		# https://github.com/PF4Public/gentoo-overlay/pull/235#issuecomment-1592518808
+		append-flags -Wno-unknown-warning-option -Wno-enum-constexpr-conversion
 		if tc-is-cross-compiler; then
-			export BUILD_CXXFLAGS+=" -Wno-unknown-warning-option"
-			export BUILD_CFLAGS+=" -Wno-unknown-warning-option"
+			export BUILD_CXXFLAGS+=" -Wno-unknown-warning-option -Wno-enum-constexpr-conversion"
+			export BUILD_CFLAGS+=" -Wno-unknown-warning-option -Wno-enum-constexpr-conversion"
 		fi
 	fi
 
