@@ -426,8 +426,6 @@ src_prepare() {
 			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
 			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
 
-			"${BR_PA_PATH}/00WIN-ADDTO-Add-a-proxy-configuration-page.patch"
-
 			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
 			"${BR_PA_PATH}/00Fonts-fingerprinting-mitigation.patch"
 
@@ -443,7 +441,9 @@ src_prepare() {
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
 			"${BR_PA_PATH}/00Remove-support-for-device-memory-and-cpu-recovery.patch"
+			"${BR_PA_PATH}/00Disable-Feeback-Collector.patch"
 			"${BR_PA_PATH}/00Disable-remote-altsvc-for-h3-connections.patch"
+			"${BR_PA_PATH}/00Disable-PartnerCustomizations.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
