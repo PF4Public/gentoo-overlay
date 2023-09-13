@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="bf086af7df35bef641790d3f00c4d9ab27392b83"
+CROMITE_COMMIT_ID="579060fe5105c0cfcb35e5ee35a3f6c921ec0791"
 # CROMITE_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -26,7 +26,7 @@ CROMITE_COMMIT_ID="bf086af7df35bef641790d3f00c4d9ab27392b83"
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
 PATCHSET="2"
-PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
+PATCHSET_NAME="chromium-116-patchset-${PATCHSET}"
 PATCHSET_PPC64="116.0.5845.110-2raptor0~deb11u1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz
@@ -34,6 +34,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 	ppc64? (
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium/chromium-ppc64le-gentoo-patches-1.tar.xz
+		https://raw.githubusercontent.com/darkbasic/gentoo-files/master/chromium-115-0001-Add-PPC64-support-for-boringssl.patch.gz
 	)
 "
 
@@ -59,11 +60,9 @@ REQUIRED_USE="
 	qt6? ( qt5 )
 "
 
-# CHROMIUM_COMMITS=(
-# 	ddfcc907907a20d9f8fbc1416492e2093b339b22
-# 	6ab6fdfe3d403b6917069957c707e6822b873962
-# 	a818a8afbb4e21efb3f261543ccd83081fc30636
-# )
+CHROMIUM_COMMITS=(
+	5a8dfcaf84b5af5aeb738702651e98bfc43d6d45
+)
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
@@ -216,7 +215,7 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	dev-lang/perl
-	>=dev-util/gn-0.1807
+	>=dev-util/gn-0.2114
 	>=dev-util/gperf-3.0.3
 	>=dev-util/ninja-1.7.2
 	dev-vcs/git
@@ -332,21 +331,27 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\",/{n;s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
+	rm ${WORKDIR}/patches/chromium-116-abseil-arm64.patch
+	rm ${WORKDIR}/patches/chromium-116-object_paint_properties_sparse-include.patch
+	rm ${WORKDIR}/patches/chromium-116-profile_view_utils-include.patch
+	rm ${WORKDIR}/patches/chromium-116-url_load_stats-include.patch
+
+		# "${FILESDIR}/chromium-qt6.patch"
+		# "${FILESDIR}/chromium-114-remove-evdev-dep.patch"
+		# "${FILESDIR}/chromium-115-binutils-2.41.patch"
+		# "${FILESDIR}/chromium-98-gtk4-build.patch"
 	local PATCHES=(
 		"${WORKDIR}/patches"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
-		"${FILESDIR}/chromium-qt6.patch"
-		"${FILESDIR}/chromium-98-gtk4-build.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-114-remove-evdev-dep.patch"
-		"${FILESDIR}/chromium-115-binutils-2.41.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/chromium-117-material_color_utilities.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
@@ -362,11 +367,12 @@ src_prepare() {
 	if use ppc64 ; then
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
+			if [[ ! ($p =~ "fix-breakpad-compile.patch" || $p =~ "Add-PPC64-support-for-boringssl.patch") ]]; then
 				eapply "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
+		PATCHES+=( "${WORKDIR}/chromium-115-0001-Add-PPC64-support-for-boringssl.patch" )
 	fi
 
 	default
@@ -481,7 +487,6 @@ src_prepare() {
 		third_party/angle/src/third_party/libXNVCtrl
 	)
 	keeplibs+=(
-		third_party/angle/src/third_party/systeminfo
 		third_party/angle/src/third_party/volk
 		third_party/apple_apsl
 		third_party/axe-core
@@ -545,6 +550,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
 		third_party/devtools-frontend/src/test/unittests/front_end/third_party/i18n
@@ -649,7 +655,6 @@ src_prepare() {
 	)
 	keeplibs+=(
 		third_party/pdfium/third_party/libtiff
-		third_party/pdfium/third_party/skia_shared
 		third_party/perfetto
 		third_party/perfetto/protos/third_party/chromium
 		third_party/pffft
@@ -719,6 +724,7 @@ src_prepare() {
 		third_party/xnnpack
 		third_party/zxcvbn-cpp
 		third_party/zlib/google
+		third_party/zstd
 		url/third_party/mozilla
 		v8/src/third_party/siphash
 		v8/src/third_party/valgrind
@@ -1017,6 +1023,7 @@ src_configure() {
 	myconf_gn+=" enable_hevc_parser_and_hw_decoder=$(usex hevc true false)"
 
 	# Ungoogled flags
+	myconf_gn+=" build_with_tflite_lib=false"
 	myconf_gn+=" enable_mdns=false"
 	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 	myconf_gn+=" enable_reading_list=false"
@@ -1024,17 +1031,17 @@ src_configure() {
 	myconf_gn+=" enable_reporting=false"
 	myconf_gn+=" enable_service_discovery=false"
 	myconf_gn+=" exclude_unwind_tables=true"
-	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" google_api_key=\"\""
 	myconf_gn+=" google_default_client_id=\"\""
 	myconf_gn+=" google_default_client_secret=\"\""
 	myconf_gn+=" safe_browsing_mode=0"
+	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
+
 	myconf_gn+=" blink_symbol_level=0"
 	myconf_gn+=" symbol_level=0"
 	myconf_gn+=" enable_iterator_debugging=false"
 	myconf_gn+=" enable_swiftshader=false"
-	myconf_gn+=" build_with_tflite_lib=false"
 
 	# Additional flags
 	myconf_gn+=" perfetto_use_system_zlib=true"
