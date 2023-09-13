@@ -1059,7 +1059,7 @@ REQUIRED_USE="
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
-		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch -> chromium-${i/-}.patch
+		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
 	done
 fi
