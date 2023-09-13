@@ -67,14 +67,14 @@ REQUIRED_USE="
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
-		SRC_URI+="https://github.com/uazo/${PN}/commit/$i.patch -> ${PN}-$i.patch
+		SRC_URI+="https://github.com/uazo/${PN}/commit/$i.patch?full_index=true -> ${PN}-$i.patch
 		"
 	done
 fi
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
-		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch -> chromium-${i/-}.patch
+		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
 	done
 fi
