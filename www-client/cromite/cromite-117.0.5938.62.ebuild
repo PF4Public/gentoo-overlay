@@ -699,6 +699,7 @@ src_prepare() {
 		third_party/ruy
 		third_party/six
 		third_party/ukey2
+		third_party/unrar
 		third_party/utf
 		third_party/vulkan
 		third_party/wayland
@@ -1034,7 +1035,7 @@ src_configure() {
 	myconf_gn+=" google_api_key=\"\""
 	myconf_gn+=" google_default_client_id=\"\""
 	myconf_gn+=" google_default_client_secret=\"\""
-	myconf_gn+=" safe_browsing_mode=0"
+	# myconf_gn+=" safe_browsing_mode=0"
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
 
@@ -1266,8 +1267,7 @@ src_configure() {
 
 	local flags
 	einfo "Building with the following compiler settings:"
-	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS \
-		EXTRA_GN UGC_{SKIP_{PATCHES,SUBSTITUTION},KEEP_BINARIES} ; do
+	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS EXTRA_GN ; do
 		einfo "  ${flags} = \"${!flags}\""
 	done
 
