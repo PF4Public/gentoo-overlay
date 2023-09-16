@@ -17,6 +17,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /host/usr/share/dotnet
+            sudo rm -rf /host/usr/local/lib/android
+            sudo rm -rf /host/opt/ghc
+            sudo rm -rf /host/opt/hostedtoolcache/CodeQL
+            sudo docker image prune --all --force
+
+      - name: Free space?
+        run: |
+          echo "Free space:"
+          df -h
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v35
