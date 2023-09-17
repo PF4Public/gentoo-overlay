@@ -41,6 +41,9 @@ jobs:
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
+          rm -f "/home/runner/work/_temp"
+          ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
 
       - name: Calculate the hash of changed files
         id: hash
