@@ -12,23 +12,25 @@ jobs:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
         with:
-          fetch-depth: 0
-
-      - name: Free space on runner
-        run: |
-            sudo rm -rf /host/usr/share/dotnet
-            sudo rm -rf /host/usr/local/lib/android
-            sudo rm -rf /host/opt/ghc
-            sudo rm -rf /host/opt/hostedtoolcache/CodeQL
-            sudo docker image prune --all --force
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
 
       - name: Free space?
         run: |
           echo "Free space:"
           df -h
+
+      - name: Check out the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Get changed files
         id: changed-files
