@@ -12,17 +12,6 @@ jobs:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          temp-reserve-mb: 2048
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
       - name: Check out the repo
         uses: actions/checkout@v3
         with:
@@ -32,23 +21,24 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v35
 
-      - name: Preparing folders
+      - name: Prepare cache dir
         id: prepare
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
-          mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
-          mkdir -p "${GITHUB_WORKSPACE}/portage"
-          rm -rf "/home/runner/work/_temp"
-          rm -rf "/var/tmp/portage"
-          ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
-          ln -s "${GITHUB_WORKSPACE}/portage" "/var/tmp/portage"
 
       - name: Calculate the hash of changed files
         id: hash
         run: |
           echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
           echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
 
       - name: Cache distfiles
         id: cache-distfiles
@@ -91,17 +81,6 @@ jobs:
             experimental: true
 
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          temp-reserve-mb: 2048
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
       - name: Check out the repo
         uses: actions/checkout@v3
         with:
@@ -111,17 +90,11 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v35
 
-      - name: Preparing folders
+      - name: Prepare cache dir
         id: prepare
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
-          mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
-          mkdir -p "${GITHUB_WORKSPACE}/portage"
-          rm -rf "/home/runner/work/_temp"
-          rm -rf "/var/tmp/portage"
-          ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
-          ln -s "${GITHUB_WORKSPACE}/portage" "/var/tmp/portage"
 
       - name: Calculate the hash of changed files
         id: hash
@@ -129,6 +102,13 @@ jobs:
           echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
           echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
 
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
+            
       - name: Cache distfiles
         id: cache-distfiles
         uses: actions/cache@v3
