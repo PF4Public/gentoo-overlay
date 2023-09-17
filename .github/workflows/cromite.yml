@@ -15,9 +15,9 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 512
+          root-reserve-mb: 2048
+          temp-reserve-mb: 2048
           swap-size-mb: 1024
-          build-mount-path: '/home/runner/work'
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-haskell: 'true'
@@ -37,6 +37,9 @@ jobs:
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
+          rm -rf "/home/runner/work/_temp"
+          ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
 
       - name: Calculate the hash of changed files
         id: hash
