@@ -1267,7 +1267,7 @@ src_configure() {
 
 	local flags
 	einfo "Building with the following compiler settings:"
-	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS EXTRA_GN ; do
+	for flags in C{C,XX} AR NM RANLIB {C,CXX,CPP,LD}FLAGS  EXTRA_GN ; do
 		einfo "  ${flags} = \"${!flags}\""
 	done
 
