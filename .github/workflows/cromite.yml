@@ -32,14 +32,17 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v35
 
-      - name: Prepare cache dir
+      - name: Preparing folders
         id: prepare
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
           mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
+          mkdir -p "${GITHUB_WORKSPACE}/portage"
           rm -rf "/home/runner/work/_temp"
+          rm -rf "/var/tmp/portage"
           ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
+          ln -s "${GITHUB_WORKSPACE}/portage" "/var/tmp/portage"
 
       - name: Calculate the hash of changed files
         id: hash
@@ -88,6 +91,17 @@ jobs:
             experimental: true
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          temp-reserve-mb: 2048
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+
       - name: Check out the repo
         uses: actions/checkout@v3
         with:
@@ -97,11 +111,17 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v35
 
-      - name: Prepare cache dir
+      - name: Preparing folders
         id: prepare
         run: |
           echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles-temp"
+          mkdir -p "${GITHUB_WORKSPACE}/portage"
+          rm -rf "/home/runner/work/_temp"
+          rm -rf "/var/tmp/portage"
+          ln -s "${GITHUB_WORKSPACE}/distfiles-temp" "/home/runner/work/_temp"
+          ln -s "${GITHUB_WORKSPACE}/portage" "/var/tmp/portage"
 
       - name: Calculate the hash of changed files
         id: hash
