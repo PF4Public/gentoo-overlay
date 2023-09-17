@@ -46,7 +46,9 @@ jobs:
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
-          restore-keys: ${{ github.workflow }}
+          restore-keys: |
+            ${{ github.workflow }}
+            ungoogled-chromium
 
       - name: Configure ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
@@ -108,14 +110,16 @@ jobs:
             sudo rm -rf /usr/local/lib/android
             sudo rm -rf /opt/ghc
             sudo rm -rf /opt/hostedtoolcache/CodeQL
-            
+
       - name: Cache distfiles
         id: cache-distfiles
         uses: actions/cache@v3
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
-          restore-keys: ${{ github.workflow }}
+          restore-keys: |
+            ${{ github.workflow }}
+            ungoogled-chromium
 
       - name: Configure ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master

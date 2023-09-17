@@ -33,6 +33,13 @@ jobs:
           echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
           echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
 
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
+
       - name: Cache distfiles
         id: cache-distfiles
         uses: actions/cache@v3
@@ -90,6 +97,13 @@ jobs:
         run: |
           echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
           echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
 
       - name: Cache distfiles
         id: cache-distfiles
