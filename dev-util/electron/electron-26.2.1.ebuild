@@ -1452,7 +1452,7 @@ src_prepare() {
 		eend $? || die
 
 		ebegin "Applying domain substitution"
-		"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" -c build/domsubcache.tar.gz .
+		"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 		eend $? || die
 	fi
 
