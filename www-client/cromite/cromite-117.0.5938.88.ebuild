@@ -17,11 +17,10 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="579060fe5105c0cfcb35e5ee35a3f6c921ec0791"
-# CROMITE_PR_COMMITS=(
-# 	c917e096342e5b90eeea91ab1f8516447c8756cf
-# 	5794e9d12bf82620d5f24505798fecb45ca5a22d
-# )
+CROMITE_COMMIT_ID="9fdf65383f548d60c8837ad63a0fa6ab72ec88d6"
+CROMITE_PR_COMMITS=(
+	91a7c1f4c4e8759cfd50e2798116f28f999c83c0
+)
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
