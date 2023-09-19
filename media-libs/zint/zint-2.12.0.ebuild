@@ -30,10 +30,10 @@ COMMON_DEPEND="
 	qt5? (
 		x11-themes/hicolor-icon-theme
 		dev-qt/qthelp:5
-		dev-qt/linguist:5
-		dev-qt/qdbusviewer:5
+		dev-qt/linguist
+		dev-qt/qdbusviewer
 		dev-qt/designer:5
-		dev-qt/assistant:5
+		dev-qt/assistant
 		dev-qt/qtgui:5
 		dev-qt/qtsvg:5
 	)
