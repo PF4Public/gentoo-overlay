@@ -40,7 +40,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui pax-kernel pgo pic +proprietary-codecs pulseaudio qt5 qt6 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 thinlto vaapi wayland widevine"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo pic +proprietary-codecs pulseaudio qt5 qt6 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 thinlto vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -190,9 +190,12 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
-	!www-client/chromium
-	!www-client/chromium-bin
-	!www-client/ungoogled-chromium-bin
+	!override-data-dir? (
+		!www-client/chromium
+		!www-client/chromium-bin
+		!www-client/ungoogled-chromium-bin
+		!www-client/ungoogled-chromium[-override-data-dir]
+	)
 "
 
 DEPEND="${COMMON_DEPEND}
@@ -397,6 +400,11 @@ src_prepare() {
 	if use hevc; then
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
+	fi
+
+	if use override-data-dir; then
+		sed -i '/"chromium";/{s++"cromite";+;h};${x;/./{x;q0};x;q1}' \
+			chrome/common/chrome_paths_linux.cc || die
 	fi
 
 	if use system-abseil-cpp; then
