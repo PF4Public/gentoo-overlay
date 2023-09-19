@@ -62,6 +62,10 @@ src_configure() {
 			-DZINT_USE_QT=true
 			-DZINT_QT6=$(usex qt6)
 		)
+	else
+		mycmakeargs+=(
+			-DZINT_USE_QT=false
+		)
 	fi
 	cmake_src_configure
 }
