@@ -12,7 +12,7 @@ HOMEPAGE="http://zint.org.uk"
 LICENSE="GPL-2"
 SLOT="0"
 
-IUSE="debug doc +png qt5 static-libs"
+IUSE="debug doc +png qt5 qt6 static-libs"
 
 DOCS=( README )
 
@@ -29,13 +29,17 @@ fi
 COMMON_DEPEND="
 	qt5? (
 		x11-themes/hicolor-icon-theme
-		dev-qt/qthelp
-		dev-qt/linguist
-		dev-qt/qdbusviewer
-		dev-qt/designer
-		dev-qt/assistant
-		dev-qt/qtgui
-		dev-qt/qtsvg
+		dev-qt/qthelp:5
+		dev-qt/linguist:5
+		dev-qt/qdbusviewer:5
+		dev-qt/designer:5
+		dev-qt/assistant:5
+		dev-qt/qtgui:5
+		dev-qt/qtsvg:5
+	)
+	qt6? (
+		x11-themes/hicolor-icon-theme
+		dev-qt/qtbase:6[gui]
 	)
 	png? ( media-libs/libpng:0= )
 "
@@ -52,8 +56,13 @@ src_configure() {
 		-DZINT_DEBUG=$(usex debug)
 		-DZINT_STATIC=$(usex static-libs)
 		-DZINT_USE_PNG=$(usex png)
-		-DZINT_USE_QT=$(usex qt5)
 	)
+	if use qt5 || use qt6; then
+		mycmakeargs+=(
+			-DZINT_USE_QT=true
+			-DZINT_QT6=$(usex qt6)
+		)
+	fi
 	cmake_src_configure
 }
 
