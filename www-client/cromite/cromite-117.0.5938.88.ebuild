@@ -19,7 +19,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 CROMITE_COMMIT_ID="9fdf65383f548d60c8837ad63a0fa6ab72ec88d6"
 CROMITE_PR_COMMITS=(
-	91a7c1f4c4e8759cfd50e2798116f28f999c83c0
+	65bd7d277c4c6cdde74e62efbd82b64cae2b1b4b
 )
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
@@ -1332,19 +1332,19 @@ src_compile() {
 
 	rm -f out/Release/locales/*.pak.info || die
 
-	# Build manpage; bug #684550
-	sed -e 's|@@PACKAGE@@|chromium-browser|g;
-		s|@@MENUNAME@@|Chromium|g;' \
-		chrome/app/resources/manpage.1.in > \
-		out/Release/chromium-browser.1 || die
+	# # Build manpage; bug #684550
+	# sed -e 's|@@PACKAGE@@|chromium-browser|g;
+	# 	s|@@MENUNAME@@|Chromium|g;' \
+	# 	chrome/app/resources/manpage.1.in > \
+	# 	out/Release/chromium-browser.1 || die
 
 	# Build desktop file; bug #706786
-	sed -e 's|@@MENUNAME@@|Chromium|g;
-		s|@@USR_BIN_SYMLINK_NAME@@|chromium-browser|g;
-		s|@@PACKAGE@@|chromium-browser|g;
+	sed -e 's|@@MENUNAME@@|Cromite|g;
+		s|@@USR_BIN_SYMLINK_NAME@@|cromite-browser|g;
+		s|@@PACKAGE@@|cromite-browser|g;
 		s|\(^Exec=\)/usr/bin/|\1|g;' \
 		chrome/installer/linux/common/desktop.template > \
-		out/Release/chromium-browser-chromium.desktop || die
+		out/Release/cromite-browser-cromite.desktop || die
 
 	# Build vk_swiftshader_icd.json; bug #827861
 	#sed -e 's|${ICD_LIBRARY_PATH}|./libvk_swiftshader.so|g' \
@@ -1379,7 +1379,7 @@ src_install() {
 	)
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r7.sh" > cromite-launcher.sh || die
 	if  has_version ">=media-sound/apulse-0.1.9" ; then
-		sed -i 's/exec -a "chromium-browser"/exec -a "chromium-browser" apulse/' cromite-launcher.sh || die
+		sed -i 's/exec -a "cromite-browser"/exec -a "cromite-browser" apulse/' cromite-launcher.sh || die
 	fi
 	doexe cromite-launcher.sh
 
@@ -1428,27 +1428,31 @@ src_install() {
 
 	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so /usr/$(get_libdir)/chromium-browser/libwidevinecdm.so
 
-	# Install icons
-	local branding size
-	for size in 16 24 32 48 64 128 256 ; do
-		case ${size} in
-			16|32) branding="chrome/app/theme/default_100_percent/chromium" ;;
-				*) branding="chrome/app/theme/chromium" ;;
-		esac
-		newicon -s ${size} "${branding}/product_logo_${size}.png" \
-			chromium-browser.png
-	done
+	# # Install icons
+	# local branding size
+	# for size in 16 24 32 48 64 128 256 ; do
+	# 	case ${size} in
+	# 		16|32) branding="chrome/app/theme/default_100_percent/chromium" ;;
+	# 			*) branding="chrome/app/theme/chromium" ;;
+	# 	esac
+	# 	newicon -s ${size} "${branding}/product_logo_${size}.png" \
+	# 		chromium-browser.png
+	# done
+	newicon -s 128 chrome/app/theme/chromium/win/tiles/SmallLogo.png cromite-browser.png
+	newicon -s 256 chrome/app/theme/chromium/win/tiles/Logo.png cromite-browser.png
 
 	# Install desktop entry
-	domenu out/Release/chromium-browser-chromium.desktop
+	domenu out/Release/cromite-browser-cromite.desktop
 
-	# Install GNOME default application entry (bug #303100).
-	insinto /usr/share/gnome-control-center/default-apps
-	newins "${FILESDIR}"/chromium-browser.xml chromium-browser.xml
+	#TODO
+	# # Install GNOME default application entry (bug #303100).
+	# insinto /usr/share/gnome-control-center/default-apps
+	# newins "${FILESDIR}"/chromium-browser.xml chromium-browser.xml
 
-	# Install manpage; bug #684550
-	doman out/Release/chromium-browser.1
-	dosym chromium-browser.1 /usr/share/man/man1/chromium.1
+	#TODO
+	# # Install manpage; bug #684550
+	# doman out/Release/chromium-browser.1
+	# dosym chromium-browser.1 /usr/share/man/man1/chromium.1
 
 	readme.gentoo_create_doc
 }
