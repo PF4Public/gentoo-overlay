@@ -19,7 +19,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 CROMITE_COMMIT_ID="9fdf65383f548d60c8837ad63a0fa6ab72ec88d6"
 CROMITE_PR_COMMITS=(
-	65bd7d277c4c6cdde74e62efbd82b64cae2b1b4b
+	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 )
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
