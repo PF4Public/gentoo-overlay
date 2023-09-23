@@ -354,6 +354,7 @@ src_prepare() {
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-117-material_color_utilities.patch"
+		"${FILESDIR}/chromium-117-later-gtk4-version.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
