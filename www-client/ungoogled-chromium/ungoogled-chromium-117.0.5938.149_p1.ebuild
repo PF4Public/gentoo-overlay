@@ -35,7 +35,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD uazo-bromite? ( GPL-3 )"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo pic +proprietary-codecs pulseaudio qt5 qt6 screencast selinux suid system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 thinlto uazo-bromite vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -62,7 +62,7 @@ REQUIRED_USE="
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-UAZO_BROMITE_COMMIT_ID="9fdf65383f548d60c8837ad63a0fa6ab72ec88d6"
+UAZO_BROMITE_COMMIT_ID="0cfb05b9d5dcd871d9c9c7cf4a1b659c2ffcf287"
 
 CHROMIUM_COMMITS=(
 	5a8dfcaf84b5af5aeb738702651e98bfc43d6d45
