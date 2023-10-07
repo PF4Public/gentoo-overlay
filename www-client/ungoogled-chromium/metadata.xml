@@ -59,6 +59,7 @@
 		<flag name="system-re2">Use the system-wide <pkg>dev-libs/re2</pkg> instead of the bundled one</flag>
 		<flag name="system-snappy">Use the system-wide <pkg>app-arch/snappy</pkg> instead of the bundled one</flag>
 		<flag name="system-woff2">Use the system <pkg>media-libs/woff2</pkg> instead of the bundled one</flag>
+		<flag name="system-zstd">Use the system <pkg>app-arch/zstd</pkg> instead of the bundled one</flag>
 		<flag name="thinlto">Build with ThinLTO support. LTO (Link Time Optimization) achieves better runtime performance through whole-program analysis and cross-module optimization (highly recommended).</flag>
 		<flag name="uazo-bromite">Apply also select uazo/Bromite patches. Highly experimental! Those are separate work of uazo and Bromite. Please consider Bromite licensing terms when deciding if you're allowed to distribute binaries built with these patches.</flag>
 		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
