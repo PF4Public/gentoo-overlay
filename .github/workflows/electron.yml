@@ -22,9 +22,7 @@ jobs:
         uses: tj-actions/changed-files@v35
 
       - name: Prepare cache dir
-        id: prepare
         run: |
-          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
           mkdir -p "${GITHUB_WORKSPACE}/ccache"
 
@@ -41,11 +39,12 @@ jobs:
             sudo rm -rf /opt/ghc
             sudo rm -rf /opt/hostedtoolcache/CodeQL
 
-      - name: Cache distfiles
-        id: cache-distfiles
-        uses: actions/cache@v3
+      - name: Restore cache
+        uses: actions/cache/restore@v3
         with:
-          path: "${{ steps.prepare.outputs.workspace }}/distfiles ${{ steps.prepare.outputs.workspace }}/ccache"
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
 
@@ -56,6 +55,23 @@ jobs:
             tool: ebuild
             action: configure
             params: ' '
+
+      - name: Save cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+
+      - name: Save failed cache
+        uses: actions/cache/save@v3
+        if: ${{ failure() }}
+        with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
+          key: ${{ github.workflow }}-failed-${{ steps.hash.outputs.digest }}
 
   ebuild:
     needs: default
@@ -88,9 +104,7 @@ jobs:
         uses: tj-actions/changed-files@v35
 
       - name: Prepare cache dir
-        id: prepare
         run: |
-          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
           mkdir -p "${GITHUB_WORKSPACE}/distfiles"
           mkdir -p "${GITHUB_WORKSPACE}/ccache"
 
@@ -107,11 +121,12 @@ jobs:
             sudo rm -rf /opt/ghc
             sudo rm -rf /opt/hostedtoolcache/CodeQL
 
-      - name: Cache distfiles
-        id: cache-distfiles
-        uses: actions/cache@v3
+      - name: Restore cache
+        uses: actions/cache/restore@v3
         with:
-          path: "${{ steps.prepare.outputs.workspace }}/distfiles ${{ steps.prepare.outputs.workspace }}/ccache"
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
 
