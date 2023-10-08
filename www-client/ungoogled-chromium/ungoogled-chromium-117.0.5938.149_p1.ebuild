@@ -370,7 +370,7 @@ src_prepare() {
 	rm ${WORKDIR}/patches/chromium-116-url_load_stats-include.patch
 
 		# "${FILESDIR}/chromium-qt6.patch"
-		# "${FILESDIR}/chromium-114-remove-evdev- dep.patch"
+		# "${FILESDIR}/chromium-114-remove-evdev-  dep.patch"
 		# "${FILESDIR}/chromium-115-binutils-2.41.patch"
 		# "${FILESDIR}/chromium-98-gtk4-build.patch"
 	local PATCHES=(
