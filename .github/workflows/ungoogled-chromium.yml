@@ -46,8 +46,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            "${{ steps.prepare.outputs.workspace }}/distfiles"
-            "${{ steps.prepare.outputs.workspace }}/ccache"
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
 
@@ -119,8 +119,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            "${{ steps.prepare.outputs.workspace }}/distfiles"
-            "${{ steps.prepare.outputs.workspace }}/ccache"
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
 
