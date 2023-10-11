@@ -1354,6 +1354,7 @@ src_prepare() {
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
 		PATCHES+=( "${WORKDIR}/chromium-116-0001-Add-PPC64-support-for-boringssl.patch" )
+		PATCHES+=( "${FILESDIR}/ppc64le/v8_sandbox.patch" )
 	fi
 
 	default
