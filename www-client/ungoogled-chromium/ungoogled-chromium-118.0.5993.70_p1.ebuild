@@ -22,9 +22,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PATCHSET="2"
-PATCHSET_NAME="chromium-116-patchset-${PATCHSET}"
-PATCHSET_PPC64="117.0.5938.62-1raptor0~deb12u1"
+PATCHSET_PPC64="118.0.5993.70-1raptor0~deb11u1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PV%%\.*}/chromium-patches-${PV%%\.*}.tar.bz2
 	ppc64? (
@@ -35,7 +33,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD uazo-bromite? ( GPL-3 )"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 +system-zstd thinlto uazo-bromite vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -56,7 +54,7 @@ REQUIRED_USE="
 	qt6? ( qt5 )
 "
 
-UGC_COMMIT_ID="d1f177cd0006b5c4bf8ce66d9084498085f35843"
+#UGC_COMMIT_ID="d1f177cd0006b5c4bf8ce66d9084498085f35843"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
