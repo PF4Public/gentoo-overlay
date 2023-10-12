@@ -90,6 +90,10 @@ jobs:
             experimental: true
           - use: 'temp-fix electron-26'
             experimental: true
+          - use: '-temp-fix electron-25'
+            experimental: true
+          - use: '-temp-fix electron-26'
+            experimental: true
 
     steps:
       - name: Check out the repo
