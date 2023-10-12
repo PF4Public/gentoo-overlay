@@ -1506,10 +1506,6 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			if	[ "$i" = "mas_avoid_usage_of_private_macos_apis.patch" ]; then
-			 	einfo "Skipping ${i}: Mac targeted patch."
-			 	continue;
-			fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
