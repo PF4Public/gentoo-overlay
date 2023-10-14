@@ -1065,12 +1065,12 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-CHROMIUM_COMMITS=(
-	-e332cb08c32c149da45c013109135043dedd1390
-	-990953d6599a31b50f5b264aaa16a7d32d813bf9
-	-190a380fa52808824ffafa3c68f9cd1d56c69eaf
-	-eb7ee377870b613bb736c8bb08681caccfbe60df
-)
+# CHROMIUM_COMMITS=(
+# 	-e332cb08c32c149da45c013109135043dedd1390
+# 	-990953d6599a31b50f5b264aaa16a7d32d813bf9
+# 	-190a380fa52808824ffafa3c68f9cd1d56c69eaf
+# 	-eb7ee377870b613bb736c8bb08681caccfbe60df
+# )
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
@@ -1353,6 +1353,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/without-tflite.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
