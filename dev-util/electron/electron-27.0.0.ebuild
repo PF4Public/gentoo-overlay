@@ -1065,12 +1065,9 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-#CHROMIUM_COMMITS=(
-#	2914039316d4ed3f53c3393dc2ba48f637807689
-#	-54969766fd2029c506befc46e9ce14d67c7ed02a
-#	a1fec6273f3ad7c73b35bb420a5540355df35b74
-#	2af2d08972d14d5bdd91e0515eb5b15b4444aee9
-#)
+CHROMIUM_COMMITS=(
+	-190a380fa52808824ffafa3c68f9cd1d56c69eaf
+)
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${CHROMIUM_COMMITS[@]}"; do
