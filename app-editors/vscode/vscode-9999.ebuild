@@ -351,12 +351,12 @@ src_install() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	if use temp-fix; then
+	#if use temp-fix; then
 	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	else
+	#else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	fi
+	#YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	#fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"

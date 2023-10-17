@@ -1,0 +1,902 @@
+diff --git a/AUTHORS b/AUTHORS
+index 476c0955cde..06c363ed1fe 100644
+--- a/v8/AUTHORS
++++ b/v8/AUTHORS
+@@ -25,6 +25,7 @@ Code Aurora Forum <*@codeaurora.org>
+ Home Jinni Inc. <*@homejinni.com>
+ IBM Inc. <*@*.ibm.com>
+ IBM Inc. <*@ibm.com>
++Raptor Computing Systems, LLC <*@raptorcs.com>
+ Red Hat Inc. <*@redhat.com>
+ Samsung <*@*.samsung.com>
+ Samsung <*@samsung.com>
+diff --git a/BUILD.gn b/BUILD.gn
+index c13cf053a80..5c537a7691c 100644
+--- a/v8/BUILD.gn
++++ b/v8/BUILD.gn
+@@ -303,7 +303,8 @@ declare_args() {
+   # Enable heap reservation of size 4GB. Only possible for 64bit archs.
+   cppgc_enable_caged_heap =
+       v8_current_cpu == "x64" || v8_current_cpu == "arm64" ||
+-      v8_current_cpu == "loong64" || v8_current_cpu == "riscv64"
++      v8_current_cpu == "loong64" || v8_current_cpu == "ppc64" ||
++      v8_current_cpu == "riscv64"
+ 
+   # Enables additional heap verification phases and checks.
+   cppgc_enable_verify_heap = ""
+@@ -437,7 +438,7 @@ if (v8_enable_snapshot_native_code_counters == "") {
+ }
+ if (v8_enable_pointer_compression == "") {
+   v8_enable_pointer_compression =
+-      v8_current_cpu == "arm64" || v8_current_cpu == "x64"
++      v8_current_cpu == "arm64" || v8_current_cpu == "x64" || v8_current_cpu == "ppc64"
+ }
+ 
+ # Toggle pointer compression for correctness fuzzing when building the
+@@ -473,7 +474,7 @@ if (v8_enable_short_builtin_calls == "") {
+ if (v8_enable_external_code_space == "") {
+   v8_enable_external_code_space =
+       v8_enable_pointer_compression &&
+-      (v8_current_cpu == "x64" || v8_current_cpu == "arm64")
++      (v8_current_cpu == "x64" || v8_current_cpu == "arm64" || v8_current_cpu == "ppc64")
+ }
+ if (v8_enable_maglev == "") {
+   v8_enable_maglev = v8_enable_turbofan &&
+@@ -663,7 +664,7 @@ assert(!v8_enable_unconditional_write_barriers || !v8_disable_write_barriers,
+ 
+ assert(!cppgc_enable_caged_heap || v8_current_cpu == "x64" ||
+            v8_current_cpu == "arm64" || v8_current_cpu == "loong64" ||
+-           v8_current_cpu == "riscv64",
++           v8_current_cpu == "ppc64" || v8_current_cpu == "riscv64",
+        "CppGC caged heap requires 64bit platforms")
+ 
+ assert(!cppgc_enable_young_generation || cppgc_enable_caged_heap,
+diff --git a/PPC_OWNERS b/PPC_OWNERS
+index 6edd45a6ef2..84c6977251b 100644
+--- a/v8/PPC_OWNERS
++++ b/v8/PPC_OWNERS
+@@ -2,3 +2,4 @@ junyan@redhat.com
+ joransiu@ca.ibm.com
+ midawson@redhat.com
+ mfarazma@redhat.com
++tpearson@raptorcs.com
+diff --git a/src/baseline/ppc/baseline-assembler-ppc-inl.h b/src/baseline/ppc/baseline-assembler-ppc-inl.h
+index 74a3db7ca3b..82c935d2c4e 100644
+--- a/v8/src/baseline/ppc/baseline-assembler-ppc-inl.h
++++ b/v8/src/baseline/ppc/baseline-assembler-ppc-inl.h
+@@ -149,12 +149,35 @@ void BaselineAssembler::JumpIf(Condition cc, Register lhs, const Operand& rhs,
+   __ b(to_condition(cc), target);
+ }
+ 
++#if V8_STATIC_ROOTS_BOOL
++void BaselineAssembler::JumpIfJSAnyIsPrimitive(Register heap_object,
++                                               Label* target,
++                                               Label::Distance distance) {
++  __ AssertNotSmi(heap_object);
++  ScratchRegisterScope temps(this);
++  Register scratch = temps.AcquireScratch();
++  __ JumpIfJSAnyIsPrimitive(heap_object, scratch, target, distance);
++}
++#endif  // V8_STATIC_ROOTS_BOOL
++
+ void BaselineAssembler::JumpIfObjectTypeFast(Condition cc, Register object,
+                                              InstanceType instance_type,
+                                              Label* target,
+                                              Label::Distance distance) {
+   ScratchRegisterScope temps(this);
+   Register scratch = temps.AcquireScratch();
++  if (cc == ne) {
++    Register scratch2 = temps.AcquireScratch();
++    __ IsObjectType(object, scratch, scratch2, instance_type);
++    __ bne(target);
++    return;
++  }
++  if (cc == eq) {
++    Register scratch2 = temps.AcquireScratch();
++    __ IsObjectType(object, scratch, scratch2, instance_type);
++    __ beq(target);
++    return;
++  }
+   JumpIfObjectType(cc, object, instance_type, scratch, target, distance);
+ }
+ 
+diff --git a/src/builtins/ppc/builtins-ppc.cc b/src/builtins/ppc/builtins-ppc.cc
+index 8f6d228c3d4..5096d835cd1 100644
+--- a/v8/src/builtins/ppc/builtins-ppc.cc
++++ b/v8/src/builtins/ppc/builtins-ppc.cc
+@@ -3063,7 +3063,11 @@ void Builtins::Generate_CEntry(MacroAssembler* masm, int result_size,
+         IsolateAddressId::kPendingExceptionAddress, masm->isolate());
+ 
+     __ Move(r6, pending_exception_address);
++#ifndef V8_ENABLE_SANDBOX
+     __ LoadU64(r6, MemOperand(r6));
++#else
++    __ LoadU32(r6, MemOperand(r6));
++#endif
+     __ CompareRoot(r6, RootIndex::kTheHoleValue);
+     // Cannot use check here as it attempts to generate call into runtime.
+     __ beq(&okay);
+@@ -3600,10 +3604,18 @@ void Builtins::Generate_CallApiCallbackImpl(MacroAssembler* masm,
+         FieldMemOperand(callback, CallHandlerInfo::kOwnerTemplateOffset), r0);
+     __ StoreU64(scratch, MemOperand(sp, 0 * kSystemPointerSize));
+ 
++#ifndef V8_ENABLE_SANDBOX
+     __ LoadU64(api_function_address,
+                FieldMemOperand(callback,
+                                CallHandlerInfo::kMaybeRedirectedCallbackOffset),
+                r0);
++#else
++    __ LoadExternalPointerField(
++        api_function_address,
++        FieldMemOperand(callback,
++                        CallHandlerInfo::kMaybeRedirectedCallbackOffset),
++        kCallHandlerInfoCallbackTag, no_reg, scratch);
++#endif
+ 
+     __ EnterExitFrame(kApiStackSpace, StackFrame::API_CALLBACK_EXIT);
+   } else {
+@@ -3768,10 +3780,17 @@ void Builtins::Generate_CallApiGetter(MacroAssembler* masm) {
+           Operand(accessorInfoSlot * kSystemPointerSize));
+ 
+   __ RecordComment("Load api_function_address");
++#ifndef V8_ENABLE_SANDBOX
+   __ LoadU64(
+       api_function_address,
+       FieldMemOperand(callback, AccessorInfo::kMaybeRedirectedGetterOffset),
+       r0);
++#else
++  __ LoadExternalPointerField(
++      api_function_address,
++      FieldMemOperand(callback, AccessorInfo::kMaybeRedirectedGetterOffset),
++      kAccessorInfoGetterTag, no_reg, scratch);
++#endif
+ 
+   DCHECK(
+       !AreAliased(api_function_address, property_callback_info_arg, name_arg));
+diff --git a/src/codegen/ppc/macro-assembler-ppc.cc b/src/codegen/ppc/macro-assembler-ppc.cc
+index 5fd584fde31..97969b4e4c1 100644
+--- a/v8/src/codegen/ppc/macro-assembler-ppc.cc
++++ b/v8/src/codegen/ppc/macro-assembler-ppc.cc
+@@ -612,7 +612,9 @@ void MacroAssembler::MultiPopF64AndV128(DoubleRegList dregs,
+ 
+ void MacroAssembler::LoadTaggedRoot(Register destination, RootIndex index) {
+   ASM_CODE_COMMENT(this);
+-  if (CanBeImmediate(index)) {
++  if (V8_STATIC_ROOTS_BOOL && RootsTable::IsReadOnly(index) &&
++      is_int12(ReadOnlyRootPtr(index))) {
++    // int12 can always be immediate on ppc64
+     mov(destination, Operand(ReadOnlyRootPtr(index), RelocInfo::Mode::NO_INFO));
+     return;
+   }
+@@ -622,8 +624,10 @@ void MacroAssembler::LoadTaggedRoot(Register destination, RootIndex index) {
+ void MacroAssembler::LoadRoot(Register destination, RootIndex index,
+                               Condition cond) {
+   DCHECK(cond == al);
+-  if (CanBeImmediate(index)) {
+-    DecompressTagged(destination, ReadOnlyRootPtr(index));
++  if (V8_STATIC_ROOTS_BOOL && RootsTable::IsReadOnly(index) &&
++      is_int12(ReadOnlyRootPtr(index))) {
++    // int12 can always be immediate on ppc64
++    DecompressTagged(destination, (int32_t)ReadOnlyRootPtr(index));
+     return;
+   }
+   LoadU64(destination,
+@@ -748,6 +752,127 @@ void MacroAssembler::RecordWriteField(Register object, int offset,
+   }
+ }
+ 
++void MacroAssembler::DecodeSandboxedPointer(Register value) {
++  ASM_CODE_COMMENT(this);
++#ifdef V8_ENABLE_SANDBOX
++  srdi(value, value, Operand(kSandboxedPointerShift));
++  AddS64(value, value, kPtrComprCageBaseRegister);
++#else
++  UNREACHABLE();
++#endif
++}
++
++void MacroAssembler::LoadSandboxedPointerField(
++    Register destination, const MemOperand& field_operand,
++    Register scratch) {
++  ASM_CODE_COMMENT(this);
++#ifdef V8_ENABLE_SANDBOX
++  LoadU64(destination, field_operand, scratch);
++  DecodeSandboxedPointer(destination);
++#else
++  UNREACHABLE();
++#endif
++}
++
++void MacroAssembler::StoreSandboxedPointerField(
++    Register value, const MemOperand& dst_field_operand,
++    Register scratch) {
++  ASM_CODE_COMMENT(this);
++#ifdef V8_ENABLE_SANDBOX
++  UseScratchRegisterScope temps(this);
++  Register scratch2 = temps.Acquire();
++  sub(scratch2, value, kPtrComprCageBaseRegister);
++  sldi(scratch2, scratch2, Operand(kSandboxedPointerShift));
++  StoreU64(scratch2, dst_field_operand, scratch);
++#else
++  UNREACHABLE();
++#endif
++}
++
++void MacroAssembler::LoadExternalPointerField(Register destination,
++                                              MemOperand field_operand,
++                                              ExternalPointerTag tag,
++                                              Register isolate_root,
++                                              Register scratch) {
++  DCHECK(!AreAliased(destination, isolate_root));
++  ASM_CODE_COMMENT(this);
++#ifdef V8_ENABLE_SANDBOX
++  DCHECK_NE(tag, kExternalPointerNullTag);
++  DCHECK(!IsSharedExternalPointerType(tag));
++  UseScratchRegisterScope temps(this);
++  Register external_table = temps.Acquire();
++  if (isolate_root == no_reg) {
++    DCHECK(root_array_available_);
++    isolate_root = kRootRegister;
++  }
++  LoadU64(external_table,
++      MemOperand(isolate_root,
++                 IsolateData::external_pointer_table_offset() +
++                     Internals::kExternalPointerTableBufferOffset),
++                 scratch);
++  LoadU32(destination, field_operand, scratch);
++  srdi(destination, destination, Operand(kExternalPointerIndexShift));
++  sldi(destination, destination, Operand(kExternalPointerTableEntrySizeLog2));
++  LoadU64(destination, MemOperand(external_table, destination), scratch);
++  mov(scratch, Operand(~tag));
++  and_(destination, destination, scratch);
++#else
++  LoadU64(destination, field_operand, scratch);
++#endif  // V8_ENABLE_SANDBOX
++}
++
++void MacroAssembler::JumpIfObjectType(Register object, Register map,
++                                      Register type_reg, InstanceType type,
++                                      Label* if_cond_pass, Condition cond) {
++  ASM_CODE_COMMENT(this);
++  CompareObjectType(object, map, type_reg, type);
++
++  if (cond == ne) {
++    bne(if_cond_pass);
++  }
++  if (cond == eq) {
++    beq(if_cond_pass);
++  }
++}
++
++void MacroAssembler::JumpIfJSAnyIsNotPrimitive(Register heap_object,
++                                               Register scratch, Label* target,
++                                               Label::Distance distance,
++                                               Condition cc) {
++  CHECK(cc == Condition::kUnsignedLessThan ||
++        cc == Condition::kUnsignedGreaterThanEqual);
++  if (V8_STATIC_ROOTS_BOOL) {
++#ifdef DEBUG
++    Label ok;
++    LoadMap(scratch, heap_object);
++    CompareInstanceTypeRange(scratch, scratch, FIRST_JS_RECEIVER_TYPE,
++                             LAST_JS_RECEIVER_TYPE);
++    ble(&ok);
++    LoadMap(scratch, heap_object);
++    CompareInstanceTypeRange(scratch, scratch, FIRST_PRIMITIVE_HEAP_OBJECT_TYPE,
++                             LAST_PRIMITIVE_HEAP_OBJECT_TYPE);
++    ble(&ok);
++    Abort(AbortReason::kInvalidReceiver);
++    bind(&ok);
++#endif  // DEBUG
++
++    // All primitive object's maps are allocated at the start of the read only
++    // heap. Thus JS_RECEIVER's must have maps with larger (compressed)
++    // addresses.
++    // ppc64's CompareTagged implementation requires a register operand, so
++    // we need a second scratch register here...
++    UseScratchRegisterScope temps(this);
++    Register scratch2 = temps.Acquire();
++    LoadCompressedMap(scratch, heap_object, scratch2);
++    mov(scratch2, Operand(InstanceTypeChecker::kNonJsReceiverMapLimit));
++    CompareTagged(scratch, scratch2);
++  } else {
++    static_assert(LAST_JS_RECEIVER_TYPE == LAST_TYPE);
++    CompareObjectType(heap_object, scratch, scratch, FIRST_JS_RECEIVER_TYPE);
++  }
++  b(to_condition(cc), target);
++}
++
+ void MacroAssembler::MaybeSaveRegisters(RegList registers) {
+   if (registers.is_empty()) return;
+   MultiPush(registers);
+@@ -770,6 +895,9 @@ void MacroAssembler::CallEphemeronKeyBarrier(Register object,
+   Register slot_address_parameter =
+       WriteBarrierDescriptor::SlotAddressRegister();
+ 
++  // TODO(tpearson): The following is equivalent to
++  // MovePair(slot_address_parameter, slot_address, object_parameter, object);
++  // Enable after adding MovePair() to the ppc64 MacroAssembler
+   push(object);
+   push(slot_address);
+   pop(slot_address_parameter);
+@@ -831,12 +959,8 @@ void MacroAssembler::CallRecordWriteStub(Register object, Register slot_address,
+ void MacroAssembler::RecordWrite(Register object, Register slot_address,
+                                  Register value, LinkRegisterStatus lr_status,
+                                  SaveFPRegsMode fp_mode, SmiCheck smi_check) {
++  ASM_CODE_COMMENT(this);
+   DCHECK(!AreAliased(object, value, slot_address));
+-  if (v8_flags.debug_code) {
+-    LoadTaggedField(r0, MemOperand(slot_address));
+-    CmpS64(r0, value);
+-    Check(eq, AbortReason::kWrongAddressOrValuePassedToRecordWrite);
+-  }
+ 
+   if (v8_flags.disable_write_barriers) {
+     return;
+@@ -1704,6 +1828,27 @@ void MacroAssembler::PopStackHandler() {
+   Drop(1);  // Drop padding.
+ }
+ 
++// Sets equality condition flags.
++void MacroAssembler::IsObjectType(Register object, Register scratch1,
++                                  Register scratch2, InstanceType type) {
++  ASM_CODE_COMMENT(this);
++
++  if (V8_STATIC_ROOTS_BOOL) {
++    if (base::Optional<RootIndex> expected =
++            InstanceTypeChecker::UniqueMapOfInstanceType(type)) {
++      Tagged_t ptr = ReadOnlyRootPtr(*expected);
++      if (scratch1 != scratch2) {
++        LoadCompressedMap(scratch1, object, scratch2);
++        Move(scratch2, ptr);
++        CompareTagged(scratch1, scratch2);
++        return;
++      }
++    }
++  }
++
++  CompareObjectType(object, scratch1, scratch2, type);
++}
++
+ void MacroAssembler::CompareObjectType(Register object, Register map,
+                                        Register type_reg, InstanceType type) {
+   const Register temp = type_reg == no_reg ? r0 : type_reg;
+@@ -1745,13 +1890,18 @@ void MacroAssembler::CompareInstanceTypeRange(Register map, Register type_reg,
+ }
+ 
+ void MacroAssembler::CompareRoot(Register obj, RootIndex index) {
+-  DCHECK(obj != r0);
++  ASM_CODE_COMMENT(this);
++  // Use r0 as a safe scratch register here, since temps.Acquire() tends
++  // to spit back the register being passed as an argument in obj...
++  Register temp = r0;
+   if (V8_STATIC_ROOTS_BOOL && RootsTable::IsReadOnly(index)) {
+-    LoadTaggedRoot(r0, index);
+-  } else {
+-    LoadRoot(r0, index);
++    mov(temp, Operand(ReadOnlyRootPtr(index)));
++    CompareTagged(obj, temp);
++    return;
+   }
+-  CmpS64(obj, r0);
++  DCHECK(!AreAliased(obj, temp));
++  LoadRoot(temp, index);
++  CompareTagged(obj, temp);
+ }
+ 
+ void MacroAssembler::AddAndCheckForOverflow(Register dst, Register left,
+@@ -2063,8 +2213,8 @@ void MacroAssembler::ReplaceClosureCodeWithOptimizedCode(
+   mr(value, optimized_code);
+ 
+   RecordWriteField(closure, JSFunction::kCodeOffset, value, slot_address,
+-                   kLRHasNotBeenSaved, SaveFPRegsMode::kIgnore,
+-                   SmiCheck::kOmit);
++         kLRHasNotBeenSaved, SaveFPRegsMode::kIgnore,
++         SmiCheck::kOmit);
+ }
+ 
+ void MacroAssembler::GenerateTailCallToReturnedCode(
+@@ -2277,6 +2427,12 @@ void MacroAssembler::LoadMap(Register destination, Register object) {
+                   r0);
+ }
+ 
++void MacroAssembler::LoadCompressedMap(Register dst, Register object,
++                                       Register scratch) {
++  ASM_CODE_COMMENT(this);
++  LoadU32(dst, FieldMemOperand(object, HeapObject::kMapOffset), scratch);
++}
++
+ void MacroAssembler::LoadNativeContextSlot(Register dst, int index) {
+   LoadMap(dst, cp);
+   LoadTaggedField(
+diff --git a/src/codegen/ppc/macro-assembler-ppc.h b/src/codegen/ppc/macro-assembler-ppc.h
+index d57605ba165..4914539d9fb 100644
+--- a/v8/src/codegen/ppc/macro-assembler-ppc.h
++++ b/v8/src/codegen/ppc/macro-assembler-ppc.h
+@@ -805,6 +805,9 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   void Move(Register dst, ExternalReference reference);
+   void Move(Register dst, Register src, Condition cond = al);
+   void Move(DoubleRegister dst, DoubleRegister src);
++  void Move(Register dst, intptr_t x) {
++      mov(dst, Operand(x));
++  }
+   void Move(Register dst, const MemOperand& src) {
+     // TODO: use scratch register scope instead of r0
+     LoadU64(dst, src, r0);
+@@ -930,6 +933,8 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   void JumpIfLessThan(Register x, int32_t y, Label* dest);
+ 
+   void LoadMap(Register destination, Register object);
++  void LoadCompressedMap(Register dst, Register object,
++                         Register scratch = no_reg);
+ 
+ #if V8_TARGET_ARCH_PPC64
+   inline void TestIfInt32(Register value, Register scratch,
+@@ -1001,6 +1006,27 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   // Define an exception handler and bind a label.
+   void BindExceptionHandler(Label* label) { bind(label); }
+ 
++  // ---------------------------------------------------------------------------
++  // V8 Sandbox support
++
++  // Transform a SandboxedPointer from/to its encoded form, which is used when
++  // the pointer is stored on the heap and ensures that the pointer will always
++  // point into the sandbox.
++  void DecodeSandboxedPointer(Register value);
++  void LoadSandboxedPointerField(Register destination,
++                                 const MemOperand& field_operand,
++                                 Register scratch = no_reg);
++  void StoreSandboxedPointerField(Register value,
++                                 const MemOperand& dst_field_operand,
++                                 Register scratch = no_reg);
++
++  // Loads a field containing off-heap pointer and does necessary decoding
++  // if sandboxed external pointers are enabled.
++  void LoadExternalPointerField(Register destination, MemOperand field_operand,
++                                ExternalPointerTag tag,
++                                Register isolate_root = no_reg,
++                                Register scratch = no_reg);
++
+   // ---------------------------------------------------------------------------
+   // Pointer compression Support
+ 
+@@ -1498,16 +1524,16 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   // The offset is the offset from the start of the object, not the offset from
+   // the tagged HeapObject pointer.  For use with FieldMemOperand(reg, off).
+   void RecordWriteField(Register object, int offset, Register value,
+-                        Register slot_address, LinkRegisterStatus lr_status,
+-                        SaveFPRegsMode save_fp,
+-                        SmiCheck smi_check = SmiCheck::kInline);
++                 Register slot_address, LinkRegisterStatus lr_status,
++                 SaveFPRegsMode save_fp,
++                 SmiCheck smi_check = SmiCheck::kInline);
+ 
+   // For a given |object| notify the garbage collector that the slot |address|
+   // has been written.  |value| is the object being stored. The value and
+   // address registers are clobbered by the operation.
+   void RecordWrite(Register object, Register slot_address, Register value,
+-                   LinkRegisterStatus lr_status, SaveFPRegsMode save_fp,
+-                   SmiCheck smi_check = SmiCheck::kInline);
++                 LinkRegisterStatus lr_status, SaveFPRegsMode save_fp,
++                 SmiCheck smi_check = SmiCheck::kInline);
+ 
+   // Enter exit frame.
+   // stack_space - extra stack space, used for parameters before call to C.
+@@ -1589,6 +1615,21 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   // Type_reg can be no_reg. In that case ip is used.
+   void CompareObjectType(Register heap_object, Register map, Register type_reg,
+                          InstanceType type);
++  // Variant of the above, which only guarantees to set the correct eq/ne flag.
++  // Neither map, nor type_reg might be set to any particular value.
++  void IsObjectType(Register heap_object, Register scratch1, Register scratch2,
++                    InstanceType type);
++
++  // Compare object type for heap object, and branch if equal (or not.)
++  // heap_object contains a non-Smi whose object type should be compared with
++  // the given type.  This both sets the flags and leaves the object type in
++  // the type_reg register. It leaves the map in the map register (unless the
++  // type_reg and map register are the same register).  It leaves the heap
++  // object in the heap_object register unless the heap_object register is the
++  // same register as one of the other registers.
++  void JumpIfObjectType(Register object, Register map, Register type_reg,
++                        InstanceType type, Label* if_cond_pass,
++                        Condition cond = eq);
+ 
+   // Compare instance type in a map.  map contains a valid map object whose
+   // object type should be compared with the given type.  This both
+@@ -1630,6 +1671,17 @@ class V8_EXPORT_PRIVATE MacroAssembler : public MacroAssemblerBase {
+   void JumpIfIsInRange(Register value, unsigned lower_limit,
+                        unsigned higher_limit, Label* on_in_range);
+ 
++  void JumpIfJSAnyIsNotPrimitive(
++      Register heap_object, Register scratch, Label* target,
++      Label::Distance distance = Label::kFar,
++      Condition condition = Condition::kUnsignedGreaterThanEqual);
++  void JumpIfJSAnyIsPrimitive(Register heap_object, Register scratch,
++                              Label* target,
++                              Label::Distance distance = Label::kFar) {
++    return JumpIfJSAnyIsNotPrimitive(heap_object, scratch, target, distance,
++                                     Condition::kUnsignedLessThan);
++  }
++
+   // Tiering support.
+   void AssertFeedbackVector(Register object,
+                             Register scratch) NOOP_UNLESS_DEBUG_CODE;
+diff --git a/src/compiler/backend/instruction-codes.h b/src/compiler/backend/instruction-codes.h
+index 87adf068bbf..d5b4321199c 100644
+--- a/v8/src/compiler/backend/instruction-codes.h
++++ b/v8/src/compiler/backend/instruction-codes.h
+@@ -410,8 +410,13 @@ using MiscField = FlagsConditionField::Next<int, 10>;
+ // back fixes that add new opcodes.
+ // It is OK to temporarily reduce the required slack if we have a tracking bug
+ // to reduce the number of used opcodes again.
++#ifdef V8_TARGET_ARCH_PPC64
++static_assert(ArchOpcodeField::kMax - kLastArchOpcode >= 14,
++              "We are running close to the number of available opcodes.");
++#else
+ static_assert(ArchOpcodeField::kMax - kLastArchOpcode >= 16,
+               "We are running close to the number of available opcodes.");
++#endif
+ 
+ }  // namespace compiler
+ }  // namespace internal
+diff --git a/src/compiler/backend/ppc/code-generator-ppc.cc b/src/compiler/backend/ppc/code-generator-ppc.cc
+index 96197d6844d..20fc7fe7200 100644
+--- a/v8/src/compiler/backend/ppc/code-generator-ppc.cc
++++ b/v8/src/compiler/backend/ppc/code-generator-ppc.cc
+@@ -33,6 +33,28 @@ class PPCOperandConverter final : public InstructionOperandConverter {
+   PPCOperandConverter(CodeGenerator* gen, Instruction* instr)
+       : InstructionOperandConverter(gen, instr) {}
+ 
++  Register InputOrZeroRegister(size_t index) {
++    if (instr_->InputAt(index)->IsImmediate()) {
++      Constant constant = ToConstant(instr_->InputAt(index));
++      switch (constant.type()) {
++        case Constant::kInt32:
++        case Constant::kInt64:
++          DCHECK_EQ(0, InputInt32(index));
++          break;
++        case Constant::kFloat32:
++          DCHECK_EQ(0, base::bit_cast<int32_t>(InputFloat32(index)));
++          break;
++        case Constant::kFloat64:
++          DCHECK_EQ(0, base::bit_cast<int64_t>(InputDouble(index)));
++          break;
++        default:
++          UNREACHABLE();
++      }
++      return r0;
++    }
++    return InputRegister(index);
++  }
++
+   size_t OutputCount() { return instr_->OutputCount(); }
+ 
+   RCBit OutputRCBit() const {
+@@ -77,7 +99,18 @@ class PPCOperandConverter final : public InstructionOperandConverter {
+ #endif
+       case Constant::kExternalReference:
+         return Operand(constant.ToExternalReference());
+-      case Constant::kCompressedHeapObject:
++      case Constant::kCompressedHeapObject: {
++        RootIndex root_index;
++        if (gen_->isolate()->roots_table().IsRootHandle(constant.ToHeapObject(),
++                                                        &root_index)) {
++          CHECK(COMPRESS_POINTERS_BOOL);
++          CHECK(V8_STATIC_ROOTS_BOOL || !gen_->isolate()->bootstrapper());
++          Tagged_t ptr =
++              MacroAssemblerBase::ReadOnlyRootPtr(root_index, gen_->isolate());
++          return Operand(ptr);
++        }
++        return Operand(constant.ToHeapObject());
++      }
+       case Constant::kHeapObject:
+       case Constant::kRpoNumber:
+         break;
+@@ -85,6 +118,23 @@ class PPCOperandConverter final : public InstructionOperandConverter {
+     UNREACHABLE();
+   }
+ 
++  MemOperand MemoryOperand(size_t* first_index) {
++    const size_t index = *first_index;
++    switch (AddressingModeField::decode(instr_->opcode())) {
++      case kMode_None:
++        break;
++      case kMode_MRI:
++        *first_index += 2;
++        return MemOperand(InputRegister(index + 0), InputInt32(index + 1));
++      case kMode_Root:
++        return MemOperand(kRootRegister, InputInt32(index));
++      case kMode_MRR:
++        // TODO(tpearson): to be implemented ...
++        UNREACHABLE();
++    }
++    UNREACHABLE();
++  }
++
+   MemOperand MemoryOperand(AddressingMode* mode, size_t* first_index) {
+     const size_t index = *first_index;
+     AddressingMode addr_mode = AddressingModeField::decode(instr_->opcode());
+@@ -131,9 +181,9 @@ namespace {
+ class OutOfLineRecordWrite final : public OutOfLineCode {
+  public:
+   OutOfLineRecordWrite(CodeGenerator* gen, Register object, Register offset,
+-                       Register value, Register scratch0, Register scratch1,
+-                       RecordWriteMode mode, StubCallMode stub_mode,
+-                       UnwindingInfoWriter* unwinding_info_writer)
++             Register value, Register scratch0, Register scratch1,
++             RecordWriteMode mode, StubCallMode stub_mode,
++             UnwindingInfoWriter* unwinding_info_writer)
+       : OutOfLineCode(gen),
+         object_(object),
+         offset_(offset),
+@@ -153,9 +203,9 @@ class OutOfLineRecordWrite final : public OutOfLineCode {
+   }
+ 
+   OutOfLineRecordWrite(CodeGenerator* gen, Register object, int32_t offset,
+-                       Register value, Register scratch0, Register scratch1,
+-                       RecordWriteMode mode, StubCallMode stub_mode,
+-                       UnwindingInfoWriter* unwinding_info_writer)
++             Register value, Register scratch0, Register scratch1,
++             RecordWriteMode mode, StubCallMode stub_mode,
++             UnwindingInfoWriter* unwinding_info_writer)
+       : OutOfLineCode(gen),
+         object_(object),
+         offset_(no_reg),
+@@ -174,6 +224,8 @@ class OutOfLineRecordWrite final : public OutOfLineCode {
+ 
+   void Generate() final {
+     ConstantPoolUnavailableScope constant_pool_unavailable(masm());
++    // When storing an indirect pointer, the value will always be a
++    // full/decompressed pointer.
+     if (COMPRESS_POINTERS_BOOL) {
+       __ DecompressTagged(value_, value_);
+     }
+@@ -1162,6 +1214,10 @@ CodeGenerator::CodeGenResult CodeGenerator::AssembleArchInstruction(
+             DetermineStubCallMode(), &unwinding_info_writer_);
+         __ StoreTaggedField(value, MemOperand(object, offset), r0);
+       }
++      // Skip the write barrier if the value is a Smi. However, this is only
++      // valid if the value isn't an indirect pointer. Otherwise the value will
++      // be a pointer table index, which will always look like a Smi (but
++      // actually reference a pointer in the pointer table).
+       if (mode > RecordWriteMode::kValueIsPointer) {
+         __ JumpIfSmi(value, ool->exit());
+       }
+@@ -2809,13 +2865,37 @@ CodeGenerator::CodeGenResult CodeGenerator::AssembleArchInstruction(
+       AddressingMode mode = kMode_None;
+       MemOperand operand = i.MemoryOperand(&mode, &index);
+       Register value = i.InputRegister(index);
+-      bool is_atomic = i.InputInt32(3);
++      bool is_atomic = i.InputInt32(index + 1);
+       if (is_atomic) __ lwsync();
+       __ StoreTaggedField(value, operand, r0);
+       if (is_atomic) __ sync();
+       DCHECK_EQ(LeaveRC, i.OutputRCBit());
+       break;
+     }
++    case kPPC_LoadDecodeSandboxedPointer: {
++      size_t index = 0;
++      AddressingMode mode = kMode_None;
++      MemOperand mem = i.MemoryOperand(&mode, &index);
++      bool is_atomic = i.InputInt32(index);
++      __ LoadSandboxedPointerField(i.OutputRegister(), mem,
++                                   kScratchReg);
++      if (is_atomic) __ lwsync();
++      DCHECK_EQ(LeaveRC, i.OutputRCBit());
++      break;
++    }
++    case kPPC_StoreEncodeSandboxedPointer: {
++      size_t index = 0;
++      AddressingMode mode = kMode_None;
++      MemOperand mem = i.MemoryOperand(&mode, &index);
++      Register value = i.InputRegister(index);
++      bool is_atomic = i.InputInt32(index + 1);
++      if (is_atomic) __ lwsync();
++      __ StoreSandboxedPointerField(value, mem,
++                                    kScratchReg);
++      if (is_atomic) __ sync();
++      DCHECK_EQ(LeaveRC, i.OutputRCBit());
++      break;
++    }
+     case kPPC_LoadDecompressTaggedSigned: {
+       CHECK(instr->HasOutput());
+       ASSEMBLE_LOAD_INTEGER(lwz, plwz, lwzx, false);
+diff --git a/src/compiler/backend/ppc/instruction-codes-ppc.h b/src/compiler/backend/ppc/instruction-codes-ppc.h
+index a893678bb3e..d2bb514bec6 100644
+--- a/v8/src/compiler/backend/ppc/instruction-codes-ppc.h
++++ b/v8/src/compiler/backend/ppc/instruction-codes-ppc.h
+@@ -412,6 +412,9 @@ namespace compiler {
+   V(PPC_S128Store32Lane)             \
+   V(PPC_S128Store64Lane)             \
+   V(PPC_StoreCompressTagged)         \
++  V(PPC_StoreIndirectPointer)        \
++  V(PPC_LoadDecodeSandboxedPointer)  \
++  V(PPC_StoreEncodeSandboxedPointer) \
+   V(PPC_LoadDecompressTaggedSigned)  \
+   V(PPC_LoadDecompressTagged)
+ 
+diff --git a/src/compiler/backend/ppc/instruction-scheduler-ppc.cc b/src/compiler/backend/ppc/instruction-scheduler-ppc.cc
+index 22f78af268b..6425480cd3b 100644
+--- a/v8/src/compiler/backend/ppc/instruction-scheduler-ppc.cc
++++ b/v8/src/compiler/backend/ppc/instruction-scheduler-ppc.cc
+@@ -334,6 +334,7 @@ int InstructionScheduler::GetTargetInstructionFlags(
+     case kPPC_Peek:
+     case kPPC_LoadDecompressTaggedSigned:
+     case kPPC_LoadDecompressTagged:
++    case kPPC_LoadDecodeSandboxedPointer:
+     case kPPC_S128Load8Splat:
+     case kPPC_S128Load16Splat:
+     case kPPC_S128Load32Splat:
+@@ -362,6 +363,8 @@ int InstructionScheduler::GetTargetInstructionFlags(
+     case kPPC_StoreDouble:
+     case kPPC_StoreSimd128:
+     case kPPC_StoreCompressTagged:
++    case kPPC_StoreIndirectPointer:
++    case kPPC_StoreEncodeSandboxedPointer:
+     case kPPC_Push:
+     case kPPC_PushFrame:
+     case kPPC_StoreToStackSlot:
+diff --git a/src/compiler/backend/ppc/instruction-selector-ppc.cc b/src/compiler/backend/ppc/instruction-selector-ppc.cc
+index 862ec20afcf..cd77d52224d 100644
+--- a/v8/src/compiler/backend/ppc/instruction-selector-ppc.cc
++++ b/v8/src/compiler/backend/ppc/instruction-selector-ppc.cc
+@@ -7,6 +7,7 @@
+ #include "src/compiler/node-matchers.h"
+ #include "src/compiler/node-properties.h"
+ #include "src/execution/ppc/frame-constants-ppc.h"
++#include "src/roots/roots-inl.h"
+ 
+ namespace v8 {
+ namespace internal {
+@@ -41,6 +42,25 @@ class PPCOperandGeneratorT final : public OperandGeneratorT<Adapter> {
+   }
+ 
+   bool CanBeImmediate(Node* node, ImmediateMode mode) {
++    if (node->opcode() == IrOpcode::kCompressedHeapConstant) {
++      if (!COMPRESS_POINTERS_BOOL) return false;
++      // For builtin code we need static roots
++      if (selector()->isolate()->bootstrapper() && !V8_STATIC_ROOTS_BOOL) {
++        return false;
++      }
++      const RootsTable& roots_table = selector()->isolate()->roots_table();
++      RootIndex root_index;
++      CompressedHeapObjectMatcher m(node);
++      if (m.HasResolvedValue() &&
++          roots_table.IsRootHandle(m.ResolvedValue(), &root_index)) {
++        if (!RootsTable::IsReadOnly(root_index)) return false;
++        return CanBeImmediate(MacroAssemblerBase::ReadOnlyRootPtr(
++                                  root_index, selector()->isolate()),
++                              mode);
++      }
++      return false;
++    }
++
+     int64_t value;
+     if (node->opcode() == IrOpcode::kInt32Constant)
+       value = OpParameter<int32_t>(node->op());
+@@ -212,14 +232,16 @@ static void VisitLoadCommon(InstructionSelectorT<Adapter>* selector, Node* node,
+       break;
+     case MachineRepresentation::kCompressedPointer:  // Fall through.
+     case MachineRepresentation::kCompressed:
+-    case MachineRepresentation::kSandboxedPointer:  // Fall through.
+ #ifdef V8_COMPRESS_POINTERS
+-      opcode = kPPC_LoadWordS32;
+-      if (mode != kInt34Imm) mode = kInt16Imm_4ByteAligned;
+-      break;
++        opcode = kPPC_LoadWordS32;
++        if (mode != kInt34Imm) mode = kInt16Imm_4ByteAligned;
+ #else
+-      UNREACHABLE();
++        UNREACHABLE();
+ #endif
++        break;
++      case MachineRepresentation::kSandboxedPointer:
++        opcode = kPPC_LoadDecodeSandboxedPointer;
++        break;
+ #ifdef V8_COMPRESS_POINTERS
+     case MachineRepresentation::kTaggedSigned:
+       opcode = kPPC_LoadDecompressTaggedSigned;
+@@ -313,7 +335,7 @@ void VisitStoreCommon(InstructionSelectorT<Adapter>* selector, Node* node,
+       !v8_flags.disable_write_barriers) {
+     DCHECK(CanBeTaggedOrCompressedPointer(rep));
+     AddressingMode addressing_mode;
+-    InstructionOperand inputs[3];
++    InstructionOperand inputs[4];
+     size_t input_count = 0;
+     inputs[input_count++] = g.UseUniqueRegister(base);
+     // OutOfLineRecordWrite uses the offset in an 'add' instruction as well as
+@@ -334,7 +356,8 @@ void VisitStoreCommon(InstructionSelectorT<Adapter>* selector, Node* node,
+         WriteBarrierKindToRecordWriteMode(write_barrier_kind);
+     InstructionOperand temps[] = {g.TempRegister(), g.TempRegister()};
+     size_t const temp_count = arraysize(temps);
+-    InstructionCode code = kArchStoreWithWriteBarrier;
++    InstructionCode code;
++    code = kArchStoreWithWriteBarrier;
+     code |= AddressingModeField::encode(addressing_mode);
+     code |= RecordWriteModeField::encode(record_write_mode);
+     CHECK_EQ(is_atomic, false);
+@@ -372,13 +395,17 @@ void VisitStoreCommon(InstructionSelectorT<Adapter>* selector, Node* node,
+         break;
+       case MachineRepresentation::kCompressedPointer:  // Fall through.
+       case MachineRepresentation::kCompressed:
+-      case MachineRepresentation::kSandboxedPointer:  // Fall through.
+ #ifdef V8_COMPRESS_POINTERS
++        if (mode != kInt34Imm) mode = kInt16Imm_4ByteAligned;
+         opcode = kPPC_StoreCompressTagged;
+-        break;
+ #else
+         UNREACHABLE();
+ #endif
++        break;
++      case MachineRepresentation::kSandboxedPointer:
++        if (mode != kInt34Imm) mode = kInt16Imm_4ByteAligned;
++        opcode = kPPC_StoreEncodeSandboxedPointer;
++        break;
+       case MachineRepresentation::kTaggedSigned:   // Fall through.
+       case MachineRepresentation::kTaggedPointer:  // Fall through.
+       case MachineRepresentation::kTagged:
+@@ -2046,8 +2073,43 @@ void InstructionSelectorT<Adapter>::VisitSwitch(Node* node,
+ 
+ template <typename Adapter>
+ void InstructionSelectorT<Adapter>::VisitWord32Equal(Node* const node) {
+-  FlagsContinuation cont = FlagsContinuation::ForSet(kEqual, node);
+-  VisitWord32Compare(this, node, &cont);
++    FlagsContinuation cont = FlagsContinuation::ForSet(kEqual, node);
++    if (isolate() && (V8_STATIC_ROOTS_BOOL ||
++                      (COMPRESS_POINTERS_BOOL && !isolate()->bootstrapper()))) {
++      PPCOperandGeneratorT<Adapter> g(this);
++      const RootsTable& roots_table = isolate()->roots_table();
++      RootIndex root_index;
++      Node* left = nullptr;
++      Handle<HeapObject> right;
++      // HeapConstants and CompressedHeapConstants can be treated the same when
++      // using them as an input to a 32-bit comparison. Check whether either is
++      // present.
++      {
++        CompressedHeapObjectBinopMatcher m(node);
++        if (m.right().HasResolvedValue()) {
++          left = m.left().node();
++          right = m.right().ResolvedValue();
++        } else {
++          HeapObjectBinopMatcher m2(node);
++          if (m2.right().HasResolvedValue()) {
++            left = m2.left().node();
++            right = m2.right().ResolvedValue();
++          }
++        }
++      }
++      if (!right.is_null() && roots_table.IsRootHandle(right, &root_index)) {
++        DCHECK_NE(left, nullptr);
++        if (RootsTable::IsReadOnly(root_index)) {
++          Tagged_t ptr =
++              MacroAssemblerBase::ReadOnlyRootPtr(root_index, isolate());
++          if (g.CanBeImmediate(ptr, kInt16Imm)) {
++            return VisitCompare(this, kPPC_Cmp32, g.UseRegister(left),
++                                g.TempImmediate(ptr), &cont);
++          }
++        }
++      }
++    }
++    VisitWord32Compare(this, node, &cont);
+ }
+ 
+ template <typename Adapter>
+diff --git a/src/wasm/baseline/ppc/liftoff-assembler-ppc.h b/src/wasm/baseline/ppc/liftoff-assembler-ppc.h
+index dd5612a7f75..98f5ee1fff0 100644
+--- a/v8/src/wasm/baseline/ppc/liftoff-assembler-ppc.h
++++ b/v8/src/wasm/baseline/ppc/liftoff-assembler-ppc.h
+@@ -269,6 +269,13 @@ void LiftoffAssembler::LoadTaggedPointerFromInstance(Register dst,
+   LoadTaggedField(dst, MemOperand(instance, offset), r0);
+ }
+ 
++void LiftoffAssembler::LoadExternalPointer(Register dst, Register instance,
++                                           int offset, ExternalPointerTag tag,
++                                           Register /* scratch */) {
++  LoadExternalPointerField(dst, FieldMemOperand(instance, offset), tag,
++                           kRootRegister);
++}
++
+ void LiftoffAssembler::SpillInstance(Register instance) {
+   StoreU64(instance, liftoff::GetInstanceOperand(), r0);
+ }
