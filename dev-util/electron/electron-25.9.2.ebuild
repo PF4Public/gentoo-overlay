@@ -1601,7 +1601,7 @@ src_prepare() {
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
-				--exclude="*/test/data/*" \
+				--exclude="*/test/data/*" --exclude="*/presubmit/*" \
 				-p1 < "${S}/${patch_folder}/$i" || die
 			# eend $? || die
 			popd > /dev/null || die
