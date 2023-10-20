@@ -17,16 +17,14 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="a7b15da7f845c3d509d7bb41073f2bc6e82270fb"
-CROMITE_PR_COMMITS=(
-	a5a00f5ea418fad93f9dbb6a93a6300e03425415
-)
+CROMITE_COMMIT_ID="d0f3c845f8e06d143bf81b5cfb73c3058fb53fee"
+# CROMITE_PR_COMMITS=(
+# 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
+# )
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
-PATCHSET="2"
-PATCHSET_NAME="chromium-116-patchset-${PATCHSET}"
-PATCHSET_PPC64="117.0.5938.62-1raptor0~deb12u1"
+PATCHSET_PPC64="118.0.5993.70-1raptor0~deb11u1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PV%%\.*}/chromium-patches-${PV%%\.*}.tar.bz2
 	https://github.com/uazo/${PN}/archive/${CROMITE_COMMIT_ID}.tar.gz -> ${PN}-${CROMITE_COMMIT_ID}.tar.gz
@@ -1067,6 +1065,9 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+
+	# Cromite flags
+	myconf_gn+=" use_v8_context_snapshot=false"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
