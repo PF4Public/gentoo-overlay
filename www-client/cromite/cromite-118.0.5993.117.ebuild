@@ -441,6 +441,10 @@ src_prepare() {
 		popd >/dev/null
 	fi
 
+	einfo "Removing libjxl support"
+	sed -i "\!libjxl!d" "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt" || die
+	sed -i "\!support-to-jxl!d" "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt" || die
+
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt"
 	for i in "${topatch[@]}"; do
 		if [ -z "$i" ]; then
