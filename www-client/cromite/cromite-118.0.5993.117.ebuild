@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="GPL-3"
 SLOT="0"
 # KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 +system-zstd thinlto vaapi wayland widevine"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libjxl +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 +system-zstd thinlto vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -95,6 +95,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
 	system-libevent? ( dev-libs/libevent )
+	system-libjxl? ( media-libs/libjxl )
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
@@ -441,10 +442,6 @@ src_prepare() {
 		popd >/dev/null
 	fi
 
-	einfo "Removing libjxl support"
-	sed -i "\!libjxl!d" "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt" || die
-	sed -i "\!support-to-jxl!d" "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt" || die
-
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/bromite_patches_list.txt"
 	for i in "${topatch[@]}"; do
 		if [ -z "$i" ]; then
@@ -456,6 +453,7 @@ src_prepare() {
 			--exclude="*/uv/test/*" --exclude="*.rst" \
 			--exclude="*/cctest/*" --exclude="*/unittests/*" \
 			--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
+			--exclude="*/commit_stats/*" \
 			-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
 		# eend $? || die
 	done
@@ -607,6 +605,11 @@ src_prepare() {
 	keeplibs+=(
 		third_party/libgav1
 		third_party/libjingle
+	)
+	use system-libjxl || keeplibs+=(
+		third_party/libjxl
+	)
+	keeplibs+=(
 		third_party/libphonenumber
 		third_party/libsecret
 		third_party/libsrtp
@@ -981,6 +984,9 @@ src_configure() {
 	if use system-libevent; then
 		gn_system_libraries+=( libevent )
 	fi
+	if use system-libjxl; then
+		gn_system_libraries+=( libjxl )
+	fi
 	use system-openh264 && gn_system_libraries+=(
 		openh264
 	)
@@ -1072,6 +1078,7 @@ src_configure() {
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
+	myconf_gn+=" enable_jxl_decoder=true"
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.

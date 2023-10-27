@@ -42,6 +42,7 @@
 		<flag name="system-icu">Use the system <pkg>dev-libs/icu</pkg> instead of the bundled one</flag>
 		<flag name="system-jsoncpp">Use the system <pkg>dev-libs/jsoncpp</pkg> instead of the bundled one</flag>
 		<flag name="system-libevent">Use the system <pkg>dev-libs/libevent</pkg> instead of the bundled one</flag>
+		<flag name="system-libjxl">Use the system <pkg>media-libs/libjxl</pkg> instead of the bundled one</flag>
 		<flag name="system-libusb">Use the system <pkg>dev-libs/libusb</pkg> instead of the bundled one</flag>
 		<flag name="system-libvpx">Use the system <pkg>media-libs/libvpx</pkg> instead of the bundled one</flag>
 		<flag name="system-openh264">Use the system <pkg>media-libs/openh264</pkg> instead of the bundled one. If disabled, it will restrict USE=bindist.</flag>
