@@ -355,6 +355,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
