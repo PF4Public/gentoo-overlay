@@ -374,7 +374,7 @@ src_prepare() {
 	python_setup
 
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${PV%%.*}/chromium-*-compiler.patch || die
+		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${PATCH_V}/chromium-*-compiler.patch || die
 	fi
 
 	# disable global media controls, crashes with libstdc++
