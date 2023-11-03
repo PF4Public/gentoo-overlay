@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="9344cc41d5d85463ee12bc449c72ad335f7545fe"
+CROMITE_COMMIT_ID="0db4890cec236dc44384f400f99b5c7efecaca3c"
 # CROMITE_PR_COMMITS=(
 # 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 # )
@@ -362,8 +362,8 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
+		# "${FILESDIR}/00LIN-Build-fixes.patch"
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${CHROMIUM_COMMITS[@]}"; do
