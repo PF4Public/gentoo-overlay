@@ -1983,12 +1983,24 @@ src_configure() {
 	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
-	myconf_gn+=" is_debug=false"
+	myconf_gn+=" is_debug=$(usex debug true false)"
 
 	# enable DCHECK with USE=debug only, increases chrome binary size by 30%, bug #811138.
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
 	myconf_gn+=" dcheck_always_on=$(usex debug true false)"
 	myconf_gn+=" dcheck_is_configurable=$(usex debug true false)"
+
+	myconf_gn+=" enable_iterator_debugging=$(usex debug true false)"
+
+	if use debug; then
+		myconf_gn+=" symbol_level=2"
+		myconf_gn+=" blink_symbol_level=2"
+		myconf_gn+=" v8_symbol_level=2"
+	else
+		myconf_gn+=" symbol_level=0"
+		myconf_gn+=" blink_symbol_level=0"
+		myconf_gn+=" v8_symbol_level=0"
+	fi
 
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
@@ -2134,10 +2146,7 @@ src_configure() {
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
 
-	myconf_gn+=" blink_symbol_level=0"
-	myconf_gn+=" symbol_level=0"
-	myconf_gn+=" enable_iterator_debugging=false"
-	myconf_gn+=" enable_swiftshader=false"
+	# myconf_gn+=" enable_swiftshader=false"
 
 	# Additional flags
 	myconf_gn+=" perfetto_use_system_zlib=true"
@@ -2292,8 +2301,6 @@ src_configure() {
 	# Allow building against system libraries in official builds
 	sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 		tools/generate_shim_headers/generate_shim_headers.py || die
-	# Don't add symbols to build
-	myconf_gn+=" symbol_level=0"
 
 	# user CXXFLAGS might overwrite -march=armv8-a+crc+crypto, bug #851639
 	if use arm64 && tc-is-gcc; then
