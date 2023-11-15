@@ -65,8 +65,8 @@ src_unpack() {
 src_prepare() {
 	default
 
-	# Make SVGR not traverse the path up to / looking for aconfiguration file.
-	# Fixes Error: EACCES: permission denied, open '/.config/svgrrc'
+	# Make SVGR not traverse the path up to / looking for a configuration file.
+	# Fixes Error: "EACCES: permission denied, open '/.config/svgrrc'"
 	# See https://github.com/PF4Public/gentoo-overlay/issues/276
 	echo "runtimeConfig: false" > .svgrrc.yml || die
 }
