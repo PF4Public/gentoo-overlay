@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="6e8eab21d5d6995f6f78ab55a83093e5a0c4690f"
+CROMITE_COMMIT_ID="dcbb3d0a3ba13fc2dcf1538fb5bdd2071c66234b"
 # CROMITE_PR_COMMITS=(
 # 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 # )
