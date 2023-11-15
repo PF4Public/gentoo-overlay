@@ -62,6 +62,15 @@ src_unpack() {
 	fi
 }
 
+src_prepare() {
+	default
+
+	# Make SVGR not traverse the path up to / looking for aconfiguration file.
+	# Fixes Error: EACCES: permission denied, open '/.config/svgrrc'
+	# See https://github.com/PF4Public/gentoo-overlay/issues/276
+	echo "runtimeConfig: false" > .svgrrc.yml || die
+}
+
 src_configure() {
 	export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
 	yarn config set disable-self-update-check true || die
