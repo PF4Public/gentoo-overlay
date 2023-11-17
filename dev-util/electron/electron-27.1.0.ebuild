@@ -1053,7 +1053,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+# KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 +system-zstd thinlto ungoogled vaapi wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -1297,8 +1297,8 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${CHROMIUM_VERSION%%.*}/chromium-*-compiler.patch || die
 	fi
 
-	# einfo "Disabling dugite"
-	# sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
+	einfo "Disabling dugite"
+	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
 	# pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	# eapply "${FILESDIR}/openssl_fips-r2.patch" || die
