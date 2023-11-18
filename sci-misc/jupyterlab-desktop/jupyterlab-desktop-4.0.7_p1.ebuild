@@ -761,7 +761,7 @@ src_prepare() {
 }
 
 src_configure() {
-	ebegin "Installing node_modules"
+	einfo "Installing node_modules"
 	OLD_PATH=$PATH
 
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
