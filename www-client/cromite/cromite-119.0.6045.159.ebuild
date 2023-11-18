@@ -1474,8 +1474,12 @@ src_install() {
 	# 	newicon -s ${size} "${branding}/product_logo_${size}.png" \
 	# 		chromium-browser.png
 	# done
-	newicon -s 128 chrome/app/theme/chromium/win/tiles/SmallLogo.png cromite-browser.png
-	newicon -s 256 chrome/app/theme/chromium/win/tiles/Logo.png cromite-browser.png
+	# newicon -s 128 chrome/app/theme/chromium/win/tiles/SmallLogo.png cromite-browser.png
+	# newicon -s 256 chrome/app/theme/chromium/win/tiles/Logo.png cromite-browser.png
+	newicon -s 48 chrome/android/java/res_chromium_base/mipmap-mdpi/app_icon.png cromite-browser.png
+	newicon -s 72 chrome/android/java/res_chromium_base/mipmap-hdpi/app_icon.png cromite-browser.png
+	newicon -s 96 chrome/android/java/res_chromium_base/mipmap-xhdpi/app_icon.png cromite-browser.png
+	newicon -s 192 chrome/android/java/res_chromium_base/mipmap-xxxhdpi/app_icon.png cromite-browser.png
 
 	# Install desktop entry
 	domenu out/Release/cromite-browser-cromite.desktop
