@@ -1316,9 +1316,9 @@ src_prepare() {
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
-		#? Funny, huh?
-		sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
-			script/lib/get-version.js || die
+		# #? Funny, huh?
+		# sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
+		# 	script/lib/get-version.js || die
 		# mkdir -p .git/packed-refs .git/HEAD;
 		# sed -i '/git\/packed-refs/d' BUILD.gn || die
 		# sed -i '/git\/HEAD/d' BUILD.gn || die
