@@ -1297,8 +1297,8 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${CHROMIUM_VERSION%%.*}/chromium-*-compiler.patch || die
 	fi
 
-	einfo "Disabling dugite"
-	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
+	# einfo "Disabling dugite"
+	# sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
 	# pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	# eapply "${FILESDIR}/openssl_fips-r2.patch" || die
@@ -2154,6 +2154,7 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" override_electron_version=\"${PV}\""
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
