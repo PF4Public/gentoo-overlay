@@ -198,8 +198,24 @@ src_install() {
 	doins -r dist/linux-unpacked/resources/*
 	dosym ../../share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
-	make_desktop_entry "electron-${ELECTRON_SLOT} /usr/$(get_libdir)/element-desktop/app.asar" \
-		Element "/usr/$(get_libdir)/element-desktop/img/element.png" "Network;Chat"
+	exeinto "/usr/$(get_libdir)/element-desktop"
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/element-desktop
+	sed -i "s|@ELECTRON@|element-desktop|" dist/linux-unpacked/resources/element-desktop
+
+	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+/usr/$(get_libdir)/jupyterlab-desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/element-desktop
+	doexe dist/linux-unpacked/resources/element-desktop
+	dosym "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
+
+	# Install icons
+	local branding size
+	for size in 16 24 48 64 96 128 256 512 ; do
+		newicon -s ${size} "build/icons/${size}x${size}.png" \
+			element-desktop.png
+	done
+
+	make_desktop_entry "/usr/bin/element-desktop" Element \
+		"element-desktop" "Network;Chat"
 }
 
 pkg_postrm() {
