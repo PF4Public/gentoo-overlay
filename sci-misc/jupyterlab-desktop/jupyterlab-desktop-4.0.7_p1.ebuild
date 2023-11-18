@@ -825,12 +825,12 @@ src_install() {
 	doins dist/linux-unpacked/resources/app.asar
 
 	exeinto "/usr/$(get_libdir)/jupyterlab-desktop"
-	cp "${FILESDIR}/read_flags_file" "${S}"/dist/linux-unpacked/resources/jupyterlab-desktop
-	sed -i "s|@ELECTRON@|jupyterlab-desktop|" "${S}"/dist/linux-unpacked/resources/jupyterlab-desktop
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/jupyterlab-desktop
+	sed -i "s|@ELECTRON@|jupyterlab-desktop|" dist/linux-unpacked/resources/jupyterlab-desktop
 
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
---app=\"/usr/$(get_libdir)/jupyterlab-desktop/app.asar\" \"\${flags[@]}\" \"\$@\"" >> "${S}"/dist/linux-unpacked/resources/jupyterlab-desktop
-	doexe "${S}"/dist/linux-unpacked/resources/jupyterlab-desktop
+--app=\"/usr/$(get_libdir)/jupyterlab-desktop/app.asar\" \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/jupyterlab-desktop
+	doexe dist/linux-unpacked/resources/jupyterlab-desktop
 	dosym "/usr/$(get_libdir)/jupyterlab-desktop/jupyterlab-desktop" /usr/bin/jupyterlab-desktop
 
 	newicon -s 512 dist-resources/icons/512x512.png jupyterlab-desktop.png
