@@ -203,7 +203,7 @@ src_install() {
 	sed -i "s|@ELECTRON@|element-desktop|" dist/linux-unpacked/resources/element-desktop
 
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
-/usr/$(get_libdir)/jupyterlab-desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/element-desktop
+/usr/$(get_libdir)/element-desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/element-desktop
 	doexe dist/linux-unpacked/resources/element-desktop
 	dosym "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
 
