@@ -318,27 +318,27 @@ src_compile() {
 	export PATH
 
 	if use temp-fix; then
-	node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	/usr/bin/node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
 		if use temp-fix; then
-		node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 	if use reh-web; then
 		if use temp-fix; then
-		node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --max_old_space_size=8192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node --max_old_space_size=12192 node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 
