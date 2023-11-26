@@ -298,7 +298,7 @@ src_configure() {
 }
 
 src_compile() {
-	ulimit -n 2048
+	ulimit -n 8192
 
 	if [ -d ".git" ]; then
 	    COMMIT_ID="$(git rev-parse HEAD)"
