@@ -415,6 +415,10 @@ src_prepare() {
 		PATCHES+=( "${WORKDIR}/ppc64le" )
 	fi
 
+	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
+		PATCHES+=( "${FILESDIR}/chromium-119.0.6045.159-icu-74.patch" )
+	fi
+
 	default
 
 	if use uazo-bromite ; then
