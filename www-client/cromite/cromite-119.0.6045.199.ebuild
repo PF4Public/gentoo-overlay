@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="dcbb3d0a3ba13fc2dcf1538fb5bdd2071c66234b"
+CROMITE_COMMIT_ID="91419aa0e8f321e4ff5cdceebaad8852323c2c86"
 # CROMITE_PR_COMMITS=(
 # 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 # )
@@ -383,6 +383,10 @@ src_prepare() {
 			fi
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
+	fi
+
+	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
+		PATCHES+=( "${FILESDIR}/chromium-119.0.6045.159-icu-74.patch" )
 	fi
 
 	default
