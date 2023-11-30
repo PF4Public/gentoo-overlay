@@ -488,6 +488,7 @@ src_prepare() {
 		buildtools/third_party/libc++abi
 		chrome/third_party/mozilla_security_manager
 		courgette/third_party
+		cromite_flags/third_party
 		net/third_party/mozilla_security_manager
 		net/third_party/nss
 		net/third_party/quic
