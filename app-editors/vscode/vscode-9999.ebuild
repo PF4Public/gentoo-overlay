@@ -134,10 +134,10 @@ src_prepare() {
 	einfo "Allowing any nodejs version"
 	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
-	ewarn "Removing extensions/npm, see #203"
-	ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
-	rm -r extensions/npm
-	sed -i '/extensions\/npm/d' build/npm/dirs.js || die
+	# ewarn "Removing extensions/npm, see #203"
+	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
+	# rm -r extensions/npm
+	# sed -i '/extensions\/npm/d' build/npm/dirs.js || die
 
 	#TODO: applicationinsights
 	# sed -i '/applicationinsights/d' package.json || die
