@@ -23,7 +23,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="118.0.5993.70-1raptor0~deb11u1"
-PATCH_V="${PV%%\.*}-2"
+PATCH_V="${PV%%\.*}-3"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	ppc64? (
@@ -56,13 +56,13 @@ REQUIRED_USE="
 	qt6? ( qt5 )
 "
 
-#UGC_COMMIT_ID="13fc15e4ec454e3397f11bdc1bf2627c121a37e8"
+#UGC_COMMIT_ID="3b9e3d3cd7defb889e87fb8678cd2373b1e4abef"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-UAZO_BROMITE_COMMIT_ID="9344cc41d5d85463ee12bc449c72ad335f7545fe"
+UAZO_BROMITE_COMMIT_ID="dcbb3d0a3ba13fc2dcf1538fb5bdd2071c66234b"
 
 # CHROMIUM_COMMITS=(
 # 	5a8dfcaf84b5af5aeb738702651e98bfc43d6d45
@@ -415,6 +415,10 @@ src_prepare() {
 		PATCHES+=( "${WORKDIR}/ppc64le" )
 	fi
 
+	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
+		PATCHES+=( "${FILESDIR}/chromium-119.0.6045.159-icu-74.patch" )
+	fi
+
 	default
 
 	if use uazo-bromite ; then
@@ -429,6 +433,7 @@ src_prepare() {
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
 			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
+			"${BR_PA_PATH}/Enable-StrictOriginIsolation-and-SitePerProcess.patch"
 			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
 			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
 			"${BR_PA_PATH}/Hardening-against-incognito-mode-detection.patch"
@@ -779,7 +784,6 @@ src_prepare() {
 		third_party/omnibox_proto
 		third_party/one_euro_filter
 		third_party/openscreen
-		third_party/openscreen/src/third_party/mozilla
 		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
 		third_party/pdfium
@@ -1018,12 +1022,24 @@ src_configure() {
 	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
-	myconf_gn+=" is_debug=false"
+	myconf_gn+=" is_debug=$(usex debug true false)"
 
 	# enable DCHECK with USE=debug only, increases chrome binary size by 30%, bug #811138.
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
 	myconf_gn+=" dcheck_always_on=$(usex debug true false)"
 	myconf_gn+=" dcheck_is_configurable=$(usex debug true false)"
+
+	myconf_gn+=" enable_iterator_debugging=$(usex debug true false)"
+
+	if use debug; then
+		myconf_gn+=" symbol_level=2"
+		myconf_gn+=" blink_symbol_level=2"
+		myconf_gn+=" v8_symbol_level=2"
+	else
+		myconf_gn+=" symbol_level=0"
+		myconf_gn+=" blink_symbol_level=0"
+		myconf_gn+=" v8_symbol_level=0"
+	fi
 
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
@@ -1188,10 +1204,7 @@ src_configure() {
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
 
-	myconf_gn+=" blink_symbol_level=0"
-	myconf_gn+=" symbol_level=0"
-	myconf_gn+=" enable_iterator_debugging=false"
-	myconf_gn+=" enable_swiftshader=false"
+	# myconf_gn+=" enable_swiftshader=false"
 
 	# Additional flags
 	myconf_gn+=" perfetto_use_system_zlib=true"
@@ -1386,8 +1399,6 @@ src_configure() {
 		# Allow building against system libraries in official builds
 		sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 			tools/generate_shim_headers/generate_shim_headers.py || die
-		# Don't add symbols to build
-		myconf_gn+=" symbol_level=0"
 	else
 		myconf_gn+=" devtools_skip_typecheck=false"
 	fi

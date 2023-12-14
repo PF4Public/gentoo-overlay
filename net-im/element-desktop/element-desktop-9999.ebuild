@@ -14,9 +14,9 @@ SLOT="0"
 SRC_URI=""
 
 REPO="https://github.com/vector-im/element-desktop"
-ELECTRON_SLOT_DEFAULT="26"
+ELECTRON_SLOT_DEFAULT="27"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-27 native-modules"
+IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-26 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -54,7 +54,7 @@ COMMON_DEPEND="
 	electron-23? ( dev-util/electron:23 )
 	electron-24? ( dev-util/electron:24 )
 	electron-25? ( dev-util/electron:25 )
-	electron-27? ( dev-util/electron:27 )
+	electron-26? ( dev-util/electron:26 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
@@ -62,7 +62,7 @@ COMMON_DEPEND="
 	!electron-23? (
 	!electron-24? (
 	!electron-25? (
-	!electron-27? (
+	!electron-26? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	) ) ) ) ) ) ) )
 "
@@ -96,8 +96,8 @@ src_unpack() {
 		export ELECTRON_SLOT=24
 	elif use electron-25; then
 		export ELECTRON_SLOT=25
-	elif use electron-27; then
-		export ELECTRON_SLOT=27
+	elif use electron-26; then
+		export ELECTRON_SLOT=26
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -198,8 +198,24 @@ src_install() {
 	doins -r dist/linux-unpacked/resources/*
 	dosym ../../share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
-	make_desktop_entry "electron-${ELECTRON_SLOT} /usr/$(get_libdir)/element-desktop/app.asar" \
-		Element "/usr/$(get_libdir)/element-desktop/img/element.png" "Network;Chat"
+	exeinto "/usr/$(get_libdir)/element-desktop"
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/element-desktop
+	sed -i "s|@ELECTRON@|element-desktop|" dist/linux-unpacked/resources/element-desktop
+
+	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+/usr/$(get_libdir)/element-desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/element-desktop
+	doexe dist/linux-unpacked/resources/element-desktop
+	dosym "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
+
+	# Install icons
+	local branding size
+	for size in 16 24 48 64 96 128 256 512 ; do
+		newicon -s ${size} "build/icons/${size}x${size}.png" \
+			element-desktop.png
+	done
+
+	make_desktop_entry "/usr/bin/element-desktop" Element \
+		"element-desktop" "Network;Chat"
 }
 
 pkg_postrm() {

@@ -13,12 +13,12 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
-CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="118.0.5993.88"
+CHROMIUM_VERSION_WARNING="true"
+CHROMIUM_VERSION="118.0.5993.120"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="18.17.1"
 NODE_P="node-v${NODE_VERSION}"
-UGC_PVR="118.0.5993.88-1"
+UGC_PVR="118.0.5993.117-1"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -44,6 +44,10 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 		https://github.com/ungoogled-software/ungoogled-chromium/archive/${UGC_PVR}.tar.gz -> ${UGC_PF}.tar.gz
 	)
 
+	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
+	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
+	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
+	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
 	https://codeload.github.com/nodejs/nan/tar.gz/16fa32231e2ccd89d2804b3f765319128b20c4ac
@@ -1294,8 +1298,8 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${CHROMIUM_VERSION%%.*}/chromium-*-compiler.patch || die
 	fi
 
-	einfo "Disabling dugite"
-	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
+	# einfo "Disabling dugite"
+	# sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
 
 	# pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
 	# eapply "${FILESDIR}/openssl_fips-r2.patch" || die
@@ -1313,12 +1317,12 @@ src_prepare() {
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
-		#? Funny, huh?
-		sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
-			script/lib/get-version.js || die
+		# #? Funny, huh?
+		# sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
+		# 	script/lib/get-version.js || die
 		# mkdir -p .git/packed-refs .git/HEAD;
-		sed -i '/git\/packed-refs/d' BUILD.gn || die
-		sed -i '/git\/HEAD/d' BUILD.gn || die
+		# sed -i '/git\/packed-refs/d' BUILD.gn || die
+		# sed -i '/git\/HEAD/d' BUILD.gn || die
 
 		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
 		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
@@ -1899,12 +1903,12 @@ src_configure() {
 	pushd electron > /dev/null || die
 		yarn config set disable-self-update-check true || die
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
-		yarn install --frozen-lockfile --offline --no-progress || die
+		yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
 
-		# Workaround md4 see https://github.com/webpack/webpack/issues/14560
-		find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
-		# For webpack >= 5.61.0
-		sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
+		# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
+		# find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
+		# # For webpack >= 5.61.0
+		# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 	popd > /dev/null || die
 	eend $? || die
 
@@ -1981,12 +1985,24 @@ src_configure() {
 	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
-	myconf_gn+=" is_debug=false"
+	myconf_gn+=" is_debug=$(usex debug true false)"
 
 	# enable DCHECK with USE=debug only, increases chrome binary size by 30%, bug #811138.
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
 	myconf_gn+=" dcheck_always_on=$(usex debug true false)"
 	myconf_gn+=" dcheck_is_configurable=$(usex debug true false)"
+
+	myconf_gn+=" enable_iterator_debugging=$(usex debug true false)"
+
+	if use debug; then
+		myconf_gn+=" symbol_level=2"
+		myconf_gn+=" blink_symbol_level=2"
+		myconf_gn+=" v8_symbol_level=2"
+	else
+		myconf_gn+=" symbol_level=0"
+		myconf_gn+=" blink_symbol_level=0"
+		myconf_gn+=" v8_symbol_level=0"
+	fi
 
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
@@ -2132,16 +2148,14 @@ src_configure() {
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
 
-	myconf_gn+=" blink_symbol_level=0"
-	myconf_gn+=" symbol_level=0"
-	myconf_gn+=" enable_iterator_debugging=false"
-	myconf_gn+=" enable_swiftshader=false"
+	# myconf_gn+=" enable_swiftshader=false"
 
 	# Additional flags
 	myconf_gn+=" perfetto_use_system_zlib=true"
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" override_electron_version=\"${PV}\""
 
 	# Never use bundled gold binary. Disable gold linker flags for now.
 	# Do not use bundled clang.
@@ -2290,8 +2304,6 @@ src_configure() {
 	# Allow building against system libraries in official builds
 	sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 		tools/generate_shim_headers/generate_shim_headers.py || die
-	# Don't add symbols to build
-	myconf_gn+=" symbol_level=0"
 
 	# user CXXFLAGS might overwrite -march=armv8-a+crc+crypto, bug #851639
 	if use arm64 && tc-is-gcc; then
