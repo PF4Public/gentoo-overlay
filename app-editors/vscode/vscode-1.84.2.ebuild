@@ -2192,10 +2192,12 @@ src_configure() {
 
 	if [[ $myarch = amd64 ]]; then
 		VSCODE_ARCH="x64"
-	elif [[ $myarch = arm64 ]]; then
-		VSCODE_ARCH="arm64"
 	elif [[ $myarch = x86 ]]; then
 		VSCODE_ARCH="ia32"
+	elif [[ $myarch = arm64 ]]; then
+		VSCODE_ARCH="arm64"
+	elif [[ $myarch = arm ]]; then
+		VSCODE_ARCH="armhf"
 	elif [[ $myarch = ppc64 ]]; then
 		VSCODE_ARCH="ppc64"
 	else
