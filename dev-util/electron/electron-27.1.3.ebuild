@@ -2288,7 +2288,7 @@ src_configure() {
 	myconf_gn+=" use_system_libdrm=true"
 	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_xkbcommon=true"
-	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
+	myconf_gn+=" ozone_platform_x11=true"
 	myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
 	myconf_gn+=" ozone_platform=$(usex wayland \"wayland\" \"x11\")"
 	use wayland && myconf_gn+=" use_system_libffi=true"
