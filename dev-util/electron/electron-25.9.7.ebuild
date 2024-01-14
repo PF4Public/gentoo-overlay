@@ -1261,7 +1261,7 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-util/gn-0.1807
 	>=dev-util/gperf-3.0.3
-	>=dev-util/ninja-1.7.2
+	>=dev-build/ninja-1.7.2
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector,npm]
 	>=sys-devel/bison-2.4.3
