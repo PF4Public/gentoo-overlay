@@ -246,7 +246,7 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	dev-lang/perl
-	>=dev-util/gn-0.2114
+	>=dev-build/gn-0.2114
 	>=dev-util/gperf-3.0.3
 	>=dev-build/ninja-1.7.2
 	dev-vcs/git
