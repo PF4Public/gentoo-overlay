@@ -19,7 +19,7 @@ SRC_URI="
 REPO="https://github.com/microsoft/vscode"
 ELECTRON_SLOT_DEFAULT="25"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-27 openvsx reh reh-web substitute-urls +temp-fix"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-27 electron-28 openvsx reh reh-web substitute-urls +temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -58,6 +58,7 @@ COMMON_DEPEND="
 	electron-24? ( dev-util/electron:24 )
 	electron-26? ( dev-util/electron:26 )
 	electron-27? ( dev-util/electron:27 )
+	electron-28? ( dev-util/electron:28 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
@@ -66,8 +67,9 @@ COMMON_DEPEND="
 	!electron-24? (
 	!electron-26? (
 	!electron-27? (
+	!electron-28? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) )
+	) ) ) ) ) ) ) ) )
 "
 #TODO: oniguruma?
 
@@ -100,6 +102,8 @@ src_unpack() {
 		export ELECTRON_SLOT=26
 	elif use electron-27; then
 		export ELECTRON_SLOT=27
+	elif use electron-28; then
+		export ELECTRON_SLOT=28
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
