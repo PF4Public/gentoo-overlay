@@ -1,4 +1,4 @@
-# Copyright 2009-2023 Gentoo Authors
+# Copyright 2009-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -248,14 +248,14 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-build/gn-0.2114
 	>=dev-util/gperf-3.0.3
-	>=dev-build/ninja-1.7.2
+	app-alternatives/ninja
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector]
 	>=sys-devel/bison-2.4.3
-	sys-devel/flex
+	app-alternatives/lex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >=sys-devel/clang-17 >=sys-devel/lld-17	)
+		pgo? ( >=sys-devel/clang-18 >=sys-devel/lld-18	)
 		!pgo? ( sys-devel/clang sys-devel/lld )
 	)
 	cfi? ( sys-devel/clang-runtime[sanitize] )
@@ -1172,6 +1172,17 @@ src_configure() {
 
 	myconf_gn+=" disable_fieldtrial_testing_config=true"
 
+	# Never use bundled gold binary. Disable gold linker flags for now.
+	# Do not use bundled clang.
+	# Trying to use gold results in linker crash.
+	myconf_gn+=" use_gold=false use_sysroot=false use_custom_libcxx=false"
+
+	#if use libcxx || [[ ${CHROMIUM_FORCE_LIBCXX} == yes ]]; then
+	#	myconf_gn+=" use_custom_libcxx=true"
+	#else
+	#	myconf_gn+=" use_custom_libcxx=false"
+	#fi
+
 	myconf_gn+=" use_bluez=$(usex bluetooth true false)"
 
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
@@ -1220,11 +1231,6 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
-
-	# Never use bundled gold binary. Disable gold linker flags for now.
-	# Do not use bundled clang.
-	# Trying to use gold results in linker crash.
-	myconf_gn+=" use_gold=false use_sysroot=false use_custom_libcxx=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
