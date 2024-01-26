@@ -390,6 +390,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
+		"${FILESDIR}/chromium-120-libstdc++.patch"
 		"${FILESDIR}/chromium-121-libxml.patch"
 		"${FILESDIR}/chromium-121-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
