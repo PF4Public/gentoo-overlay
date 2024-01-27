@@ -91,7 +91,7 @@ jobs:
         include:
           - use: pgo
             experimental: true
-          - use: uazo-bromite
+          - use: cromite
             experimental: true
           - use: thinlto optimize-thinlto
             experimental: true
