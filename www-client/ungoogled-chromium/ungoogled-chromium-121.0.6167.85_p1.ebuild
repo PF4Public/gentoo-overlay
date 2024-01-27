@@ -32,15 +32,15 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 	)
 "
 
-LICENSE="BSD uazo-bromite? ( GPL-3 )"
+LICENSE="BSD cromite? ( GPL-3 )"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu +jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 +snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto uazo-bromite vaapi wayland widevine"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
-	uazo-bromite? ( bindist )
+	cromite? ( bindist )
 "
 REQUIRED_USE="
 	thinlto? ( clang )
@@ -62,7 +62,7 @@ REQUIRED_USE="
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-UAZO_BROMITE_COMMIT_ID="dcbb3d0a3ba13fc2dcf1538fb5bdd2071c66234b"
+CROMITE_COMMIT_ID="a2939070ae135da07dc1d3730f20a5b5dd68481c"
 
 CHROMIUM_COMMITS=(
 	ea4397ee3a3b7b324eb1ef8c90c877ef9db226df
@@ -97,7 +97,7 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
-SRC_URI+="uazo-bromite? ( https://github.com/uazo/cromite/archive/${UAZO_BROMITE_COMMIT_ID}.tar.gz -> cromite-${UAZO_BROMITE_COMMIT_ID}.tar.gz )
+SRC_URI+="cromite? ( https://github.com/uazo/cromite/archive/${CROMITE_COMMIT_ID}.tar.gz -> cromite-${CROMITE_COMMIT_ID}.tar.gz )
 "
 
 for i in ${IUSE_SYSTEM_LIBS}; do
@@ -338,9 +338,9 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	if use uazo-bromite; then
+	if use cromite; then
 		ewarn
-		ewarn "uazo-bromite patches are very experimental and unstable"
+		ewarn "Cromite patches are very experimental and unstable"
 		ewarn "Please consider testing them and giving feedback upstream:"
 		ewarn "https://github.com/uazo/cromite/issues"
 		ewarn "Not all patches are applied, let me know if any other are worthy of inclusion"
@@ -428,11 +428,11 @@ src_prepare() {
 		PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
 	fi
 
-	if use uazo-bromite ; then
-		BR_PA_PATH="${WORKDIR}/cromite-${UAZO_BROMITE_COMMIT_ID}/build/patches"
+	if use cromite ; then
+		BR_PA_PATH="${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches"
 
-		#! conflicting patches
-		sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
+		# #! conflicting patches
+		# sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
 
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
@@ -450,7 +450,7 @@ src_prepare() {
 			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
 
 			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
-			"${BR_PA_PATH}/00Fonts-fingerprinting-mitigation.patch"
+			"${BR_PA_PATH}/Fonts-fingerprinting-mitigation.patch"
 
 			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Content-settings-infrastructure.patch"
@@ -462,10 +462,10 @@ src_prepare() {
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
 			"${BR_PA_PATH}/Viewport-Protection-Site-Setting.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
-			"${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch"
-			"${BR_PA_PATH}/00Remove-support-for-device-memory-and-cpu-recovery.patch"
-			"${BR_PA_PATH}/00Disable-Feeback-Collector.patch"
-			"${BR_PA_PATH}/00Disable-remote-altsvc-for-h3-connections.patch"
+			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch"
+			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
+			"${BR_PA_PATH}/Disable-Feeback-Collector.patch"
+			"${BR_PA_PATH}/Disable-remote-altsvc-for-h3-connections.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
@@ -549,8 +549,8 @@ src_prepare() {
 		extra/debian/gn/parallel
 	)
 
-	if use uazo-bromite ; then
-		einfo "Using bromite fingerprinting patches instead"
+	if use cromite ; then
+		einfo "Using fingerprinting patches from Cromite instead"
 		ugc_unneeded+=(
 			extra/bromite/fingerprinting-flags-client-rects-and-measuretext
 			extra/bromite/flag-max-connections-per-host
@@ -922,7 +922,7 @@ src_prepare() {
 	if use arm64 || use ppc64 ; then
 		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
 	fi
-	if use uazo-bromite ; then
+	if use cromite ; then
 		keeplibs+=( third_party/ungoogled )
 	fi
 	# we need to generate ppc64 stuff because upstream does not ship it yet
