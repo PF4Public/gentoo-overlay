@@ -1539,9 +1539,6 @@ src_install() {
 			s:@@OZONE_AUTO_SESSION@@:$(ozone_auto_session):g"
 	)
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r7.sh" > chromium-launcher.sh || die
-	if  has_version ">=media-sound/apulse-0.1.9" ; then
-		sed -i 's/exec -a "chromium-browser"/exec -a "chromium-browser" apulse/' chromium-launcher.sh || die
-	fi
 	doexe chromium-launcher.sh
 
 	# It is important that we name the target "chromium-browser",
