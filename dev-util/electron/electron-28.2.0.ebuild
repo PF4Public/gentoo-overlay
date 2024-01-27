@@ -1195,13 +1195,13 @@ BDEPEND="
 	')
 	>=app-arch/gzip-1.7
 	dev-lang/perl
-	>=dev-util/gn-0.2114
+	>=dev-build/gn-0.2114
 	>=dev-util/gperf-3.0.3
-	>=dev-util/ninja-1.7.2
+	app-alternatives/ninja
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector,npm]
 	>=sys-devel/bison-2.4.3
-	sys-devel/flex
+	app-alternatives/lex
 	virtual/pkgconfig
 	clang? (
 		pgo? ( >=sys-devel/clang-17 >=sys-devel/lld-17	)
@@ -1348,10 +1348,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
+		"${FILESDIR}/chromium-120-libstdc++.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-120-libstdc++.patch"
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
