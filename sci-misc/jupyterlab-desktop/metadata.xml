@@ -18,5 +18,6 @@
 		<flag name="electron-24">Build against electron-24 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-25">Build against electron-25 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-26">Build against electron-26 instead of the default one. Use at your own risk!</flag>
+		<flag name="electron-28">Build against electron-28 instead of the default one. Use at your own risk!</flag>
 	</use>
 </pkgmetadata>
