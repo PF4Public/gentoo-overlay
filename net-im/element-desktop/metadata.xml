@@ -19,6 +19,7 @@
 		<flag name="electron-25">Build against electron-25 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-26">Build against electron-26 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-27">Build against electron-27 instead of the default one. Use at your own risk!</flag>
+		<flag name="electron-28">Build against electron-28 instead of the default one. Use at your own risk!</flag>
 		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
 	</use>
 </pkgmetadata>
