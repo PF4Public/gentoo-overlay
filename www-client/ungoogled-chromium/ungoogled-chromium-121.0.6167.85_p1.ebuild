@@ -435,6 +435,7 @@ src_prepare() {
 		# sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
 
 		BROMITE_PATCHES=(
+			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
@@ -451,16 +452,14 @@ src_prepare() {
 
 			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
 			"${BR_PA_PATH}/Fonts-fingerprinting-mitigation.patch"
-
-			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Content-settings-infrastructure.patch"
 			"${BR_PA_PATH}/Add-autoplay-site-setting.patch"
 			"${BR_PA_PATH}/Site-setting-for-images.patch"
 			"${BR_PA_PATH}/JIT-site-settings.patch"
 			"${BR_PA_PATH}/Add-webGL-site-setting.patch"
 			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
+			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
-			"${BR_PA_PATH}/Viewport-Protection-Site-Setting.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch"
 			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
