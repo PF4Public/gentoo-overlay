@@ -143,6 +143,14 @@ src_install() {
 
 	doins -r ./usr/$(get_libdir)/chromium-browser/locales
 
+	# Install vk_swiftshader_icd.json; bug #827861
+	doins out/Release/vk_swiftshader_icd.json
+
+	if [[ -d out/Release/swiftshader ]]; then
+		insinto "${CHROMIUM_HOME}/swiftshader"
+		doins out/Release/swiftshader/*.so
+	fi
+
 	use widevine && dosym "../../usr/$(get_libdir)/chromium-browser/WidevineCdm" "${CHROMIUM_HOME}/WidevineCdm"
 
 	# Install icons and desktop entry
