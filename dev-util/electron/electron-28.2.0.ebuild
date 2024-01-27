@@ -2351,7 +2351,7 @@ src_compile() {
 	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
 	local -x PYTHONPATH=
 
-	eninja -C out/Release third_party/electron_node:headers
+	eninja -C out/Release electron:node_headers
 
 	# Build mksnapshot and pax-mark it.
 	if use pax-kernel; then
