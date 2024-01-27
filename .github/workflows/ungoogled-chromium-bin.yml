@@ -17,6 +17,7 @@ jobs:
         use:
           - ""
           - convert-dict
+          - widevine
 
     steps:
       - name: Check out the repo
