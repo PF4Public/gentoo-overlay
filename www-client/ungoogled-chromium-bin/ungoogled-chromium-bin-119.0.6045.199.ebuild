@@ -51,7 +51,7 @@ CDEPEND="
 	media-libs/libjpeg-turbo
 	media-libs/libpng
 	|| (
-		media-sound/pulseaudio
+		media-libs/libpulse
 		>=media-sound/apulse-0.1.9
 	)
 	sys-apps/dbus
@@ -117,10 +117,6 @@ src_install() {
 	if use convert-dict; then
 		newexe "./usr/$(get_libdir)/chromium-browser/update-dicts.sh" update-dicts.sh
 		doexe ./usr/$(get_libdir)/chromium-browser/convert_dict
-	fi
-
-	if  has_version ">=media-sound/apulse-0.1.9" ; then
-	   sed -i 's/exec -a "chromium-browser"/exec -a "chromium-browser" apulse/' ./usr/$(get_libdir)/chromium-browser/chromium-launcher.sh
 	fi
 
 	doexe ./usr/$(get_libdir)/chromium-browser/chromium-launcher.sh
