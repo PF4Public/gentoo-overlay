@@ -513,8 +513,6 @@ src_prepare() {
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
-	use system-brotli && eapply "${FILESDIR}/chromium-system-brotli.patch"
-
 	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
 
 	if use system-ffmpeg; then
