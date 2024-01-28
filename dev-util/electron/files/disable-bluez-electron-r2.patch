@@ -1,0 +1,56 @@
+From: PF4Public@users.noreply.github.com
+License: BSD
+Subject: Fix building with use_bluez=false
+
+This is a quick and dirty fix for building electron with use_bluez=false
+It prevents initialization and usage of Bluetooth by electron
+It is not supposed to be applied for use_bluez=true
+It may affect electron's power management capabilities
+disable-bluez.patch should be also applied
+
+---
+--- a/shell/browser/lib/power_observer_linux.cc
++++ b/shell/browser/lib/power_observer_linux.cc
+@@ -36,31 +36,9 @@
+     base::PowerSuspendObserver* suspend_observer)
+     : suspend_observer_(suspend_observer),
+       lock_owner_name_(GetExecutableBaseName()) {
+-  if (!bluez::BluezDBusManager::IsInitialized())
+-    bluez::DBusBluezManagerWrapperLinux::Initialize();
+ 
+-  auto* bus = bluez::BluezDBusThreadManager::Get()->GetSystemBus();
+-  if (!bus) {
+     LOG(WARNING) << "Failed to get system bus connection";
+     return;
+-  }
+-
+-  // set up the logind proxy
+-
+-  const auto weakThis = weak_ptr_factory_.GetWeakPtr();
+-
+-  logind_ = bus->GetObjectProxy(kLogindServiceName,
+-                                dbus::ObjectPath(kLogindObjectPath));
+-  logind_->ConnectToSignal(
+-      kLogindManagerInterface, "PrepareForShutdown",
+-      base::BindRepeating(&PowerObserverLinux::OnPrepareForShutdown, weakThis),
+-      base::BindRepeating(&PowerObserverLinux::OnSignalConnected, weakThis));
+-  logind_->ConnectToSignal(
+-      kLogindManagerInterface, "PrepareForSleep",
+-      base::BindRepeating(&PowerObserverLinux::OnPrepareForSleep, weakThis),
+-      base::BindRepeating(&PowerObserverLinux::OnSignalConnected, weakThis));
+-  logind_->WaitForServiceToBeAvailable(base::BindRepeating(
+-      &PowerObserverLinux::OnLoginServiceAvailable, weakThis));
+ }
+ 
+ PowerObserverLinux::~PowerObserverLinux() = default;
+--- a/shell/browser/electron_browser_main_parts.cc
++++ b/shell/browser/electron_browser_main_parts.cc
+@@ -509,8 +509,6 @@
+   ui::OzonePlatform::GetInstance()->PostCreateMainMessageLoop(
+       std::move(shutdown_cb),
+       content::GetUIThreadTaskRunner({content::BrowserTaskType::kUserInput}));
+-  if (!bluez::BluezDBusManager::IsInitialized())
+-    bluez::DBusBluezManagerWrapperLinux::Initialize();
+ 
+   // Set up crypt config. This needs to be done before anything starts the
+   // network service, as the raw encryption key needs to be shared with the
