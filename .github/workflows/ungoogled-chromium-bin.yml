@@ -43,7 +43,7 @@ jobs:
 
       - name: Cache distfiles
         id: cache-distfiles
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: "${{ steps.prepare.outputs.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
