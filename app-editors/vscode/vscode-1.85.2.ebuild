@@ -2185,7 +2185,6 @@ src_configure() {
 	ebegin "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:$PATH";
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
