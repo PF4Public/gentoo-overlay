@@ -2423,7 +2423,9 @@ src_install() {
 	insinto "${CHROMIUM_HOME}/node_modules"
 	doins -r "${WORKDIR}/${NODE_P}/deps/npm"
 	fperms -R 755 "${CHROMIUM_HOME}/node_modules/npm/bin/"
-	fperms -R 755 "${CHROMIUM_HOME}/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin/"
+
+	insinto "${CHROMIUM_HOME}/node_modules/npm/bin/"
+	doexe "${FILESDIR}/node-gyp"
 
 	insinto "/usr/include/electron-${PV%%.*}/"
 	doins -r out/Release/gen/node_headers/include/node
