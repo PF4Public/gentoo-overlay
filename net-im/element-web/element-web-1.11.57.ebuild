@@ -1781,6 +1781,7 @@ src_configure() {
 	# Removing sentry dependency
 	sed -i '/sentry/d' "${WORKDIR}/${P}/package.json" || die
 	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
+	sed -i '/process.env.SENTRY_DSN \&\&/,/}),/s/^/\/\//' "${WORKDIR}/${P}/webpack.config.js" || die
 
 	# Fixing pesky matrix-analytics-events
 	sed -i 's/"matrix-analytics-events@github.*$/matrix-analytics-events@0.0.1:/' "${WORKDIR}/${P}/yarn.lock" || die
