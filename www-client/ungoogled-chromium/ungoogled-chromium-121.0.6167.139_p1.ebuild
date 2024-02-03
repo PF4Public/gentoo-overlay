@@ -413,9 +413,11 @@ src_prepare() {
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${CHROMIUM_COMMITS[@]}"; do
 			if [[ $i = -*  ]]; then
-				eapply -R "${DISTDIR}/chromium-${i/-}.patch" || die
+				git apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
 			else
-				PATCHES+=( "${DISTDIR}/chromium-$i.patch" )
+				git apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
 			fi
 		done
 	fi
