@@ -64,9 +64,10 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="f617340fcf4476cf62b767919b16b609ba355fa4"
 
-CHROMIUM_COMMITS=(
-	ea4397ee3a3b7b324eb1ef8c90c877ef9db226df
-	b6df4d75ada110883fcc194e7b6eb52aea7f522b
+declare -A CHROMIUM_COMMITS=(
+	["ea4397ee3a3b7b324eb1ef8c90c877ef9db226df"]="."
+	["b6df4d75ada110883fcc194e7b6eb52aea7f522b"]="."
+	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
 )
 
 UGC_PV="${PV/_p/-}"
@@ -91,10 +92,15 @@ if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	done
 fi
 
-if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
+if [ ! -z "${!CHROMIUM_COMMITS[@]}" ]; then
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
+		fi
 	done
 fi
 
@@ -399,7 +405,6 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/clang18-narrowing.patch"
 	)
 
 	if ! use libcxx ; then
@@ -410,15 +415,24 @@ src_prepare() {
 		PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
 	fi
 
-	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-			if [[ $i = -*  ]]; then
-				git apply -R --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
+	if [ ! -z "${!CHROMIUM_COMMITS[@]}" ]; then
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
 			else
-				git apply --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
+				patch_prefix="chromium"
 			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			if [[ $i = -*  ]]; then
+				einfo "Reverting ${i/-}"
+				git apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			else
+				einfo "Applying ${i/-}"
+				git apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			fi
+			popd > /dev/null || die
 		done
 	fi
 
