@@ -60,6 +60,7 @@ REQUIRED_USE="
 
 CHROMIUM_COMMITS=(
 	ea4397ee3a3b7b324eb1ef8c90c877ef9db226df
+	b6df4d75ada110883fcc194e7b6eb52aea7f522b
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
