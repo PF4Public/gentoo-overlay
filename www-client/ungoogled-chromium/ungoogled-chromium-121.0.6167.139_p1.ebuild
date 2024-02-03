@@ -95,6 +95,7 @@ fi
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${!CHROMIUM_COMMITS[@]}"; do
 		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
 		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
 		"
 		else
@@ -400,6 +401,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-117-system-zstd.patch"
+		"${FILESDIR}/chromium-119-minizip-cast.patch"
 		"${FILESDIR}/chromium-121-libxml.patch"
 		"${FILESDIR}/chromium-121-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
