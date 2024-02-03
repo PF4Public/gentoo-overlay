@@ -415,7 +415,7 @@ src_prepare() {
 		PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
 	fi
 
-if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
+	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
 			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 				patch_prefix="webrtc"
@@ -424,11 +424,11 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 			fi
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
-				einfo "Reverting ${i/-}"
+				einfo "Reverting ${patch_prefix}-${i/-}.patch"
 				git apply -R --exclude="*unittest.cc" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
 			else
-				einfo "Applying ${i/-}"
+				einfo "Applying ${patch_prefix}-${i/-}.patch"
 				git apply --exclude="*unittest.cc" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
 			fi
