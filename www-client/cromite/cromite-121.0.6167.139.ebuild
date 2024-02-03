@@ -58,9 +58,10 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-CHROMIUM_COMMITS=(
-	ea4397ee3a3b7b324eb1ef8c90c877ef9db226df
-	b6df4d75ada110883fcc194e7b6eb52aea7f522b
+declare -A CHROMIUM_COMMITS=(
+	["ea4397ee3a3b7b324eb1ef8c90c877ef9db226df"]="."
+	["b6df4d75ada110883fcc194e7b6eb52aea7f522b"]="."
+	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -71,9 +72,14 @@ if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 fi
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
+		fi
 	done
 fi
 
@@ -368,7 +374,6 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/clang18-narrowing.patch"
 		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
 
@@ -381,14 +386,23 @@ src_prepare() {
 	fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-			if [[ $i = -*  ]]; then
-				git apply -R --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
 			else
-				git apply --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/chromium-${i/-}.patch" || die
+				patch_prefix="chromium"
 			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			if [[ $i = -*  ]]; then
+				einfo "Reverting ${patch_prefix}-${i/-}.patch"
+				git apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			else
+				einfo "Applying ${patch_prefix}-${i/-}.patch"
+				git apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			fi
+			popd > /dev/null || die
 		done
 	fi
 
