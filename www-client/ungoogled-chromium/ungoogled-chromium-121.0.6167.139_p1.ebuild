@@ -92,7 +92,7 @@ if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	done
 fi
 
-if [ ! -z "${!CHROMIUM_COMMITS[@]}" ]; then
+if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${!CHROMIUM_COMMITS[@]}"; do
 		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
@@ -415,7 +415,7 @@ src_prepare() {
 		PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
 	fi
 
-	if [ ! -z "${!CHROMIUM_COMMITS[@]}" ]; then
+if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
 			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 				patch_prefix="webrtc"
