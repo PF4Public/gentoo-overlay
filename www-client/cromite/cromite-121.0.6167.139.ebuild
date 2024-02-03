@@ -354,6 +354,7 @@ src_prepare() {
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
 	local PATCHES=(
+		"${WORKDIR}/chromium-patches-${PATCH_V}"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-108-EnumTable-crash.patch"
@@ -371,9 +372,7 @@ src_prepare() {
 	)
 
 	if ! use libcxx ; then
-		PATCHES+=(
-			"${FILESDIR}/chromium-120-libstdc++.patch"
-			"${WORKDIR}/chromium-patches-${PATCH_V}" )
+		PATCHES+=( "${FILESDIR}/chromium-120-libstdc++.patch" )
 	fi
 
 	if use clang ; then
