@@ -117,7 +117,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
 	system-libusb? ( virtual/libusb:1 )
 	system-icu? ( >=dev-libs/icu-71.1:= )
-	>=dev-libs/libxml2-2.9.4-r3:=[icu]
+	>=dev-libs/libxml2-2.12.4:=[icu]
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
 	dev-libs/libxslt:=
@@ -372,7 +372,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-117-system-zstd.patch"
 		"${FILESDIR}/chromium-119-minizip-cast.patch"
-		"${FILESDIR}/chromium-121-libxml.patch"
 		"${FILESDIR}/chromium-121-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
