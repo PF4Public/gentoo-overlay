@@ -62,6 +62,7 @@ declare -A CHROMIUM_COMMITS=(
 	["ea4397ee3a3b7b324eb1ef8c90c877ef9db226df"]="."
 	["b6df4d75ada110883fcc194e7b6eb52aea7f522b"]="."
 	["5e9fb4130a537d1a36ab0f8db705a498abeb5d57"]="."
+	["e8e7c38ed76d20abcb4def81196eb9fd32772ea9"]="."
 	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
 )
 
