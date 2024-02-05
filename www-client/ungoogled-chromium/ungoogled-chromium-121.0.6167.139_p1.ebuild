@@ -467,14 +467,12 @@ src_prepare() {
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
-			"${BR_PA_PATH}/Add-custom-tab-intents-privacy-option.patch"
 			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
 			"${BR_PA_PATH}/Enable-StrictOriginIsolation-and-SitePerProcess.patch"
 			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
 			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
 			"${BR_PA_PATH}/Hardening-against-incognito-mode-detection.patch"
 			"${BR_PA_PATH}/Client-hints-overrides.patch"
-			"${BR_PA_PATH}/Experimental-user-scripts-support.patch"
 			"${BR_PA_PATH}/Disable-idle-detection.patch"
 			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
 			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
@@ -494,7 +492,6 @@ src_prepare() {
 			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
 			"${BR_PA_PATH}/Disable-Feeback-Collector.patch"
 			"${BR_PA_PATH}/Disable-remote-altsvc-for-h3-connections.patch"
-			"${BR_PA_PATH}/Add-option-to-disable-snapshots.patch"
 			"${BR_PA_PATH}/Add-cromite-flags-support.patch"
 			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
 		)
@@ -504,6 +501,12 @@ src_prepare() {
 				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
 				einfo "Git binary patch: ${i##*/}"
 				git apply -p1 < "$i" || die
+			elif [[ "$i" =~ "Add-cromite-flags-support.patch" ]]; then
+				info "Applying $i"
+				git apply -p1 --exclude="*privacy_preferences.xml" \
+					--exclude="*components_strings.grd" < "$i" || die
+				sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
+					components/components_strings.grd || die
 			else
 				# einfo "${i##*/}"
 				eapply  "$i"
@@ -647,6 +650,11 @@ src_prepare() {
 		buildtools/third_party/libc++abi
 		chrome/third_party/mozilla_security_manager
 		courgette/third_party
+	)
+	use cromite || keeplibs+=(
+		cromite_flags/third_party
+	)
+	keeplibs+=(
 		net/third_party/mozilla_security_manager
 		net/third_party/nss
 		net/third_party/quic
