@@ -461,6 +461,11 @@ src_prepare() {
 		# #! conflicting patches
 		# sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
 
+		sed -i '/b\/components\/components_strings\.grd/,+10d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
+		sed -i '/b\/chrome\/android\/java\/res\/xml\/privacy_preferences\.xml/,+13d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
+		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
+			components/components_strings.grd || die
+
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
@@ -501,12 +506,6 @@ src_prepare() {
 				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
 				einfo "Git binary patch: ${i##*/}"
 				git apply -p1 < "$i" || die
-			elif [[ "$i" =~ "Add-cromite-flags-support.patch" ]]; then
-				info "Applying $i"
-				git apply -p1 --exclude="*privacy_preferences.xml" \
-					--exclude="*components_strings.grd" < "$i" || die
-				sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
-					components/components_strings.grd || die
 			else
 				# einfo "${i##*/}"
 				eapply  "$i"
