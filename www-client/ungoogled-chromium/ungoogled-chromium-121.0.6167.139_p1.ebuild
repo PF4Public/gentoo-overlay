@@ -651,7 +651,7 @@ src_prepare() {
 		chrome/third_party/mozilla_security_manager
 		courgette/third_party
 	)
-	use cromite || keeplibs+=(
+	use cromite && keeplibs+=(
 		cromite_flags/third_party
 	)
 	keeplibs+=(
