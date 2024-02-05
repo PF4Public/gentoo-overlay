@@ -492,6 +492,8 @@ src_prepare() {
 			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
 			"${BR_PA_PATH}/Disable-Feeback-Collector.patch"
 			"${BR_PA_PATH}/Disable-remote-altsvc-for-h3-connections.patch"
+			"${BR_PA_PATH}/Add-cromite-flags-support.patch"
+			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
