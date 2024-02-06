@@ -2173,8 +2173,12 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	if use electron-28 && use build-online; then
-		sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
+	if use electron-28; then
+		if use build-online; then
+			sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
+		else
+			ewarn "You have enabled electron-28, enable build-online if the build fails"
+		fi
 	fi
 
 	ebegin "Installing node_modules"
