@@ -337,9 +337,9 @@ pre_build_checks() {
 pkg_pretend() {
 	if use libcxx; then
 		ewarn
-		ewarn "You have enabled libcxx, please be aware that system-*"
+		ewarn "Building with libcxx, please be aware that system-*"
 		ewarn "and some other c++ dependencies need to be compiled"
-		ewarn "with the same library as ungoogled-chromium itself"
+		ewarn "with the same c++ library as ungoogled-chromium itself"
 		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 #119 for details"
 		ewarn "Simplest solution would be to disable corresponding system-* flags"
 		ewarn
