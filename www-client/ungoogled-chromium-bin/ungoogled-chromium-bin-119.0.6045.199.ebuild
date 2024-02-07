@@ -73,8 +73,7 @@ RDEPEND="${CDEPEND}
 	virtual/opengl
 	virtual/ttf-fonts
 	!www-client/chromium
-	!www-client/chromium-bin
-	!www-client/ungoogled-chromium"
+	!www-client/chromium-bin"
 
 DISABLE_AUTOFORMATTING="yes"
 DOC_CONTENTS="
