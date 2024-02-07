@@ -233,7 +233,6 @@ RDEPEND="${COMMON_DEPEND}
 	!override-data-dir? (
 		!www-client/chromium
 		!www-client/chromium-bin
-		!www-client/ungoogled-chromium-bin
 		!www-client/cromite[-override-data-dir]
 	)
 "
