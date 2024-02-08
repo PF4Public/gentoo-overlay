@@ -92,7 +92,7 @@ jobs:
             experimental: true
           - use: 'temp-fix electron-27'
             experimental: true
-          - use: 'temp-fix electron-28'
+          - use: 'temp-fix electron-28 build-online'
             experimental: true
           - use: '-temp-fix electron-25'
             experimental: true
@@ -100,7 +100,7 @@ jobs:
             experimental: true
           - use: '-temp-fix electron-27'
             experimental: true
-          - use: '-temp-fix electron-28'
+          - use: '-temp-fix electron-28 build-online'
             experimental: true
 
     steps:
