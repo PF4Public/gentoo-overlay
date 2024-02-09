@@ -90,6 +90,8 @@ jobs:
           - wayland
           - headless -X -wayland
         include:
+          - use: -libcxx
+            experimental: true
           - use: -clang
             experimental: true
           - use: pgo

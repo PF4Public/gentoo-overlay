@@ -88,10 +88,11 @@ jobs:
           - -official
           - wayland
           - headless -X -wayland
+          - cromite
         include:
-          - use: pgo
+          - use: -libcxx
             experimental: true
-          - use: cromite
+          - use: pgo
             experimental: true
           - use: thinlto optimize-thinlto
             experimental: true
