@@ -173,7 +173,7 @@ src_install() {
 	insinto /usr/share/gnome-control-center/default-apps
 	sed -i '/chromium-browser/{s++chromium-browser-bin+;h};${x;/./{x;q0};x;q1}' \
 			./usr/share/gnome-control-center/default-apps/chromium-browser.xml || die
-	doins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml
+	newins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml chromium-browser-bin.xml
 
 	readme.gentoo_create_doc
 }
