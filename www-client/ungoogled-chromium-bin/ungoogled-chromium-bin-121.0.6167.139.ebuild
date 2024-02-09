@@ -71,9 +71,7 @@ CDEPEND="
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
 	virtual/opengl
-	virtual/ttf-fonts
-	!www-client/chromium
-	!www-client/chromium-bin"
+	virtual/ttf-fonts"
 
 DISABLE_AUTOFORMATTING="yes"
 DOC_CONTENTS="
@@ -122,9 +120,9 @@ src_install() {
 
 	# It is important that we name the target "chromium-browser",
 	# xdg-utils expect it; bug #355517.
-	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
+	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser-bin
 	# keep the old symlink around for consistency
-	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
+	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-bin
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
@@ -152,23 +150,28 @@ src_install() {
 
 	use widevine && dosym "../../usr/$(get_libdir)/chromium-browser/WidevineCdm" "${CHROMIUM_HOME}/WidevineCdm"
 
-	# Install icons and desktop entry
-	newicon -s 48 ./usr/share/icons/hicolor/256x256/apps/chromium-browser.png chromium-browser.png
+	# Install icons
+	local branding size
+	for size in 16 24 32 48 64 128 256 ; do
+		newicon -s ${size} "./usr/share/icons/hicolor/${size}x${size}/apps/chromium-browser.png" \
+			chromium-browser-bin.png
+	done
 
 	local mime_types="text/html;text/xml;application/xhtml+xml;"
 	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
 	mime_types+="x-scheme-handler/ftp;" # bug #412185
 	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
 	make_desktop_entry \
-		chromium-browser \
+		chromium-browser-bin \
 		"Chromium" \
-		chromium-browser \
+		chromium-browser-bin \
 		"Network;WebBrowser" \
-		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
+		"MimeType=${mime_types}\nStartupWMClass=chromium-browser-bin"
 	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
 
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
+	sed -e "/chromium-browser/chromium-browser-bin/" -i ./usr/share/gnome-control-center/default-apps/chromium-browser.xml || die
 	doins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml
 
 	readme.gentoo_create_doc
