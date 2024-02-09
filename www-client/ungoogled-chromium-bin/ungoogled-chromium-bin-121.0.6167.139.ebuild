@@ -171,7 +171,8 @@ src_install() {
 
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
-	sed -e "/chromium-browser/chromium-browser-bin/" -i ./usr/share/gnome-control-center/default-apps/chromium-browser.xml || die
+	sed -i '/chromium-browser/{s++chromium-browser-bin+;h};${x;/./{x;q0};x;q1}' \
+			./usr/share/gnome-control-center/default-apps/chromium-browser.xml || die
 	doins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml
 
 	readme.gentoo_create_doc
