@@ -124,9 +124,11 @@ src_install() {
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-bin
 
-	# Allow users to override command-line options, bug #357629.
-	insinto /etc/chromium
-	doins ./etc/chromium/default
+	if ! has_version "www-client/ungoogled-chromium" && ! has_version "www-client/chromium"; then
+		# Allow users to override command-line options, bug #357629.
+		insinto /etc/chromium
+		doins ./etc/chromium/default
+	fi
 
 	pushd ./usr/$(get_libdir)/chromium-browser/locales > /dev/null || die
 	chromium_remove_language_paks
@@ -157,13 +159,19 @@ src_install() {
 			chromium-browser-bin.png
 	done
 
+	local desktop_entry_name="Chromium"
+	if has_version "www-client/ungoogled-chromium" || has_version "www-client/chromium"; then
+		# Differentiate if others installed
+		desktop_entry_name="Ungoogled"
+	fi
+
 	local mime_types="text/html;text/xml;application/xhtml+xml;"
 	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
 	mime_types+="x-scheme-handler/ftp;" # bug #412185
 	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
 	make_desktop_entry \
 		chromium-browser-bin \
-		"Chromium" \
+		"${desktop_entry_name}" \
 		chromium-browser-bin \
 		"Network;WebBrowser" \
 		"MimeType=${mime_types}\nStartupWMClass=chromium-browser-bin"
