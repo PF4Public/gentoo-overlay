@@ -1049,7 +1049,8 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux system-abseil-cpp system-av1 system-brotli system-crc32c system-double-conversion system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent +system-libusb system-libvpx +system-openh264 system-openjpeg +system-png system-re2 +system-snappy system-woff2 +system-zstd thinlto ungoogled vaapi wayland"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu +jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 +snappy woff2 +zstd"
+IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -1065,19 +1066,27 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# CHROMIUM_COMMITS=(
-# 	-e332cb08c32c149da45c013109135043dedd1390
-# 	-990953d6599a31b50f5b264aaa16a7d32d813bf9
-# 	-190a380fa52808824ffafa3c68f9cd1d56c69eaf
-# 	-eb7ee377870b613bb736c8bb08681caccfbe60df
-# )
+declare -A CHROMIUM_COMMITS=(
+	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
+)
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
+		fi
 	done
 fi
+
+for i in ${IUSE_SYSTEM_LIBS}; do
+	[[ $i =~ ^(\+)?(.*)$ ]]
+	IUSE+=" ${BASH_REMATCH[1]}system-${BASH_REMATCH[2]}"
+done
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -1196,10 +1205,10 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	>=app-arch/gzip-1.7
-	dev-lang/perl
 	>=dev-build/gn-0.2114
-	>=dev-util/gperf-3.0.3
+	dev-lang/perl
 	app-alternatives/ninja
+	>=dev-util/gperf-3.0.3
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector,npm]
 	>=sys-devel/bison-2.4.3
@@ -1357,12 +1366,23 @@ src_prepare() {
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-			if [[ $i = -*  ]]; then
-				eapply -R "${DISTDIR}/chromium-${i/-}.patch" || die
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
 			else
-				PATCHES+=( "${DISTDIR}/chromium-$i.patch" )
+				patch_prefix="chromium"
 			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			if [[ $i = -*  ]]; then
+				einfo "Reverting ${patch_prefix}-${i/-}.patch"
+				git apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			else
+				einfo "Applying ${patch_prefix}-${i/-}.patch"
+				git apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			fi
+			popd > /dev/null || die
 		done
 	fi
 
@@ -1374,6 +1394,10 @@ src_prepare() {
 			fi
 		done
 		PATCHES+=( "${WORKDIR}/ppc64le" )
+	fi
+
+	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
+		PATCHES+=( "${FILESDIR}/chromium-119.0.6045.159-icu-74.patch" )
 	fi
 
 	default
