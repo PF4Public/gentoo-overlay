@@ -1067,6 +1067,7 @@ REQUIRED_USE="
 "
 
 declare -A CHROMIUM_COMMITS=(
+	["5e9fb4130a537d1a36ab0f8db705a498abeb5d57"]="."
 	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
 )
 
