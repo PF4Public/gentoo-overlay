@@ -92,6 +92,8 @@ jobs:
         include:
           - use: -libcxx
             experimental: true
+          - use: libcxx
+            experimental: true
           - use: -clang
             experimental: true
           - use: pgo

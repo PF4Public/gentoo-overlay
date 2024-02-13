@@ -92,6 +92,8 @@ jobs:
         include:
           - use: -libcxx
             experimental: true
+          - use: libcxx
+            experimental: true
           - use: pgo
             experimental: true
           - use: thinlto optimize-thinlto
