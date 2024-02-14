@@ -381,7 +381,10 @@ src_prepare() {
 	)
 
 	if ! use libcxx ; then
-		PATCHES+=( "${FILESDIR}/ungoogled-chromium-121-ConvertTo.patch" )
+		PATCHES+=(
+			"${FILESDIR}/ungoogled-chromium-121-ConvertTo.patch"
+			"${FILESDIR}/chromium-120-libstdc++.patch"
+		)
 	fi
 
 	if use clang ; then
