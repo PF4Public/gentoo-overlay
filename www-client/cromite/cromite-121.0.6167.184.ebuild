@@ -474,6 +474,9 @@ src_prepare() {
 			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
 			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
 		fi
+		if has_version "<media-video/ffmpeg-6.1"; then
+			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data.patch"
+		fi
 	fi
 
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
