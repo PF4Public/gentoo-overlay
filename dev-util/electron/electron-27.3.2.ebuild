@@ -1080,17 +1080,21 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# CHROMIUM_COMMITS=(
-# 	-e332cb08c32c149da45c013109135043dedd1390
-# 	-990953d6599a31b50f5b264aaa16a7d32d813bf9
-# 	-190a380fa52808824ffafa3c68f9cd1d56c69eaf
-# 	-eb7ee377870b613bb736c8bb08681caccfbe60df
-# )
+declare -A CHROMIUM_COMMITS=(
+	["5e9fb4130a537d1a36ab0f8db705a498abeb5d57"]="."
+	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
+)
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
+		fi
 	done
 fi
 
@@ -1372,12 +1376,23 @@ src_prepare() {
 	)
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-			if [[ $i = -*  ]]; then
-				eapply -R "${DISTDIR}/chromium-${i/-}.patch" || die
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
 			else
-				PATCHES+=( "${DISTDIR}/chromium-$i.patch" )
+				patch_prefix="chromium"
 			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			if [[ $i = -*  ]]; then
+				einfo "Reverting ${patch_prefix}-${i/-}.patch"
+				git apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			else
+				einfo "Applying ${patch_prefix}-${i/-}.patch"
+				git apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+			fi
+			popd > /dev/null || die
 		done
 	fi
 
