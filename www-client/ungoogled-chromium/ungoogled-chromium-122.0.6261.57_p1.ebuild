@@ -400,7 +400,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-117-system-zstd.patch"
-		"${FILESDIR}/chromium-121-qrcode-r1.patch" 
+		"${FILESDIR}/chromium-121-qrcode-r1.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
@@ -408,7 +408,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/ungoogled-chromium-121-ConvertTo.patch"
+			"${FILESDIR}/ungoogled-chromium-121-ConvertTo-r1.patch"
 			"${FILESDIR}/chromium-120-libstdc++.patch"
 		)
 	fi
