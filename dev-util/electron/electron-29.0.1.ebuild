@@ -1287,7 +1287,7 @@ src_unpack() {
 	unpack "${CHROMIUM_P}.tar.xz"
 	unpack "${P}.tar.gz"
 	unpack "node-v${NODE_VERSION}.tar.xz"
-	unpack "chromium-patches-${CHROMIUM_VERSION%%\.*}.tar.bz2"
+	unpack "chromium-patches-${PATCH_V}.tar.bz2"
 	use ungoogled && unpack "${UGC_PF}.tar.gz"
 	if use ppc64; then
 		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
