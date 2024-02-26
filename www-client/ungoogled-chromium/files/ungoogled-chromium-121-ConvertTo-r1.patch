@@ -62,3 +62,29 @@ diff -ru chromium-121.0.6167.160.orig/ui/gfx/x/visual_manager.cc chromium-121.0.
  #include "ui/gfx/x/visual_manager.h"
  
  #include "base/strings/string_number_conversions.h"
+--- a/mojo/public/cpp/bindings/type_converter.h
++++ b/mojo/public/cpp/bindings/type_converter.h
+@@ -96,21 +96,9 @@
+ }
+ 
+ template <typename T, typename U>
+-  requires requires(const U& obj) {
+-    not std::is_pointer_v<U>;
+-    { mojo::ConvertTo<T>(std::to_address(obj)) } -> std::same_as<T>;
+-  }
++requires(!std::is_pointer_v<U>)
+ inline T ConvertTo(const U& obj) {
+-  return mojo::ConvertTo<T>(std::to_address(obj));
+-}
+-
+-template <typename T, typename U>
+-  requires requires(const U& obj) {
+-    not std::is_pointer_v<U>;
+-    TypeConverter<T, U>::Convert(obj);
+-  }
+-inline T ConvertTo(const U& obj) {
+-  return TypeConverter<T, U>::Convert(obj);
++return TypeConverter<T, U>::Convert(obj);
+ }
+ 
+ template <typename T>
