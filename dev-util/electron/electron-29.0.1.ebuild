@@ -1069,6 +1069,7 @@ REQUIRED_USE="
 declare -A CHROMIUM_COMMITS=(
 	["b6df4d75ada110883fcc194e7b6eb52aea7f522b"]="."
 	["e8e7c38ed76d20abcb4def81196eb9fd32772ea9"]="."
+	["-b4d62daa178298eaa6fc8b9bc7ec6835c95ad86e"]="."
 )
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
