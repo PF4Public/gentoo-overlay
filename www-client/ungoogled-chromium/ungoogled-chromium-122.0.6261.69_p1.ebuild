@@ -561,7 +561,7 @@ src_prepare() {
 		fi
 		if has_version "<media-video/ffmpeg-6.1"; then
 			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-dolby.diff"
-			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data.patch"
+			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-r1.patch"
 		fi
 	fi
 
