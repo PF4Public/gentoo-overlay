@@ -26,7 +26,7 @@ index 3c97e4a6cf4c781..a55e4ab51d5b353 100644
    if (!color_space.IsSpecified()) {
      // VP9 frames may have color information, but that information cannot
      // express new color spaces, like HDR. For that reason, color space
-@@ -718,91 +709,95 @@ bool AVStreamToVideoDecoderConfig(const AVStream* stream,
+@@ -718,88 +709,92 @@ bool AVStreamToVideoDecoderConfig(const AVStream* stream,
                        codec_context->extradata + codec_context->extradata_size);
    }
  
