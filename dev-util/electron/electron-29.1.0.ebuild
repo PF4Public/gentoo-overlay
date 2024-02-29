@@ -1121,6 +1121,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=dev-libs/libxml2-2.12.4:=[icu]
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
+	media-libs/lcms
 	dev-libs/libxslt:=
 	media-libs/fontconfig:=
 	>=media-libs/freetype-2.11.0-r1:=
