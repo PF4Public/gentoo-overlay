@@ -418,6 +418,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-120-libstdc++.patch"
+			"${FILESDIR}/base_to_address.patch"
 		)
 	fi
 
