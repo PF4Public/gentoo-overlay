@@ -88,13 +88,3 @@ diff -ru chromium-121.0.6167.160.orig/ui/gfx/x/visual_manager.cc chromium-121.0.
  }
  
  template <typename T>
---- a/components/data_sharing/public/data_sharing_network_loader.h
-+++ b/components/data_sharing/public/data_sharing_network_loader.h
-@@ -5,6 +5,7 @@
- #ifndef COMPONENTS_DATA_SHARING_PUBLIC_DATA_SHARING_NETWORK_LOADER_H_
- #define COMPONENTS_DATA_SHARING_PUBLIC_DATA_SHARING_NETWORK_LOADER_H_
- 
-+#include <memory>
- #include <string>
- #include <vector>
- 
