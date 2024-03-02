@@ -771,6 +771,11 @@ src_prepare() {
 
 	einfo "Using system python by default"
 	sed -i 's$getBundledPythonPath();$"/usr/bin/python";getBundledPythonPath();$' src/main/registry.ts || die
+
+	if use electron-28; then
+		einfo "Disabling development mode"
+		sed -i 's$isDevMode(): boolean {$isDevMode(): boolean {return 0;$' src/main/utils.ts || die
+	fi
 }
 
 src_configure() {
