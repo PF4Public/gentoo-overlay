@@ -69,6 +69,13 @@ declare -A CHROMIUM_COMMITS=(
 	["b6df4d75ada110883fcc194e7b6eb52aea7f522b"]="."
 	["e8e7c38ed76d20abcb4def81196eb9fd32772ea9"]="."
 	["-b4d62daa178298eaa6fc8b9bc7ec6835c95ad86e"]="."
+	["8d253767f895b45053c39ea99a8f02bbe7071d3a"]="."
+	["e189c46f1ee584c1721ccfecb38bd8db84b58d5b"]="."
+	["04866680f4f9a8475ae3795ad6ed59649ba478d7"]="."
+	["4b48bc4dd6ce9c56d254e552a33a7b7c2d6fc226"]="."
+	["5b2d53797e5580cbfea00d732fe25a97c7048b5b"]="."
+	["3a75d7f8dc3a08a38dd893031f8996b91a00764b"]="."
+	["214859e3567ea9def85305e4f021a5d407e1ccfe"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -410,7 +417,6 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/ungoogled-chromium-121-ConvertTo-r1.patch"
 			"${FILESDIR}/chromium-120-libstdc++.patch"
 		)
 	fi
