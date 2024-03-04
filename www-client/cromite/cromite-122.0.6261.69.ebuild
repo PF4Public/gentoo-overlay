@@ -164,7 +164,16 @@ COMMON_SNAPSHOT_DEPEND="
 		wayland? (
 			dev-libs/libffi:=
 			dev-libs/wayland:=
-			screencast? ( media-video/pipewire:= )
+			screencast? (
+				media-video/pipewire:=
+				|| (
+					sys-apps/xdg-desktop-portal-gnome
+					sys-apps/xdg-desktop-portal-gtk
+					kde-plasma/xdg-desktop-portal-kde
+					gui-libs/xdg-desktop-portal-lxqt
+					gui-libs/xdg-desktop-portal-wlr
+				)
+			)
 		)
 	)
 "
@@ -1582,6 +1591,9 @@ pkg_postinst() {
 			elog "by navigating to chrome://flags/#enable-webrtc-pipewire-capturer"
 			elog "inside Chromium or add --enable-features=WebRTCPipeWireCapturer"
 			elog "to CHROMIUM_FLAGS in /etc/chromium/default."
+			elog
+			elog "Additional setup may be required for screencasting to work."
+			elog "See issue: https://github.com/PF4Public/gentoo-overlay/issues/314"
 		fi
 		if use gtk4; then
 			elog "Chromium prefers GTK3 over GTK4 at runtime. To override this"
