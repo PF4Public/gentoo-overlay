@@ -24,7 +24,7 @@ CROMITE_COMMIT_ID="26d88dcdf588ee60b5ba96d512cbfec525fb3d66"
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
-PATCHSET_PPC64="121.0.6167.85-1raptor0~deb12u1"
+PATCHSET_PPC64="122.0.6261.57-1raptor0~deb12u1"
 PATCH_V="${PV%%\.*}-2"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
@@ -434,7 +434,10 @@ src_prepare() {
 				eapply "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
-		PATCHES+=( "${WORKDIR}/ppc64le" )
+		PATCHES+=(
+			"${WORKDIR}/ppc64le"
+			"${WORKDIR}/debian/patches/fixes/rust-clanglib.patch"
+		)
 	fi
 
 	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
@@ -866,7 +869,10 @@ src_prepare() {
 		pushd third_party/libvpx >/dev/null || die
 		mkdir -p source/config/linux/ppc64 || die
 		# requires git and clang, bug #832803
-		sed -i -e "s|^update_readme||g; s|clang-format|${EPREFIX}/bin/true|g" \
+		# Revert https://chromium.googlesource.com/chromium/src/+/b463d0f40b08b4e896e7f458d89ae58ce2a27165%5E%21/third_party/libvpx/generate_gni.sh
+		# and https://chromium.googlesource.com/chromium/src/+/71ebcbce867dd31da5f8b405a28fcb0de0657d91%5E%21/third_party/libvpx/generate_gni.sh
+		# since we're not in a git repo
+		sed -i -e "s|^update_readme||g; s|clang-format|${EPREFIX}/bin/true|g; /^git -C/d; /git cl/d; /cd \$BASE_DIR\/\$LIBVPX_SRC_DIR/ign format --in-place \$BASE_DIR\/BUILD.gn\ngn format --in-place \$BASE_DIR\/libvpx_srcs.gni" \
 			generate_gni.sh || die
 		./generate_gni.sh || die
 		popd >/dev/null || die
