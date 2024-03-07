@@ -1,0 +1,11 @@
+--- a/components/adblock/core/converter/parser/url_filter_options.h
++++ b/components/adblock/core/converter/parser/url_filter_options.h
+@@ -21,6 +21,7 @@
+ #include <set>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ #include "components/adblock/core/common/content_type.h"
+ #include "components/adblock/core/common/sitekey.h"
+
