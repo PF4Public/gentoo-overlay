@@ -1341,7 +1341,7 @@ src_prepare() {
 		# sed -i '/git\/HEAD/d' BUILD.gn || die
 
 		grep "'--openssl-no-asm'" script/generate-config-gypi.py > /dev/null || die
-		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-dtrace', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
+		NODE_CONFIG_ARGS="'--without-bundled-v8', '--shared-openssl', '--shared-zlib', '--without-npm', '--shared-cares', '--shared-http-parser', '--shared-nghttp2'"
 		use system-icu && NODE_CONFIG_ARGS+=", '--with-intl=system-icu'"
 		sed -i "s/'--openssl-no-asm'/$NODE_CONFIG_ARGS/" script/generate-config-gypi.py || die
 
