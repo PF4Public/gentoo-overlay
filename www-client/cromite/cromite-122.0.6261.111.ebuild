@@ -526,9 +526,7 @@ src_prepare() {
 	done
 
 	if ! use libcxx ; then
-		PATCHES+=(
-			"${FILESDIR}/cromite-libstdc++.patch"
-		)
+		eapply "${FILESDIR}/cromite-libstdc++.patch"
 	fi
 
 	local keeplibs=(
