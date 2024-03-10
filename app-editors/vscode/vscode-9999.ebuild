@@ -438,6 +438,12 @@ src_install() {
 	export PATH=${OLD_PATH}
 }
 
+
+pkg_postrm() {
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+}
+
 pkg_postinst() {
 	if use insiders; then
 		ewarn
@@ -451,14 +457,7 @@ pkg_postinst() {
 	elog "Consult product.json for a list if you want to install them manually"
 	elog "ms-vscode.references-view is one of them, for example"
 	elog
-}
 
-pkg_postrm() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
-}
-
-pkg_postinst() {
 	xdg_icon_cache_update
 	xdg_desktop_database_update
 }
