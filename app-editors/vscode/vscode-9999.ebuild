@@ -109,12 +109,19 @@ src_unpack() {
 		export ELECTRON_SLOT=26
 	elif use electron-25; then
 		export ELECTRON_SLOT=25
-	elif use electron-28; then
-		export ELECTRON_SLOT=28
 	elif use electron-29; then
 		export ELECTRON_SLOT=29
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
+	fi
+	if [[ ${PV} = *9999* ]]; then
+		if use electron-27; then
+			export ELECTRON_SLOT=27
+		fi
+	else
+		if use electron-28; then
+			export ELECTRON_SLOT=28
+		fi
 	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
