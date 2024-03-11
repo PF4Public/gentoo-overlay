@@ -2336,7 +2336,7 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
-	if use insiders; then
+	if use api-proposals; then
 		ewarn
 		ewarn "You have enabled insiders API, be warned:"
 		ewarn "this might be against Microsoft licensing terms."
