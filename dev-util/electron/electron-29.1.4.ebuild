@@ -14,7 +14,7 @@ inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
 CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="122.0.6261.129"
+CHROMIUM_VERSION="122.0.6261.128"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="20.9.0"
 NODE_P="node-v${NODE_VERSION}"
