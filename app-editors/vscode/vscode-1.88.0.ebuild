@@ -1942,7 +1942,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	IUSE+=" build-online electron-28"
 	ELECTRON_SLOT_DEFAULT="27"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		DOWNLOAD+="${PV}.tar.gz -> ${P}.tar.gz"
