@@ -27,8 +27,8 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE+=" +build-online electron-27"
 	ELECTRON_SLOT_DEFAULT="28"
 else
-	IUSE+=" build-online electron-28"
-	ELECTRON_SLOT_DEFAULT="27"
+	IUSE+=" build-online electron-27"
+	ELECTRON_SLOT_DEFAULT="28"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -75,7 +75,7 @@ COMMON_DEPEND="
 if [[ ${PV} = *9999* ]]; then
 	COMMON_DEPEND+="electron-27? ( dev-util/electron:27 )"
 else
-	COMMON_DEPEND+="electron-28? ( dev-util/electron:28 )"
+	COMMON_DEPEND+="electron-27? ( dev-util/electron:27 )"
 fi
 
 #TODO: oniguruma?
@@ -119,17 +119,17 @@ src_unpack() {
 			export ELECTRON_SLOT=27
 		fi
 	else
-		if use electron-28; then
-			export ELECTRON_SLOT=28
+		if use electron-27; then
+			export ELECTRON_SLOT=27
 		fi
 	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			# if use electron-24; then
-			# 	EGIT_BRANCH="electron-24.x.y"
-			# fi
+			if use electron-29; then
+				EGIT_BRANCH="electron-29.x.y"
+			fi
 			git-r3_src_unpack
 		fi
 	else
@@ -264,11 +264,11 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	if use build-online; then
-		sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
-	else
-		ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
-	fi
+	# if use build-online; then
+	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
+	# else
+	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
+	# fi
 
 	ebegin "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
