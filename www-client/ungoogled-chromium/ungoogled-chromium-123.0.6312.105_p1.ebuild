@@ -419,7 +419,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-123-libstdc++.patch"
-			"${FILESDIR}/base_to_address-r1.patch" 
+			"${FILESDIR}/base_to_address-r1.patch"
 		)
 	fi
 
@@ -1292,6 +1292,7 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" enable_chromium_prelude=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
