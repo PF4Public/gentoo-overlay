@@ -409,7 +409,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-117-system-zstd.patch"
 		"${FILESDIR}/chromium-124-libwebp-shim-sharpyuv.patch"
-		"${FILESDIR}/chromium-121-qrcode-r1.patch"
+		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
