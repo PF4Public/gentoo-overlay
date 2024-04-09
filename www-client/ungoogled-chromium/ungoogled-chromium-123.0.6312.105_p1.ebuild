@@ -65,9 +65,9 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="0068783e64f8db299bce32bb8016de2accc43d05"
 
-declare -A CHROMIUM_COMMITS=(
-	["ee6e6d3e45af1f7210e144a17f14fb21a7e86588"]="."
-)
+# declare -A CHROMIUM_COMMITS=(
+# 	["ee6e6d3e45af1f7210e144a17f14fb21a7e86588"]="."
+# )
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -411,6 +411,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-124-libwebp-shim-sharpyuv.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-123-cloud_authenticator.patch"
+		"${FILESDIR}/chromium-123-stats-collector.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
