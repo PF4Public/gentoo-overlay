@@ -387,7 +387,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-117-system-zstd.patch"
 		"${FILESDIR}/chromium-124-libwebp-shim-sharpyuv.patch"
-		"${FILESDIR}/chromium-121-qrcode-r1.patch"
+		"${FILESDIR}/chromium-123-qrcode.patch"
+		"${FILESDIR}/chromium-123-cloud_authenticator.patch"
+		"${FILESDIR}/chromium-123-stats-collector.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
@@ -398,7 +400,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-120-libstdc++.patch"
-			"${FILESDIR}/base_to_address.patch"
+			"${FILESDIR}/base_to_address-r1.patch"
 		)
 	fi
 
@@ -1179,6 +1181,7 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
+	myconf_gn+=" enable_chromium_prelude=false"
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
