@@ -547,3 +547,14 @@ diff -r -u chromium-120.0.6099.129old/ui/gfx/x/generated_protos/xkb.cc chromium-
      auto& geometry_type = (*replies.geometry).geometry_type;
      auto& geometryDeviceID = (*replies.geometry).geometryDeviceID;
      auto& geometry_sequence = (*replies.geometry).geometry_sequence;
+--- a/third_party/blink/common/interest_group/auction_config_mojom_traits.cc
++++ b/third_party/blink/common/interest_group/auction_config_mojom_traits.cc
+@@ -207,8 +207,6 @@
+       !data.ReadAllBuyersPrioritySignals(&out->all_buyers_priority_signals) ||
+       !data.ReadAuctionReportBuyerKeys(&out->auction_report_buyer_keys) ||
+       !data.ReadAuctionReportBuyers(&out->auction_report_buyers) ||
+-      !data.ReadAuctionReportBuyerDebugModeConfig(
+-          &out->auction_report_buyer_debug_mode_config) ||
+       !data.ReadRequiredSellerCapabilities(
+           &out->required_seller_capabilities) ||
+       !data.ReadRequestedSize(&out->requested_size) ||
