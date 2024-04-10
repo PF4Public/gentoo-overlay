@@ -65,9 +65,9 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="0068783e64f8db299bce32bb8016de2accc43d05"
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["ee6e6d3e45af1f7210e144a17f14fb21a7e86588"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	["3cfdfdc2213597398cb2876904cb5cecedc91875"]="."
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
