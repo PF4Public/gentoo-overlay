@@ -2128,7 +2128,7 @@ src_prepare() {
 	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
 	sed -i '/test\/smoke/d' build/npm/dirs.js || die
 	sed -i '/test\/monaco/d' build/npm/dirs.js || die
-	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.js || die
+	sed -i '/vscode-selfhost-test-provider/d'  build/npm/dirs.js || die
 
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
