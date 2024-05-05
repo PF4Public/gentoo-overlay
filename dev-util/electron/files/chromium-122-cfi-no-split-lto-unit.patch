@@ -1,0 +1,17 @@
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -736,8 +736,13 @@
+ 
+     cflags += [
+       "-flto=thin",
+-      "-fno-split-lto-unit",
+     ]
++    # https://github.com/PF4Public/gentoo-overlay/issues/307
++    if (!is_cfi) {
++        cflags += [
++          "-fno-split-lto-unit",
++        ]
++    }
+ 
+     if (thin_lto_enable_cache) {
+       # Limit the size of the ThinLTO cache to the lesser of 10% of
