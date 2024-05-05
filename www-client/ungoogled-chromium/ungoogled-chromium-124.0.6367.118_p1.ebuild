@@ -421,8 +421,16 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-123-libstdc++.patch"
+			"${FILESDIR}/chromium-124-libstdc++.patch"
 			"${FILESDIR}/base_to_address-r1.patch"
+			"${FILESDIR}/bad-font-gc0000.patch"
+			"${FILESDIR}/bad-font-gc000.patch"
+			"${FILESDIR}/bad-font-gc00.patch"
+			"${FILESDIR}/bad-font-gc0.patch"
+			"${FILESDIR}/bad-font-gc1.patch"
+			"${FILESDIR}/bad-font-gc11.patch"
+			"${FILESDIR}/bad-font-gc2.patch"
+			"${FILESDIR}/bad-font-gc3.patch"
 		)
 	fi
 
