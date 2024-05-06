@@ -65,9 +65,9 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="8dca688ad4d06a58885606da01a2b32041275c64"
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["3cfdfdc2213597398cb2876904cb5cecedc91875"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -96,6 +96,9 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 		#TODO: is it safe to use this mirror?
 		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
 		"
 		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
@@ -441,6 +444,8 @@ src_prepare() {
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
 			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 				patch_prefix="webrtc"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+				patch_prefix="angle"
 			else
 				patch_prefix="chromium"
 			fi
