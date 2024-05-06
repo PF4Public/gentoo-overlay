@@ -41,6 +41,9 @@ jobs:
       - name: Restore cache
         uses: actions/cache/restore@v4
         with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           path: "${{ github.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
@@ -137,6 +140,9 @@ jobs:
       - name: Restore cache
         uses: actions/cache/restore@v4
         with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
           path: "${{ github.workspace }}/distfiles"
           key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
           restore-keys: ${{ github.workflow }}
