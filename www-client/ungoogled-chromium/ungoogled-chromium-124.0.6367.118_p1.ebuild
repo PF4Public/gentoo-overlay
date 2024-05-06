@@ -510,6 +510,8 @@ src_prepare() {
 			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
 			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
+			"${BR_PA_PATH}/Revert-remove-allowscript-content-setting-secondary-url.patch"
+			"${BR_PA_PATH}/Revert-remove-allowimage-content-setting-secondary-url.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch"
 			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
