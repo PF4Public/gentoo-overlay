@@ -1067,15 +1067,24 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["3cfdfdc2213597398cb2876904cb5cecedc91875"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
+	["df291ec5472fa14e828633378b8c97a8c7a2e7de"]="."
+	["59843523390481e52d3a397687a09a7582c44114"]="."
+	["072b9f3bc340020325cf3dd7bff1991cd22de171"]="."
+	["8be4d17beb71c29118c3337268f3e7b3930a657f"]="."
+	["b3330cb62d7be253a5b99e40b88e2290c329ac08"]="."
+	["15e24abc1646ad9984923234a041cd0c3b8b1607"]="."
+)
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	for i in "${!CHROMIUM_COMMITS[@]}"; do
 		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 		#TODO: is it safe to use this mirror?
 		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
 		"
 		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
@@ -1395,6 +1404,8 @@ src_prepare() {
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
 			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
 				patch_prefix="webrtc"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+				patch_prefix="angle"
 			else
 				patch_prefix="chromium"
 			fi
@@ -1617,6 +1628,7 @@ src_prepare() {
 	keeplibs+=(
 		third_party/angle
 		third_party/angle/src/common/third_party/xxhash
+		third_party/angle/src/libANGLE/renderer/vulkan/shaders/src/third_party/ffx_spd
 		third_party/angle/src/third_party/ceval
 	)
 	use nvidia || keeplibs+=(
