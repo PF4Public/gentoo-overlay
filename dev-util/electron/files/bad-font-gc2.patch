@@ -836,7 +836,7 @@ Date:   Tue Feb 13 19:15:19 2024 +0000
 +      FontCache::Get().GetLastResortFallbackFont(font_description,
 +                                                 kDoNotRetain);
    if (!temporary_font) {
-     NOTREACHED();
+     DUMP_WILL_BE_NOTREACHED_NORETURN();
      return nullptr;
    }
 -  CSSCustomFontData* css_font_data = MakeGarbageCollected<CSSCustomFontData>(
