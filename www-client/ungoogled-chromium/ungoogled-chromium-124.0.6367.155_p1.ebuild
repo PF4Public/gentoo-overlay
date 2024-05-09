@@ -63,7 +63,7 @@ REQUIRED_USE="
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="8dca688ad4d06a58885606da01a2b32041275c64"
+CROMITE_COMMIT_ID="9af3274988743133252d27054a6b6d4670785d27"
 
 declare -A CHROMIUM_COMMITS=(
 	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
@@ -1360,12 +1360,17 @@ src_configure() {
 		fi
 	fi
 
+	local dest_cpu=""
+
 	if [[ $myarch = amd64 ]] ; then
+		dest_cpu=x64
 		myconf_gn+=" target_cpu=\"x64\""
 		ffmpeg_target_arch=x64
+		dest_cpu="x64"
 	elif [[ $myarch = x86 ]] ; then
 		myconf_gn+=" target_cpu=\"x86\""
 		ffmpeg_target_arch=ia32
+		dest_cpu="x86"
 
 		# This is normally defined by compiler_cpu_abi in
 		# build/config/compiler/BUILD.gn, but we patch that part out.
@@ -1373,12 +1378,15 @@ src_configure() {
 	elif [[ $myarch = arm64 ]] ; then
 		myconf_gn+=" target_cpu=\"arm64\""
 		ffmpeg_target_arch=arm64
+		dest_cpu="arm64"
 	elif [[ $myarch = arm ]] ; then
 		myconf_gn+=" target_cpu=\"arm\""
 		ffmpeg_target_arch=$(usex cpu_flags_arm_neon arm-neon arm)
+		dest_cpu="arm"
 	elif [[ $myarch = ppc64 ]] ; then
 		myconf_gn+=" target_cpu=\"ppc64\""
 		ffmpeg_target_arch=ppc64
+		dest_cpu="ppc64"
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
