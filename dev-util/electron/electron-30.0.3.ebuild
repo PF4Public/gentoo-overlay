@@ -1354,6 +1354,7 @@ src_prepare() {
 		if use ungoogled; then
 			# sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
 			sed -i "s/https/trk:173:https/" "patches/chromium/feat_add_support_for_overriding_the_base_spellchecker_download_url.patch" || die
+			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
@@ -1569,7 +1570,6 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "refactor_expose_file_system_access_blocklist.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
