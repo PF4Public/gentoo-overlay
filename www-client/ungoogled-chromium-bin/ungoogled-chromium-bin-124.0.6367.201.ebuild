@@ -50,10 +50,6 @@ CDEPEND="
 	media-libs/freetype
 	media-libs/libjpeg-turbo
 	media-libs/libpng
-	|| (
-		media-libs/libpulse
-		>=media-sound/apulse-0.1.9
-	)
 	sys-apps/dbus
 	sys-apps/pciutils
 	virtual/udev
