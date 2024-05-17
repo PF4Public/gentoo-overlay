@@ -627,6 +627,7 @@ src_prepare() {
 			extra/bromite/flag-max-connections-per-host
 			extra/bromite/flag-fingerprinting-canvas-image-data-noise
 			extra/ungoogled-chromium/add-components-ungoogled
+			extra/ungoogled-chromium/add-flag-to-clear-data-on-exit
 		)
 	fi
 
