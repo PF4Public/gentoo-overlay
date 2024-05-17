@@ -491,9 +491,6 @@ src_prepare() {
 	if use cromite ; then
 		BR_PA_PATH="${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches"
 
-		# #! conflicting patches
-		# sed -i '/kMediaFoundationClearKeyCdmPathForTesting/,+8d' "${BR_PA_PATH}/00Disable-speechSynthesis-getVoices-API.patch" || die
-
 		sed -i '/b\/components\/components_strings\.grd/,+10d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
 		sed -i '/b\/chrome\/android\/java\/res\/xml\/privacy_preferences\.xml/,+13d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
 		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
@@ -545,6 +542,14 @@ src_prepare() {
 				eapply  "$i"
 			fi
 		done
+
+		#! conflicting patches
+		sed -i '/browser_features.cc/,+17d' \
+			"${UGC_WD}/patches/extra/ungoogled-chromium/add-flag-to-clear-data-on-exit.patch" || die
+		sed -i 's$}  // namespace features$BASE_FEATURE(kClearDataOnExit, "ClearDataOnExit", base::FEATURE_DISABLED_BY_DEFAULT);}$' \
+			chrome/browser/browser_features.cc || die
+		sed -i 's$}  // namespace features$BASE_DECLARE_FEATURE(kClearDataOnExit);}$' \
+			chrome/browser/browser_features.h || die
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
@@ -627,7 +632,6 @@ src_prepare() {
 			extra/bromite/flag-max-connections-per-host
 			extra/bromite/flag-fingerprinting-canvas-image-data-noise
 			extra/ungoogled-chromium/add-components-ungoogled
-			extra/ungoogled-chromium/add-flag-to-clear-data-on-exit
 		)
 	fi
 
