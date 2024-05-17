@@ -429,7 +429,7 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 	)
 
-	PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/chromium/debian/patches"
+	PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
