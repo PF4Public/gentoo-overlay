@@ -421,6 +421,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-125-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-125-system-zstd.patch"
 		"${FILESDIR}/chromium-125-ninja-1-12.patch"
+		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-123-stats-collector.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
