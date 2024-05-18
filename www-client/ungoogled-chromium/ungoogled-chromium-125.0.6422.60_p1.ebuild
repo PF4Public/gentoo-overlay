@@ -70,6 +70,7 @@ CROMITE_COMMIT_ID="00b3446da5fbcdab403f66604024bbbfcc428f81"
 declare -A CHROMIUM_COMMITS=(
 	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
 	["39735a1167272326da5ff85e0096b52ca7f47d6c"]="."
+	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
 )
 
 UGC_PV="${PV/_p/-}"
@@ -102,6 +103,9 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
 		"
 		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
@@ -451,6 +455,8 @@ src_prepare() {
 				patch_prefix="webrtc"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 				patch_prefix="angle"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+				patch_prefix="quiche"
 			else
 				patch_prefix="chromium"
 			fi
