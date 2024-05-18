@@ -67,15 +67,9 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="00b3446da5fbcdab403f66604024bbbfcc428f81"
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
-# 	["df291ec5472fa14e828633378b8c97a8c7a2e7de"]="."
-# 	["59843523390481e52d3a397687a09a7582c44114"]="."
-# 	["072b9f3bc340020325cf3dd7bff1991cd22de171"]="."
-# 	["8be4d17beb71c29118c3337268f3e7b3930a657f"]="."
-# 	["b3330cb62d7be253a5b99e40b88e2290c329ac08"]="."
-# 	["15e24abc1646ad9984923234a041cd0c3b8b1607"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
