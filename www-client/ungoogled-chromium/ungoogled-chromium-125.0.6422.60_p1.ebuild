@@ -73,6 +73,7 @@ declare -A CHROMIUM_COMMITS=(
 	["37ef38092ab783d0126922e8d463024341c481b9"]="."
 	["0bed9a54baa5058e711a1f051a766f67e1842ec5"]="."
 	["54c4f460f35e0a4003aa4dd01007188ff00295cc"]="."
+	["251c365ea2c268a475f91c9913fabba6b41e2b6b"]="."
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["bbd4b7752f0a9e5f486fa55c9f2b80071ef99d01"]="third_party/vulkan-deps/vulkan-utility-libraries/src"
 	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
