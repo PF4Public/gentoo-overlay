@@ -71,6 +71,7 @@ declare -A CHROMIUM_COMMITS=(
 	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
 	["39735a1167272326da5ff85e0096b52ca7f47d6c"]="."
 	["37ef38092ab783d0126922e8d463024341c481b9"]="."
+	["0bed9a54baa5058e711a1f051a766f67e1842ec5"]="."
 	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
 )
 
