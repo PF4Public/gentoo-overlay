@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="00b3446da5fbcdab403f66604024bbbfcc428f81"
+CROMITE_COMMIT_ID="fd2ad9c7d92192b845996683a8f59712be3a2e72"
 # CROMITE_PR_COMMITS=(
 # 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 # )
@@ -61,15 +61,15 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
-# 	["df291ec5472fa14e828633378b8c97a8c7a2e7de"]="."
-# 	["59843523390481e52d3a397687a09a7582c44114"]="."
-# 	["072b9f3bc340020325cf3dd7bff1991cd22de171"]="."
-# 	["8be4d17beb71c29118c3337268f3e7b3930a657f"]="."
-# 	["b3330cb62d7be253a5b99e40b88e2290c329ac08"]="."
-# 	["15e24abc1646ad9984923234a041cd0c3b8b1607"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
+	["39735a1167272326da5ff85e0096b52ca7f47d6c"]="."
+	["37ef38092ab783d0126922e8d463024341c481b9"]="."
+	["0bed9a54baa5058e711a1f051a766f67e1842ec5"]="."
+	["54c4f460f35e0a4003aa4dd01007188ff00295cc"]="."
+	["bbd4b7752f0a9e5f486fa55c9f2b80071ef99d01"]="third_party/vulkan-deps/vulkan-utility-libraries/src"
+	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
+)
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
@@ -86,6 +86,12 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
 		"
 		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
@@ -262,7 +268,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >=sys-devel/clang-18 >=sys-devel/lld-18	)
+		pgo? ( >sys-devel/clang-19.0.0_pre20240518 >sys-devel/lld-19.0.0_pre20240518	)
 		!pgo? ( sys-devel/clang sys-devel/lld )
 	)
 	cfi? ( sys-devel/clang-runtime[sanitize] )
@@ -428,6 +434,10 @@ src_prepare() {
 				patch_prefix="webrtc"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 				patch_prefix="angle"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+				patch_prefix="vulkan-utility-libraries"
 			else
 				patch_prefix="chromium"
 			fi
@@ -647,6 +657,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
 		third_party/devtools-frontend/src/third_party
