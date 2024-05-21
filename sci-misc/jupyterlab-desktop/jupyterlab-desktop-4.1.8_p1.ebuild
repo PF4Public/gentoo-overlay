@@ -10,7 +10,6 @@ HOMEPAGE="https://jupyter.org/"
 LICENSE="BSD"
 SLOT="0"
 SRC_URI="
-
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.2.0.tgz
 	https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz -> @babel-code-frame-7.18.6.tgz
 	https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.19.1.tgz -> @babel-helper-validator-identifier-7.19.1.tgz
@@ -668,7 +667,7 @@ SRC_URI="
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
 ELECTRON_SLOT_DEFAULT="27"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-26 electron-28 electron-29"
+IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-26 electron-28 electron-29 electron-30"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -705,6 +704,7 @@ COMMON_DEPEND="
 	electron-26? ( dev-util/electron:26 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
+	electron-30? ( dev-util/electron:30 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
@@ -715,8 +715,9 @@ COMMON_DEPEND="
 	!electron-26? (
 	!electron-28? (
 	!electron-29? (
+	!electron-30? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) )
+	) ) ) ) ) ) ) ) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -751,6 +752,8 @@ src_unpack() {
 		export ELECTRON_SLOT=28
 	elif use electron-29; then
 		export ELECTRON_SLOT=29
+	elif use electron-30; then
+		export ELECTRON_SLOT=30
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -774,7 +777,7 @@ src_prepare() {
 	einfo "Using system python by default"
 	sed -i 's$getBundledPythonPath();$"/usr/bin/python";getBundledPythonPath();$' src/main/registry.ts || die
 
-	if use electron-28 || use electron-29; then
+	if use electron-28 || use electron-29 || use electron-30; then
 		einfo "Disabling development mode"
 		sed -i 's$isDevMode(): boolean {$isDevMode(): boolean {return false;$' src/main/utils.ts || die
 	fi
