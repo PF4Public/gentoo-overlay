@@ -92,6 +92,8 @@ jobs:
             experimental: true
           - use: 'temp-fix electron-29 build-online'
             experimental: true
+          - use: 'temp-fix electron-30 build-online'
+            experimental: true
           - use: '-temp-fix electron-25'
             experimental: true
           - use: '-temp-fix electron-26'
@@ -101,6 +103,8 @@ jobs:
           - use: '-temp-fix electron-28 build-online'
             experimental: true
           - use: '-temp-fix electron-29 build-online'
+            experimental: true
+          - use: '-temp-fix electron-30 build-online'
             experimental: true
 
     steps:
