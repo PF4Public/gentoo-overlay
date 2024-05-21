@@ -1964,7 +1964,7 @@ SRC_URI="!build-online? (
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-25 electron-29 openvsx reh reh-web substitute-urls +temp-fix"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-25 electron-29 electron-30 openvsx reh reh-web substitute-urls +temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -2006,6 +2006,7 @@ COMMON_DEPEND="
 	electron-26? ( dev-util/electron:26 )
 	electron-25? ( dev-util/electron:25 )
 	electron-29? ( dev-util/electron:29 )
+	electron-30? ( dev-util/electron:30 )
 	!electron-19? (
 	!electron-20? (
 	!electron-21? (
@@ -2015,8 +2016,9 @@ COMMON_DEPEND="
 	!electron-26? (
 	!electron-25? (
 	!electron-29? (
+	!electron-30? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) )
+	) ) ) ) ) ) ) ) ) )
 "
 if [[ ${PV} = *9999* ]]; then
 	COMMON_DEPEND+="electron-27? ( dev-util/electron:27 )"
@@ -2057,6 +2059,8 @@ src_unpack() {
 		export ELECTRON_SLOT=25
 	elif use electron-29; then
 		export ELECTRON_SLOT=29
+	elif use electron-30; then
+		export ELECTRON_SLOT=30
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -2073,7 +2077,7 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-29; then
+			if use electron-29 || use electron-30; then
 				EGIT_BRANCH="electron-29.x.y"
 			fi
 			git-r3_src_unpack
