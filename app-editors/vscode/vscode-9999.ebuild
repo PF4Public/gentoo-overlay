@@ -131,9 +131,9 @@ src_unpack() {
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
 		else
-			if use electron-29 || use electron-30; then
-				EGIT_BRANCH="electron-29.x.y"
-			fi
+			# if use electron-29 || use electron-30; then
+			# 	EGIT_BRANCH="electron-29.x.y"
+			# fi
 			git-r3_src_unpack
 		fi
 	else
