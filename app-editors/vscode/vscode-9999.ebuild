@@ -18,17 +18,17 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-25 electron-29 electron-30 openvsx reh reh-web substitute-urls +temp-fix"
+IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-25 electron-27 electron-28 electron-30 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE+=" +build-online electron-27"
-	ELECTRON_SLOT_DEFAULT="28"
+	IUSE+=" +build-online"
+	ELECTRON_SLOT_DEFAULT="29"
 else
-	IUSE+=" build-online electron-27"
-	ELECTRON_SLOT_DEFAULT="28"
+	IUSE+=" build-online"
+	ELECTRON_SLOT_DEFAULT="29"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -59,7 +59,8 @@ COMMON_DEPEND="
 	electron-24? ( dev-util/electron:24 )
 	electron-26? ( dev-util/electron:26 )
 	electron-25? ( dev-util/electron:25 )
-	electron-29? ( dev-util/electron:29 )
+	electron-27? ( dev-util/electron:27 )
+	electron-28? ( dev-util/electron:28 )
 	electron-30? ( dev-util/electron:30 )
 	!electron-19? (
 	!electron-20? (
@@ -69,16 +70,12 @@ COMMON_DEPEND="
 	!electron-24? (
 	!electron-26? (
 	!electron-25? (
-	!electron-29? (
+	!electron-27? (
+	!electron-28? (
 	!electron-30? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) )
+	) ) ) ) ) ) ) ) ) ) )
 "
-if [[ ${PV} = *9999* ]]; then
-	COMMON_DEPEND+="electron-27? ( dev-util/electron:27 )"
-else
-	COMMON_DEPEND+="electron-27? ( dev-util/electron:27 )"
-fi
 
 #TODO: oniguruma?
 
@@ -111,21 +108,14 @@ src_unpack() {
 		export ELECTRON_SLOT=26
 	elif use electron-25; then
 		export ELECTRON_SLOT=25
-	elif use electron-29; then
-		export ELECTRON_SLOT=29
+	elif use electron-27; then
+		export ELECTRON_SLOT=27
+	elif use electron-28; then
+		export ELECTRON_SLOT=28
 	elif use electron-30; then
 		export ELECTRON_SLOT=30
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
-	if [[ ${PV} = *9999* ]]; then
-		if use electron-27; then
-			export ELECTRON_SLOT=27
-		fi
-	else
-		if use electron-27; then
-			export ELECTRON_SLOT=27
-		fi
 	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
