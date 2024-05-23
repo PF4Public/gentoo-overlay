@@ -1,9 +1,9 @@
-# Copyright 2009-2023 Gentoo Authors
+# Copyright 2009-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit desktop flag-o-matic multilib python-any-r1 xdg-utils
 
@@ -961,10 +961,19 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	${PYTHON_DEPS}
+	$(python_gen_any_dep '
+		dev-python/setuptools[${PYTHON_USEDEP}]
+	')
 	native-modules? ( virtual/rust )
 	net-libs/nodejs
 	sys-apps/yarn
 "
+
+
+python_check_deps() {
+        python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+}
+
 
 #TODO: net-im/element-web -> runtime/buildtime dep
 
