@@ -1519,7 +1519,7 @@ src_prepare() {
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
-		["electron/patches/devtools_frontend"]="third_party/devtools-frontend/src"
+		["electron/patches/devtools-frontend"]="third_party/devtools-frontend/src"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
