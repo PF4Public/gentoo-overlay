@@ -1074,6 +1074,7 @@ REQUIRED_USE="
 
 declare -A CHROMIUM_COMMITS=(
 	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
+	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
 	["df291ec5472fa14e828633378b8c97a8c7a2e7de"]="."
 	["59843523390481e52d3a397687a09a7582c44114"]="."
 	["072b9f3bc340020325cf3dd7bff1991cd22de171"]="."
@@ -1081,6 +1082,7 @@ declare -A CHROMIUM_COMMITS=(
 	["b3330cb62d7be253a5b99e40b88e2290c329ac08"]="."
 	["15e24abc1646ad9984923234a041cd0c3b8b1607"]="."
 	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
+	["37ef38092ab783d0126922e8d463024341c481b9"]="."
 )
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
@@ -1091,6 +1093,15 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+		SRC_URI+="https://github.com/google/ruy/commit/${i/-}.patch?full_index=true -> ruy-${i/-}.patch
 		"
 		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
@@ -1415,6 +1426,12 @@ src_prepare() {
 				patch_prefix="webrtc"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
 				patch_prefix="angle"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+				patch_prefix="vulkan-utility-libraries"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+				patch_prefix="ruy"
 			else
 				patch_prefix="chromium"
 			fi
