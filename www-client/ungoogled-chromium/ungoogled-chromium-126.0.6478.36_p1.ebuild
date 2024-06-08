@@ -69,7 +69,6 @@ CROMITE_COMMIT_ID="0df4ec8855b30a765853cb7bb23fc6aebfdc5a2c"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
 )
 
 UGC_PV="${PV/_p/-}"
