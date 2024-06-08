@@ -573,7 +573,7 @@ src_prepare() {
 
 	use bluetooth || eapply "${FILESDIR}/disable-bluez-r1.patch"
 
-	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
 
 	if use hevc; then
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
