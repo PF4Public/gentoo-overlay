@@ -2,15 +2,15 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit eutils gnome2-utils multilib pax-utils versionator xdg-utils
+inherit gnome2-utils multilib pax-utils versionator xdg-utils
 
 DESCRIPTION="A fast and secure web browser and Internet suite"
 HOMEPAGE="https://www.opera.com/"
 
 SLOT="0"
 LICENSE="OPERA-12 LGPL-2 LGPL-3"
-KEYWORDS="amd64 x86 ~amd64-fbsd ~x86-fbsd"
-IUSE="elibc_FreeBSD gtk multilib"
+KEYWORDS="amd64 x86"
+IUSE="gtk multilib"
 
 O_V="$(get_version_component_range 1-2)" # Version, i.e. 11.00
 O_B="$(get_version_component_range 3)"   # Build number, i.e. 1156
@@ -37,20 +37,16 @@ if [[ "pre${O_B/pre/}" = "${O_B}" ]]; then	# snapshot: _pre
 
 	SRC_URI="
 		amd64? ( ${O_U}${O_D}/${O_P}.x86_64.linux.tar.xz )
-		amd64-fbsd? ( ${O_U}${O_D}/${O_P}.amd64.freebsd.tar.xz )
 		x86? ( ${O_U}${O_D}/${O_P}.i386.linux.tar.xz )
-		x86-fbsd? ( ${O_U}${O_D}/${O_P}.i386.freebsd.tar.xz )
 	"
 else							# release: _p
 	O_D="${O_V/./}"				# directory string
 	O_P="${PN}-${O_V}-${O_B/p}"	# package string
-	O_U="mirror://opera/"		# base URI
+	O_U="https://download1.operacdn.com/pub/opera/"		# base URI
 
 	SRC_URI="
 		amd64? ( ${O_U}linux/${O_D}/${O_P}.x86_64.linux.tar.xz )
-		amd64-fbsd? ( ${O_U}unix/${O_D}/${O_P}.amd64.freebsd.tar.xz )
 		x86? ( ${O_U}linux/${O_D}/${O_P}.i386.linux.tar.xz )
-		x86-fbsd? ( ${O_U}unix/${O_D}/${O_P}.i386.freebsd.tar.xz )
 	"
 fi
 
@@ -176,30 +172,12 @@ src_prepare() {
 	echo 'export OPERA_PERSONALDIR=${OPERA_PERSONALDIR:-"${HOME}/.'${PN}'"}' \
 		>> ${PN}
 	echo 'exec '"${OPREFIX}/${PN}/${PN}"' "$@"' >> ${PN}
-
-	# Change libfreetype.so.9 to libfreetype.so.6 for Gentoo/FreeBSD, bug #477594
-	if use elibc_FreeBSD; then
-		scanelf -qR -N libfreetype.so.9 -F "#N" lib/${PN}/ | \
-		while read i; do
-			if [[ $(strings "$i" | fgrep -c libfreetype.so.9) -ne 1 ]];
-			then
-				export SANITY_CHECK_LIBFREETYPE_FAILED=1
-				break
-			fi
-			sed -i \
-				"$i" \
-				-e 's/libfreetype\.so\.9/libfreetype.so.6/g'
-		done
-		[[ "$SANITY_CHECK_LIBFREETYPE_FAILED" = "1" ]] && die
-	fi
 }
 
 src_install() {
 	# We install into usr instead of opt as Opera does not support the latter
 	dodir /usr
-	if ! use elibc_FreeBSD; then
-		rm lib/${PN}/opera_autoupdatechecker || die
-	fi
+	rm lib/${PN}/opera_autoupdatechecker || die
 	mv lib/ "${D}/${OPREFIX}" || die
 	mv share/ "${D}/usr/" || die
 
@@ -220,12 +198,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	if use elibc_FreeBSD; then
-		elog
-		elog "To improve shared memory usage please set:"
-		elog "$ sysctl kern.ipc.shm_allow_removed=1"
-	fi
-
 	# Update desktop file database and gtk icon cache (bug #334993)
 	gnome2_icon_cache_update
 	xdg_desktop_database_update
