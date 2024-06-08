@@ -59,7 +59,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="0f21f79b745a5f1bf9de2a1c25be580409e707e9"
+UGC_COMMIT_ID="df2dff971ba848d7bae24b177ef7eceef587731b"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
