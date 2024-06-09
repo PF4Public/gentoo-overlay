@@ -105,7 +105,7 @@ https://github.com/qvint/ungoogled-chromium-fedora/commit/a68fdd679566da5134d916
  // chrome/browser/resources/settings/languages_page/edit_dictionary_page.js
  static const size_t kMaxCustomDictionaryWordBytes = 99;
  
-+std::string GetSpellCheckLanguageRegion(base::StringPiece input_language);
++std::string GetSpellCheckLanguageRegion(std::string_view input_language);
 +
  base::FilePath GetVersionedFileName(std::string_view input_language,
                                      const base::FilePath& dict_dir);
