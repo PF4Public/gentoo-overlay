@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="0df4ec8855b30a765853cb7bb23fc6aebfdc5a2c"
+CROMITE_COMMIT_ID="7b0784a8ca4cc6e04a2e9f287964f6346f3c6a14"
 # CROMITE_PR_COMMITS=(
 # 	a5a00f5ea418fad93f9dbb6a93a6300e03425415
 # )
@@ -63,6 +63,7 @@ REQUIRED_USE="
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["d3bc5ffc929b0895ae9e16774069a04ae6fe3c58"]="net/third_party/quiche/src"
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -481,7 +482,7 @@ src_prepare() {
 
 	use bluetooth || eapply "${FILESDIR}/disable-bluez-r1.patch"
 
-	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility.patch"
+	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
 
 	if use hevc; then
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
