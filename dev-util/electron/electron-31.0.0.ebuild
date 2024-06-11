@@ -1067,16 +1067,14 @@ REQUIRED_USE="
 "
 
 declare -A CHROMIUM_COMMITS=(
-	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
-	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
-	["df291ec5472fa14e828633378b8c97a8c7a2e7de"]="."
-	["59843523390481e52d3a397687a09a7582c44114"]="."
-	["072b9f3bc340020325cf3dd7bff1991cd22de171"]="."
-	["8be4d17beb71c29118c3337268f3e7b3930a657f"]="."
-	["b3330cb62d7be253a5b99e40b88e2290c329ac08"]="."
-	["15e24abc1646ad9984923234a041cd0c3b8b1607"]="."
-	["23646607e16c63231ae9f49ce5355c270145cf30"]="."
-	["37ef38092ab783d0126922e8d463024341c481b9"]="."
+	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["d3bc5ffc929b0895ae9e16774069a04ae6fe3c58"]="net/third_party/quiche/src"
+	["43e186fe732cc810f14b673393aca88af7093dc1"]="."
+	["f3b236db61a52b30ad3b23fba732b6e8826910e9"]="."
+	["fb3678b0d1084b49c5ca795200131a7c0ac01ffe"]="."
+	["d852bf71654ae63d5e8e6624652584a9adf1df6f"]="."
+	["42fc562599d784a8a646703ce3b7c158ce1a8466"]="."
+	["f3fce92b27296068b4c304321b53bd1c7c4beb61"]="."
 )
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
