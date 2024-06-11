@@ -70,6 +70,12 @@ CROMITE_COMMIT_ID="7b0784a8ca4cc6e04a2e9f287964f6346f3c6a14"
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["d3bc5ffc929b0895ae9e16774069a04ae6fe3c58"]="net/third_party/quiche/src"
+	["43e186fe732cc810f14b673393aca88af7093dc1"]="."
+	["f3b236db61a52b30ad3b23fba732b6e8826910e9"]="."
+	["fb3678b0d1084b49c5ca795200131a7c0ac01ffe"]="."
+	["d852bf71654ae63d5e8e6624652584a9adf1df6f"]="."
+	["42fc562599d784a8a646703ce3b7c158ce1a8466"]="."
+	["f3fce92b27296068b4c304321b53bd1c7c4beb61"]="."
 )
 
 UGC_PV="${PV/_p/-}"
