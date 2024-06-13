@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
 
 CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
@@ -18,8 +18,8 @@ CHROMIUM_VERSION="126.0.6478.36"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="20.14.0"
 NODE_P="node-v${NODE_VERSION}"
-UGC_PVR="125.0.6422.141-1"
-# UGC_PVR="125.0.6422.141-1"
+UGC_PVR="125.0.6422.141-1" #! del
+# U_G_C_PVR="${CHROMIUM_VERSION}-1" #! restore
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -1174,7 +1174,16 @@ COMMON_SNAPSHOT_DEPEND="
 	x11-libs/libxkbcommon:=
 	wayland? (
 		dev-libs/libffi:=
-		screencast? ( media-video/pipewire:= )
+		screencast? (
+			media-video/pipewire:=
+			|| (
+				sys-apps/xdg-desktop-portal-gnome
+				sys-apps/xdg-desktop-portal-gtk
+				kde-plasma/xdg-desktop-portal-kde
+				gui-libs/xdg-desktop-portal-lxqt
+				gui-libs/xdg-desktop-portal-wlr
+			)
+		)
 	)
 "
 
@@ -1236,7 +1245,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >=sys-devel/clang-18 >=sys-devel/lld-18	)
+		pgo? ( >sys-devel/clang-19.0.0_pre20240518 >sys-devel/lld-19.0.0_pre20240518	)
 		!pgo? ( sys-devel/clang sys-devel/lld )
 	)
 	sys-apps/yarn
@@ -1379,16 +1388,14 @@ src_prepare() {
 
 	local PATCHES=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}"
-		"${FILESDIR}/chromium-cross-compile.patch"
-		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-117-system-zstd.patch"
-		"${FILESDIR}/chromium-124-libwebp-shim-sharpyuv.patch"
-		"${FILESDIR}/chromium-125-ninja-1-12.patch"
+		"${FILESDIR}/chromium-125-system-zstd.patch"
+		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-cross-compile.patch"
+		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
-		"${FILESDIR}/chromium-123-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-stats-collector.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -1399,15 +1406,16 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
-			"${FILESDIR}/bad-font-gc0000.patch"
-			"${FILESDIR}/bad-font-gc000.patch"
-			"${FILESDIR}/bad-font-gc00.patch"
-			"${FILESDIR}/bad-font-gc0.patch"
-			"${FILESDIR}/bad-font-gc1.patch"
-			"${FILESDIR}/bad-font-gc11.patch"
-			"${FILESDIR}/bad-font-gc2.patch"
-			"${FILESDIR}/bad-font-gc3.patch"
 		)
+			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc00.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc0.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc1.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 	fi
 
 	if use clang ; then
@@ -1625,7 +1633,6 @@ src_prepare() {
 		base/third_party/double_conversion
 	)
 	keeplibs+=(
-		base/third_party/dynamic_annotations
 		base/third_party/icu
 		base/third_party/nspr
 		base/third_party/superfasthash
@@ -1721,6 +1728,8 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/mitt
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
 		third_party/devtools-frontend/src/third_party
@@ -1757,6 +1766,7 @@ src_prepare() {
 	keeplibs+=(
 		third_party/jstemplate
 		third_party/khronos
+		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
 		third_party/libavif
@@ -1842,6 +1852,8 @@ src_prepare() {
 		third_party/s2cellid
 		third_party/securemessage
 		third_party/selenium-atoms
+		third_party/sentencepiece
+		third_party/sentencepiece/src/third_party/darts_clone
 		third_party/shell-encryption
 		third_party/simplejson
 		third_party/skia
@@ -1867,6 +1879,7 @@ src_prepare() {
 		third_party/tflite/src/third_party/eigen3
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
+		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ruy
 		third_party/six
 		third_party/ukey2
@@ -2283,7 +2296,18 @@ src_configure() {
 
 		if tc-is-gcc; then
 			# https://bugs.gentoo.org/904455
-			append-cxxflags "$(test-flags-CXX -fno-tree-vectorize)"
+			local -x CPP="$(tc-getCXX) -E"
+			local gcc_version="$(gcc-version)"
+			local need_gcc_fix=false
+			# Drop this complexity as gcc versions age out of ::gentoo
+			if ver_test "${gcc_version}" -lt 12.3; then
+				need_gcc_fix=true
+			elif ver_test "${gcc_version}" -ge 13 && ver_test "${gcc_version}" -lt 13.2; then
+				need_gcc_fix=true
+			fi
+			[[ ${need_gcc_fix} = true ]] && append-cxxflags "$(test-flags-CXX -fno-tree-vectorize)"
+			# https://bugs.gentoo.org/912381
+			filter-lto
 		fi
 	fi
 
