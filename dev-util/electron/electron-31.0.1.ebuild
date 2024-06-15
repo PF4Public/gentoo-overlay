@@ -18,8 +18,7 @@ CHROMIUM_VERSION="126.0.6478.36"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="20.14.0"
 NODE_P="node-v${NODE_VERSION}"
-UGC_PVR="125.0.6422.141-1" #! del
-# U_G_C_PVR="${CHROMIUM_VERSION}-1" #! restore
+UGC_PVR="126.0.6478.55-1"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -1394,7 +1393,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-125-system-zstd.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
-		"${FILESDIR}/chromium-125-cloud_authenticator.patch" 
+		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-123-stats-collector.patch"
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
