@@ -94,6 +94,10 @@ BDEPEND="
 	sys-apps/yarn
 "
 
+python_check_deps() {
+        python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+}
+
 src_unpack() {
 	if use electron-19; then
 		export ELECTRON_SLOT=19
