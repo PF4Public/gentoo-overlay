@@ -18,7 +18,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-26 electron-25 electron-27 electron-28 electron-30 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-30 electron-31 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -51,30 +51,16 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	electron-19? ( dev-util/electron:19 )
-	electron-20? ( dev-util/electron:20 )
-	electron-21? ( dev-util/electron:21 )
-	electron-22? ( dev-util/electron:22 )
-	electron-23? ( dev-util/electron:23 )
-	electron-24? ( dev-util/electron:24 )
-	electron-26? ( dev-util/electron:26 )
-	electron-25? ( dev-util/electron:25 )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-30? ( dev-util/electron:30 )
-	!electron-19? (
-	!electron-20? (
-	!electron-21? (
-	!electron-22? (
-	!electron-23? (
-	!electron-24? (
-	!electron-26? (
-	!electron-25? (
+	electron-31? ( dev-util/electron:31 )
 	!electron-27? (
 	!electron-28? (
 	!electron-30? (
+	!electron-31? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) ) )
+	) ) ) )
 "
 
 #TODO: oniguruma?
@@ -99,28 +85,14 @@ python_check_deps() {
 }
 
 src_unpack() {
-	if use electron-19; then
-		export ELECTRON_SLOT=19
-	elif use electron-20; then
-		export ELECTRON_SLOT=20
-	elif use electron-21; then
-		export ELECTRON_SLOT=21
-	elif use electron-22; then
-		export ELECTRON_SLOT=22
-	elif use electron-23; then
-		export ELECTRON_SLOT=23
-	elif use electron-24; then
-		export ELECTRON_SLOT=24
-	elif use electron-26; then
-		export ELECTRON_SLOT=26
-	elif use electron-25; then
-		export ELECTRON_SLOT=25
-	elif use electron-27; then
+	if use electron-27; then
 		export ELECTRON_SLOT=27
 	elif use electron-28; then
 		export ELECTRON_SLOT=28
 	elif use electron-30; then
 		export ELECTRON_SLOT=30
+	elif use electron-31; then
+		export ELECTRON_SLOT=31
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
