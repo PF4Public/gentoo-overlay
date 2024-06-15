@@ -666,7 +666,7 @@ SRC_URI="
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
 ELECTRON_SLOT_DEFAULT="27"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-26 electron-28 electron-29 electron-30"
+IUSE="electron-28 electron-29 electron-30 electron-31"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -693,30 +693,16 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE=""
 
 COMMON_DEPEND="
-	electron-19? ( dev-util/electron:19 )
-	electron-20? ( dev-util/electron:20 )
-	electron-21? ( dev-util/electron:21 )
-	electron-22? ( dev-util/electron:22 )
-	electron-23? ( dev-util/electron:23 )
-	electron-24? ( dev-util/electron:24 )
-	electron-25? ( dev-util/electron:25 )
-	electron-26? ( dev-util/electron:26 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
 	electron-30? ( dev-util/electron:30 )
-	!electron-19? (
-	!electron-20? (
-	!electron-21? (
-	!electron-22? (
-	!electron-23? (
-	!electron-24? (
-	!electron-25? (
-	!electron-26? (
+	electron-31? ( dev-util/electron:31 )
 	!electron-28? (
 	!electron-29? (
 	!electron-30? (
+	!electron-31? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) ) )
+	) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -731,28 +717,14 @@ BDEPEND="
 "
 
 src_unpack() {
-	if use electron-19; then
-		export ELECTRON_SLOT=19
-	elif use electron-20; then
-		export ELECTRON_SLOT=20
-	elif use electron-21; then
-		export ELECTRON_SLOT=21
-	elif use electron-22; then
-		export ELECTRON_SLOT=22
-	elif use electron-23; then
-		export ELECTRON_SLOT=23
-	elif use electron-24; then
-		export ELECTRON_SLOT=24
-	elif use electron-25; then
-		export ELECTRON_SLOT=25
-	elif use electron-26; then
-		export ELECTRON_SLOT=26
-	elif use electron-28; then
+	if use electron-28; then
 		export ELECTRON_SLOT=28
 	elif use electron-29; then
 		export ELECTRON_SLOT=29
 	elif use electron-30; then
 		export ELECTRON_SLOT=30
+	elif use electron-31; then
+		export ELECTRON_SLOT=31
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -776,7 +748,7 @@ src_prepare() {
 	einfo "Using system python by default"
 	sed -i 's$getBundledPythonPath();$"/usr/bin/python";getBundledPythonPath();$' src/main/registry.ts || die
 
-	if use electron-28 || use electron-29 || use electron-30; then
+	if use electron-28 || use electron-29 || use electron-30 || use electron-31; then
 		einfo "Disabling development mode"
 		sed -i 's$isDevMode(): boolean {$isDevMode(): boolean {return false;$' src/main/utils.ts || die
 	fi
