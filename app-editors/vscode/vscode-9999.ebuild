@@ -87,6 +87,9 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	${PYTHON_DEPS}
+	$(python_gen_any_dep '
+		dev-python/setuptools[${PYTHON_USEDEP}]
+	')
 	!temp-fix? ( net-libs/nodejs )
 	sys-apps/yarn
 "
