@@ -901,7 +901,7 @@ SRC_URI="!build-online? (
 REPO="https://github.com/vector-im/element-desktop"
 ELECTRON_SLOT_DEFAULT="29"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-19 electron-20 electron-21 electron-22 electron-23 electron-24 electron-25 electron-26 electron-27 electron-28 electron-30 native-modules"
+IUSE="electron-27 electron-28 electron-30 electron-31 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -932,30 +932,16 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-	electron-19? ( dev-util/electron:19 )
-	electron-20? ( dev-util/electron:20 )
-	electron-21? ( dev-util/electron:21 )
-	electron-22? ( dev-util/electron:22 )
-	electron-23? ( dev-util/electron:23 )
-	electron-24? ( dev-util/electron:24 )
-	electron-25? ( dev-util/electron:25 )
-	electron-26? ( dev-util/electron:26 )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-30? ( dev-util/electron:30 )
-	!electron-19? (
-	!electron-20? (
-	!electron-21? (
-	!electron-22? (
-	!electron-23? (
-	!electron-24? (
-	!electron-25? (
-	!electron-26? (
+	electron-31? ( dev-util/electron:31 )
 	!electron-27? (
 	!electron-28? (
 	!electron-30? (
+	!electron-31? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) ) )
+	) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -980,28 +966,14 @@ python_check_deps() {
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	if use electron-19; then
-		export ELECTRON_SLOT=19
-	elif use electron-20; then
-		export ELECTRON_SLOT=20
-	elif use electron-21; then
-		export ELECTRON_SLOT=21
-	elif use electron-22; then
-		export ELECTRON_SLOT=22
-	elif use electron-23; then
-		export ELECTRON_SLOT=23
-	elif use electron-24; then
-		export ELECTRON_SLOT=24
-	elif use electron-25; then
-		export ELECTRON_SLOT=25
-	elif use electron-26; then
-		export ELECTRON_SLOT=26
-	elif use electron-27; then
+	if use electron-27; then
 		export ELECTRON_SLOT=27
 	elif use electron-28; then
 		export ELECTRON_SLOT=28
 	elif use electron-30; then
 		export ELECTRON_SLOT=30
+	elif use electron-31; then
+		export ELECTRON_SLOT=31
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
