@@ -1521,6 +1521,10 @@ src_prepare() {
 		local ugc_patch_series="${UGC_WD}/patches/series"
 		local ugc_substitution_list="${UGC_WD}/domain_substitution.list"
 
+		#! conflicting patches
+		sed -i '/print_view_manager_base.cc/,+37d' \
+			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
+
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml chrome_file_system_access_permission_context.cc"
 
 		local ugc_unneeded=(
@@ -1596,7 +1600,6 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "printing.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
