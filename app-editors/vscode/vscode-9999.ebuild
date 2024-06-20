@@ -255,7 +255,8 @@ src_configure() {
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
 	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
-	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
+	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	# echo "$PATH"
 	yarn config set disable-self-update-check true || die
