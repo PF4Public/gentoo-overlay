@@ -1419,9 +1419,9 @@ src_prepare() {
 			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 	fi
 
-	if use clang ; then
-		PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
-	fi
+	# if use clang ; then
+	# 	PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
+	# fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
