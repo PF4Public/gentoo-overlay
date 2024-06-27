@@ -74,6 +74,7 @@ declare -A CHROMIUM_COMMITS=(
 	["d852bf71654ae63d5e8e6624652584a9adf1df6f"]="."
 	["42fc562599d784a8a646703ce3b7c158ce1a8466"]="."
 	["f3fce92b27296068b4c304321b53bd1c7c4beb61"]="."
+	["3a97a9b768a28e1d11fd9e86733a4179b5b2df15"]="."
 )
 
 UGC_PV="${PV/_p/-}"
