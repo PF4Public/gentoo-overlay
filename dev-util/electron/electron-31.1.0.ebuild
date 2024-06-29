@@ -1402,6 +1402,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/chromium-126-observers-fix.patch"
 	)
 
 	if ! use libcxx ; then
