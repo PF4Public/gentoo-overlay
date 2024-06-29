@@ -1,0 +1,21 @@
+--- a/components/autofill/core/browser/address_data_manager.h
++++ b/components/autofill/core/browser/address_data_manager.h
+@@ -405,6 +405,8 @@
+   // has finished.
+   void LogStoredDataMetrics() const;
+ 
++  base::ObserverList<Observer> observers_;
++
+   std::unique_ptr<ContactInfoPreconditionChecker>
+       contact_info_precondition_checker_;
+ 
+@@ -477,8 +479,6 @@
+   // starts.
+   std::unique_ptr<AddressDataCleaner> address_data_cleaner_;
+ 
+-  base::ObserverList<Observer> observers_;
+-
+   // The list of change callbacks. All of them are being triggered in
+   // `NotifyObservers()` and then the list is cleared.
+   std::vector<base::OnceClosure> change_callbacks_;
+
