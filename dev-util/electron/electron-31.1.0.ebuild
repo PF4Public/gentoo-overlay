@@ -1407,6 +1407,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-126-observers-fix.patch"
 	)
 
+	PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
