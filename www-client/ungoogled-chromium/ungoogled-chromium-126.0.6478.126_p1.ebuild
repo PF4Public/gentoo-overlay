@@ -23,9 +23,11 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="124.0.6367.78-1raptor0~deb12u1"
+PATCHSET_DEBIAN="${PV/_*}-1"
 PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
+	https://salsa.debian.org/chromium-team/chromium/-/archive/debian/${PATCHSET_DEBIAN}/chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
 	ppc64? (
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
@@ -442,16 +444,16 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc00.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc0.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc1.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc11.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc2.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 		)
-			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc00.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc1.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 	fi
 
 	# if use clang ; then
