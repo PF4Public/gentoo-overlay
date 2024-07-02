@@ -32,9 +32,11 @@ UGC_WD="${WORKDIR}/${UGC_PF}"
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
 PATCHSET_PPC64="124.0.6367.78-1raptor0~deb12u1"
+PATCHSET_DEBIAN="${CHROMIUM_VERSION/_*}-1"
 PATCH_V="${CHROMIUM_VERSION%%\.*}"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
 	mirror+https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
+	mirror+https://salsa.debian.org/chromium-team/chromium/-/archive/debian/${PATCHSET_DEBIAN}/chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 	ppc64? (
@@ -1408,16 +1410,16 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc000.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc00.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc0.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc1.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc11.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc2.patch"
+			"${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 		)
-			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc00.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc1.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 	fi
 
 	# if use clang ; then
