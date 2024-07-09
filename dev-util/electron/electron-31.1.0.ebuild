@@ -31,7 +31,7 @@ UGC_WD="${WORKDIR}/${UGC_PF}"
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
-PATCHSET_PPC64="124.0.6367.78-1raptor0~deb12u1"
+PATCHSET_PPC64="126.0.6478.126-1raptor0~deb12u1"
 PATCHSET_DEBIAN="${CHROMIUM_VERSION/_*}-1"
 PATCH_V="${CHROMIUM_VERSION%%\.*}"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
