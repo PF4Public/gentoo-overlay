@@ -24,7 +24,7 @@ CROMITE_COMMIT_ID="f40a60d6ca738965161b25e5c8201382d929318a"
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
-PATCHSET_PPC64="124.0.6367.78-1raptor0~deb12u1"
+PATCHSET_PPC64="126.0.6478.126-1raptor0~deb12u1"
 PATCHSET_DEBIAN="${PV/_*}-1"
 PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
