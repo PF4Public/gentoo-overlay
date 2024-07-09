@@ -409,6 +409,7 @@ src_prepare() {
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-126-observers-fix.patch"
+		"${FILESDIR}/clang-19-fix.patch"
 		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
 

@@ -1,0 +1,89 @@
+diff --git a/third_party/blink/renderer/platform/wtf/hash_table.h b/third_party/blink/renderer/platform/wtf/hash_table.h
+index 4241c64535..1de2bf7058 100644
+--- a/third_party/blink/renderer/platform/wtf/hash_table.h
++++ b/third_party/blink/renderer/platform/wtf/hash_table.h
+@@ -1639,7 +1639,7 @@ HashTable<Key, Value, Extractor, Traits, KeyTraits, Allocator>::ExpandBuffer(
+     }
+   }
+   table_ = temporary_table;
+-  Allocator::template BackingWriteBarrier(&table_);
++  Allocator::BackingWriteBarrier(&table_);
+ 
+   HashTableBucketInitializer<Traits, Allocator, Value>::InitializeTable(
+       original_table, new_table_size);
+@@ -1693,7 +1693,7 @@ Value* HashTable<Key, Value, Extractor, Traits, KeyTraits, Allocator>::RehashTo(
+   // This swaps the newly allocated buffer with the current one. The store to
+   // the current table has to be atomic to prevent races with concurrent marker.
+   AsAtomicPtr(&table_)->store(new_hash_table.table_, std::memory_order_relaxed);
+-  Allocator::template BackingWriteBarrier(&table_);
++  Allocator::BackingWriteBarrier(&table_);
+   table_size_ = new_table_size;
+ 
+   new_hash_table.table_ = old_table;
+@@ -1845,8 +1845,8 @@ void HashTable<Key, Value, Extractor, Traits, KeyTraits, Allocator>::swap(
+   // on the mutator thread, which is also the only one that writes to them, so
+   // there is *no* risk of data races when reading.
+   AtomicWriteSwap(table_, other.table_);
+-  Allocator::template BackingWriteBarrier(&table_);
+-  Allocator::template BackingWriteBarrier(&other.table_);
++  Allocator::BackingWriteBarrier(&table_);
++  Allocator::BackingWriteBarrier(&other.table_);
+   if (IsWeak<ValueType>::value) {
+     // Weak processing is omitted when no backing store is present. In case such
+     // an empty table is later on used it needs to be strongified.
+diff --git a/third_party/perfetto/include/perfetto/tracing/internal/track_event_data_source.h b/third_party/perfetto/include/perfetto/tracing/internal/track_event_data_source.h
+index 1d924b271d..d6dc9c88d5 100644
+--- a/third_party/perfetto/include/perfetto/tracing/internal/track_event_data_source.h
++++ b/third_party/perfetto/include/perfetto/tracing/internal/track_event_data_source.h
+@@ -328,13 +328,13 @@ class TrackEventDataSource
+   }
+ 
+   static void Flush() {
+-    Base::template Trace([](typename Base::TraceContext ctx) { ctx.Flush(); });
++    Base::Trace([](typename Base::TraceContext ctx) { ctx.Flush(); });
+   }
+ 
+   // Determine if *any* tracing category is enabled.
+   static bool IsEnabled() {
+     bool enabled = false;
+-    Base::template CallIfEnabled(
++    Base::CallIfEnabled(
+         [&](uint32_t /*instances*/) { enabled = true; });
+     return enabled;
+   }
+@@ -349,7 +349,7 @@ class TrackEventDataSource
+   static bool IsDynamicCategoryEnabled(
+       const DynamicCategory& dynamic_category) {
+     bool enabled = false;
+-    Base::template Trace([&](typename Base::TraceContext ctx) {
++    Base::Trace([&](typename Base::TraceContext ctx) {
+       enabled = enabled || IsDynamicCategoryEnabled(&ctx, dynamic_category);
+     });
+     return enabled;
+@@ -496,7 +496,7 @@ class TrackEventDataSource
+                                  const protos::gen::TrackDescriptor& desc) {
+     PERFETTO_DCHECK(track.uuid == desc.uuid());
+     TrackRegistry::Get()->UpdateTrack(track, desc.SerializeAsString());
+-    Base::template Trace([&](typename Base::TraceContext ctx) {
++    Base::Trace([&](typename Base::TraceContext ctx) {
+       TrackEventInternal::WriteTrackDescriptor(
+           track, ctx.tls_inst_->trace_writer.get(), ctx.GetIncrementalState(),
+           *ctx.GetCustomTlsState(), TrackEventInternal::GetTraceTime());
+@@ -1047,7 +1047,7 @@ class TrackEventDataSource
+                                  Lambda lambda) PERFETTO_ALWAYS_INLINE {
+     using CatTraits = CategoryTraits<CategoryType>;
+     if (CatTraits::kIsDynamic) {
+-      Base::template TraceWithInstances(instances, std::move(lambda));
++      Base::TraceWithInstances(instances, std::move(lambda));
+     } else {
+       Base::template TraceWithInstances<CategoryTracePointTraits>(
+           instances, std::move(lambda), {CatTraits::GetStaticIndex(category)});
+@@ -1061,7 +1061,7 @@ class TrackEventDataSource
+       const TrackType& track,
+       std::function<void(protos::pbzero::TrackDescriptor*)> callback) {
+     TrackRegistry::Get()->UpdateTrack(track, std::move(callback));
+-    Base::template Trace([&](typename Base::TraceContext ctx) {
++    Base::Trace([&](typename Base::TraceContext ctx) {
+       TrackEventInternal::WriteTrackDescriptor(
+           track, ctx.tls_inst_->trace_writer.get(), ctx.GetIncrementalState(),
+           *ctx.GetCustomTlsState(), TrackEventInternal::GetTraceTime());
