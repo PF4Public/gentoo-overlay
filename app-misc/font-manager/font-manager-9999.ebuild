@@ -18,7 +18,7 @@ fi
 DESCRIPTION="A simple font management application for Gtk+ Desktop Environments"
 HOMEPAGE="https://fontmanager.github.io"
 
-VALA_MIN_API_VERSION=0.44
+VALA_MIN_API_VERSION=0.56
 VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
@@ -26,15 +26,15 @@ SLOT="0"
 IUSE="doc gnome-search-provider google-fonts +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
-	>=dev-db/sqlite-3.8
+	>=dev-db/sqlite-3.35
 	>=dev-libs/json-glib-0.15
 	>=dev-libs/libxml2-2.9
 	>=media-libs/fontconfig-2.12
-	>=media-libs/freetype-2.5
-	>=x11-libs/gtk+-3.22
+	>=media-libs/freetype-2.10
+	>=gui-libs/gtk-4.12
 	>=x11-libs/pango-1.4
 	google-fonts? (
-		>=net-libs/libsoup-2.62
+		>=net-libs/libsoup-3.2
 		>=net-libs/webkit-gtk-2.24
 	)
 	nautilus? ( gnome-base/nautilus )
