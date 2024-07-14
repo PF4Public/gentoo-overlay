@@ -23,7 +23,7 @@ VALA_USE_DEPEND="vapigen"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc gnome-search-provider google-fonts +manager nautilus nemo reproducible thunar +viewer +nls"
+IUSE="adwaita doc gnome-search-provider google-fonts +manager nautilus nemo reproducible thunar +viewer +nls"
 
 RDEPEND="gnome-base/gnome-common
 	>=dev-db/sqlite-3.35
@@ -33,6 +33,7 @@ RDEPEND="gnome-base/gnome-common
 	>=media-libs/freetype-2.10
 	>=gui-libs/gtk-4.12
 	>=x11-libs/pango-1.4
+	adwaita? ( gui-libs/libadwaita )
 	google-fonts? (
 		>=net-libs/libsoup-3.2
 		>=net-libs/webkit-gtk-2.24
@@ -58,6 +59,7 @@ src_prepare() {
 
 src_configure() {
 	meson_src_configure \
+		$(meson_use adwaita) \
 		$(meson_use manager) \
 		$(meson_use viewer) \
 		$(meson_use reproducible) \
