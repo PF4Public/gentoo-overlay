@@ -1,8 +1,8 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit gnome2-utils multilib pax-utils versionator xdg-utils
+EAPI=8
+inherit gnome2-utils multilib pax-utils xdg-utils
 
 DESCRIPTION="A fast and secure web browser and Internet suite"
 HOMEPAGE="https://www.opera.com/"
@@ -12,8 +12,8 @@ LICENSE="OPERA-12 LGPL-2 LGPL-3"
 KEYWORDS="amd64 x86"
 IUSE="gtk multilib"
 
-O_V="$(get_version_component_range 1-2)" # Version, i.e. 11.00
-O_B="$(get_version_component_range 3)"   # Build number, i.e. 1156
+O_V="$(ver_rs 2- '' $(ver_cut 1-2))" # Version, i.e. 11.00
+O_B="$(ver_cut 3-)"   # Build number, i.e. 1156
 
 # == Variables that often change ==
 # All other variables should be accounted for by _pre/_p
