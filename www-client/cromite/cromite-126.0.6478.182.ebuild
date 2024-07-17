@@ -545,6 +545,10 @@ src_prepare() {
 		if [ -z "$i" ]; then
 			continue
 		fi
+		if [ "$i" = "Disable-feeds-support-by-default.patch" ]; then
+			eapply "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i"
+			continue
+		fi
 		einfo "$i"
 		# ebegin "$i"
 		git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
