@@ -403,15 +403,17 @@ pkg_setup() {
 
 src_unpack() {
 	# Here be dragons!
-	local XCLD="--exclude='third_party/rust' --exclude='third_party/rust-src' \
-		--exclude='third_party/rust-toolchain' \
-		--exclude='third_party/llvm' --exclude='third_party/llvm-build' \
-		--exclude='build/linux/debian_bullseye_i386-sysroot' \
-		--exclude='build/linux/debian_bullseye_amd64-sysroot' \
+	local XCLD="--exclude=chromium-${PV/_*}/third_party/rust \
+		--exclude=chromium-${PV/_*}/third_party/rust-src \
+		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
+		--exclude=chromium-${PV/_*}/third_party/llvm \
+		--exclude=chromium-${PV/_*}/third_party/llvm-build \
+		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_i386-sysroot \
+		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_amd64-sysroot \
 	"
 
 	if ! use libcxx ; then
-		XCLD+=" --exclude='third_party/libc++'"
+		XCLD+=" --exclude=chromium-${PV/_*}/third_party/libc++"
 	fi
 
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
