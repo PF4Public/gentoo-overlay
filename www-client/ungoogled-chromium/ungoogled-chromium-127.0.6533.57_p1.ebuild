@@ -416,7 +416,7 @@ src_unpack() {
 
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
 	tar ${XCLD} \
-		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" "${S}"
+		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}"
 	# Warned you!
 
 	unpack chromium-patches-${PATCH_V}.tar.bz2
