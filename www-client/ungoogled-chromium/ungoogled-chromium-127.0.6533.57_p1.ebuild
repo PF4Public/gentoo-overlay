@@ -414,8 +414,9 @@ src_unpack() {
 		XCLD+=" --exclude='third_party/libc++'"
 	fi
 
+	einfo "Unpacking ${P}.tar.xz to ${WORKDIR}"
 	tar ${XCLD} \
-		xf ${P}.tar.xz ${S}
+		-xf ${P}.tar.xz ${S}
 	# Warned you!
 
 	unpack chromium-patches-${PATCH_V}.tar.bz2
