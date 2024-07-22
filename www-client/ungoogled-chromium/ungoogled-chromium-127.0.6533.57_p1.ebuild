@@ -406,6 +406,7 @@ src_unpack() {
 	local XCLD="--exclude=chromium-${PV/_*}/third_party/instrumented_libs  \
 		--exclude=chromium-${PV/_*}/third_party/llvm \
 		--exclude=chromium-${PV/_*}/third_party/llvm-build \
+		--exclude=chromium-${PV/_*}/third_party/node \
 		--exclude=chromium-${PV/_*}/third_party/rust \
 		--exclude=chromium-${PV/_*}/third_party/rust-src \
 		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
@@ -599,7 +600,6 @@ src_prepare() {
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
-	rm third_party/node/linux/node-linux-x64/bin/node || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
 	# adjust python interpreter version
