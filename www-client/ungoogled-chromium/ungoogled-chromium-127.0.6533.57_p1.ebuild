@@ -69,14 +69,6 @@ CROMITE_COMMIT_ID="d9e9f1d8f6825634fb9971a0880d974c7ce182ce"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["d3bc5ffc929b0895ae9e16774069a04ae6fe3c58"]="net/third_party/quiche/src"
-	["43e186fe732cc810f14b673393aca88af7093dc1"]="."
-	["f3b236db61a52b30ad3b23fba732b6e8826910e9"]="."
-	["fb3678b0d1084b49c5ca795200131a7c0ac01ffe"]="."
-	["d852bf71654ae63d5e8e6624652584a9adf1df6f"]="."
-	["42fc562599d784a8a646703ce3b7c158ce1a8466"]="."
-	["f3fce92b27296068b4c304321b53bd1c7c4beb61"]="."
-	["3a97a9b768a28e1d11fd9e86733a4179b5b2df15"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -409,6 +401,39 @@ pkg_setup() {
 	chromium_suid_sandbox_check_kernel_config
 }
 
+src_unpack() {
+	# Here be dragons!
+	local XCLD="--exclude='third_party/rust' --exclude='third_party/rust-src' \
+		--exclude='third_party/rust-toolchain' \
+		--exclude='third_party/llvm' --exclude='third_party/llvm-build' \
+		--exclude='build/linux/debian_bullseye_i386-sysroot' \
+		--exclude='build/linux/debian_bullseye_amd64-sysroot' \
+	"
+
+	if ! use libcxx ; then
+		XCLD+=" --exclude='third_party/libc++'"
+	fi
+
+	tar ${XCLD} \
+		xf ${P}.tar.xz ${S}
+	# Warned you!
+
+	unpack chromium-patches-${PATCH_V}.tar.bz2
+
+	if use cromite; then
+		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
+	fi
+
+	if ! use libcxx ; then
+		unpack chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
+	fi
+
+	if use ppc64; then
+		unpack chromium_${PATCHSET_PPC64}.debian.tar.xz
+		unpack chromium-ppc64le-gentoo-patches-1.tar.xz
+	fi
+}
+
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
@@ -424,12 +449,13 @@ src_prepare() {
 
 	local PATCHES=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}"
+		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-125-system-zstd.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
-		"${FILESDIR}/chromium-cross-compile.patch"
+		"${FILESDIR}/chromium-127-browser-ui-deps.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-123-stats-collector.patch"
@@ -570,6 +596,7 @@ src_prepare() {
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
+	rm third_party/node/linux/node-linux-x64/bin/node || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
 	# adjust python interpreter version
@@ -702,7 +729,6 @@ src_prepare() {
 		base/third_party/nspr
 		base/third_party/superfasthash
 		base/third_party/symbolize
-		base/third_party/valgrind
 		base/third_party/xdg_user_dirs
 		buildtools/third_party/libc++
 		buildtools/third_party/libc++abi
@@ -725,7 +751,6 @@ src_prepare() {
 	keeplibs+=(
 		third_party/angle
 		third_party/angle/src/common/third_party/xxhash
-		third_party/angle/src/libANGLE/renderer/vulkan/shaders/src/third_party/ffx_spd
 		third_party/angle/src/third_party/ceval
 	)
 	use nvidia || keeplibs+=(
@@ -736,8 +761,8 @@ src_prepare() {
 		third_party/anonymous_tokens
 		third_party/apple_apsl
 		third_party/axe-core
-		third_party/blink
 		third_party/bidimapper
+		third_party/blink
 		third_party/boringssl
 		third_party/boringssl/src/third_party/fiat
 		third_party/breakpad
@@ -766,6 +791,7 @@ src_prepare() {
 		third_party/closure_compiler
 		third_party/content_analysis_sdk
 		third_party/cpuinfo
+		third_party/crabbyavif
 		third_party/crashpad
 		third_party/crashpad/crashpad/third_party/lss
 		third_party/crashpad/crashpad/third_party/zlib
@@ -802,6 +828,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
+		third_party/devtools-frontend/src/front_end/third_party/web-vitals
 		third_party/devtools-frontend/src/third_party
 		third_party/distributed_point_functions
 		third_party/dom_distiller_js
@@ -815,15 +842,12 @@ src_prepare() {
 		third_party/freetype
 		third_party/fusejs
 		third_party/fxdiv
-		third_party/highway
-		third_party/liburlpattern
-		third_party/libzip
-		third_party/lit
 		third_party/gemmlowp
 		third_party/google_input_tools
 		third_party/google_input_tools/third_party/closure_library
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
 		third_party/googletest
+		third_party/highway
 		third_party/hunspell
 		third_party/iccjpeg
 		third_party/inspector_protocol
@@ -852,6 +876,7 @@ src_prepare() {
 		third_party/libsrtp
 		third_party/libsync
 		third_party/libudev
+		third_party/liburlpattern
 	)
 	use system-libusb || keeplibs+=(
 		third_party/libusb
@@ -869,15 +894,12 @@ src_prepare() {
 		third_party/libxcb-keysyms
 		third_party/libxml/chromium
 		third_party/libyuv
+		third_party/libzip
 		third_party/lit
-		third_party/llvm
 		third_party/lottie
 		third_party/lss
 		third_party/lzma_sdk
 		third_party/mako
-		third_party/maldoca
-		third_party/maldoca/src/third_party/tensorflow_protos
-		third_party/maldoca/src/third_party/zlibwrapper
 		third_party/markupsafe
 		third_party/material_color_utilities
 		third_party/mesa
@@ -907,11 +929,12 @@ src_prepare() {
 		third_party/pdfium/third_party/libtiff
 		third_party/perfetto
 		third_party/perfetto/protos/third_party/chromium
+		third_party/perfetto/protos/third_party/simpleperf
 		third_party/pffft
 		third_party/ply
 		third_party/polymer
-		third_party/private-join-and-compute
 		third_party/private_membership
+		third_party/private-join-and-compute
 		third_party/protobuf
 		third_party/pthreadpool
 		third_party/puffin
@@ -919,6 +942,7 @@ src_prepare() {
 		third_party/pyyaml
 		third_party/qcms
 		third_party/rnnoise
+		third_party/ruy
 		third_party/s2cellid
 		third_party/securemessage
 		third_party/selenium-atoms
@@ -926,6 +950,7 @@ src_prepare() {
 		third_party/sentencepiece/src/third_party/darts_clone
 		third_party/shell-encryption
 		third_party/simplejson
+		third_party/six
 		third_party/skia
 		third_party/skia/include/third_party/vulkan
 		third_party/skia/third_party/vulkan
@@ -935,14 +960,16 @@ src_prepare() {
 		third_party/snappy
 	)
 	keeplibs+=(
+		third_party/spirv-headers
+		third_party/spirv-tools
 		third_party/sqlite
 		third_party/swiftshader
 		third_party/swiftshader/third_party/astc-encoder
 		third_party/swiftshader/third_party/llvm-subzero
 		third_party/swiftshader/third_party/marl
-		third_party/swiftshader/third_party/subzero
 		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv
 		third_party/swiftshader/third_party/SPIRV-Tools
+		third_party/swiftshader/third_party/subzero
 		third_party/tensorflow_models
 		third_party/tensorflow-text
 		third_party/tflite
@@ -950,8 +977,6 @@ src_prepare() {
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
 		third_party/tflite/src/third_party/xla/xla/tsl/util
-		third_party/ruy
-		third_party/six
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
@@ -976,12 +1001,12 @@ src_prepare() {
 		third_party/x11proto
 		third_party/xcbproto
 		third_party/xnnpack
-		third_party/zxcvbn-cpp
 		third_party/zlib/google
+		third_party/zxcvbn-cpp
 		url/third_party/mozilla
 		v8/src/third_party/siphash
-		v8/src/third_party/valgrind
 		v8/src/third_party/utf8-decoder
+		v8/src/third_party/valgrind
 		v8/third_party/glibc
 		v8/third_party/inspector_protocol
 		v8/third_party/v8
@@ -994,18 +1019,23 @@ src_prepare() {
 	if ! use system-harfbuzz; then
 		keeplibs+=( third_party/harfbuzz-ng )
 	fi
+
 	if ! use system-ffmpeg; then
 		keeplibs+=( third_party/ffmpeg third_party/opus )
 	fi
+
 	if ! use system-icu; then
 		keeplibs+=( third_party/icu )
 	fi
+
 	if ! use system-png; then
 		keeplibs+=( third_party/libpng )
 	fi
+
 	if ! use system-zstd; then
 		keeplibs+=( third_party/zstd )
 	fi
+
 	if ! use system-av1; then
 		keeplibs+=(
 			third_party/dav1d
@@ -1016,21 +1046,27 @@ src_prepare() {
 			third_party/libaom/source/libaom/third_party/x86inc
 		)
 	fi
+
 	if use libcxx; then
 		keeplibs+=( third_party/libc++ )
 	fi
+
 	if ! use system-openh264; then
 		keeplibs+=( third_party/openh264 )
 	fi
+
 	if ! use system-re2; then
 		keeplibs+=( third_party/re2 )
 	fi
+
 	if use arm64 || use ppc64 ; then
 		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
 	fi
+
 	if use cromite ; then
 		keeplibs+=( third_party/ungoogled )
 	fi
+
 	# we need to generate ppc64 stuff because upstream does not ship it yet
 	# it has to be done before unbundling.
 	if use ppc64; then
@@ -1251,6 +1287,7 @@ src_configure() {
 	use system-snappy && gn_system_libraries+=(
 		snappy
 	)
+
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
 	# See dependency logic in third_party/BUILD.gn
@@ -1376,15 +1413,6 @@ src_configure() {
 		if tc-is-gcc; then
 			# https://bugs.gentoo.org/904455
 			local -x CPP="$(tc-getCXX) -E"
-			local gcc_version="$(gcc-version)"
-			local need_gcc_fix=false
-			# Drop this complexity as gcc versions age out of ::gentoo
-			if ver_test "${gcc_version}" -lt 12.3; then
-				need_gcc_fix=true
-			elif ver_test "${gcc_version}" -ge 13 && ver_test "${gcc_version}" -lt 13.2; then
-				need_gcc_fix=true
-			fi
-			[[ ${need_gcc_fix} = true ]] && append-cxxflags "$(test-flags-CXX -fno-tree-vectorize)"
 			# https://bugs.gentoo.org/912381
 			filter-lto
 		fi
