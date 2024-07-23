@@ -683,6 +683,7 @@ src_prepare() {
 	#* Didn't unpack them at the first place
 	sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/llvm-build!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/node!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/rust!d" "${ugc_pruning_list}" || die
 	if ! use libcxx ; then
