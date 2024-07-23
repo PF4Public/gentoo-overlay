@@ -425,6 +425,8 @@ src_unpack() {
 
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 
+	unpack ${UGC_URL#*->}
+
 	if use cromite; then
 		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
 	fi
