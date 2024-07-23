@@ -473,16 +473,18 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc000.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc00.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc0.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc1.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc11.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc2.patch"
-			"${PATCHES_DEB}/fixes/bad-font-gc3.patch"
 		)
+			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc000.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc00.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc0.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc1.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
+			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
+		sed -i "s|std::string filename_;|WTF::String filename_;|" \
+			"third_party/blink/renderer/platform/fonts/font_face_creation_params.h"
 	fi
 
 	# if use clang ; then
