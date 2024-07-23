@@ -685,6 +685,9 @@ src_prepare() {
 	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/node!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/rust!d" "${ugc_pruning_list}" || die
+	if ! use libcxx ; then
+		sed -i "\!third_party/libc!d" "${ugc_pruning_list}" || die
+	fi
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
