@@ -65,7 +65,7 @@ UGC_COMMIT_ID="95d61aacc1820913102297d845d413928a8ec01d"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="d9e9f1d8f6825634fb9971a0880d974c7ce182ce"
+CROMITE_COMMIT_ID="9dd1210c242c21dc5093aeff920348e132a8908a"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
@@ -483,13 +483,9 @@ src_prepare() {
 			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
-		sed -i "s|std::string filename_;|WTF::String filename_;|" \
+		sed -i "s|std::string filename_|WTF::String filename_|" \
 			"third_party/blink/renderer/platform/fonts/font_face_creation_params.h"
 	fi
-
-	# if use clang ; then
-	# 	PATCHES+=( "${FILESDIR}/chromium-120-autofill-clang.patch" )
-	# fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${!CHROMIUM_COMMITS[@]}"; do
