@@ -421,11 +421,11 @@ src_unpack() {
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
 	tar ${XCLD} \
 		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}"
-	# Warned you!
 
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 
 	unpack ${UGC_URL#*->}
+	# Warned you!
 
 	if use cromite; then
 		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
@@ -679,6 +679,10 @@ src_prepare() {
 			extra/ungoogled-chromium/add-components-ungoogled
 		)
 	fi
+
+	#* Didn't unpack at the first place
+	sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
+	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
