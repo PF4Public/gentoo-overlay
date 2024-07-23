@@ -406,13 +406,14 @@ src_unpack() {
 	local XCLD="--exclude=chromium-${PV/_*}/third_party/instrumented_libs  \
 		--exclude=chromium-${PV/_*}/third_party/llvm \
 		--exclude=chromium-${PV/_*}/third_party/llvm-build \
-		--exclude=chromium-${PV/_*}/third_party/node \
-		--exclude=chromium-${PV/_*}/third_party/rust \
+		--exclude=chromium-${PV/_*}/third_party/node/linux \
+		--exclude=chromium-${PV/_*}/third_party/node/node_modules \
 		--exclude=chromium-${PV/_*}/third_party/rust-src \
 		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_i386-sysroot \
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_amd64-sysroot \
 	"
+		# --exclude=chromium-${PV/_*}/third_party/rust \
 
 	if ! use libcxx ; then
 		XCLD+=" --exclude=chromium-${PV/_*}/third_party/libc++"
@@ -684,8 +685,10 @@ src_prepare() {
 	sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/llvm-build!d" "${ugc_pruning_list}" || die
-	sed -i "\!third_party/node!d" "${ugc_pruning_list}" || die
-	sed -i "\!third_party/rust!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/node/linux!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/node/node_modules!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/rust-src!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/rust-toolchain!d" "${ugc_pruning_list}" || die
 	if ! use libcxx ; then
 		sed -i "\!third_party/libc!d" "${ugc_pruning_list}" || die
 	fi
