@@ -688,6 +688,8 @@ src_prepare() {
 	if ! use libcxx ; then
 		sed -i "\!third_party/libc!d" "${ugc_pruning_list}" || die
 	fi
+	sed -i "s|debug('Files|error('Files|" \
+		"${UGC_WD}/utils/prune_binaries.py" || die
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
