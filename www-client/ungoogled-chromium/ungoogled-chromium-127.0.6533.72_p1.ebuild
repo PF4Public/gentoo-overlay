@@ -71,6 +71,7 @@ declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["48e39d6afd40de031c860bf920239fa850bc5d7c"]="."
 	["0ed5f7a0d2b8dd43ba63da30bd2e7d23424f6e69"]="."
+	["5b37e76c6f3ac85117eb4f25afdcaa4559042ae3"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -409,7 +410,6 @@ src_unpack() {
 		--exclude=chromium-${PV/_*}/third_party/llvm \
 		--exclude=chromium-${PV/_*}/third_party/llvm-build \
 		--exclude=chromium-${PV/_*}/third_party/node/linux \
-		--exclude=chromium-${PV/_*}/third_party/node/node_modules \
 		--exclude=chromium-${PV/_*}/third_party/rust-src \
 		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_i386-sysroot \
@@ -692,7 +692,6 @@ src_prepare() {
 	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/llvm-build!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/node/linux!d" "${ugc_pruning_list}" || die
-	sed -i "\!third_party/node/node_modules!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/rust-src!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/rust-toolchain!d" "${ugc_pruning_list}" || die
 	if ! use libcxx ; then
