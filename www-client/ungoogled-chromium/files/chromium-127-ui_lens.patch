@@ -1,0 +1,11 @@
+--- a/chrome/browser/ui/lens/BUILD.gn
++++ b/chrome/browser/ui/lens/BUILD.gn
+@@ -277,7 +277,6 @@
+     "//net/traffic_annotation",
+     "//testing/gtest",
+     "//third_party/icu:icui18n",
+-    "//third_party/icu:icuuc_public",
+     "//third_party/lens_server_proto:lens_overlay_proto",
+     "//third_party/omnibox_proto",
+     "//third_party/zlib/google:compression_utils",
+

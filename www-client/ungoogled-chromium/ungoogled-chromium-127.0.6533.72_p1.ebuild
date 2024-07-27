@@ -469,6 +469,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
+		"${FILESDIR}/chromium-127-cargo_crate.patch"
+		"${FILESDIR}/chromium-127-crabby.patch"
+		"${FILESDIR}/chromium-127-fontations.patch"
+		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 	)
 
