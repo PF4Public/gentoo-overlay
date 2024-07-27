@@ -414,11 +414,16 @@ src_unpack() {
 		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_i386-sysroot \
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_amd64-sysroot \
+		--exclude=chromium-${PV/_*}/third_party/angle/third_party/VK-GL-CTS \
 	"
 		# --exclude=chromium-${PV/_*}/third_party/rust \
 
 	if ! use libcxx ; then
 		XCLD+=" --exclude=chromium-${PV/_*}/third_party/libc++"
+	fi
+
+	if ! use pgo ; then
+		XCLD+=" --exclude=chromium-${PV/_*}/chrome/build/pgo_profiles"
 	fi
 
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
@@ -547,6 +552,8 @@ src_prepare() {
 		sed -i '/b\/chrome\/android\/java\/res\/xml\/privacy_preferences\.xml/,+13d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
 		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
 			components/components_strings.grd || die
+
+		sed -i 's/absl::/std::/' "${BR_PA_PATH}/build/patches/Add-a-proxy-configuration-page.patch" || die
 
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
