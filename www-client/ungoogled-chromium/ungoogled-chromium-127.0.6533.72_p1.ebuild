@@ -1403,6 +1403,8 @@ src_configure() {
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" rtc_build_examples=false"
 	myconf_gn+=" enable_chromium_prelude=false"
+	myconf_gn+=" enable_updater=false"
+	myconf_gn+=" enable_update_notifications=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
