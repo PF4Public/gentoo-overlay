@@ -1,0 +1,15 @@
+--- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
++++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
+@@ -74,12 +74,9 @@
+     sources += [
+       "avif/avif_image_decoder.cc",
+       "avif/avif_image_decoder.h",
+-      "avif/crabbyavif_image_decoder.cc",
+-      "avif/crabbyavif_image_decoder.h",
+     ]
+ 
+     deps += [
+-      "//third_party/crabbyavif",
+       "//third_party/libavif",
+       "//third_party/libavifinfo",
+     ]
