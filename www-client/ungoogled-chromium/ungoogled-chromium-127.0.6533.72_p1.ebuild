@@ -72,6 +72,7 @@ declare -A CHROMIUM_COMMITS=(
 	["48e39d6afd40de031c860bf920239fa850bc5d7c"]="."
 	["0ed5f7a0d2b8dd43ba63da30bd2e7d23424f6e69"]="."
 	["5b37e76c6f3ac85117eb4f25afdcaa4559042ae3"]="."
+	["-e3f9c565e5061ac2a11f79ef4999a0bd76bb470a"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -487,6 +488,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
+			"${PATCHES_DEB}/patches/fixes/font-key-gc.patch"
 		)
 			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
@@ -497,8 +499,8 @@ src_prepare() {
 			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
-		sed -i "s|std::string filename_|WTF::String filename_|" \
-			"third_party/blink/renderer/platform/fonts/font_face_creation_params.h"
+		# sed -i "s|std::string filename_|WTF::String filename_|" \
+		# 	"third_party/blink/renderer/platform/fonts/font_face_creation_params.h"
 	fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
