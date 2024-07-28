@@ -553,7 +553,7 @@ src_prepare() {
 		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
 			components/components_strings.grd || die
 
-		sed -i 's/absl::/std::/' "${BR_PA_PATH}/build/patches/Add-a-proxy-configuration-page.patch" || die
+		sed -i 's/absl::/std::/' "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" || die
 
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
