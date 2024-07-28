@@ -590,9 +590,9 @@ src_prepare() {
 		# eend $? || die
 	done
 
-	if ! use libcxx ; then
-		eapply "${FILESDIR}/cromite-libstdc++.patch"
-	fi
+	# if ! use libcxx ; then
+	# 	eapply "${FILESDIR}/cromite-libstdc++.patch"
+	# fi
 
 	local keeplibs=(
 		base/third_party/cityhash
