@@ -404,6 +404,8 @@ src_unpack() {
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# Warned you!
 
+	unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
+
 	if ! use libcxx ; then
 		unpack chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
 	fi
