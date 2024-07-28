@@ -484,11 +484,17 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 	)
 
+	ewarn
+	ewarn "Following features are disabled:"
+	ewarn " - Fontations Rust font stack"
+	ewarn " - Crabby Avif parser/decoder implementation in Rust"
+	ewarn
+
 	PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
-			"${FILESDIR}/font-key-gc.patch"
+			"${FILESDIR}/font-gc.patch"
 		)
 			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
 			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
