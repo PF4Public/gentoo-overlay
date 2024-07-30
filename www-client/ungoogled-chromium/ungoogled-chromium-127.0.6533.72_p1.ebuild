@@ -23,11 +23,10 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="126.0.6478.126-1raptor0~deb12u1"
-PATCHSET_DEBIAN="126.0.6478.126-1"
+# PATCHSET_DEBIAN="126.0.6478.126-1"
 PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
-	https://salsa.debian.org/chromium-team/chromium/-/archive/debian/${PATCHSET_DEBIAN}/chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
 	ppc64? (
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
@@ -72,7 +71,6 @@ declare -A CHROMIUM_COMMITS=(
 	["48e39d6afd40de031c860bf920239fa850bc5d7c"]="."
 	["0ed5f7a0d2b8dd43ba63da30bd2e7d23424f6e69"]="."
 	["5b37e76c6f3ac85117eb4f25afdcaa4559042ae3"]="."
-	["-e3f9c565e5061ac2a11f79ef4999a0bd76bb470a"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -89,6 +87,11 @@ fi
 
 SRC_URI+="${UGC_URL}
 "
+
+if [ ! -z "$PATCHSET_DEBIAN" ]; then
+	SRC_URI+="https://salsa.debian.org/chromium-team/chromium/-/archive/debian/${PATCHSET_DEBIAN}/chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
+	"
+fi
 
 if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	for i in "${UGC_PR_COMMITS[@]}"; do
@@ -417,7 +420,6 @@ src_unpack() {
 		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_amd64-sysroot \
 		--exclude=chromium-${PV/_*}/third_party/angle/third_party/VK-GL-CTS \
 	"
-		# --exclude=chromium-${PV/_*}/third_party/rust \
 
 	if ! use libcxx ; then
 		XCLD+=" --exclude=chromium-${PV/_*}/third_party/libc++"
@@ -441,7 +443,9 @@ src_unpack() {
 	fi
 
 	if ! use libcxx ; then
+	if [ ! -z "$PATCHSET_DEBIAN" ]; then
 		unpack chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
+	fi
 	fi
 
 	if use ppc64; then
@@ -481,6 +485,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-fontations.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
+		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 	)
 
@@ -490,7 +495,7 @@ src_prepare() {
 	ewarn " - Crabby Avif parser/decoder implementation in Rust"
 	ewarn
 
-	PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
+	# PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-124-libstdc++.patch"
