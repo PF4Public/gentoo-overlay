@@ -719,6 +719,8 @@ src_prepare() {
 	fi
 	sed -i "s|debug('Files|error('Files|" \
 		"${UGC_WD}/utils/prune_binaries.py" || die
+	sed -i "\!third_party/node/linux!d" \
+		"${UGC_WD}/utils/prune_binaries.py" || die
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
