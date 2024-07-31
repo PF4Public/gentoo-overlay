@@ -590,7 +590,7 @@ src_prepare() {
 	fi
 
 	#? Is it getting out of hand already?
-	sed -i 's$.*crabbyavif_image_decoder.h.*$#include "third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h"$' \
+	sed -i 's$.*crabbyavif_image_decoder.h.*$+#include "third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h"$' \
 		"${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/Add-support-to-jxl.patch" || die
 
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/cromite_patches_list.txt"
