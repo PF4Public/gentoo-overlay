@@ -589,7 +589,7 @@ src_prepare() {
 		popd >/dev/null
 	fi
 
-	#? Is it getting out of hand already?
+	#? Is it getting out of hand already? 
 	sed -i 's$.*crabbyavif_image_decoder.h.*$ #include "third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h"$' \
 		"${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/Add-support-to-jxl.patch" || die
 
