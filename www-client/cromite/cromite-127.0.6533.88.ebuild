@@ -591,7 +591,7 @@ src_prepare() {
 
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/cromite_patches_list.txt"
 	for i in "${topatch[@]}"; do
-		if [ -z "$i" ]; then
+		if [ -z "$i" ] || [[ "$i" =~ ^#.* ]]; then
 			continue
 		fi
 		einfo "$i"
