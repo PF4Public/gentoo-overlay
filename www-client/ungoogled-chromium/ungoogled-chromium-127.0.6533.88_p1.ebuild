@@ -22,7 +22,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PATCHSET_PPC64="126.0.6478.126-1raptor0~deb12u1"
+PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
 # PATCHSET_DEBIAN="126.0.6478.126-1"
 PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
