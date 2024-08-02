@@ -1994,17 +1994,17 @@ SRC_URI="!build-online? (
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-30 electron-31 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="29"
+	ELECTRON_SLOT_DEFAULT="30"
 else
 	IUSE+=" build-online"
-	ELECTRON_SLOT_DEFAULT="29"
+	ELECTRON_SLOT_DEFAULT="30"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -2029,11 +2029,11 @@ COMMON_DEPEND="
 	sys-apps/ripgrep
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
-	electron-30? ( dev-util/electron:30 )
+	electron-29? ( dev-util/electron:29 )
 	electron-31? ( dev-util/electron:31 )
 	!electron-27? (
 	!electron-28? (
-	!electron-30? (
+	!electron-29? (
 	!electron-31? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	) ) ) )
@@ -2065,8 +2065,8 @@ src_unpack() {
 		export ELECTRON_SLOT=27
 	elif use electron-28; then
 		export ELECTRON_SLOT=28
-	elif use electron-30; then
-		export ELECTRON_SLOT=30
+	elif use electron-29; then
+		export ELECTRON_SLOT=29
 	elif use electron-31; then
 		export ELECTRON_SLOT=31
 	else
