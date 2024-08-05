@@ -50,7 +50,6 @@ REQUIRED_USE="
 	pgo? ( clang )
 	x86? ( !thinlto !widevine )
 	debug? ( !official )
-	qt6? ( qt5 )
 	screencast? ( wayland )
 	!headless? ( || ( X wayland ) )
 	!proprietary-codecs? ( !hevc )
@@ -487,6 +486,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/chromium-127-separate-qt56.patch"
 	)
 
 	ewarn
