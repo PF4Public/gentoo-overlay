@@ -464,8 +464,9 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
+		#! temporary
+		# "${WORKDIR}/chromium-patches-${PATCH_V}"
 	local PATCHES=(
-		"${WORKDIR}/chromium-patches-${PATCH_V}"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
