@@ -466,13 +466,13 @@ src_prepare() {
 
 		#! temporary
 		# "${WORKDIR}/chromium-patches-${PATCH_V}"
+		# "${FILESDIR}/chromium-127-browser-ui-deps.patch"
 	local PATCHES=(
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
-		"${FILESDIR}/chromium-127-browser-ui-deps.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/chromium-123-stats-collector.patch"
