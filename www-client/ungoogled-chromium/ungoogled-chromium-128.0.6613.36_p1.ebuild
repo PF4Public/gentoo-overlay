@@ -25,7 +25,7 @@ HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
 # PATCHSET_DEBIAN="126.0.6478.126-1"
 # PATCH_V="${PV%%\.*}"
-PATCH_V="127"
+PATCH_V="127-1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	ppc64? (
