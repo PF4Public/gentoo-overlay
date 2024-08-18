@@ -467,6 +467,7 @@ src_prepare() {
 		#! temporary
 		# "${WORKDIR}/chromium-patches-${PATCH_V}"
 		# "${FILESDIR}/chromium-127-browser-ui-deps.patch"
+		# "${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 	local PATCHES=(
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
@@ -475,7 +476,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
-		"${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/gtk-fix-prefers-color-scheme-query.diff"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
