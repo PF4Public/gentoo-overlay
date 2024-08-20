@@ -549,7 +549,6 @@ src_prepare() {
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
-			"${BR_PA_PATH}/Offer-builtin-autocomplete-for-chrome-flags.patch"
 			"${BR_PA_PATH}/Enable-StrictOriginIsolation-and-SitePerProcess.patch"
 			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
 			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
