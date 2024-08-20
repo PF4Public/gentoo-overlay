@@ -23,7 +23,6 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
-# PATCHSET_DEBIAN="126.0.6478.126-1"
 # PATCH_V="${PV%%\.*}"
 PATCH_V="127-1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
@@ -58,7 +57,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="ca98fb8f5e081c8924afc1fc317d91d740dc75a6"
+UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -439,12 +438,6 @@ src_unpack() {
 		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
 	fi
 
-	if ! use libcxx ; then
-	if [ ! -z "$PATCHSET_DEBIAN" ]; then
-		unpack chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
-	fi
-	fi
-
 	if use ppc64; then
 		unpack chromium_${PATCHSET_PPC64}.debian.tar.xz
 		unpack chromium-ppc64le-gentoo-patches-1.tar.xz
@@ -493,23 +486,11 @@ src_prepare() {
 	ewarn " - Crabby Avif parser/decoder implementation in Rust"
 	ewarn
 
-	# PATCHES_DEB="${WORKDIR}/chromium-debian-${PATCHSET_DEBIAN}/debian/patches"
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-124-libstdc++.patch"
+			"${FILESDIR}/chromium-128-libstdc++.patch"
 			"${FILESDIR}/font-gc.patch"
 		)
-			# "${PATCHES_DEB}/fixes/bad-font-gc00000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc000.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc00.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc0.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc1.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc11.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc2.patch"
-			# "${PATCHES_DEB}/fixes/bad-font-gc3.patch"
-		# sed -i "s|std::string filename_|WTF::String filename_|" \
-		# 	"third_party/blink/renderer/platform/fonts/font_face_creation_params.h"
 	fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
