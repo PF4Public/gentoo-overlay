@@ -489,7 +489,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-128-libstdc++.patch"
-			"${FILESDIR}/font-gc.patch"
+			"${FILESDIR}/font-gc-r1.patch"
 		)
 	fi
 
