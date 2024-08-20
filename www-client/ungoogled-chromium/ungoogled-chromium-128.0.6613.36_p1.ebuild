@@ -23,10 +23,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
-# PATCH_V="${PV%%\.*}"
-PATCH_V="127-1"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
-	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	ppc64? (
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
@@ -448,8 +445,9 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
+	cp -f "${FILESDIR}/compiler.patch" "${T}"
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${PATCH_V}/chromium-*-compiler.patch || die
+		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
 
 	# disable global media controls, crashes with libstdc++
@@ -458,10 +456,10 @@ src_prepare() {
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
 		#! temporary
-		# "${WORKDIR}/chromium-patches-${PATCH_V}"
 		# "${FILESDIR}/chromium-127-browser-ui-deps.patch"
 		# "${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 	local PATCHES=(
+		"${T}/compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
