@@ -426,8 +426,6 @@ src_unpack() {
 	tar ${XCLD} \
 		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}"
 
-	unpack chromium-patches-${PATCH_V}.tar.bz2
-
 	unpack ${UGC_URL#*->}
 	# Warned you!
 
