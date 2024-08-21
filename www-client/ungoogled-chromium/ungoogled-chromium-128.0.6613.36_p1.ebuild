@@ -598,7 +598,7 @@ src_prepare() {
 			chrome/browser/browser_features.h || die
 		sed -i 's$kChromeUIAboutHost,$kChromeUIAboutHost,"ungoogled-first-run",$' \
 			chrome/common/webui_url_constants.cc || die
-		sed -i '$chrome/common/webui_url_constants.cc$Q' \
+		sed -i '/chrome\/common\/webui_url_constants.cc/Q' \
 			"${UGC_WD}/patches/extra/ungoogled-chromium/first-run-page.patch" || die
 
 	fi
