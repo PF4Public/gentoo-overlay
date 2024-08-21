@@ -82,11 +82,6 @@ fi
 SRC_URI+="${UGC_URL}
 "
 
-if [ ! -z "$PATCHSET_DEBIAN" ]; then
-	SRC_URI+="https://salsa.debian.org/chromium-team/chromium/-/archive/debian/${PATCHSET_DEBIAN}/chromium-debian-${PATCHSET_DEBIAN}.tar.bz2
-	"
-fi
-
 if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 	for i in "${UGC_PR_COMMITS[@]}"; do
 		SRC_URI+="https://github.com/ungoogled-software/${PN}/commit/$i.patch?full_index=true -> ${PN}-$i.patch
@@ -435,8 +430,8 @@ src_unpack() {
 	fi
 
 	if use ppc64; then
-		unpack chromium_${PATCHSET_PPC64}.debian.tar.xz
-		unpack chromium-ppc64le-gentoo-patches-1.tar.xz
+		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
+		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
 	fi
 }
 
@@ -846,6 +841,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/parsel-js
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/rxjs
