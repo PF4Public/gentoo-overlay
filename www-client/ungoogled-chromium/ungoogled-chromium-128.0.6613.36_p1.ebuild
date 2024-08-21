@@ -596,6 +596,11 @@ src_prepare() {
 			chrome/browser/browser_features.cc || die
 		sed -i 's$}  // namespace features$BASE_DECLARE_FEATURE(kClearDataOnExit);}$' \
 			chrome/browser/browser_features.h || die
+		sed -i 's$kChromeUIAboutHost,$kChromeUIAboutHost,"ungoogled-first-run",$' \
+			chrome/common/webui_url_constants.cc || die
+		sed -i '$chrome/common/webui_url_constants.cc$Q' \
+			"${UGC_WD}/patches/extra/ungoogled-chromium/first-run-page.patch" || die
+
 	fi
 
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
