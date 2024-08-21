@@ -1390,10 +1390,6 @@ src_unpack() {
 	use ungoogled && unpack ${UGC_URL#*->}
 	# Warned you!
 
-	if use cromite; then
-		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
-	fi
-
 	if use ppc64; then
 		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
 		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
@@ -1808,6 +1804,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/parsel-js
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/rxjs
