@@ -1364,28 +1364,28 @@ pkg_setup() {
 
 src_unpack() {
 	# Here be dragons!
-	local XCLD="--exclude=chromium-${PV/_*}/third_party/instrumented_libs  \
-		--exclude=chromium-${PV/_*}/third_party/llvm \
-		--exclude=chromium-${PV/_*}/third_party/llvm-build \
-		--exclude=chromium-${PV/_*}/third_party/node/linux \
-		--exclude=chromium-${PV/_*}/third_party/rust-src \
-		--exclude=chromium-${PV/_*}/third_party/rust-toolchain \
-		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_i386-sysroot \
-		--exclude=chromium-${PV/_*}/build/linux/debian_bullseye_amd64-sysroot \
-		--exclude=chromium-${PV/_*}/third_party/angle/third_party/VK-GL-CTS \
+	local XCLD="--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/instrumented_libs  \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/llvm \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/llvm-build \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/node/linux \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/rust-src \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/rust-toolchain \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/build/linux/debian_bullseye_i386-sysroot \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/build/linux/debian_bullseye_amd64-sysroot \
+		--exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/angle/third_party/VK-GL-CTS \
 	"
 
 	if ! use libcxx ; then
-		XCLD+=" --exclude=chromium-${PV/_*}/third_party/libc++"
+		XCLD+=" --exclude=chromium-${CHROMIUM_VERSION/_*}/third_party/libc++"
 	fi
 
 	if ! use pgo ; then
-		XCLD+=" --exclude=chromium-${PV/_*}/chrome/build/pgo_profiles"
+		XCLD+=" --exclude=chromium-${CHROMIUM_VERSION/_*}/chrome/build/pgo_profiles"
 	fi
 
-	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
+	einfo "Unpacking chromium-${CHROMIUM_VERSION/_*}.tar.xz to ${WORKDIR}"
 	tar ${XCLD} \
-		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}"
+		-xf "${DISTDIR}/chromium-${CHROMIUM_VERSION/_*}.tar.xz" -C "${WORKDIR}"
 
 	use ungoogled && unpack ${UGC_URL#*->}
 	# Warned you!
