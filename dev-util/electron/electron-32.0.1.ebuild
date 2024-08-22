@@ -1113,6 +1113,9 @@ UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["5c1e85eb085658187f4475ff5e56962473b6f10a"]="." #129+
+	["a5af3a2593cb1bdfb5a6ab0e9b6eede6fa42dc4f"]="." #129+
+	["011c56ecf0120d3bfd56327d5a115cd55f179da6"]="." #129+
+	["fa382322809185a22a6b3614f425b05f95d8d526"]="." #129+
 )
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
@@ -1387,6 +1390,9 @@ src_unpack() {
 	tar ${XCLD} \
 		-xf "${DISTDIR}/chromium-${CHROMIUM_VERSION/_*}.tar.xz" -C "${WORKDIR}"
 
+	unpack "${P}.tar.gz"
+	unpack "node-v${NODE_VERSION}.tar.xz"
+	
 	use ungoogled && unpack ${UGC_URL#*->}
 	# Warned you!
 
@@ -1958,6 +1964,7 @@ src_prepare() {
 		third_party/tflite/src/third_party/eigen3
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
+		third_party/tflite/src/third_party/xla/xla/tsl/framework
 		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ukey2
 		third_party/utf
