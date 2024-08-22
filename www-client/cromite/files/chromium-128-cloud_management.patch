@@ -1,0 +1,12 @@
+--- a/chrome/browser/policy/chrome_browser_cloud_management_controller_desktop.h
++++ b/chrome/browser/policy/chrome_browser_cloud_management_controller_desktop.h
+@@ -4,6 +4,8 @@
+ 
+ #ifndef CHROME_BROWSER_POLICY_CHROME_BROWSER_CLOUD_MANAGEMENT_CONTROLLER_DESKTOP_H_
+ #define CHROME_BROWSER_POLICY_CHROME_BROWSER_CLOUD_MANAGEMENT_CONTROLLER_DESKTOP_H_
++
++#include <variant>
+ 
+ #include "components/enterprise/browser/controller/chrome_browser_cloud_management_controller.h"
+ 
+
