@@ -1,0 +1,11 @@
+--- a/components/invalidation/profile_invalidation_provider.h
++++ b/components/invalidation/profile_invalidation_provider.h
+@@ -8,6 +8,7 @@
+ #include <memory>
+ #include <string>
+ #include <unordered_map>
++#include <variant>
+ 
+ #include "base/compiler_specific.h"
+ #include "components/invalidation/impl/profile_identity_provider.h"
+
