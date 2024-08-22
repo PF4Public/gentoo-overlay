@@ -1392,7 +1392,7 @@ src_unpack() {
 
 	unpack "${P}.tar.gz"
 	unpack "node-v${NODE_VERSION}.tar.xz"
-	
+
 	use ungoogled && unpack ${UGC_URL#*->}
 	# Warned you!
 
@@ -1611,6 +1611,21 @@ src_prepare() {
 			# GN bootstrap
 			extra/debian/gn/parallel
 		)
+		
+		#* Didn't unpack them at the first place
+		sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
+		sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/llvm-build!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/node/linux!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/rust-src!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/rust-toolchain!d" "${ugc_pruning_list}" || die
+		if ! use libcxx ; then
+			sed -i "\!third_party/libc!d" "${ugc_pruning_list}" || die
+		fi
+		sed -i "s|debug('Files|error('Files|" \
+			"${UGC_WD}/utils/prune_binaries.py" || die
+		sed -i "\!third_party/node/linux!d" \
+			"${UGC_WD}/utils/prune_binaries.py" || die
 
 		local ugc_p ugc_dir
 		for p in "${ugc_unneeded[@]}"; do
