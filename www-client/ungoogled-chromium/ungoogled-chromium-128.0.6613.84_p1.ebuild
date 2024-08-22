@@ -65,7 +65,6 @@ CROMITE_COMMIT_ID="52b2def36039afd90a2ddb1f625ff626fe7632ec"
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["5c1e85eb085658187f4475ff5e56962473b6f10a"]="." #129+
-	["a5af3a2593cb1bdfb5a6ab0e9b6eede6fa42dc4f"]="." #129+
 	["011c56ecf0120d3bfd56327d5a115cd55f179da6"]="." #129+
 	["fa382322809185a22a6b3614f425b05f95d8d526"]="." #129+
 )
@@ -469,6 +468,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
+		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
