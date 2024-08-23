@@ -54,7 +54,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="26170723f07b64daf7a7a3885d2586244d0d8fa5"
+# UGC_COMMIT_ID="26170723f07b64daf7a7a3885d2586244d0d8fa5"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -451,8 +451,7 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
-		#! temporary
-		# "${FILESDIR}/chromium-127-browser-ui-deps.patch"
+		#! TODO
 		# "${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 	local PATCHES=(
 		"${T}/compiler.patch"
