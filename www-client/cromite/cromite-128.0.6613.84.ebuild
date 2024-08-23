@@ -418,8 +418,7 @@ src_prepare() {
 		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
 		"chrome/browser/media/router/media_router_feature.cc" || die
 
-		#! temporary
-		# "${FILESDIR}/chromium-127-browser-ui-deps.patch"
+		#! TODO
 		# "${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 	local PATCHES=(
 		"${T}/compiler.patch"
