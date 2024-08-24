@@ -62,17 +62,32 @@
  
  #if BUILDFLAG(IS_WIN)
  #include "third_party/blink/renderer/platform/fonts/win/dwrite_font_format_support.h"
-@@ -30,12 +29,6 @@
- namespace {
+@@ -54,7 +53,7 @@
+ }
  
  sk_sp<SkTypeface> MakeTypefaceDefaultFontMgr(sk_sp<SkData> data) {
 -#if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
--  if (RuntimeEnabledFeatures::FontationsFontBackendEnabled()) {
--    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(data));
--    return SkTypeface_Make_Fontations(std::move(stream), SkFontArguments());
--  }
--#endif
++#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
+   if (RuntimeEnabledFeatures::FontationsFontBackendEnabled()) {
+     std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(data));
+     return SkTypeface_Make_Fontations(std::move(stream), SkFontArguments());
+@@ -82,10 +81,6 @@
+ }
+ #endif
  
-   sk_sp<SkFontMgr> font_manager;
- #if BUILDFLAG(IS_WIN)
+-sk_sp<SkTypeface> MakeTypefaceFontations(sk_sp<SkData> data) {
+-  std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(data));
+-  return SkTypeface_Make_Fontations(std::move(stream), SkFontArguments());
+-}
+ 
+ sk_sp<SkTypeface> MakeVariationsTypeface(
+     sk_sp<SkData> data,
+@@ -187,7 +182,6 @@
+   const FontFormatCheck format_check(data);
+   const FontInstantiator instantiator = {
+       MakeTypefaceDefaultFontMgr,
+-      MakeTypefaceFontations,
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+       MakeTypefaceFallback,
+ #endif
 

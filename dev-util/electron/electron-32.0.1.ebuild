@@ -42,7 +42,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://registry.yarnpkg.com/accepts/-/accepts-1.3.8.tgz
-	https://registry.yarnpkg.com/acorn/-/acorn-8.8.2.tgz
+	https://registry.yarnpkg.com/acorn/-/acorn-8.8.2.tgz 
 	https://registry.yarnpkg.com/acorn-import-assertions/-/acorn-import-assertions-1.8.0.tgz
 	https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz
 	https://registry.yarnpkg.com/aggregate-error/-/aggregate-error-3.0.1.tgz
