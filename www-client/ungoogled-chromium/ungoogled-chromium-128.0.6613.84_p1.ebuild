@@ -437,11 +437,11 @@ src_unpack() {
 	fi
 }
 
-SRC_PREPARE_PATCHES_FAILED=0
-
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
+
+	SRC_PREPARE_PATCHES_FAILED=0
 
 	cp -f "${FILESDIR}/compiler.patch" "${T}"
 	if ! use custom-cflags; then #See #25 #92
@@ -467,11 +467,11 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
-		"${FILESDIR}/chromium-127-ui_lens.patch"
+		"${FILESDIR}/chromium-127--ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
-		"${FILESDIR}/chromium-128-fontations.patch"
+		"${FILESDIR}/chromium-128--fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
@@ -1869,10 +1869,10 @@ pkg_postinst() {
 
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if ! nonfatal eapply_user "$@" ; then
+		if ! nonfatal eapply "$@" ; then
 			SRC_PREPARE_PATCHES_FAILED+=1
 		fi
 	else
-		eapply_user "$@"
+		eapply "$@"
 	fi
 }
