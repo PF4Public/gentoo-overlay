@@ -467,11 +467,11 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
-		"${FILESDIR}/chromium-127--ui_lens.patch"
+		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
-		"${FILESDIR}/chromium-128--fontations.patch"
+		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
