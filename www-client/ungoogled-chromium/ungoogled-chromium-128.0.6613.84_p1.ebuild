@@ -508,12 +508,12 @@ src_prepare() {
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
-				git apply -R --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+				git_wrapper apply -R --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
-				git apply --exclude="*unittest.cc" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+				git_wrapper apply --exclude="*unittest.cc" \
+					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
 		done
@@ -635,7 +635,7 @@ src_prepare() {
 				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
 				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
 				einfo "Git binary patch: ${i##*/}"
-				git apply -p1 < "$i" || die
+				git_wrapper apply -p1 < "$i"
 			else
 				# einfo "${i##*/}"
 				eapply_wrapper  "$i"
@@ -1868,9 +1868,19 @@ pkg_postinst() {
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
 		if ! nonfatal eapply "$@" ; then
-			SRC_PREPARE_PATCHES_FAILED+=1
+			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
 		fi
 	else
 		eapply "$@"
+	fi
+}
+
+git_wrapper () {
+	if [ ! -z "${NODIE}" ]; then
+		if git "$@" ; then
+			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
+		fi
+	else
+		git "$@" || die
 	fi
 }
