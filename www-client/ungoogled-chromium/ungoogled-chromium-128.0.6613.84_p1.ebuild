@@ -465,7 +465,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
-		"${FILESDIR}/chromium-127-ui_lens.patch"
+		"${FILESDIR}/chromium-127--ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
@@ -530,7 +530,17 @@ src_prepare() {
 		)
 	fi
 
-	default
+	# The "if" below should not be executed unless testing
+	if [ ! -z "${NODIE}" ]; then
+		if [[ $(declare -p PATCHES 2>/dev/null) == "declare -a"* ]]; then
+			[[ -n ${PATCHES[@]} ]] && nonfatal eapply "${PATCHES[@]}"
+		else
+			[[ -n ${PATCHES} ]] && nonfatal eapply ${PATCHES}
+		fi
+		eapply_user
+	else
+		default
+	fi
 
 	if use cromite ; then
 		BR_PA_PATH="${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches"
