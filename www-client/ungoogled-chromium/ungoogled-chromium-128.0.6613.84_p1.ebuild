@@ -441,6 +441,8 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
+	SRC_PREPARE_PATCHES_FAILED=0
+
 	cp -f "${FILESDIR}/compiler.patch" "${T}"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
@@ -465,7 +467,7 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
-		"${FILESDIR}/chromium-127-ui_lens.patch"
+		"${FILESDIR}/chromium-127--ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
@@ -521,7 +523,7 @@ src_prepare() {
 		local p
 		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
 			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
-				eapply "${WORKDIR}/debian/patches/${p}"
+				eapply_wrapper "${WORKDIR}/debian/patches/${p}"
 			fi
 		done
 		PATCHES+=(
@@ -530,14 +532,58 @@ src_prepare() {
 		)
 	fi
 
-	# The "if" below should not be executed unless testing
+	if ! use bluetooth ; then
+		PATCHES+=(
+			"${FILESDIR}/disable-bluez-r1.patch"
+		)
+	fi
+
+	if use convert-dict ; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
+		)
+	fi
+
+	if use system-ffmpeg; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-99-opus.patch"
+		)
+		if has_version "<media-video/ffmpeg-5.0"; then
+			PATCHES+=(
+				"${FILESDIR}/chromium-118-ffmpeg.patch"
+				"${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
+			)
+		else
+			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
+		fi
+		if has_version "<media-video/ffmpeg-6.0"; then
+			PATCHES+=(
+				"${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
+				"${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
+			)
+		fi
+		if has_version "<media-video/ffmpeg-6.1"; then
+			eapply_wrapper -R "${FILESDIR}/ffmpeg-nb_coded_side_data-dolby.diff"
+			eapply_wrapper -R "${FILESDIR}/ffmpeg-nb_coded_side_data-r1.patch"
+		fi
+	fi
+
+	if use system-openjpeg ; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-openjpeg-r4.patch"
+		)
+	fi
+
+	# Testing all patches when NODIE is defined
 	if [ ! -z "${NODIE}" ]; then
 		if [[ $(declare -p PATCHES 2>/dev/null) == "declare -a"* ]]; then
-			[[ -n ${PATCHES[@]} ]] && nonfatal eapply "${PATCHES[@]}"
+			[[ -n ${PATCHES[@]} ]] && eapply_wrapper "${PATCHES[@]}"
 		else
-			[[ -n ${PATCHES} ]] && nonfatal eapply ${PATCHES}
+			[[ -n ${PATCHES} ]] && eapply_wrapper ${PATCHES}
 		fi
-		eapply_user
+		if ! nonfatal eapply_user ; then
+			SRC_PREPARE_PATCHES_FAILED+=1
+		fi
 	else
 		default
 	fi
@@ -594,7 +640,7 @@ src_prepare() {
 				git apply -p1 < "$i" || die
 			else
 				# einfo "${i##*/}"
-				eapply  "$i"
+				eapply_wrapper  "$i"
 			fi
 		done
 
@@ -624,10 +670,6 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
-	use bluetooth || eapply "${FILESDIR}/disable-bluez-r1.patch"
-
-	use convert-dict && eapply "${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
-
 	if use hevc; then
 		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
@@ -639,40 +681,23 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply "${FILESDIR}/chromium-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-system-abseil.patch"
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		sed -i '/^#define ABSL_OPTION_USE_STD_OPTIONAL.*$/{s++#define ABSL_OPTION_USE_STD_OPTIONAL 0+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
-	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
-
-	if use system-ffmpeg; then
-		if has_version "<media-video/ffmpeg-5.0"; then
-			eapply "${FILESDIR}/chromium-118-ffmpeg.patch"
-			eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
-		else
-			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
-		fi
-		if has_version "<media-video/ffmpeg-6.0"; then
-			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
-			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
-		fi
-		if has_version "<media-video/ffmpeg-6.1"; then
-			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-dolby.diff"
-			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-r1.patch"
-		fi
-	fi
-
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
-
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 		pushd "${UGC_WD}" >/dev/null
 		for i in "${UGC_PR_COMMITS[@]}"; do
-			eapply "${DISTDIR}/${PN}-$i.patch"
+			eapply_wrapper "${DISTDIR}/${PN}-$i.patch"
 		done
 		popd >/dev/null
+	fi
+
+	if [[ "$SRC_PREPARE_PATCHES_FAILED" -ge 1 ]]; then
+		die "At least $SRC_PREPARE_PATCHES_FAILED patch(-es) failed"
 	fi
 
 	# From here we adapt ungoogled-chromium's patches to our needs
@@ -1839,5 +1864,15 @@ pkg_postinst() {
 			elog "--qt-version=6, e.g. by adding it to CHROMIUM_FLAGS in"
 			elog "/etc/chromium/default."
 		fi
+	fi
+}
+
+eapply_wrapper () {
+	if [ ! -z "${NODIE}" ]; then
+		if ! nonfatal eapply_user "$@" ; then
+			SRC_PREPARE_PATCHES_FAILED+=1
+		fi
+	else
+		eapply_user "$@"
 	fi
 }
