@@ -1697,7 +1697,6 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "printing.patch" ] ||
 				[ "$i" = "refactor_expose_file_system_access_blocklist.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
