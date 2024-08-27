@@ -1456,12 +1456,14 @@ src_prepare() {
 			sed -i "s/https/trk:173:https/" "patches/chromium/feat_add_support_for_overriding_the_base_spellchecker_download_url.patch" || die
 			sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
 				"shell/browser/file_system_access/file_system_access_permission_context.h" || die
-			sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
-				"chrome/browser/file_system_access/chrome_file_system_access_permission_context.h" || die
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
+	if use ungoogled; then
+		sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
+			"chrome/browser/file_system_access/chrome_file_system_access_permission_context.h" || die
+	fi
 
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
