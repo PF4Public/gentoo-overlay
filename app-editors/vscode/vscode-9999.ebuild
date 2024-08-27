@@ -242,6 +242,11 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
+	#TODO: temp fix
+	if use electron-32; then
+		CPPFLAGS="${CPPFLAGS} -std=c++20";
+	fi
+	
 	# if use build-online; then
 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
 	# else
