@@ -1608,6 +1608,8 @@ src_prepare() {
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 		sed -i '/print_view_manager_base.h/,+10d' \
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
+		sed -i '/chrome_file_system_access_permission_context.cc/,+192d' \
+			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml chrome_file_system_access_permission_context.cc"
 
@@ -1699,7 +1701,6 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "refactor_expose_file_system_access_blocklist.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
