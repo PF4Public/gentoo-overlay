@@ -1114,7 +1114,6 @@ REQUIRED_USE="
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["5c1e85eb085658187f4475ff5e56962473b6f10a"]="." #129+
-	["a5af3a2593cb1bdfb5a6ab0e9b6eede6fa42dc4f"]="." #129+
 	["011c56ecf0120d3bfd56327d5a115cd55f179da6"]="." #129+
 	["fa382322809185a22a6b3614f425b05f95d8d526"]="." #129+
 )
