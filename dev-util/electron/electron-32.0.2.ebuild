@@ -1117,7 +1117,6 @@ declare -A CHROMIUM_COMMITS=(
 	["a5af3a2593cb1bdfb5a6ab0e9b6eede6fa42dc4f"]="." #129+
 	["011c56ecf0120d3bfd56327d5a115cd55f179da6"]="." #129+
 	["fa382322809185a22a6b3614f425b05f95d8d526"]="." #129+
-	["99513aa4b41c0d6a0cbbcb9b04d1202781e5f4d8"]="." #129+
 )
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
@@ -1487,8 +1486,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
-		# "${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
-		# "${FILESDIR}/chromium-128-cloud_management.patch" #129+
+		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
+		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
