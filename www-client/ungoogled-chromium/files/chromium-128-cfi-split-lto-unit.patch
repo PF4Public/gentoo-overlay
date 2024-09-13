@@ -1,0 +1,14 @@
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -745,6 +745,11 @@
+       # We only use one version of LLVM within a build so there's no need to
+       # upgrade debug info, which can be expensive since it runs the verifier.
+       ldflags += [ "-Wl,-mllvm,-disable-auto-upgrade-debug-info" ]
++
++      if (is_cfi) {
++        cflags += [ "-fsplit-lto-unit" ]
++        ldflags += [ "-fsplit-lto-unit" ]
++      }
+     }
+ 
+     if (!optimize_for_size) {
