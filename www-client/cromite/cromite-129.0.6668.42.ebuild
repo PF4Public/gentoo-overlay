@@ -17,7 +17,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="c609027f1a1a0961bb668668edd866e741579109"
+CROMITE_COMMIT_ID="92b738a28cbac49622d6bfb477e7e90af1bffe21"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
@@ -158,9 +158,10 @@ COMMON_SNAPSHOT_DEPEND="
 		kerberos? ( virtual/krb5 )
 		vaapi? ( >=media-libs/libva-2.7:=[X?,wayland?] )
 		X? (
+			x11-base/xorg-proto:=
 			x11-libs/libX11:=
-			x11-libs/libXext:=
 			x11-libs/libxcb:=
+			x11-libs/libXext:=
 		)
 		x11-libs/libxkbcommon:=
 		wayland? (
@@ -251,7 +252,7 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	>=dev-build/gn-0.2114
-	>=dev-build/ninja-1.7.2
+	dev-build/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.0.3
 	dev-vcs/git
@@ -356,7 +357,7 @@ pkg_pretend() {
 	if use headless; then
 		local headless_unused_flags=("cups" "kerberos" "pulseaudio" "qt5" "qt6" "vaapi" "wayland")
 		for myiuse in ${headless_unused_flags[@]}; do
-			use ${myiuse} && ewarn "Ignoring USE=${myiuse} since USE=headless is set."
+			use ${myiuse} && ewarn "Ignoring USE=${myiuse}, USE=headless is set."
 		done
 	fi
 }
@@ -405,8 +406,6 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	SRC_PREPARE_PATCHES_FAILED=0
-
 	cp -f "${FILESDIR}/compiler.patch" "${T}"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
@@ -415,10 +414,8 @@ src_prepare() {
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
-		"chrome/browser/media/router/media_router_feature.cc" || die
+		"chrome/browser/media/router/media_router_feature.cc"
 
-		#! TODO
-		# "${FILESDIR}/chromium-122-cfi-no-split-lto-unit.patch"
 	local PATCHES=(
 		"${T}/compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -431,10 +428,10 @@ src_prepare() {
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
-		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
-		"${FILESDIR}/chromium-128-fontations.patch"
-		"${FILESDIR}/fix-official.patch"
+		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
+		"${FILESDIR}/chromium-129-fontations.patch"
+		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/00LIN-Build-fixes.patch"
@@ -448,8 +445,8 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-128-libstdc++.patch"
-			"${FILESDIR}/font-gc-r1.patch"
+			"${FILESDIR}/chromium-129-libstdc++.patch"
+			"${FILESDIR}/font-gc-r2.patch"
 		)
 	fi
 
@@ -542,9 +539,7 @@ src_prepare() {
 		for i in "${PATCHES[@]}"; do
 			eapply_wrapper "$i"
 		done
-		if ! nonfatal eapply_user ; then
-			SRC_PREPARE_PATCHES_FAILED+=1
-		fi
+		nonfatal eapply_user
 	else
 		default
 	fi
@@ -761,7 +756,6 @@ src_prepare() {
 		third_party/libsecret
 		third_party/libsrtp
 		third_party/libsync
-		third_party/libudev
 		third_party/liburlpattern
 	)
 	use system-libusb || keeplibs+=(
@@ -827,6 +821,7 @@ src_prepare() {
 		third_party/pyjson5
 		third_party/pyyaml
 		third_party/qcms
+		third_party/rapidhash
 		third_party/rnnoise
 		third_party/ruy
 		third_party/s2cellid
@@ -862,8 +857,8 @@ src_prepare() {
 		third_party/tflite/src/third_party/eigen3
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
-		third_party/tflite/src/third_party/xla/xla/tsl/framework
 		third_party/tflite/src/third_party/xla/xla/tsl/util
+		third_party/tflite/src/third_party/xla/xla/tsl/framework
 		third_party/ukey2
 		third_party/unrar
 		third_party/utf
@@ -1208,6 +1203,8 @@ src_configure() {
 		myconf_gn+=" link_pulseaudio=true"
 	fi
 
+	# Non-developer builds of Chromium (for example, non-Chrome browsers, or
+	# Chromium builds provided by Linux distros) should disable the testing config
 	myconf_gn+=" disable_fieldtrial_testing_config=true"
 
 	myconf_gn+=" use_gold=false"
@@ -1290,7 +1287,7 @@ src_configure() {
 
 	local myarch="$(tc-arch)"
 
-	# Avoid CFLAGS problems, bug #352457, bug #390147.
+	# Avoid CFLAGS problems
 	if ! use custom-cflags; then
 		filter-flags "-O*" "-Wl,-O*" #See #25
 		strip-flags
