@@ -467,7 +467,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
 		"${FILESDIR}/chromium-129-fontations.patch"
-		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 	)
@@ -1865,8 +1864,9 @@ pkg_postinst() {
 
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if ! nonfatal eapply "$@" ; then
+		if patch -p1 -f -g0 --no-backup-if-mismatch -s -F0 < "$@" ; then
 			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
+			ewarn "patch failed with $@"
 		fi
 	else
 		eapply "$@"
@@ -1877,6 +1877,7 @@ git_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
 		if git "$@" ; then
 			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
+			ewarn "git failed with $@"
 		fi
 	else
 		git "$@" || die
