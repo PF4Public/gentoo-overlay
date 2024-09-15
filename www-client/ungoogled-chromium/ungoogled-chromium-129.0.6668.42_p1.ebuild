@@ -689,7 +689,7 @@ src_prepare() {
 		popd >/dev/null
 	fi
 
-	if [[ "$SRC_PREPARE_PATCHES_FAILED" -ge 1 ]]; then
+	if [ "$SRC_PREPARE_PATCHES_FAILED" -ge 1 ]; then
 		die "At least $SRC_PREPARE_PATCHES_FAILED patch(-es) failed"
 	fi
 
