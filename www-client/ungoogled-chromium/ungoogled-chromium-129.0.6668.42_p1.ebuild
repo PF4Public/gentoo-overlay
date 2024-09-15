@@ -439,8 +439,6 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	export SRC_PREPARE_PATCHES_FAILED=0
-
 	cp -f "${FILESDIR}/compiler.patch" "${T}"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
@@ -479,7 +477,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-128-libstdc++.patch"
+			"${FILESDIR}/chromium-129-libstdc++.patch"
 			"${FILESDIR}/font-gc-r1.patch"
 		)
 	fi
@@ -573,9 +571,7 @@ src_prepare() {
 		for i in "${PATCHES[@]}"; do
 			eapply_wrapper "$i"
 		done
-		if ! nonfatal eapply_user ; then
-			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
-		fi
+		nonfatal eapply_user
 	else
 		default
 	fi
@@ -686,11 +682,6 @@ src_prepare() {
 			eapply_wrapper "${DISTDIR}/${PN}-$i.patch"
 		done
 		popd >/dev/null
-	fi
-
-	einfo "SRC_PREPARE_PATCHES_FAILED: $SRC_PREPARE_PATCHES_FAILED"
-	if [ "$SRC_PREPARE_PATCHES_FAILED" -ge 1 ]; then
-		die "At least $SRC_PREPARE_PATCHES_FAILED patch(-es) failed"
 	fi
 
 	# From here we adapt ungoogled-chromium's patches to our needs
@@ -1864,10 +1855,7 @@ pkg_postinst() {
 
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if patch -p1 -f -g0 --no-backup-if-mismatch -s -F0 < "$@" ; then
-			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
-			ewarn "patch failed with $@"
-		fi
+		nonfatal eapply "$@"
 	else
 		eapply "$@"
 	fi
@@ -1875,10 +1863,7 @@ eapply_wrapper () {
 
 git_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if git "$@" ; then
-			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
-			ewarn "git failed with $@"
-		fi
+		git "$@"
 	else
 		git "$@" || die
 	fi
