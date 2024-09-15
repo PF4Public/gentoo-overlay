@@ -465,8 +465,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
-		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
+		"${FILESDIR}/chromium-129-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
@@ -689,6 +689,7 @@ src_prepare() {
 		popd >/dev/null
 	fi
 
+	einfo "SRC_PREPARE_PATCHES_FAILED: $SRC_PREPARE_PATCHES_FAILED"
 	if [ "$SRC_PREPARE_PATCHES_FAILED" -ge 1 ]; then
 		die "At least $SRC_PREPARE_PATCHES_FAILED patch(-es) failed"
 	fi
