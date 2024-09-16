@@ -64,6 +64,8 @@ CROMITE_COMMIT_ID="92b738a28cbac49622d6bfb477e7e90af1bffe21"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	["32e65e4c14034d82fd856b38f37e9389ed500495"]="." #130+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -1452,7 +1454,7 @@ src_configure() {
 		fi
 
 		# Prevent libvpx/xnnpack build failures. Bug 530248, 544702, 546984, 853646.
-		if [[ ${myarch} == amd64 ]]; then
+		if [[ ${myarch} == amd64 || ${myarch} == x86 ]]; then
 			filter-flags -mno-mmx -mno-sse2 -mno-ssse3 -mno-sse4.1 -mno-avx -mno-avx2 -mno-fma -mno-fma4 -mno-xop -mno-sse4a
 		fi
 
