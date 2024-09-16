@@ -504,11 +504,11 @@ src_prepare() {
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
-				git_wrapper apply -R --exclude="*unittest.cc" \
+				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
-				git_wrapper apply --exclude="*unittest.cc" \
+				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
