@@ -66,6 +66,7 @@ declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 	["32e65e4c14034d82fd856b38f37e9389ed500495"]="." #130+
+	["9cf5bed15b577aade699d1704bc2967f5bf6963e"]="." #130+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -469,6 +470,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/ai_context_bound_object_set-variant.patch" #130+
 	)
 
 	ewarn
