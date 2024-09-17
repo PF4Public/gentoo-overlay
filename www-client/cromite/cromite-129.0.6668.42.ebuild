@@ -35,7 +35,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="GPL-3"
 SLOT="0"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
 RESTRICT="
@@ -58,6 +58,11 @@ REQUIRED_USE="
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	["32e65e4c14034d82fd856b38f37e9389ed500495"]="." #130+
+	["9cf5bed15b577aade699d1704bc2967f5bf6963e"]="." #130+
+	["4b232f209824053242aa34d14eb860e392ad30b1"]="." #130+
+	["2d529e8960f7b46957445333ca25e6a53ca3141c"]="." #130+
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -434,6 +439,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/ai_context_bound_object_set-variant.patch" #130+
 		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
 
@@ -468,11 +474,11 @@ src_prepare() {
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
-				git_wrapper apply -R --exclude="*unittest.cc" \
+				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
-				git_wrapper apply --exclude="*unittest.cc" \
+				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
@@ -1711,9 +1717,7 @@ pkg_postinst() {
 
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if ! nonfatal eapply "$@" ; then
-			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
-		fi
+		nonfatal eapply "$@"
 	else
 		eapply "$@"
 	fi
@@ -1721,9 +1725,7 @@ eapply_wrapper () {
 
 git_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		if git "$@" ; then
-			SRC_PREPARE_PATCHES_FAILED=$((SRC_PREPARE_PATCHES_FAILED++))
-		fi
+		git "$@"
 	else
 		git "$@" || die
 	fi
