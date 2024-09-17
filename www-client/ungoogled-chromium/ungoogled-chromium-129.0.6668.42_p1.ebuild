@@ -32,7 +32,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD cromite? ( GPL-3 )"
 SLOT="0"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine"
 RESTRICT="
@@ -67,6 +67,8 @@ declare -A CHROMIUM_COMMITS=(
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 	["32e65e4c14034d82fd856b38f37e9389ed500495"]="." #130+
 	["9cf5bed15b577aade699d1704bc2967f5bf6963e"]="." #130+
+	["4b232f209824053242aa34d14eb860e392ad30b1"]="." #130+
+	["2d529e8960f7b46957445333ca25e6a53ca3141c"]="." #130+
 )
 
 UGC_PV="${PV/_p/-}"
