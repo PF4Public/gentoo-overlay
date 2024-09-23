@@ -22,7 +22,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	KEYWORDS="~amd64 ~x86"
-	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
+	SRC_URI="https://downloads.sourceforge.net/${PN}/${P}-src.tar.gz"
 	S="${WORKDIR}/${P}-src"
 fi
 
@@ -79,7 +79,7 @@ src_install() {
 
 	cmake_src_install
 
-	if use qt5; then
+	if use qt5 || use qt6; then
 		insinto /usr/share/applications/
 		doins *.desktop
 		insinto /usr/share/pixmaps/
@@ -88,14 +88,14 @@ src_install() {
 }
 
 pkg_postrm() {
-	if use qt5; then
+	if use qt5 || use qt6; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update
 	fi
 }
 
 pkg_postinst() {
-	if use qt5; then
+	if use qt5 || use qt6; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update
 	fi
