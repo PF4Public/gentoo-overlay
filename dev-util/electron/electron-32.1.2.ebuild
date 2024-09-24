@@ -1484,13 +1484,14 @@ src_prepare() {
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
-		"${FILESDIR}/perfetto-musl-dont-mix-headers.patch"
+		"${FILESDIR}/perfetto-musl-dont-mix-headers.patch" #musl related, will be deprecated in the next release of perfetto
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
+		"${FILESDIR}/chromium-128-detect-current-resolver-features-by-def.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
