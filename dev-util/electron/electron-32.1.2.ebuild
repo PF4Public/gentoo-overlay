@@ -2377,9 +2377,6 @@ src_configure() {
 	myconf_gn+=" safe_browsing_mode=0"
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
-	myconf_gn+=" use_allocator_shim=false"
-	myconf_gn+=" enable_backup_ref_ptr_support=false"
-	myconf_gn+=" musl=true"
 
 	# myconf_gn+=" enable_swiftshader=false"
 
@@ -2480,9 +2477,13 @@ src_configure() {
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 	fi
 
-# 	if use elibc_musl; then
-	append-flags -include "${FILESDIR}/headers/musl-mallinfo-stub.h"
-# 	fi
+	if use elibc_musl; then
+		myconf_gn+=" use_allocator_shim=false"
+		myconf_gn+=" enable_backup_ref_ptr_support=false"
+		myconf_gn+=" musl=true"
+
+		append-flags -include "${FILESDIR}/headers/musl-mallinfo-stub.h"
+	fi
 
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
 	# Depending on GCC version the warnings are different and we don't want
