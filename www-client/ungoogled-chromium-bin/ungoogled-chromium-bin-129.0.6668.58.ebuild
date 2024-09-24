@@ -13,8 +13,8 @@ DESCRIPTION="Modifications to Chromium for removing Google integration and enhan
 HOMEPAGE="https://www.chromium.org/Home https://github.com/ungoogled-software/ungoogled-chromium"
 DL_URL="https://github.com/PF4Public/${PN}/releases/download/${PV}"
 SRC_URI="
-	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
-	# x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )"
+	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )
+	x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )"
 
 RESTRICT="mirror"
 
