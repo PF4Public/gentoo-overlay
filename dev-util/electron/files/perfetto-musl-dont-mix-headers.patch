@@ -1,0 +1,26 @@
+From 8dd608d22dabc6ec516c172c5a7f2e263079ce78 Mon Sep 17 00:00:00 2001
+From: Jason Macnak <natsu@google.com>
+Date: Tue, 03 Sep 2024 17:34:20 +0000
+Subject: [PATCH] base: remove extra include
+
+... to fix redefinition errors seen in aosp/3248416. Per
+https://wiki.musl-libc.org/faq#Q:-Why-am-I-getting- , don't
+try to include both the kernel and userspace headers.
+
+Bug: b/362313516
+Test: build aosp/3248416 with linux_musl_arm64_static variant
+Change-Id: I1ab74883963bd5e26fcc68e8ec2171619f10aeba
+---
+
+diff --git a/third_party/perfetto/src/base/utils.cc b/third_party/perfetto/src/base/utils.cc
+index 0d9318c..419c7db 100644
+--- a/third_party/perfetto/src/base/utils.cc
++++ b/third_party/perfetto/src/base/utils.cc
+@@ -40,7 +40,6 @@
+ 
+ #if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
+     PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+-#include <linux/prctl.h>
+ #include <sys/prctl.h>
+ 
+ #ifndef PR_GET_TAGGED_ADDR_CTRL
