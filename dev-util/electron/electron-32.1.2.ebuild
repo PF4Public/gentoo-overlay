@@ -1492,6 +1492,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
 		"${FILESDIR}/chromium-128-detect-current-resolver-features-by-def.patch"
+		"${FILESDIR}/chromium-128-musl-no-cdefs.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
@@ -2487,7 +2488,6 @@ src_configure() {
 	if use elibc_musl; then
 		myconf_gn+=" use_allocator_shim=false"
 		myconf_gn+=" enable_backup_ref_ptr_support=false"
-		myconf_gn+=" musl=true"
 
 		append-flags -include "${FILESDIR}/headers/musl-mallinfo-stub.h"
 	fi
@@ -2571,6 +2571,8 @@ src_configure() {
 	fi
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
+	append-cflags -Wno-macro-redefined
+	append-cxxflags -Wno-macro-redefined
 	append-cflags -Wno-builtin-macro-redefined
 	append-cxxflags -Wno-builtin-macro-redefined
 	append-cppflags "-D__DATE__= -D__TIME__= -D__TIMESTAMP__="
