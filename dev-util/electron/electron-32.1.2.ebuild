@@ -1504,6 +1504,12 @@ src_prepare() {
 	ewarn " - Crabby Avif parser/decoder implementation in Rust"
 	ewarn
 
+	if use elibc_musl; then
+		PATCHES+=(
+			"${FILESDIR}/llvm-subzero-musl-config.patch"
+		)
+	fi
+
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-128-libstdc++.patch"
