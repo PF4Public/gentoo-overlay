@@ -1492,6 +1492,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
 		"${FILESDIR}/chromium-128-detect-current-resolver-features-by-def.patch"
+		"${FILESDIR}/chromium-128-fix-undefined-symbols.patch"
 		"${FILESDIR}/chromium-128-musl-no-cdefs.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
@@ -2489,7 +2490,7 @@ src_configure() {
 		myconf_gn+=" use_allocator_shim=false"
 		myconf_gn+=" enable_backup_ref_ptr_support=false"
 
-		append-flags -include "${FILESDIR}/headers/musl-mallinfo-stub.h"
+		append-flags -include "${FILESDIR}/musl-mallinfo-stub.h"
 	fi
 
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
