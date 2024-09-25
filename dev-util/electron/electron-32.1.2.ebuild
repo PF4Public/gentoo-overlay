@@ -1494,6 +1494,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-detect-current-resolver-features-by-def.patch"
 		"${FILESDIR}/chromium-128-fix-undefined-symbols.patch"
 		"${FILESDIR}/chromium-128-musl-no-cdefs.patch"
+		"${FILESDIR}/chromium-128-interrupt-fast-childs.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"

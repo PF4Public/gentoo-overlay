@@ -1,0 +1,11 @@
+diff --git a/sandbox/linux/services/credentials.cc b/sandbox/linux/services/credentials.cc
+--- a/sandbox/linux/services/credentials.cc
++++ b/sandbox/linux/services/credentials.cc
+@@ -288,6 +288,7 @@ bool Credentials::CanCreateProcessInNewUserNS() {
+   // The parent process could have had threads. In the child, these threads
+   // have disappeared.
+   if (pid == 0) {
++    sched_yield();
+     // unshare() requires the effective uid and gid to have a mapping in the
+     // parent namespace.
+     if (!SetGidAndUidMaps(gid, uid))
