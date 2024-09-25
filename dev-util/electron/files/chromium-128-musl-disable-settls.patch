@@ -1,0 +1,14 @@
+diff --git a/sandbox/linux/services/credentials.cc b/sandbox/linux/services/credentials.cc
+--- a/sandbox/linux/services/credentials.cc
++++ b/sandbox/linux/services/credentials.cc
+@@ -94,8 +94,8 @@ bool ChrootToSafeEmptyDir() {
+ 
+   int clone_flags = CLONE_FS | LINUX_SIGCHLD;
+   void* tls = nullptr;
+-#if (defined(ARCH_CPU_X86_64) || defined(ARCH_CPU_ARM_FAMILY)) && \
+-    !defined(MEMORY_SANITIZER)
++#if defined(__GLIBC__) && !defined(MEMORY_SANITIZER) && \
++    (defined(ARCH_CPU_X86_64) || defined(ARCH_CPU_ARM_FAMILY))
+   // Use CLONE_VM | CLONE_VFORK as an optimization to avoid copying page tables.
+   // Since clone writes to the new child's TLS before returning, we must set a
+   // new TLS to avoid corrupting the current process's TLS. On ARCH_CPU_X86,
