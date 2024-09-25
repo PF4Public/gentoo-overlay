@@ -473,7 +473,6 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/ai_context_bound_object_set-variant.patch" #130+
-		"${FILESDIR}/chromium-129-re2-dep.patch"
 	)
 
 	ewarn
