@@ -44,70 +44,13 @@ diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.c
 diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
 +++ b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
-@@ -437,6 +437,9 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
-     case __NR_waitid:
- #if defined(__i386__)
-     case __NR_waitpid:
- #endif
-+#if defined(LIBC_MUSL)
-+    case __NR_set_tid_address:
-+#endif
-       return true;
-     case __NR_clone:  // Should be parameter-restricted.
-@@ -450,7 +453,9 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
- #if defined(__i386__) || defined(__x86_64__) || defined(__mips__)
-     case __NR_set_thread_area:
- #endif
-+#if !defined(LIBC_MUSL)
-     case __NR_set_tid_address:
-+#endif
-     case __NR_unshare:
- #if !defined(__mips__) && !defined(__aarch64__)
-     case __NR_vfork:
-@@ -548,6 +553,10 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
+@@ -548,6 +553,9 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
      case __NR_mlock:
      case __NR_munlock:
      case __NR_munmap:
 +#if defined(LIBC_MUSL)
-+    case __NR_mremap:
 +    case __NR_membarrier:
 +#endif
        return true;
      case __NR_madvise:
      case __NR_mincore:
-@@ -565,7 +574,9 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
-     case __NR_modify_ldt:
- #endif
-     case __NR_mprotect:
-+#if !defined(LIBC_MUSL)
-     case __NR_mremap:
-+#endif
-     case __NR_msync:
-     case __NR_munlockall:
-     case __NR_readahead:
-diff --git a/sandbox/linux/system_headers/linux_syscalls.h b/sandbox/linux/system_headers/linux_syscalls.h
---- a/sandbox/linux/system_headers/linux_syscalls.h
-+++ b/sandbox/linux/system_headers/linux_syscalls.h
-@@ -10,6 +10,7 @@
- #define SANDBOX_LINUX_SYSTEM_HEADERS_LINUX_SYSCALLS_H_
- 
- #include "build/build_config.h"
-+#include <sys/syscall.h>
- 
- #if defined(__x86_64__)
- #include "sandbox/linux/system_headers/x86_64_linux_syscalls.h"
-diff --git a/sandbox/policy/linux/bpf_renderer_policy_linux.cc b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
---- a/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-+++ b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-@@ -104,6 +104,11 @@ ResultExpr RendererProcessPolicy::EvaluateSyscall(int sysno) const {
-     case __NR_pwrite64:
-     case __NR_sched_get_priority_max:
-     case __NR_sched_get_priority_min:
-+#if defined(LIBC_MUSL)
-+    case __NR_sched_getparam:
-+    case __NR_sched_getscheduler:
-+    case __NR_sched_setscheduler:
-+#endif
-     case __NR_sysinfo:
-     case __NR_times:
-     case __NR_uname:
