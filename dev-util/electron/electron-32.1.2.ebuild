@@ -1496,6 +1496,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-musl-no-cdefs.patch"
 		"${FILESDIR}/chromium-128-interrupt-fast-childs.patch"
 		"${FILESDIR}/chromium-128-musl-disable-settls.patch"
+ 		"${FILESDIR}/chromium-128-musl-sandbox-syscall-whitelist.patch"
+		"${FILESDIR}/chromium-128-support-musl-libc-detection.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
