@@ -1,0 +1,41 @@
+diff --git a/base/allocator/partition_allocator/src/partition_alloc/stack/stack.cc b/base/allocator/partition_allocator/src/partition_alloc/stack/stack.cc
+--- a/base/allocator/partition_allocator/src/partition_alloc/stack/stack.cc
++++ b/base/allocator/partition_allocator/src/partition_alloc/stack/stack.cc
+@@ -53,6 +53,13 @@ void* GetStackTop() {
+ #elif PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+ 
+ void* GetStackTop() {
++#if PA_BUILDFLAG(PA_LIBC_MUSL)
++  void* frame = __builtin_frame_address(0);
++  static uintptr_t page_size = 0;
++  if (!page_size)
++    page_size = sysconf(_SC_PAGESIZE);
++  return (void*)(((uintptr_t)frame & ~(page_size - 1)) + page_size);
++#else
+   pthread_attr_t attr;
+   int error = pthread_getattr_np(pthread_self(), &attr);
+   if (!error) {
+@@ -73,6 +80,7 @@ void* GetStackTop() {
+ #else
+   return nullptr;
+ #endif  // PA_BUILDFLAG(PA_LIBC_GLIBC)
++#endif  // PA_BUILDFLAG(PA_LIBC_MUSL)
+ }
+ 
+ #else  // PA_BUILDFLAG(IS_WIN)
+diff --git a/v8/src/base/platform/platform-posix.cc b/v8/src/base/platform/platform-posix.cc
+--- a/v8/src/base/platform/platform-posix.cc
++++ b/v8/src/base/platform/platform-posix.cc
+@@ -1347,6 +1347,12 @@ bool MainThreadIsCurrentThread() {
+ Stack::StackSlot Stack::ObtainCurrentThreadStackStart() {
+ #if V8_OS_ZOS
+   return __get_stack_start();
++#elif defined(V8_LIBC_MUSL)
++  void* frame = __builtin_frame_address(0);
++  static uintptr_t page_size = 0;
++  if (!page_size)
++    page_size = sysconf(_SC_PAGESIZE);
++  return (void*)(((uintptr_t)frame & ~(page_size - 1)) + page_size);
+ #else
+   pthread_attr_t attr;
+   int error = pthread_getattr_np(pthread_self(), &attr);
