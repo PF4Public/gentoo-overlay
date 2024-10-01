@@ -1622,7 +1622,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE="+build-online"
 else
 	IUSE="build-online"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
