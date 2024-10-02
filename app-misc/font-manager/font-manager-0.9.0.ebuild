@@ -36,7 +36,7 @@ RDEPEND="gnome-base/gnome-common
 	adwaita? ( gui-libs/libadwaita )
 	google-fonts? (
 		>=net-libs/libsoup-3.2
-		>=net-libs/webkit-gtk-2.24
+		net-libs/webkit-gtk:6
 	)
 	nautilus? ( gnome-base/nautilus )
 	nemo? ( gnome-extra/nemo )
