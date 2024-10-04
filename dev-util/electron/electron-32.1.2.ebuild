@@ -1135,6 +1135,7 @@ REQUIRED_USE="
 	!proprietary-codecs? ( !hevc )
 	hevc? ( system-ffmpeg )
 	vaapi? ( !system-av1 !system-libvpx )
+	libcxx? ( !system-re2 )
 "
 
 # UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
