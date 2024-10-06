@@ -67,6 +67,30 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/@electron/github-app-auth/-/github-app-auth-2.0.0.tgz -> @electron-github-app-auth-2.0.0.tgz
 	https://registry.yarnpkg.com/@electron/lint-roller/-/lint-roller-2.3.0.tgz -> @electron-lint-roller-2.3.0.tgz
 	https://registry.yarnpkg.com/@electron/typescript-definitions/-/typescript-definitions-8.15.7.tgz -> @electron-typescript-definitions-8.15.7.tgz
+	https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.24.0.tgz -> @esbuild-aix-ppc64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.24.0.tgz -> @esbuild-android-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/android-arm/-/android-arm-0.24.0.tgz -> @esbuild-android-arm-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/android-x64/-/android-x64-0.24.0.tgz -> @esbuild-android-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/darwin-arm64/-/darwin-arm64-0.24.0.tgz -> @esbuild-darwin-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/darwin-x64/-/darwin-x64-0.24.0.tgz -> @esbuild-darwin-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/freebsd-arm64/-/freebsd-arm64-0.24.0.tgz -> @esbuild-freebsd-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/freebsd-x64/-/freebsd-x64-0.24.0.tgz -> @esbuild-freebsd-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-arm64/-/linux-arm64-0.24.0.tgz -> @esbuild-linux-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-arm/-/linux-arm-0.24.0.tgz -> @esbuild-linux-arm-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-ia32/-/linux-ia32-0.24.0.tgz -> @esbuild-linux-ia32-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-loong64/-/linux-loong64-0.24.0.tgz -> @esbuild-linux-loong64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-mips64el/-/linux-mips64el-0.24.0.tgz -> @esbuild-linux-mips64el-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-ppc64/-/linux-ppc64-0.24.0.tgz -> @esbuild-linux-ppc64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-riscv64/-/linux-riscv64-0.24.0.tgz -> @esbuild-linux-riscv64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-s390x/-/linux-s390x-0.24.0.tgz -> @esbuild-linux-s390x-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/linux-x64/-/linux-x64-0.24.0.tgz -> @esbuild-linux-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/netbsd-x64/-/netbsd-x64-0.24.0.tgz -> @esbuild-netbsd-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/openbsd-arm64/-/openbsd-arm64-0.24.0.tgz -> @esbuild-openbsd-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/openbsd-x64/-/openbsd-x64-0.24.0.tgz -> @esbuild-openbsd-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/sunos-x64/-/sunos-x64-0.24.0.tgz -> @esbuild-sunos-x64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/win32-arm64/-/win32-arm64-0.24.0.tgz -> @esbuild-win32-arm64-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/win32-ia32/-/win32-ia32-0.24.0.tgz -> @esbuild-win32-ia32-0.24.0.tgz
+	https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.24.0.tgz -> @esbuild-win32-x64-0.24.0.tgz
 	https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz -> @eslint-community-eslint-utils-4.4.0.tgz
 	https://registry.yarnpkg.com/@eslint-community/regexpp/-/regexpp-4.5.1.tgz -> @eslint-community-regexpp-4.5.1.tgz
 	https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-2.0.3.tgz -> @eslint-eslintrc-2.0.3.tgz
@@ -392,6 +416,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/es-to-primitive/-/es-to-primitive-1.2.1.tgz
 	https://registry.yarnpkg.com/es6-error/-/es6-error-4.1.1.tgz
 	https://registry.yarnpkg.com/es6-object-assign/-/es6-object-assign-1.1.0.tgz
+	https://registry.yarnpkg.com/esbuild/-/esbuild-0.24.0.tgz
 	https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz
 	https://registry.yarnpkg.com/escape-html/-/escape-html-1.0.3.tgz
 	https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz
@@ -1110,6 +1135,7 @@ REQUIRED_USE="
 	!proprietary-codecs? ( !hevc )
 	hevc? ( system-ffmpeg )
 	vaapi? ( !system-av1 !system-libvpx )
+	libcxx? ( !system-re2 )
 "
 
 # UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
@@ -1450,6 +1476,7 @@ src_prepare() {
 		sed -i '/proprietary_codecs/d' build/args/all.gn || die
 		sed -i '/ffmpeg_branding/d' build/args/all.gn || die
 		sed -i '/rtc_use_h264/d' build/args/release.gn || die
+		sed -i '/is_official_build/d' build/args/release.gn || die
 
 		use bluetooth || eapply "${FILESDIR}/disable-bluez-electron-r3.patch"
 
@@ -1484,12 +1511,21 @@ src_prepare() {
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
+		"${FILESDIR}/perfetto-musl-dont-mix-headers.patch" #musl related, will be deprecated in the next release of perfetto
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-127-ui_lens.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-profile_invalidation.patch" #129+
 		"${FILESDIR}/chromium-128-cloud_management.patch" #129+
+		"${FILESDIR}/chromium-128-detect-current-resolver-features-by-def.patch"
+		"${FILESDIR}/chromium-128-fix-undefined-symbols.patch"
+		"${FILESDIR}/chromium-128-musl-no-cdefs.patch"
+		"${FILESDIR}/chromium-128-interrupt-fast-childs.patch"
+		"${FILESDIR}/chromium-128-musl-disable-settls.patch"
+ 		"${FILESDIR}/chromium-128-musl-sandbox-syscall-whitelist.patch"
+ 		"${FILESDIR}/chromium-128-musl-disable-pthread_getattr_np.patch"
+		"${FILESDIR}/chromium-128-musl-libc-defs.patch"
 		"${FILESDIR}/chromium-128-fontations.patch"
 		"${FILESDIR}/fix-official.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
@@ -1501,6 +1537,12 @@ src_prepare() {
 	ewarn " - Fontations Rust font stack"
 	ewarn " - Crabby Avif parser/decoder implementation in Rust"
 	ewarn
+
+	if use elibc_musl; then
+		PATCHES+=(
+			"${FILESDIR}/llvm-subzero-musl-config.patch"
+		)
+	fi
 
 	if ! use libcxx ; then
 		PATCHES+=(
@@ -1556,6 +1598,7 @@ src_prepare() {
 	ln -s "${WORKDIR}/${P}" electron || die
 	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
+	cp -r "${FILESDIR}/node-utils" node-utils || die
 	mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
 
@@ -2116,15 +2159,23 @@ src_configure() {
 	python_setup
 
 	ebegin "Installing node_modules"
+
+	yarn config set disable-self-update-check true || die
+	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+
 	pushd electron > /dev/null || die
-		yarn config set disable-self-update-check true || die
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 		yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
 
 		# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
 		# find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
 		# # For webpack >= 5.61.0
 		# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
+	popd > /dev/null || die
+	eend $? || die
+
+	pushd node-utils > /dev/null || die
+		yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+		ln -sf "${S}/node-utils/node_modules/.bin/esbuild" ../third_party/devtools-frontend/src/third_party/esbuild/esbuild || die
 	popd > /dev/null || die
 	eend $? || die
 
@@ -2476,6 +2527,13 @@ src_configure() {
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 	fi
 
+	if use elibc_musl; then
+		myconf_gn+=" use_allocator_shim=false"
+		myconf_gn+=" enable_backup_ref_ptr_support=false"
+
+		append-flags -include "${FILESDIR}/musl-mallinfo-stub.h"
+	fi
+
 	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
 	# Depending on GCC version the warnings are different and we don't want
 	# the build to fail because of that.
@@ -2536,7 +2594,7 @@ src_configure() {
 	fi
 
 	# Enable official builds
-	myconf_gn+=" is_official_build=true"
+	myconf_gn+=" is_official_build=$(usex debug false true)"
 	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
 	myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 	# Allow building against system libraries in official builds
@@ -2555,6 +2613,8 @@ src_configure() {
 	fi
 
 	# Facilitate deterministic builds (taken from build/config/compiler/BUILD.gn)
+	append-cflags -Wno-macro-redefined
+	append-cxxflags -Wno-macro-redefined
 	append-cflags -Wno-builtin-macro-redefined
 	append-cxxflags -Wno-builtin-macro-redefined
 	append-cppflags "-D__DATE__= -D__TIME__= -D__TIMESTAMP__="

@@ -1,0 +1,80 @@
+diff --git a/build/build_config.h b/build/build_config.h
+--- a/build/build_config.h
++++ b/build/build_config.h
+@@ -100,6 +100,19 @@
+ // We really are using glibc, not uClibc pretending to be glibc.
+ #define LIBC_GLIBC 1
+ #endif
++#if !defined(_GNU_SOURCE)
++#define _GNU_SOURCE
++#include <features.h>
++#if !defined(__USE_GNU)
++#define LIBC_MUSL 1
++#endif // !defined (__USE_GNU)
++#undef _GNU_SOURCE
++#else
++#include <features.h>
++#if !defined(__USE_GNU)
++#define LIBC_MUSL 1
++#endif // !defined(__USE_GNU)
++#endif // defined(_GNU_SOURCE)
+ #elif defined(_WIN32)
+ #define OS_WIN 1
+ #elif defined(__Fuchsia__)
+diff --git a/base/allocator/partition_allocator/src/partition_alloc/build_config.h b/base/allocator/partition_allocator/src/partition_alloc/build_config.h
+--- a/base/allocator/partition_allocator/src/partition_alloc/build_config.h
++++ b/base/allocator/partition_allocator/src/partition_alloc/build_config.h
+@@ -83,6 +83,19 @@
+ // We really are using glibc, not uClibc pretending to be glibc.
+ #define PA_LIBC_GLIBC
+ #endif
++#if !defined(_GNU_SOURCE)
++#define _GNU_SOURCE
++#include <features.h>
++#if !defined(__USE_GNU)
++#define PA_LIBC_MUSL
++#endif // !defined (__USE_GNU)
++#undef _GNU_SOURCE
++#else
++#include <features.h>
++#if !defined(__USE_GNU)
++#define PA_LIBC_MUSL
++#endif // !defined(__USE_GNU)
++#endif // defined(_GNU_SOURCE)
+ #elif defined(_WIN32)
+ #define PA_IS_WIN
+ #elif defined(__Fuchsia__)
+@@ -507,4 +520,11 @@
+ #endif
+ #undef PA_LIBC_GLIBC
+ 
++#if defined(PA_LIBC_MUSL)
++#define PA_BUILDFLAG_INTERNAL_PA_LIBC_MUSL() (1)
++#else
++#define PA_BUILDFLAG_INTERNAL_PA_LIBC_MUSL() (0)
++#endif
++#undef PA_LIBC_MUSL
++
+ #endif  // PARTITION_ALLOC_BUILD_CONFIG_H_
+diff --git a/v8/include/v8config.h b/v8/include/v8config.h
+--- a/v8/include/v8config.h
++++ b/v8/include/v8config.h
+@@ -287,6 +287,18 @@ path. Add it with -I<path> to the command line
+ # define V8_LIBC_UCLIBC 1
+ #elif defined(__GLIBC__) || defined(__GNU_LIBRARY__)
+ # define V8_LIBC_GLIBC 1
++#elif !defined(_GNU_SOURCE)
++#define _GNU_SOURCE
++#include <features.h>
++#if !defined(__USE_GNU)
++#define V8_LIBC_MUSL
++#endif
++#undef _GNU_SOURCE
++#elif defined(_GNU_SOURCE)
++#include <features.h>
++#if !defined(__USE_GNU)
++#define V8_LIBC_MUSL
++#endif
+ #else
+ # define V8_LIBC_BSD V8_OS_BSD
+ #endif
