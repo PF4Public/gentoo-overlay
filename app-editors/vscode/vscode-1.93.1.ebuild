@@ -2118,6 +2118,9 @@ src_prepare() {
 	einfo "Add PPC target to package build scripts"
 	patch -p1 -i "${FILESDIR}/ppc64le/add-ppc-target.patch" || die
 
+	einfo "Add support for launching from a distribution directory"
+	patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
+
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
@@ -2383,8 +2386,7 @@ src_install() {
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
+	exec /usr/bin/env \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
