@@ -111,34 +111,18 @@ diff --git a/src/vs/platform/native/electron-main/nativeHostMainService.ts b/src
 diff --git a/yarn.lock b/yarn.lock
 --- a/yarn.lock
 +++ b/yarn.lock
-@@ -1335,6 +1300,11 @@
-     tapable "^2.2.0"
-     webpack "^5"
+@@ -1335,1 +1300,18 @@
  
 +"@types/which@^3.0.4":
 +  version "3.0.4"
 +  resolved "https://registry.yarnpkg.com/@types/which/-/which-3.0.4.tgz#2c3a89be70c56a84a6957a7264639f39ae4340a1"
 +  integrity sha512-liyfuo/106JdlgSchJzXEQCVArk0CvevqPote8F8HgWgJ3dRCcTHgJIsLDuee0kxk/mhbInzIZk3QWSZJ8R+2w==
 +
- "@types/wicg-file-system-access@^2020.9.6":
-   version "2020.9.6"
-   resolved "https://registry.yarnpkg.com/@types/wicg-file-system-access/-/wicg-file-system-access-2020.9.6.tgz#da34476b1e29451c8b7aa1a6db86b185647cd970"
-@@ -6194,6 +5874,11 @@ isexe@^2.0.0:
-   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
-   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
- 
 +isexe@^3.1.1:
 +  version "3.1.1"
 +  resolved "https://registry.yarnpkg.com/isexe/-/isexe-3.1.1.tgz#4a407e2bd78ddfb14bea0c27c6f7072dde775f0d"
 +  integrity sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ==
 +
- isobject@^2.0.0:
-   version "2.1.0"
-   resolved "https://registry.yarnpkg.com/isobject/-/isobject-2.1.0.tgz#f065561096a3f1da2ef46272f815c840d87e0c89"
-@@ -10866,6 +10201,13 @@ which@^2.0.1:
-   dependencies:
-     isexe "^2.0.0"
- 
 +which@^5.0.0:
 +  version "5.0.0"
 +  resolved "https://registry.yarnpkg.com/which/-/which-5.0.0.tgz#d93f2d93f79834d4363c7d0c23e00d07c466c8d6"
@@ -146,6 +130,3 @@ diff --git a/yarn.lock b/yarn.lock
 +  dependencies:
 +    isexe "^3.1.1"
 +
- wildcard@^2.0.0:
-   version "2.0.0"
-   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.0.tgz#a77d20e5200c6faaac979e4b3aadc7b3dd7f8fec"

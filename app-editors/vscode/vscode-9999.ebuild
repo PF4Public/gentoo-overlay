@@ -123,8 +123,8 @@ src_prepare() {
 	einfo "Add PPC target to package build scripts"
 	patch -p1 -i "${FILESDIR}/ppc64le/add-ppc-target.patch" || die
 
-	einfo "Add support for launching from a distribution directory"
-	patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
+	# einfo "Add support for launching from a distribution directory" # TODO: npm with package-lock?
+	# patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
