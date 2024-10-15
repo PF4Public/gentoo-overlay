@@ -20,18 +20,9 @@ diff --git a/package.json b/package.json
 diff --git a/src/vs/platform/native/electron-main/nativeHostMainService.ts b/src/vs/platform/native/electron-main/nativeHostMainService.ts
 --- a/src/vs/platform/native/electron-main/nativeHostMainService.ts
 +++ b/src/vs/platform/native/electron-main/nativeHostMainService.ts
-@@ -4,9 +4,10 @@
-  *--------------------------------------------------------------------------------------------*/
- 
- import * as fs from 'fs';
+@@ -5,0 +5,2 @@
++import { tmpdir } from "os"
 +import { sync as whichSync } from "which"
- import { exec } from 'child_process';
- import { app, BrowserWindow, clipboard, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, SaveDialogOptions, SaveDialogReturnValue, screen, shell, webContents } from 'electron';
--import { arch, cpus, freemem, loadavg, platform, release, totalmem, type } from 'os';
-+import { arch, cpus, freemem, loadavg, platform, release, tmpdir, totalmem, type } from 'os';
- import { promisify } from 'util';
- import { memoize } from 'vs/base/common/decorators';
- import { Emitter, Event } from 'vs/base/common/event';
 @@ -609,31 +610,69 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
  
  	@memoize
