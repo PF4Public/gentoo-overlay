@@ -1270,6 +1270,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.7.tgz
 	https://registry.yarnpkg.com/js-beautify/-/js-beautify-1.8.9.tgz
 	https://registry.yarnpkg.com/js-sdsl/-/js-sdsl-4.4.0.tgz
+	https://registry.yarnpkg.com/js-tokens/-/js-tokens-1.0.1.tgz
 	https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.0.tgz
 	https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz
 	https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.0.tgz
