@@ -423,7 +423,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@vscode/policy-watcher/-/policy-watcher-1.1.6.tgz -> @vscode-policy-watcher-1.1.6.tgz
 	https://registry.yarnpkg.com/@vscode/proxy-agent/-/proxy-agent-0.22.0.tgz -> @vscode-proxy-agent-0.22.0.tgz
 	https://registry.yarnpkg.com/@vscode/proxy-agent/-/proxy-agent-0.23.0.tgz -> @vscode-proxy-agent-0.23.0.tgz
-	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-1.15.9.tgz -> @vscode-ripgrep-1.15.9.tgz
 	https://registry.yarnpkg.com/@vscode/spdlog/-/spdlog-0.15.0.tgz -> @vscode-spdlog-0.15.0.tgz
 	https://registry.yarnpkg.com/@vscode/sqlite3/-/sqlite3-5.1.6-vscode.tgz -> @vscode-sqlite3-5.1.6-vscode.tgz
 	https://registry.yarnpkg.com/@vscode/sudo-prompt/-/sudo-prompt-9.3.1.tgz -> @vscode-sudo-prompt-9.3.1.tgz
@@ -760,6 +759,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.7.0.tgz
 	https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-2.0.0.tgz
 	https://registry.yarnpkg.com/cookie-signature/-/cookie-signature-1.0.6.tgz
+	https://registry.yarnpkg.com/cookie/-/cookie-0.4.0.tgz
 	https://registry.yarnpkg.com/cookie/-/cookie-0.4.1.tgz
 	https://registry.yarnpkg.com/cookie/-/cookie-0.5.0.tgz
 	https://registry.yarnpkg.com/cookie/-/cookie-0.7.1.tgz
@@ -2326,8 +2326,9 @@ src_prepare() {
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
-	einfo "Allowing any nodejs version"
-	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
+	if use reh || use reh-web; then
+		sed -i '/ripgrep"/d' remote/package.json || die
+	fi
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
@@ -2339,7 +2340,6 @@ src_prepare() {
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
 	# sed -i '/"electron"/d' package.json || die
-	# sed -i '/vscode-ripgrep/d' remote/package.json || die
 	# sed -i '/"playwright"/d' package.json || die
 	sed -i '/test-web"/d' package.json || die
 
@@ -2479,16 +2479,17 @@ src_configure() {
 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+	export VSCODE_SKIP_NODE_VERSION_CHECK=1
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-progress"
 	# echo "$PATH"
 
 	if ! use build-online; then
 	pushd "extensions/emmet" > /dev/null || die
-		npm install "${DISTDIR}"/css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz --no-progress || die
+		npm install "${DISTDIR}"/css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz ${NPM_DEFAULT_FLAGS} || die
 	popd > /dev/null || die
 	fi
 
-	npm ci --nodedir=/usr/include/electron-${ELECTRON_SLOT}/node \
-		--arch=${VSCODE_ARCH} --no-progress || die
+	npm ci ${NPM_DEFAULT_FLAGS} || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
@@ -2510,8 +2511,17 @@ src_configure() {
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
+
+	if use reh || use reh-web; then
+		cp -r node_modules/@vscode/ripgrep remote/node_modules/@vscode
+	fi
+
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
+
+	if use reh || use reh-web; then
+		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
+	fi
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
