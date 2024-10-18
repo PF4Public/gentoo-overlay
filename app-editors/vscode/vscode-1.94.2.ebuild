@@ -2469,7 +2469,7 @@ src_configure() {
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"@vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
