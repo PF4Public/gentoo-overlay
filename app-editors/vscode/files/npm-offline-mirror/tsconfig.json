@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "sourceMap": true,
+    "declaration": true,
+    "importHelpers": true,
+    "target": "ES2016",
+    "outDir": "./dist",
+    "pretty": true,
+    "lib": [
+      "ES2017",
+      "DOM"
+    ]
+  },
+  "exclude": [
+    "./dist/**/*",
+    "./bin/**/*"
+  ]
+}
