@@ -14,7 +14,7 @@ SLOT="0"
 VS_RIPGREP_V="1.15.9"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
-	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
+	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660 -> css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
 	https://registry.yarnpkg.com/@azure-rest/ai-translation-text/-/ai-translation-text-1.0.0-beta.1.tgz -> @azure-rest-ai-translation-text-1.0.0-beta.1.tgz
 	https://registry.yarnpkg.com/@azure-rest/core-client/-/core-client-1.4.0.tgz -> @azure-rest-core-client-1.4.0.tgz
@@ -1722,6 +1722,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/punycode.js/-/punycode.js-2.3.1.tgz
 	https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz
 	https://registry.yarnpkg.com/punycode/-/punycode-2.3.0.tgz
+	https://registry.yarnpkg.com/punycode/-/punycode-2.3.1.tgz
 	https://registry.yarnpkg.com/qs/-/qs-6.11.0.tgz
 	https://registry.yarnpkg.com/qs/-/qs-6.13.0.tgz
 	https://registry.yarnpkg.com/querystringify/-/querystringify-2.2.0.tgz
@@ -1825,6 +1826,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz
 	https://registry.yarnpkg.com/semver/-/semver-7.6.0.tgz
 	https://registry.yarnpkg.com/semver/-/semver-7.6.2.tgz
+	https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz
 	https://registry.yarnpkg.com/send/-/send-0.19.0.tgz
 	https://registry.yarnpkg.com/serialize-error/-/serialize-error-7.0.1.tgz
 	https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-6.0.0.tgz
@@ -2459,14 +2461,15 @@ src_configure() {
         register_success_hook kill_mirror_daemon
         register_die_hook kill_mirror_daemon
 
-		LOCAL_REGISTRY_FLAGS="--registry http://localhost:30000/"
+		npm config set registry http://localhost:30000/
 	fi
+	eend $? || die
 
 	ebegin "Installing node_modules"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"@vscode-ripgrep-${VS_RIPGREP_V}.tgz
 	export PATH
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
@@ -2477,7 +2480,12 @@ src_configure() {
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	# echo "$PATH"
 
-	npm ci ${LOCAL_REGISTRY_FLAGS} --arch=${VSCODE_ARCH} --no-progress || die
+	pushd "extensions/emmet" > /dev/null || die
+		npm install "${DISTDIR}"/css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz --no-progress || die
+	popd > /dev/null || die
+
+	npm ci --nodedir=/usr/include/electron-${ELECTRON_SLOT}/node \
+		--arch=${VSCODE_ARCH} --no-progress || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
