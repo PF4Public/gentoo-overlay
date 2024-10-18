@@ -2481,7 +2481,7 @@ src_configure() {
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	# echo "$PATH"
 
-	if use build-online; then
+	if ! use build-online; then
 	pushd "extensions/emmet" > /dev/null || die
 		npm install "${DISTDIR}"/css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz --no-progress || die
 	popd > /dev/null || die
