@@ -14,7 +14,7 @@ SLOT="0"
 VS_RIPGREP_V="1.15.9"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
-	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660 -> css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz
+	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> css-parser-vscode.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
 	https://registry.yarnpkg.com/@azure-rest/ai-translation-text/-/ai-translation-text-1.0.0-beta.1.tgz -> @azure-rest-ai-translation-text-1.0.0-beta.1.tgz
 	https://registry.yarnpkg.com/@azure-rest/core-client/-/core-client-1.4.0.tgz -> @azure-rest-core-client-1.4.0.tgz
@@ -2442,7 +2442,6 @@ src_configure() {
 
 	#TODO: temp fix
 	if use electron-32; then
-		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
 	fi
@@ -2483,13 +2482,27 @@ src_configure() {
 	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-progress"
 	# echo "$PATH"
 
+	if use electron-32; then
+		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
+		mv package.json package.json.back
+
+		if use build-online; then
+		npm install native-keymap@"${NATIVE_KEYMAP_VERSION}" ${NPM_DEFAULT_FLAGS} --no-save || die
+		else
+		npm install "${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz" ${NPM_DEFAULT_FLAGS} --no-save || die
+		fi
+
+		mv package.json.back package.json
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp
+	fi
+
 	if ! use build-online; then
 	pushd "extensions/emmet" > /dev/null || die
-		npm install "${DISTDIR}"/css-parser-370c480ac103bd17c7bcfb34bf5d577dc40d3660.tgz ${NPM_DEFAULT_FLAGS} || die
+		npm install "${DISTDIR}"/css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} || die
 	popd > /dev/null || die
 	fi
 
-	npm ci ${NPM_DEFAULT_FLAGS} || die
+	npm install ${NPM_DEFAULT_FLAGS} || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
