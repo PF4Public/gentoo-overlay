@@ -2493,7 +2493,7 @@ src_configure() {
 		fi
 
 		mv package.json.back package.json
-		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc!\": [ \"-std=gnu++20\" \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp
 	fi
 
 	if ! use build-online; then
