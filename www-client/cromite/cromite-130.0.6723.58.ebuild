@@ -59,6 +59,9 @@ REQUIRED_USE="
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	["dc9db222b929f5da415216134b77d7f3bf141813"]="." #131+
+	["7e28832cd3320d2b603e6ef9468581e1c65c14f1"]="." #131+
+	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -391,8 +394,7 @@ src_unpack() {
 	fi
 
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
-	tar ${XCLD} \
-		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}" || die
+	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}" || die
 	# Warned you!
 
 	unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
