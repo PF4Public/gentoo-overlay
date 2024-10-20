@@ -54,13 +54,13 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="962eb12897faba46b7c2e576e7b95275824a5d7b"
+# UGC_COMMIT_ID="962eb12897faba46b7c2e576e7b95275824a5d7b"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="bc260d49cfc4bde3005347adcf6c2768b12661b3"
+CROMITE_COMMIT_ID="00f5239a3c15b6c898b246664f654c19f25b9122"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
@@ -68,6 +68,8 @@ declare -A CHROMIUM_COMMITS=(
 	["dc9db222b929f5da415216134b77d7f3bf141813"]="." #131+
 	["7e28832cd3320d2b603e6ef9468581e1c65c14f1"]="." #131+
 	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
+	["4c49d7f04f43ab4757637cac21cfef7c0cd060fc"]="." #131+
+	["47fb59539e5744467eb6f7aae52f5a169910d56c"]="." #131+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -423,8 +425,7 @@ src_unpack() {
 	fi
 
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
-	tar ${XCLD} \
-		-xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}" || die
+	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}" || die
 
 	unpack ${UGC_URL#*->}
 	# Warned you!
@@ -481,7 +482,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-129-libstdc++.patch"
+			"${FILESDIR}/chromium-130-libstdc++.patch"
 			"${FILESDIR}/font-gc-r2.patch"
 		)
 	fi
