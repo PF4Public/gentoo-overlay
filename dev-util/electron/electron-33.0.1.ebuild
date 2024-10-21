@@ -1161,6 +1161,7 @@ declare -A CHROMIUM_COMMITS=(
 	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
 	["4c49d7f04f43ab4757637cac21cfef7c0cd060fc"]="." #131+
 	["47fb59539e5744467eb6f7aae52f5a169910d56c"]="." #131+
+	["39583ff118920284de516d262979960e7159bcfc"]="." #131+
 )
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
@@ -1531,6 +1532,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/more-locales.patch"
 	)
 
 	ewarn
@@ -1564,11 +1566,11 @@ src_prepare() {
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
-				git apply -R --exclude="*unittest.cc" \
+				git apply -R --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
-				git apply --exclude="*unittest.cc" \
+				git apply --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
 			fi
 			popd > /dev/null || die
