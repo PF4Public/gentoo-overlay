@@ -2408,7 +2408,9 @@ src_configure() {
 	myconf_gn+=" enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false"
 	myconf_gn+=" enable_reporting=false"
+	if use ungoogled; then
 	myconf_gn+=" enable_service_discovery=false"
+	fi
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" google_api_key=\"\""
 	myconf_gn+=" google_default_client_id=\"\""
