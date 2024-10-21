@@ -64,6 +64,7 @@ declare -A CHROMIUM_COMMITS=(
 	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
 	["4c49d7f04f43ab4757637cac21cfef7c0cd060fc"]="." #131+
 	["47fb59539e5744467eb6f7aae52f5a169910d56c"]="." #131+
+	["39583ff118920284de516d262979960e7159bcfc"]="." #131+
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -439,6 +440,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/more-locales.patch"
 		"${FILESDIR}/00LIN-Build-fixes.patch"
 	)
 
@@ -450,7 +452,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-129-libstdc++.patch"
+			"${FILESDIR}/chromium-130-libstdc++.patch"
 			"${FILESDIR}/font-gc-r2.patch"
 		)
 	fi
