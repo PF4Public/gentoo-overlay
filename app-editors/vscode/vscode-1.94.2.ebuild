@@ -2452,18 +2452,17 @@ src_configure() {
 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
 	# fi
 
-	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
-
-	ebegin "Launching npm offline mirror"
 	if ! use build-online; then
-        node "${FILESDIR}"/npm-offline-mirror/bin/server.js -p 30000 "${DISTDIR}" > ${T}/npm-offline-mirror.log 2>&1 &
-        echo $! > "${T}/.mirror.pid"
-        register_success_hook kill_mirror_daemon
-        register_die_hook kill_mirror_daemon
+		ebegin "Hydrating npm cache"
 
-		npm config set registry http://localhost:30000/
+		local JOBS=$(( $(nproc) / 2 ))
+		local TAR_FILES=$(ls "${DISTDIR}"/*.tgz 2>/dev/null)
+		local TAR_COUNT=$(echo "$TAR_FILES" | wc -l)
+		local CHUNK_SIZE=$(( (TAR_COUNT + JOBS - 1) / JOBS ))
+
+		(echo "$TAR_FILES" | xargs -n "$CHUNK_SIZE" -P "$JOBS" npm cache add --no-progress) || die
+		eend $? || die
 	fi
-	eend $? || die
 
 	ebegin "Installing node_modules"
 	OLD_PATH=$PATH
@@ -2547,11 +2546,6 @@ src_configure() {
 	#TODO Does it really? Investigate later
 	# einfo "Fixing l10n-dev"
 	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
-}
-
-function kill_mirror_daemon {
-    kill $(cat "${T}/.mirror.pid")
-    rm ${T}/.mirror.pid
 }
 
 src_compile() {
