@@ -363,6 +363,10 @@ pkg_pretend() {
 		ewarn
 		[[ -z "${NODIE}" ]] && die "The build will fail!"
 	fi
+	ewarn
+	ewarn "jxl is temporarily disabled in chromite, see:"
+	ewarn "https://github.com/uazo/cromite/issues/1365"
+	ewarn
 	pre_build_checks
 
 	if use headless; then
@@ -1285,7 +1289,8 @@ src_configure() {
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
-	myconf_gn+=" enable_jxl_decoder=true"
+	#TODO disabled temporarily
+	myconf_gn+=" enable_jxl_decoder=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
