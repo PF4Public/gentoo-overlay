@@ -2481,6 +2481,14 @@ src_configure() {
 	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-progress"
 	# echo "$PATH"
 
+	npm config set update-notifier false || die
+	npm set loglevel error || die
+
+	if ! use build-online; then
+		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
+		npm config set offline true || die
+	fi
+
 	if use electron-32; then
 		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
 		mv package.json package.json.back
