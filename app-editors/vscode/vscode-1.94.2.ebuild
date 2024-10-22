@@ -2490,8 +2490,8 @@ src_configure() {
 	fi
 
 	if use electron-32; then
-		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
-		mv package.json package.json.back
+		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)") || die
+		mv package.json package.json.back || die
 
 		if use build-online; then
 		npm install native-keymap@"${NATIVE_KEYMAP_VERSION}" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts || die
@@ -2499,8 +2499,8 @@ src_configure() {
 		npm install "${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts || die
 		fi
 
-		mv package.json.back package.json
-		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp
+		mv package.json.back package.json || die
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
 	fi
 
 	if ! use build-online; then
