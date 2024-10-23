@@ -2323,10 +2323,13 @@ src_prepare() {
 	# patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/native-keymap"/d' package.json || die
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+
+	if use electron-32; then
+		sed -i '/native-keymap"/d' package.json || die
+	fi
 
 	if use reh || use reh-web; then
 		sed -i '/ripgrep"/d' remote/package.json || die
