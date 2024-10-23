@@ -12,9 +12,10 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.9"
+VS_NATIVE_KEYMAP_V="3.3.5"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
-	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> css-parser-vscode.tgz
+	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> @emetto-css-parser-vscode.tgz
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
 	https://registry.yarnpkg.com/@azure-rest/ai-translation-text/-/ai-translation-text-1.0.0-beta.1.tgz -> @azure-rest-ai-translation-text-1.0.0-beta.1.tgz
 	https://registry.yarnpkg.com/@azure-rest/core-client/-/core-client-1.4.0.tgz -> @azure-rest-core-client-1.4.0.tgz
@@ -1496,7 +1497,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/nanomatch/-/nanomatch-1.2.13.tgz
 	https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-1.0.2.tgz
 	https://registry.yarnpkg.com/native-is-elevated/-/native-is-elevated-0.7.0.tgz
-	https://registry.yarnpkg.com/native-keymap/-/native-keymap-3.3.5.tgz
 	https://registry.yarnpkg.com/native-watchdog/-/native-watchdog-1.4.2.tgz
 	https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz
 	https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz
@@ -2209,6 +2209,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	)
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	https://registry.yarnpkg.com/native-keymap/-/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -2322,6 +2323,7 @@ src_prepare() {
 	# patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
+	sed -i '/native-keymap"/d' package.json || die
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
@@ -2487,35 +2489,27 @@ src_configure() {
 	if ! use build-online; then
 		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
 		npm config set offline true || die
+
+		pushd "extensions/emmet" > /dev/null || die
+		npm install "${DISTDIR}"/@emetto-css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} > /dev/null || die
+		popd > /dev/null || die
 	fi
 
-	if use electron-32; then
-		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)") || die
-		mv package.json package.json.back || die
-
-		if use build-online; then
-		npm install native-keymap@"${NATIVE_KEYMAP_VERSION}" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts > /dev/null || die
-		else
-		npm install "${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts > /dev/null || die
-		fi
-
-		mv package.json.back package.json || die
-		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
-	fi
-
-	if ! use build-online; then
-	pushd "extensions/emmet" > /dev/null || die
-		npm install "${DISTDIR}"/css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} > /dev/null || die
-	popd > /dev/null || die
-	fi
-
-	npm install ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
 	# --no-progress
 	# --skip-integrity-check
 	# --verbose
+
+	if use electron-32; then
+		einfo "Restoring native-keymap with stdc++20 support"
+		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
+		npm install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
+		npm rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	fi
 
 	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
@@ -2526,8 +2520,8 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd "node_modules/@vscode" > /dev/null || die
-		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-		mv package ripgrep
+		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz" || die
+		mv package ripgrep || die
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
