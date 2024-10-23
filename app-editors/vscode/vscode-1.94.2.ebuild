@@ -2482,7 +2482,7 @@ src_configure() {
 	# echo "$PATH"
 
 	npm config set update-notifier false || die
-	npm set loglevel error || die
+	npm config set loglevel error || die
 
 	if ! use build-online; then
 		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
@@ -2494,9 +2494,9 @@ src_configure() {
 		mv package.json package.json.back || die
 
 		if use build-online; then
-		npm install native-keymap@"${NATIVE_KEYMAP_VERSION}" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts || die
+		npm install native-keymap@"${NATIVE_KEYMAP_VERSION}" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts > /dev/null || die
 		else
-		npm install "${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts || die
+		npm install "${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz" ${NPM_DEFAULT_FLAGS} --no-save --ignore-scripts > /dev/null || die
 		fi
 
 		mv package.json.back package.json || die
@@ -2505,11 +2505,11 @@ src_configure() {
 
 	if ! use build-online; then
 	pushd "extensions/emmet" > /dev/null || die
-		npm install "${DISTDIR}"/css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} || die
+		npm install "${DISTDIR}"/css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	popd > /dev/null || die
 	fi
 
-	npm install ${NPM_DEFAULT_FLAGS} || die
+	npm install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
