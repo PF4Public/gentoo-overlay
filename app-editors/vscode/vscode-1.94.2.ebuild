@@ -2457,15 +2457,12 @@ src_configure() {
 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
 	# fi
 
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
+
 	if ! use build-online; then
 		ebegin "Hydrating npm cache"
-
-		local JOBS=$(( $(nproc) / 2 ))
 		local TAR_FILES=$(ls "${DISTDIR}"/*.tgz 2>/dev/null)
-		local TAR_COUNT=$(echo "$TAR_FILES" | wc -l)
-		local CHUNK_SIZE=$(( (TAR_COUNT + JOBS - 1) / JOBS ))
-
-		(echo "$TAR_FILES" | xargs -n "$CHUNK_SIZE" -P "$JOBS" npm cache add --no-progress) || die
+		npm cache add "${NPM_DEFAULT_FLAGS}" $TAR_FILES || die
 		eend $? || die
 	fi
 
@@ -2483,7 +2480,6 @@ src_configure() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
-	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-progress"
 	# echo "$PATH"
 
 	npm config set update-notifier false || die
