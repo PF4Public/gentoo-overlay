@@ -2060,8 +2060,9 @@ src_prepare() {
 	if use reh || use reh-web; then
 		einfo "Editing build/gulpfile.reh.js"
 		sed -i '/gulp.task(`node-${platform}-${arch}`)/d' build/gulpfile.reh.js || die
-		einfo "Editing code-server-linux.sh"
 		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/code-server-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/remote-cli/code-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/helpers/browser-linux.sh || die
 	fi
 
 	einfo "Editing build/gulpfile.vscode.js"
