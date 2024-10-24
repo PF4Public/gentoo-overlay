@@ -1513,6 +1513,7 @@ src_prepare() {
 	if use ungoogled; then
 		sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
 			"chrome/browser/file_system_access/chrome_file_system_access_permission_context.h" || die
+		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	fi
 
 	# disable global media controls, crashes with libstdc++
