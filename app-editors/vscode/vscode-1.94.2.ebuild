@@ -1935,6 +1935,8 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
+	reh? ( net-libs/nodejs )
+	reh-web? ( net-libs/nodejs )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
@@ -2055,8 +2057,12 @@ src_prepare() {
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
-	einfo "Editing build/gulpfile.reh.js"
-	sed -i '/gulp.task(`node-${platform}-${arch}`)/d' build/gulpfile.reh.js || die
+	if use reh || use reh-web; then
+		einfo "Editing build/gulpfile.reh.js"
+		sed -i '/gulp.task(`node-${platform}-${arch}`)/d' build/gulpfile.reh.js || die
+		einfo "Editing code-server-linux.sh"
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/code-server-linux.sh || die
+	fi
 
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
