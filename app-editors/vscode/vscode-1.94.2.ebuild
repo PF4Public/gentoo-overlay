@@ -2323,17 +2323,17 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
+	#doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
-		tar cf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
+		tar czf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
 		doins vscode-server-linux-x64.tar.gz
 	fi
 	if use reh-web; then
-		tar cf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
+		tar czf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
 		doins vscode-server-linux-x64-web.tar.gz
 	fi
 
