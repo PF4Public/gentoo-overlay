@@ -130,3 +130,56 @@ diff --git a/yarn.lock b/yarn.lock
 +  dependencies:
 +    isexe "^3.1.1"
 +
+diff --git a/src/bootstrap-node.js b/src/bootstrap-node.js
+--- a/src/bootstrap-node.js
++++ b/src/bootstrap-node.js
+@@ -149,7 +149,7 @@ module.exports.configurePortable = function (product) {
+ 	 * @param {import('path')} path
+ 	 */
+ 	function getApplicationPath(path) {
+-		if (process.env['VSCODE_DEV']) {
++		if (process.env['VSCODE_DEV'] || process.env['VSCODE_DISTDIR']) {
+ 			return appRoot;
+ 		}
+ 
+diff --git a/src/bootstrap-window.js b/src/bootstrap-window.js
+--- a/src/bootstrap-window.js
++++ b/src/bootstrap-window.js
+@@ -66,6 +66,7 @@
+ 			removeDeveloperKeybindingsAfterLoad: false
+ 		};
+ 		const isDev = !!safeProcess.env['VSCODE_DEV'];
++		const isDistDir = isDev || !!process.env['VSCODE_DISTDIR'];
+ 		const enableDeveloperKeybindings = isDev || forceEnableDeveloperKeybindings;
+ 		/**
+ 		 * @type {() => void | undefined}
+@@ -178,7 +179,7 @@
+ 		// Teach the loader the location of the node modules we use in renderers
+ 		// This will enable to load these modules via <script> tags instead of
+ 		// using a fallback such as node.js require which does not exist in sandbox
+-		const baseNodeModulesPath = isDev ? '../node_modules' : '../node_modules.asar';
++		const baseNodeModulesPath = isDistDir ? '../node_modules' : '../node_modules.asar';
+ 		loaderConfig.paths = {
+ 			'@vscode/tree-sitter-wasm': `${baseNodeModulesPath}/@vscode/tree-sitter-wasm/wasm/tree-sitter.js`,
+ 			'vscode-textmate': `${baseNodeModulesPath}/vscode-textmate/release/main.js`,
+diff --git a/src/vs/platform/environment/node/argvHelper.ts b/src/vs/platform/environment/node/argvHelper.ts
+--- a/src/vs/platform/environment/node/argvHelper.ts
++++ b/src/vs/platform/environment/node/argvHelper.ts
+@@ -64,7 +64,7 @@ export function parseMainProcessArgv(processArgv: string[]): NativeParsedArgs {
+ 	let [, ...args] = processArgv;
+ 
+ 	// If dev, remove the first non-option argument: it's the app location
+-	if (process.env['VSCODE_DEV']) {
++	if (process.env['VSCODE_DEV'] || process.env['VSCODE_DISTDIR']) {
+ 		args = stripAppPath(args) || [];
+ 	}
+ 
+@@ -80,7 +80,7 @@ export function parseCLIProcessArgv(processArgv: string[]): NativeParsedArgs {
+ 	let [, , ...args] = processArgv; // remove the first non-option argument: it's always the app location
+ 
+ 	// If dev, remove the first non-option argument: it's the app location
+-	if (process.env['VSCODE_DEV']) {
++	if (process.env['VSCODE_DEV'] || process.env['VSCODE_DISTDIR']) {
+ 		args = stripAppPath(args) || [];
+ 	}
+ 
