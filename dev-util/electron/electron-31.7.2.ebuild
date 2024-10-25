@@ -1426,9 +1426,14 @@ src_prepare() {
 			sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
 				"shell/browser/file_system_access/file_system_access_permission_context.h" || die
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
+			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
+	if use ungoogled; then
+		sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
+			"chrome/browser/file_system_access/chrome_file_system_access_permission_context.h" || die
+	fi
 
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
