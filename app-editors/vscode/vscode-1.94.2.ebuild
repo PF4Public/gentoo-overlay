@@ -2013,9 +2013,6 @@ src_prepare() {
 	einfo "Add PPC target to package build scripts"
 	patch -p1 -i "${FILESDIR}/ppc64le/add-ppc-target.patch" || die
 
-	# einfo "Add support for launching from a distribution directory"
-	# patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
-
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
@@ -2239,7 +2236,7 @@ src_configure() {
 	fi
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	rm -rf extensions/css-language-features/server/test > /dev/null || die
+	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
@@ -2307,10 +2304,10 @@ src_install() {
 	export PATH
 
 	if use temp-fix; then
-	    node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	else
-        # Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-        /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 

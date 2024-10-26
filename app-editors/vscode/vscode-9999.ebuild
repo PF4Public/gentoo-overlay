@@ -12,20 +12,23 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.9"
+VS_NATIVE_KEYMAP_V="3.3.5"
+VS_ESBUILD_V="0.23.0"
 SRC_URI="
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	https://registry.yarnpkg.com/native-keymap/-/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="30"
+	ELECTRON_SLOT_DEFAULT="32" # TODO: Applicable after release >1.94.2
 else
 	IUSE+=" build-online"
 	ELECTRON_SLOT_DEFAULT="30"
@@ -51,18 +54,22 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
+	reh? ( net-libs/nodejs )
+	reh-web? ( net-libs/nodejs )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
 	electron-31? ( dev-util/electron:31 )
 	electron-32? ( dev-util/electron:32 )
+	electron-33? ( dev-util/electron:33 )
 	!electron-27? (
 	!electron-28? (
 	!electron-29? (
 	!electron-31? (
 	!electron-32? (
+	!electron-33? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) )
+	) ) ) ) ) )
 "
 
 #TODO: oniguruma?
@@ -97,6 +104,8 @@ src_unpack() {
 		export ELECTRON_SLOT=31
 	elif use electron-32; then
 		export ELECTRON_SLOT=32
+	elif use electron-33; then
+		export ELECTRON_SLOT=33
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -128,8 +137,13 @@ src_prepare() {
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
-	einfo "Allowing any nodejs version"
-	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
+	if use electron-32 || use electron-33; then
+		sed -i '/native-keymap"/d' package.json || die
+	fi
+
+	if use reh || use reh-web; then
+		sed -i '/ripgrep"/d' remote/package.json || die
+	fi
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
@@ -141,7 +155,6 @@ src_prepare() {
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
 	# sed -i '/"electron"/d' package.json || die
-	# sed -i '/vscode-ripgrep/d' remote/package.json || die
 	# sed -i '/"playwright"/d' package.json || die
 	sed -i '/test-web"/d' package.json || die
 
@@ -164,10 +177,18 @@ src_prepare() {
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
+	if use reh || use reh-web; then
+		einfo "Editing build/gulpfile.reh.js"
+		sed -i '/gulp.task(`node-${platform}-${arch}`)/d' build/gulpfile.reh.js || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/code-server-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/remote-cli/code-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/helpers/browser-linux.sh || die
+	fi
+
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
-	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
+	#sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
@@ -243,8 +264,7 @@ src_configure() {
 	# fi
 
 	#TODO: temp fix
-	if use electron-32; then
-		# CPPFLAGS="${CPPFLAGS} -std=c++20";
+	if use electron-32 || use electron-33; then
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
 	fi
@@ -255,8 +275,16 @@ src_configure() {
 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
 	# fi
 
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
+
+	if ! use build-online; then
+		ebegin "Hydrating npm cache"
+		local TAR_FILES=$(ls "${DISTDIR}"/*.tgz 2>/dev/null)
+		npm cache add "${NPM_DEFAULT_FLAGS}" $TAR_FILES || die
+		eend $? || die
+	fi
+
 	ebegin "Installing node_modules"
-	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
@@ -269,21 +297,36 @@ src_configure() {
 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 	# echo "$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+
+	npm config set update-notifier false || die
+	npm config set loglevel error || die
+
 	if ! use build-online; then
-		ONLINE_OFFLINE="--offline"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
+		npm config set offline true || die
+
+		pushd "extensions/emmet" > /dev/null || die
+		npm install "${DISTDIR}"/@emetto-css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} > /dev/null || die
+		popd > /dev/null || die
 	fi
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
-		--arch=${VSCODE_ARCH} --no-progress || die
+
+	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
 	# --no-progress
 	# --skip-integrity-check
 	# --verbose
+
+	if use electron-32 || use electron-33; then
+		einfo "Restoring native-keymap with stdc++20 support"
+		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
+		npm install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
+		npm rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	fi
 
 	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
@@ -294,13 +337,22 @@ src_configure() {
 
 	einfo "Restoring vscode-ripgrep"
 	pushd "node_modules/@vscode" > /dev/null || die
-		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-		mv package ripgrep
+		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz" || die
+		mv package ripgrep || die
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
+
+	if use reh || use reh-web; then
+		cp -r node_modules/@vscode/ripgrep remote/node_modules/@vscode
+	fi
+
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
+
+	if use reh || use reh-web; then
+		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
+	fi
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
@@ -334,7 +386,6 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 
 	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
@@ -372,10 +423,10 @@ src_install() {
 	export PATH
 
 	if use temp-fix; then
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
@@ -388,8 +439,7 @@ src_install() {
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
+	exec /usr/bin/env \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
@@ -398,18 +448,19 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
+	#doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
-		tar cf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
+		tar czf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
 		doins vscode-server-linux-x64.tar.gz
 	fi
 	if use reh-web; then
-		tar cf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
+		tar czf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
 		doins vscode-server-linux-x64-web.tar.gz
 	fi
 
