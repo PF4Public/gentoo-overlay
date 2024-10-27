@@ -1627,6 +1627,10 @@ src_prepare() {
 		eend $? || die
 	fi
 
+	if use ungoogled; then
+		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
+	fi
+
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
