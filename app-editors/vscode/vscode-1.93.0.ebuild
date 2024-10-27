@@ -12,7 +12,6 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.9"
-VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz
