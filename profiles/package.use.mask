@@ -1,1 +1,0 @@
->=app-editors/vscode-1.94.0 temp-fix
