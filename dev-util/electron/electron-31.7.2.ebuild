@@ -1649,8 +1649,8 @@ src_prepare() {
 			# 	popd > /dev/null || die
 			# 	continue;
 			# fi
-			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			if	[ "$i" = "m126-lts_fix_a_range_check_for_when_it_overflows.patch" ]; then
+			if [ "$i" = "m126-lts_check_string_range_in_shapesegment.patch" ] ||
+				[ "$i" = "m126-lts_fix_a_range_check_for_when_it_overflows.patch" ]; then
 				einfo "Skipping ${i}: Weirdly fails."
 				continue;
 			fi
