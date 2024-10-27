@@ -1909,7 +1909,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="32" # TODO: Applicable after release >1.94.2
+	ELECTRON_SLOT_DEFAULT="30"
 else
 	IUSE+=" build-online"
 	ELECTRON_SLOT_DEFAULT="30"
