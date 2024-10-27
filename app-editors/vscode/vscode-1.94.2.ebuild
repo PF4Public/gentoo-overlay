@@ -12,7 +12,6 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.9"
-VS_NATIVE_KEYMAP_V="3.3.5"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> @emetto-css-parser-vscode.tgz
@@ -1897,7 +1896,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
 	)
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
-	https://registry.yarnpkg.com/native-keymap/-/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -2203,7 +2201,11 @@ src_configure() {
 
 	if use electron-32 || use electron-33; then
 		einfo "Restoring native-keymap with stdc++20 support"
-		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
+		if ! use build-online; then
+		local NATIVE_KEYMAP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
+		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${NATIVE_KEYMAP_VERSION}.tgz\",|" package.json || die
+		fi
+
 		npm install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
 		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
 		npm rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
