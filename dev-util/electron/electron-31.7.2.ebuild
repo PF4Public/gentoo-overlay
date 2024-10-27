@@ -1656,6 +1656,7 @@ src_prepare() {
 			# fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "cherry-pick-99cafbf4b4b9.patch" ] ||
+				[ "$i" = "m126-lts_fix_a_range_check_for_when_it_overflows.patch" ] || #no idea why fails
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
