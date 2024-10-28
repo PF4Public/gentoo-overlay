@@ -2139,11 +2139,10 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	#TODO: temp fix
-	if use electron-32 || use electron-33; then
-		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	fi
+	# if use electron-32 || use electron-33; then
+	# 	use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
+	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
+	# fi
 
 	# if use build-online; then
 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
