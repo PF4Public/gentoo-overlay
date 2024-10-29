@@ -11,12 +11,8 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-VS_RIPGREP_V="1.15.9"
-VS_NATIVE_KEYMAP_V="3.3.5"
-VS_ESBUILD_V="0.23.0"
 SRC_URI="
-	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
-	https://registry.yarnpkg.com/native-keymap/-/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz
+	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-1.15.9.tgz -> @vscode-ripgrep-1.15.9.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
@@ -137,12 +133,12 @@ src_prepare() {
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
-	if use electron-32 || use electron-33; then
-		sed -i '/native-keymap"/d' package.json || die
-	fi
-
 	if use reh || use reh-web; then
 		sed -i '/ripgrep"/d' remote/package.json || die
+	fi
+
+	if use electron-32 || use electron-33; then
+		sed -i '/native-keymap"/d' package.json || die
 	fi
 
 	# ewarn "Removing extensions/npm, see #203"
@@ -263,11 +259,12 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	#TODO: temp fix
-	if use electron-32 || use electron-33; then
-		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	fi
+	# if use electron-32 || use electron-33; then
+	# 	use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
+	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
+	# fi
+
+	sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"^0.22.0\"\2|" build/package.json || die
 
 	# if use build-online; then
 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
@@ -298,6 +295,9 @@ src_configure() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
+
+	local VS_NATIVE_KEYMAP_V=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
+	local VS_RIPGREP_V=$(node -p "require('./package-lock.json').packages['node_modules/@vscode/ripgrep'].version || process.exit(1)" || die)
 	# echo "$PATH"
 
 	npm config set update-notifier false || die
@@ -308,11 +308,11 @@ src_configure() {
 		npm config set offline true || die
 
 		pushd "extensions/emmet" > /dev/null || die
-		npm install "${DISTDIR}"/@emetto-css-parser-vscode.tgz ${NPM_DEFAULT_FLAGS} > /dev/null || die
+		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-vscode.tgz\"\2|" package.json || die
 		popd > /dev/null || die
 	fi
 
-	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	npm install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
@@ -322,7 +322,10 @@ src_configure() {
 
 	if use electron-32 || use electron-33; then
 		einfo "Restoring native-keymap with stdc++20 support"
+		if ! use build-online; then
 		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
+		fi
+
 		npm install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
 		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
 		npm rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
