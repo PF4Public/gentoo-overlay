@@ -2064,6 +2064,7 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
+	sed -i '/\.pipe(createAsar/,/node_modules\.asar/{d;}' build/gulpfile.vscode.js || die
 	#sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
@@ -2237,8 +2238,8 @@ src_configure() {
 		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
 	fi
 
-	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	#rm -rf extensions/css-language-features/server/test > /dev/null || die
+	rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
+	rm -rf extensions/css-language-features/server/test > /dev/null || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
