@@ -2273,7 +2273,6 @@ src_configure() {
 		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
 		mv package ripgrep
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
-		ln -s /usr/bin/rg ripgrep/bin/rg
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 		mkdir ripgrep/bin || die
 		ln -s /usr/bin/rg ripgrep/bin/rg || die
