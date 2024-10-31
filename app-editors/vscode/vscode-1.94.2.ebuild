@@ -1961,7 +1961,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	system-node? ( net-libs/nodejs )
+	!temp-fix? ( net-libs/nodejs )
 	sys-apps/yarn
 "
 
