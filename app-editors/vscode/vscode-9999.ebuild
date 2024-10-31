@@ -81,7 +81,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	!temp-fix? ( net-libs/nodejs )
+	system-node? ( net-libs/nodejs )
 	sys-apps/yarn
 "
 
@@ -116,6 +116,14 @@ src_unpack() {
 		fi
 	else
 		unpack "${PN}-${CODE_COMMIT_ID}.tar.gz" || die
+	fi
+}
+
+node() {
+	if use temp-fix; then
+		"/usr/bin/node" "$@"
+	else
+		"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node" "$@"
 	fi
 }
 
@@ -360,8 +368,7 @@ src_configure() {
 		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
 	fi
 
-	rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	rm -rf extensions/css-language-features/server/test > /dev/null || die
+	find . -type f -name "*.asar" -exec rm -f {} + || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
@@ -392,30 +399,16 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
+	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 
-	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
-	else
-	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
-	fi
 
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
-		if use temp-fix; then
 		node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
-		else
-		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
-		fi
 	fi
 	if use reh-web; then
-		if use temp-fix; then
 		node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
-		else
-		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
-		fi
 	fi
 
 	export PATH=${OLD_PATH}
@@ -428,12 +421,8 @@ src_install() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 
-	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	else
-	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	fi
+
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
