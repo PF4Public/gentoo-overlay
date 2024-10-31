@@ -81,7 +81,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	!temp-fix?? ( net-libs/nodejs )
+	!temp-fix? ( net-libs/nodejs )
 	sys-apps/yarn
 "
 
@@ -321,7 +321,7 @@ src_configure() {
 		popd > /dev/null || die
 	fi
 
-	npm install ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true

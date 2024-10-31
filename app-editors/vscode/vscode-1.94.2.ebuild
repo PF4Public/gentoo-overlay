@@ -2199,7 +2199,7 @@ src_configure() {
 		popd > /dev/null || die
 	fi
 
-	npm install ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
