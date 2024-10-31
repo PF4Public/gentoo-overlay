@@ -2196,6 +2196,7 @@ src_configure() {
 
 		pushd "extensions/emmet" > /dev/null || die
 		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-vscode.tgz\"\2|" package.json || die
+		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
 		popd > /dev/null || die
 	fi
 

@@ -273,8 +273,6 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
 	# fi
 
-	sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"^0.22.0\"\2|" build/package.json || die
-
 	# if use build-online; then
 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
 	# else
@@ -318,8 +316,18 @@ src_configure() {
 
 		pushd "extensions/emmet" > /dev/null || die
 		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-vscode.tgz\"\2|" package.json || die
+		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
 		popd > /dev/null || die
 	fi
+
+	pushd "build" > /dev/null || die
+		if use build-online; then
+			sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"^0.22.0\"\2|" package.json || die
+		else
+			sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"file:${DISTDIR}/tree-sitter-0.22.0.tgz\"\2|" package.json || die
+		fi
+		npm install tree-sitter ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
+	popd > /dev/null || die
 
 	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	# --ignore-optional
