@@ -352,6 +352,8 @@ src_configure() {
 	#TODO Does it really? Investigate later
 	# einfo "Fixing l10n-dev"
 	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
+	einfo "Purging the npm cache"
+	npm cache clean --force || die
 }
 
 src_compile() {
