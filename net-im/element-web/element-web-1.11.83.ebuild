@@ -249,10 +249,9 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.1.tgz -> @mapbox-unitbezier-0.0.1.tgz
 	https://registry.yarnpkg.com/@mapbox/vector-tile/-/vector-tile-1.3.1.tgz -> @mapbox-vector-tile-1.3.1.tgz
 	https://registry.yarnpkg.com/@mapbox/whoots-js/-/whoots-js-3.1.0.tgz -> @mapbox-whoots-js-3.1.0.tgz
-	https://registry.yarnpkg.com/@matrix-org/analytics-events/-/analytics-events-0.25.0.tgz -> @matrix-org-analytics-events-0.25.0.tgz
-	https://registry.yarnpkg.com/@matrix-org/emojibase-bindings/-/emojibase-bindings-1.1.3.tgz -> @matrix-org-emojibase-bindings-1.1.3.tgz
+	https://registry.yarnpkg.com/@matrix-org/analytics-events/-/analytics-events-0.26.0.tgz -> @matrix-org-analytics-events-0.26.0.tgz
+	https://registry.yarnpkg.com/@matrix-org/emojibase-bindings/-/emojibase-bindings-1.3.3.tgz -> @matrix-org-emojibase-bindings-1.3.3.tgz
 	https://registry.yarnpkg.com/@matrix-org/matrix-sdk-crypto-wasm/-/matrix-sdk-crypto-wasm-9.0.0.tgz -> @matrix-org-matrix-sdk-crypto-wasm-9.0.0.tgz
-	https://registry.yarnpkg.com/@matrix-org/matrix-wysiwyg/-/matrix-wysiwyg-2.37.9.tgz -> @matrix-org-matrix-wysiwyg-2.37.9.tgz
 	https://registry.yarnpkg.com/@matrix-org/olm/-/olm-3.2.15.tgz -> @matrix-org-olm-3.2.15.tgz
 	https://registry.yarnpkg.com/@matrix-org/react-sdk-module-api/-/react-sdk-module-api-2.4.0.tgz -> @matrix-org-react-sdk-module-api-2.4.0.tgz
 	https://registry.yarnpkg.com/@matrix-org/spec/-/spec-1.11.0.tgz -> @matrix-org-spec-1.11.0.tgz
@@ -263,43 +262,37 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz -> @pkgjs-parseargs-0.11.0.tgz
 	https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.25.tgz -> @polka-url-1.0.0-next.25.tgz
 	https://registry.yarnpkg.com/@principalstudio/html-webpack-inject-preload/-/html-webpack-inject-preload-1.2.7.tgz -> @principalstudio-html-webpack-inject-preload-1.2.7.tgz
-	https://registry.yarnpkg.com/@radix-ui/primitive/-/primitive-1.0.1.tgz -> @radix-ui-primitive-1.0.1.tgz
 	https://registry.yarnpkg.com/@radix-ui/primitive/-/primitive-1.1.0.tgz -> @radix-ui-primitive-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-arrow/-/react-arrow-1.1.0.tgz -> @radix-ui-react-arrow-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-collection/-/react-collection-1.1.0.tgz -> @radix-ui-react-collection-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-compose-refs/-/react-compose-refs-1.0.1.tgz -> @radix-ui-react-compose-refs-1.0.1.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-compose-refs/-/react-compose-refs-1.1.0.tgz -> @radix-ui-react-compose-refs-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-context-menu/-/react-context-menu-2.2.1.tgz -> @radix-ui-react-context-menu-2.2.1.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-context/-/react-context-1.0.1.tgz -> @radix-ui-react-context-1.0.1.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-context-menu/-/react-context-menu-2.2.2.tgz -> @radix-ui-react-context-menu-2.2.2.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-context/-/react-context-1.1.0.tgz -> @radix-ui-react-context-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-dialog/-/react-dialog-1.1.1.tgz -> @radix-ui-react-dialog-1.1.1.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-context/-/react-context-1.1.1.tgz -> @radix-ui-react-context-1.1.1.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-dialog/-/react-dialog-1.1.2.tgz -> @radix-ui-react-dialog-1.1.2.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-direction/-/react-direction-1.1.0.tgz -> @radix-ui-react-direction-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-dismissable-layer/-/react-dismissable-layer-1.1.0.tgz -> @radix-ui-react-dismissable-layer-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-dropdown-menu/-/react-dropdown-menu-2.1.1.tgz -> @radix-ui-react-dropdown-menu-2.1.1.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-focus-guards/-/react-focus-guards-1.1.0.tgz -> @radix-ui-react-focus-guards-1.1.0.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-dismissable-layer/-/react-dismissable-layer-1.1.1.tgz -> @radix-ui-react-dismissable-layer-1.1.1.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-dropdown-menu/-/react-dropdown-menu-2.1.2.tgz -> @radix-ui-react-dropdown-menu-2.1.2.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-focus-guards/-/react-focus-guards-1.1.1.tgz -> @radix-ui-react-focus-guards-1.1.1.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-focus-scope/-/react-focus-scope-1.1.0.tgz -> @radix-ui-react-focus-scope-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-form/-/react-form-0.0.3.tgz -> @radix-ui-react-form-0.0.3.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-form/-/react-form-0.1.0.tgz -> @radix-ui-react-form-0.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-id/-/react-id-1.1.0.tgz -> @radix-ui-react-id-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-label/-/react-label-2.0.2.tgz -> @radix-ui-react-label-2.0.2.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-menu/-/react-menu-2.1.1.tgz -> @radix-ui-react-menu-2.1.1.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-label/-/react-label-2.1.0.tgz -> @radix-ui-react-label-2.1.0.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-menu/-/react-menu-2.1.2.tgz -> @radix-ui-react-menu-2.1.2.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-popper/-/react-popper-1.2.0.tgz -> @radix-ui-react-popper-1.2.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-portal/-/react-portal-1.1.1.tgz -> @radix-ui-react-portal-1.1.1.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-presence/-/react-presence-1.1.0.tgz -> @radix-ui-react-presence-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-primitive/-/react-primitive-1.0.3.tgz -> @radix-ui-react-primitive-1.0.3.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-portal/-/react-portal-1.1.2.tgz -> @radix-ui-react-portal-1.1.2.tgz
+	https://registry.yarnpkg.com/@radix-ui/react-presence/-/react-presence-1.1.1.tgz -> @radix-ui-react-presence-1.1.1.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-primitive/-/react-primitive-2.0.0.tgz -> @radix-ui-react-primitive-2.0.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-progress/-/react-progress-1.1.0.tgz -> @radix-ui-react-progress-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-roving-focus/-/react-roving-focus-1.1.0.tgz -> @radix-ui-react-roving-focus-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-separator/-/react-separator-1.1.0.tgz -> @radix-ui-react-separator-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-slot/-/react-slot-1.0.2.tgz -> @radix-ui-react-slot-1.0.2.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-slot/-/react-slot-1.1.0.tgz -> @radix-ui-react-slot-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-tooltip/-/react-tooltip-1.1.2.tgz -> @radix-ui-react-tooltip-1.1.2.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-callback-ref/-/react-use-callback-ref-1.1.0.tgz -> @radix-ui-react-use-callback-ref-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-controllable-state/-/react-use-controllable-state-1.1.0.tgz -> @radix-ui-react-use-controllable-state-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-escape-keydown/-/react-use-escape-keydown-1.1.0.tgz -> @radix-ui-react-use-escape-keydown-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-layout-effect/-/react-use-layout-effect-1.1.0.tgz -> @radix-ui-react-use-layout-effect-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-rect/-/react-use-rect-1.1.0.tgz -> @radix-ui-react-use-rect-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/react-use-size/-/react-use-size-1.1.0.tgz -> @radix-ui-react-use-size-1.1.0.tgz
-	https://registry.yarnpkg.com/@radix-ui/react-visually-hidden/-/react-visually-hidden-1.1.0.tgz -> @radix-ui-react-visually-hidden-1.1.0.tgz
 	https://registry.yarnpkg.com/@radix-ui/rect/-/rect-1.1.0.tgz -> @radix-ui-rect-1.1.0.tgz
 	https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz -> @rtsao-scc-1.1.0.tgz
 	https://registry.yarnpkg.com/@sentry-internal/browser-utils/-/browser-utils-8.17.0.tgz -> @sentry-internal-browser-utils-8.17.0.tgz
@@ -437,7 +430,8 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-7.18.0.tgz -> @typescript-eslint-visitor-keys-7.18.0.tgz
 	https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz -> @ungap-structured-clone-1.2.0.tgz
 	https://registry.yarnpkg.com/@vector-im/compound-design-tokens/-/compound-design-tokens-1.8.0.tgz -> @vector-im-compound-design-tokens-1.8.0.tgz
-	https://registry.yarnpkg.com/@vector-im/compound-web/-/compound-web-5.5.0.tgz -> @vector-im-compound-web-5.5.0.tgz
+	https://registry.yarnpkg.com/@vector-im/compound-web/-/compound-web-7.0.0.tgz -> @vector-im-compound-web-7.0.0.tgz
+	https://registry.yarnpkg.com/@vector-im/matrix-wysiwyg/-/matrix-wysiwyg-2.37.13.tgz -> @vector-im-matrix-wysiwyg-2.37.13.tgz
 	https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.12.1.tgz -> @webassemblyjs-ast-1.12.1.tgz
 	https://registry.yarnpkg.com/@webassemblyjs/floating-point-hex-parser/-/floating-point-hex-parser-1.11.6.tgz -> @webassemblyjs-floating-point-hex-parser-1.11.6.tgz
 	https://registry.yarnpkg.com/@webassemblyjs/helper-api-error/-/helper-api-error-1.11.6.tgz -> @webassemblyjs-helper-api-error-1.11.6.tgz
@@ -1073,9 +1067,10 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/mathml-tag-names/-/mathml-tag-names-2.1.3.tgz
 	https://registry.yarnpkg.com/matrix-encrypt-attachment/-/matrix-encrypt-attachment-1.0.3.tgz
 	https://registry.yarnpkg.com/matrix-events-sdk/-/matrix-events-sdk-0.0.1.tgz
-	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-34.8.0.tgz
+	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-34.9.0-rc.0.tgz
+	https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-34.9.0.tgz
 	https://registry.yarnpkg.com/matrix-mock-request/-/matrix-mock-request-2.6.0.tgz
-	https://registry.yarnpkg.com/matrix-react-sdk/-/matrix-react-sdk-3.113.0.tgz
+	https://registry.yarnpkg.com/matrix-react-sdk/-/matrix-react-sdk-3.114.0.tgz
 	https://registry.yarnpkg.com/matrix-web-i18n/-/matrix-web-i18n-3.3.0.tgz
 	https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.9.0.tgz
 	https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.28.tgz
@@ -1326,7 +1321,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz
 	https://registry.yarnpkg.com/react-redux/-/react-redux-7.2.9.tgz
 	https://registry.yarnpkg.com/react-remove-scroll-bar/-/react-remove-scroll-bar-2.3.6.tgz
-	https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.5.7.tgz
+	https://registry.yarnpkg.com/react-remove-scroll/-/react-remove-scroll-2.6.0.tgz
 	https://registry.yarnpkg.com/react-style-singleton/-/react-style-singleton-2.2.1.tgz
 	https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.5.tgz
 	https://registry.yarnpkg.com/react/-/react-17.0.2.tgz
@@ -1437,7 +1432,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/stop-iteration-iterator/-/stop-iteration-iterator-1.0.0.tgz
 	https://registry.yarnpkg.com/string-argv/-/string-argv-0.3.2.tgz
 	https://registry.yarnpkg.com/string-length/-/string-length-4.0.2.tgz
-	https://registry.yarnpkg.com/string-replace-loader/-/string-replace-loader-3.1.0.tgz
 	https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz
 	https://registry.yarnpkg.com/string-width/-/string-width-5.1.2.tgz
 	https://registry.yarnpkg.com/string-width/-/string-width-7.2.0.tgz
@@ -1456,7 +1450,6 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/strip-final-newline/-/strip-final-newline-3.0.0.tgz
 	https://registry.yarnpkg.com/strip-indent/-/strip-indent-3.0.0.tgz
 	https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz
-	https://registry.yarnpkg.com/style-loader/-/style-loader-4.0.0.tgz
 	https://registry.yarnpkg.com/stylehacks/-/stylehacks-7.0.2.tgz
 	https://registry.yarnpkg.com/stylelint-config-recommended/-/stylelint-config-recommended-14.0.1.tgz
 	https://registry.yarnpkg.com/stylelint-config-standard/-/stylelint-config-standard-36.0.1.tgz
@@ -1553,7 +1546,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/v8-to-istanbul/-/v8-to-istanbul-9.3.0.tgz
 	https://registry.yarnpkg.com/validate-npm-package-license/-/validate-npm-package-license-3.0.4.tgz
 	https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz
-	https://registry.yarnpkg.com/vaul/-/vaul-0.7.9.tgz
+	https://registry.yarnpkg.com/vaul/-/vaul-1.0.0.tgz
 	https://registry.yarnpkg.com/vt-pbf/-/vt-pbf-3.1.3.tgz
 	https://registry.yarnpkg.com/w3c-xmlserializer/-/w3c-xmlserializer-4.0.0.tgz
 	https://registry.yarnpkg.com/walk/-/walk-2.3.15.tgz

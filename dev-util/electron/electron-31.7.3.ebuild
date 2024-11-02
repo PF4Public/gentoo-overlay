@@ -54,6 +54,8 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
+	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
+	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-2.1.2.tgz -> @azure-abort-controller-2.1.2.tgz
 	https://registry.yarnpkg.com/@azure/core-asynciterator-polyfill/-/core-asynciterator-polyfill-1.0.2.tgz -> @azure-core-asynciterator-polyfill-1.0.2.tgz
@@ -1425,6 +1427,7 @@ src_prepare() {
 			sed -i "s/AfterWriteCheckResult)> callback) override;/AfterWriteCheckResult)> callback);/" \
 				"shell/browser/file_system_access/file_system_access_permission_context.h" || die
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
+			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 			eapply "${FILESDIR}/ungoogled-electron.patch" || die
 		fi
 	popd > /dev/null || die
@@ -1440,6 +1443,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-125-system-zstd.patch"
+		"${FILESDIR}/chromium-126-ui_add_missing_shortcut_text_for_vkey_command_on_linux.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
@@ -1624,6 +1628,10 @@ src_prepare() {
 		eend $? || die
 	fi
 
+	if use ungoogled; then
+		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
+	fi
+
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
@@ -1646,14 +1654,13 @@ src_prepare() {
 			# 	popd > /dev/null || die
 			# 	continue;
 			# fi
-			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
-			# 	einfo "Skipping ${i}: No files to patch."
-			# 	continue;
-			# fi
+			if [ "$i" = "m126-lts_check_string_range_in_shapesegment.patch" ] ||
+				[ "$i" = "m126-lts_fix_a_range_check_for_when_it_overflows.patch" ]; then
+				einfo "Skipping ${i}: Weirdly fails."
+				continue;
+			fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "cherry-pick-99cafbf4b4b9.patch" ] ||
-				[ "$i" = "m126-lts_fix_a_range_check_for_when_it_overflows.patch" ] || #no idea why fails
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
