@@ -1,0 +1,177 @@
+diff --git a/node_modules/shrinkpack/dist/bin.js b/node_modules/shrinkpack/dist/bin.js
+--- a/node_modules/shrinkpack/dist/bin.js
++++ b/node_modules/shrinkpack/dist/bin.js
+@@ -8,14 +8,18 @@ var picocolors_1 = __importDefault(require("picocolors"));
+ var commander_1 = require("commander");
+ var path_1 = __importDefault(require("path"));
+ var _1 = require(".");
+-var directoryValue = process.cwd();
+ commander_1.program
+     .version(require('../package.json').version)
+-    .arguments('[directory]')
+-    .action(function (directory) {
+-    if (directory) {
+-        directoryValue = path_1["default"].resolve(directory);
+-    }
++    .arguments('<tgz-directory> <project-directory>')
++    .option('-p, --purge', "Trigger the removal of unused .tgz package files")
++    .action(function (tgzDirectory, projectDirectory, options) {
++    var tgzDirectoryValue = path_1["default"].resolve(tgzDirectory);
++    var projectDirectoryValue = path_1["default"].resolve(projectDirectory);
++    (0, _1.shrinkpack)({
++        tgzDirectory: tgzDirectoryValue,
++        projectDirectory: projectDirectoryValue,
++        purge: !!options.purge
++    });
+ })
+     .on('--help', function () {
+     console.log('');
+@@ -26,6 +30,3 @@ commander_1.program
+     console.log("  ".concat(picocolors_1["default"].gray('12:34'), " Time Taken"));
+ })
+     .parse(process.argv);
+-(0, _1.shrinkpack)({
+-    directory: directoryValue
+-});
+diff --git a/node_modules/shrinkpack/dist/index.js b/node_modules/shrinkpack/dist/index.js
+--- a/node_modules/shrinkpack/dist/index.js
++++ b/node_modules/shrinkpack/dist/index.js
+@@ -60,22 +60,21 @@ var get_ssri_from_file_1 = require("./lib/get-ssri-from-file");
+ var get_time_between_1 = require("./lib/get-time-between");
+ var log_1 = require("./lib/log");
+ function shrinkpack(_a) {
+-    var directory = _a.directory;
++    var tgzDirectory = _a.tgzDirectory, projectDirectory = _a.projectDirectory, purge = _a.purge;
+     return __awaiter(this, void 0, void 0, function () {
+-        var startTime, _b, lockfilePath, lockfile, wrapDirPath, totalAdded, totalDeleted, wrapDirContents, requiredWrapDirContents, deletions, _c, _d, _i, key, record, name, scopelessName, resolved, wrapFileName, wrapFilePath, shortWrapFilePath, spec, isInWrapDir, isAlreadyWrapped, header, footer, integrity, _e, wrapDirContents_1, wrapDirContents_1_1, filename, filePath, shortPath, nextLockfile;
++        var startTime, _b, lockfilePath, lockfile, totalAdded, totalDeleted, wrapDirContents, requiredWrapDirContents, deletions, _c, _d, _i, key, record, regex, match, name, scopelessName, resolved, wrapFileName, wrapFilePath, spec, isInWrapDir, isAlreadyWrapped, header, footer, integrity, _e, wrapDirContents_1, wrapDirContents_1_1, filename, filePath, shortPath, nextLockfile;
+         var e_1, _f;
+         return __generator(this, function (_g) {
+             switch (_g.label) {
+                 case 0:
+                     startTime = new Date();
+-                    _b = (0, get_lockfile_1.getLockfile)(directory), lockfilePath = _b.lockfilePath, lockfile = _b.lockfile;
+-                    wrapDirPath = (0, path_1.join)(directory, 'node_shrinkpack');
++                    _b = (0, get_lockfile_1.getLockfile)(projectDirectory), lockfilePath = _b.lockfilePath, lockfile = _b.lockfile;
+                     totalAdded = 0;
+                     totalDeleted = 0;
+-                    return [4 /*yield*/, (0, promises_1.mkdir)(wrapDirPath, { recursive: true })];
++                    return [4 /*yield*/, (0, promises_1.mkdir)(tgzDirectory, { recursive: true })];
+                 case 1:
+                     _g.sent();
+-                    return [4 /*yield*/, (0, promises_1.readdir)(wrapDirPath)];
++                    return [4 /*yield*/, (0, promises_1.readdir)(tgzDirectory)];
+                 case 2:
+                     wrapDirContents = _g.sent();
+                     requiredWrapDirContents = {};
+@@ -97,16 +96,21 @@ function shrinkpack(_a) {
+                         return [3 /*break*/, 8];
+                     if (!record.resolved && !record.version)
+                         return [3 /*break*/, 8];
+-                    name = key.replace(/^.*node_modules\//g, '');
++                    regex = /https:\/\/registry\.npmjs\.org\/(?:@([^/]+)\/)?([^/]+)\/-\/[^/]+\.tgz/;
++                    match = record.resolved.match(regex);
++                    name = "";
++                    if (match)
++                        name = match[1] ? "@".concat(match[1], "-").concat(match[2]) : match[2];
++                    else
++                        name = key.replace(/^.*node_modules\//g, '');
+                     scopelessName = name.replace(/^.+\//, '');
+                     resolved = record.resolved ||
+                         "https://registry.npmjs.org/".concat(name, "/-/").concat(scopelessName, "-").concat(record.version, ".tgz");
+-                    wrapFileName = "".concat(name.replace(/\//g, '_'), "-").concat(record.version, ".tar");
+-                    wrapFilePath = (0, path_1.join)(wrapDirPath, wrapFileName);
+-                    shortWrapFilePath = (0, path_1.relative)(directory, wrapFilePath);
++                    wrapFileName = "".concat(name.replace(/\//g, '-'), "-").concat(record.version, ".tgz");
++                    wrapFilePath = (0, path_1.join)(tgzDirectory, wrapFileName);
+                     spec = "".concat(name, "@").concat(record.version);
+                     isInWrapDir = wrapDirContents.includes(wrapFileName);
+-                    isAlreadyWrapped = resolved.includes('node_shrinkpack');
++                    isAlreadyWrapped = resolved.includes(tgzDirectory);
+                     if (isAlreadyWrapped && !isInWrapDir) {
+                         header = "".concat(spec, " points to ").concat(resolved, " which is missing");
+                         footer = "delete lockfile, reinstall, then run shrinkpack again";
+@@ -128,32 +132,34 @@ function shrinkpack(_a) {
+                         log_1.log.download(spec);
+                         totalAdded++;
+                     }
+-                    record.integrity = [record.integrity, integrity].filter(Boolean).join(' ');
+-                    record.resolved = "file:".concat(shortWrapFilePath);
++                    record.integrity = [integrity].filter(Boolean).join(' ');
++                    record.resolved = "file:".concat(wrapFilePath);
+                     requiredWrapDirContents[wrapFileName] = true;
+                     _g.label = 8;
+                 case 8:
+                     _i++;
+                     return [3 /*break*/, 3];
+                 case 9:
+-                    try {
+-                        for (wrapDirContents_1 = __values(wrapDirContents), wrapDirContents_1_1 = wrapDirContents_1.next(); !wrapDirContents_1_1.done; wrapDirContents_1_1 = wrapDirContents_1.next()) {
+-                            filename = wrapDirContents_1_1.value;
+-                            if (!requiredWrapDirContents[filename]) {
+-                                filePath = (0, path_1.join)(wrapDirPath, filename);
+-                                shortPath = (0, path_1.relative)(directory, filePath);
+-                                log_1.log.deletion(shortPath);
+-                                deletions.push((0, promises_1.rm)(filePath));
+-                                totalDeleted++;
++                    if (purge) {
++                        try {
++                            for (wrapDirContents_1 = __values(wrapDirContents), wrapDirContents_1_1 = wrapDirContents_1.next(); !wrapDirContents_1_1.done; wrapDirContents_1_1 = wrapDirContents_1.next()) {
++                                filename = wrapDirContents_1_1.value;
++                                if (!requiredWrapDirContents[filename]) {
++                                    filePath = (0, path_1.join)(tgzDirectory, filename);
++                                    shortPath = (0, path_1.relative)(projectDirectory, filePath);
++                                    log_1.log.deletion(shortPath);
++                                    deletions.push((0, promises_1.rm)(filePath));
++                                    totalDeleted++;
++                                }
+                             }
+                         }
+-                    }
+-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+-                    finally {
+-                        try {
+-                            if (wrapDirContents_1_1 && !wrapDirContents_1_1.done && (_f = wrapDirContents_1["return"])) _f.call(wrapDirContents_1);
++                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
++                        finally {
++                            try {
++                                if (wrapDirContents_1_1 && !wrapDirContents_1_1.done && (_f = wrapDirContents_1["return"])) _f.call(wrapDirContents_1);
++                            }
++                            finally { if (e_1) throw e_1.error; }
+                         }
+-                        finally { if (e_1) throw e_1.error; }
+                     }
+                     // this is ignored by npm >= 7
+                     lockfile.dependencies = undefined;
+diff --git a/node_modules/shrinkpack/dist/lib/from-network.js b/node_modules/shrinkpack/dist/lib/from-network.js
+--- a/node_modules/shrinkpack/dist/lib/from-network.js
++++ b/node_modules/shrinkpack/dist/lib/from-network.js
+@@ -41,7 +41,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ exports.__esModule = true;
+ exports.fromNetwork = void 0;
+ var fs_1 = __importDefault(require("fs"));
+-var gunzip_maybe_1 = __importDefault(require("gunzip-maybe"));
+ var pacote_1 = __importDefault(require("pacote"));
+ var ssri_1 = __importDefault(require("ssri"));
+ var stream_1 = require("stream");
+@@ -55,18 +54,15 @@ var log_1 = require("./log");
+  */
+ function fromNetwork(resolved, filePath) {
+     return __awaiter(this, void 0, void 0, function () {
+-        var $integrity, $unzip, $write, pRequest, pWrite, pIntegrity, pSha512;
++        var $integrity, $write, pRequest, pWrite, pIntegrity, pSha512;
+         return __generator(this, function (_a) {
+             switch (_a.label) {
+                 case 0:
+                     $integrity = ssri_1["default"].integrityStream();
+-                    $unzip = (0, gunzip_maybe_1["default"])();
+                     $write = fs_1["default"].createWriteStream(filePath);
+                     pRequest = pacote_1["default"].tarball.stream(resolved, function ($download) {
+                         return new Promise(function (resolve, reject) {
+-                            var $contents = resolved.endsWith('.tgz')
+-                                ? $download.pipe($unzip)
+-                                : $download;
++                            var $contents = $download;
+                             $download.on('end', resolve);
+                             $download.on('error', reject);
+                             $contents.pipe(new stream_1.PassThrough()).pipe($write);

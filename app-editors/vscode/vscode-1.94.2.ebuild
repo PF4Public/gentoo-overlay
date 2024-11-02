@@ -12,7 +12,7 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 SRC_URI="!build-online? (
-	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> @emmetio-css-parser-vscode.tgz
+	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/vscode -> @emmetio-css-parser-0.4.0.tgz
 
 	https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz -> @ampproject-remapping-2.2.0.tgz
 	https://registry.yarnpkg.com/@azure-rest/ai-translation-text/-/ai-translation-text-1.0.0-beta.1.tgz -> @azure-rest-ai-translation-text-1.0.0-beta.1.tgz
@@ -1891,13 +1891,356 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/ylru/-/ylru-1.2.1.tgz
 	https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz
 	https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz
+
+	https://registry.npmjs.org/shrinkpack/-/shrinkpack-0.20.0.tgz
+	https://registry.npmjs.org/@eslint/eslintrc/-/eslintrc-1.4.1.tgz -> @eslint-eslintrc-1.4.1.tgz
+	https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz -> @gar-promisify-1.1.3.tgz
+	https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.9.5.tgz -> @humanwhocodes-config-array-0.9.5.tgz
+	https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz -> @humanwhocodes-object-schema-1.2.1.tgz
+	https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz -> @nodelib-fs.scandir-2.1.5.tgz
+	https://registry.npmjs.org/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz -> @nodelib-fs.stat-2.0.5.tgz
+	https://registry.npmjs.org/@nodelib/fs.walk/-/fs.walk-1.2.8.tgz -> @nodelib-fs.walk-1.2.8.tgz
+	https://registry.npmjs.org/@npmcli/fs/-/fs-1.1.1.tgz -> @npmcli-fs-1.1.1.tgz
+	https://registry.npmjs.org/@npmcli/git/-/git-2.1.0.tgz -> @npmcli-git-2.1.0.tgz
+	https://registry.npmjs.org/@npmcli/installed-package-contents/-/installed-package-contents-1.0.7.tgz -> @npmcli-installed-package-contents-1.0.7.tgz
+	https://registry.npmjs.org/@npmcli/move-file/-/move-file-1.1.2.tgz -> @npmcli-move-file-1.1.2.tgz
+	https://registry.npmjs.org/@npmcli/node-gyp/-/node-gyp-1.0.3.tgz -> @npmcli-node-gyp-1.0.3.tgz
+	https://registry.npmjs.org/@npmcli/promise-spawn/-/promise-spawn-1.3.2.tgz -> @npmcli-promise-spawn-1.3.2.tgz
+	https://registry.npmjs.org/@npmcli/run-script/-/run-script-2.0.0.tgz -> @npmcli-run-script-2.0.0.tgz
+	https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz -> @tootallnate-once-1.1.2.tgz
+	https://registry.npmjs.org/@types/gunzip-maybe/-/gunzip-maybe-1.4.0.tgz -> @types-gunzip-maybe-1.4.0.tgz
+	https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz -> @types-json-schema-7.0.15.tgz
+	https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz -> @types-json5-0.0.29.tgz
+	https://registry.npmjs.org/@types/node-fetch/-/node-fetch-2.6.11.tgz -> @types-node-fetch-2.6.11.tgz
+	https://registry.npmjs.org/@types/node/-/node-17.0.5.tgz -> @types-node-17.0.5.tgz
+	https://registry.npmjs.org/@types/npm-package-arg/-/npm-package-arg-6.1.4.tgz -> @types-npm-package-arg-6.1.4.tgz
+	https://registry.npmjs.org/@types/npm-registry-fetch/-/npm-registry-fetch-8.0.7.tgz -> @types-npm-registry-fetch-8.0.7.tgz
+	https://registry.npmjs.org/@types/npmlog/-/npmlog-7.0.0.tgz -> @types-npmlog-7.0.0.tgz
+	https://registry.npmjs.org/@types/pacote/-/pacote-11.1.2.tgz -> @types-pacote-11.1.2.tgz
+	https://registry.npmjs.org/@types/ssri/-/ssri-7.1.1.tgz -> @types-ssri-7.1.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.8.1.tgz -> @typescript-eslint-eslint-plugin-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/experimental-utils/-/experimental-utils-5.8.1.tgz -> @typescript-eslint-experimental-utils-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/parser/-/parser-5.8.1.tgz -> @typescript-eslint-parser-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-5.8.1.tgz -> @typescript-eslint-scope-manager-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/types/-/types-5.8.1.tgz -> @typescript-eslint-types-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-5.8.1.tgz -> @typescript-eslint-typescript-estree-5.8.1.tgz
+	https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-5.8.1.tgz -> @typescript-eslint-visitor-keys-5.8.1.tgz
+	https://registry.npmjs.org/@vercel/ncc/-/ncc-0.38.2.tgz -> @vercel-ncc-0.38.2.tgz
+	https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz
+	https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz
+	https://registry.npmjs.org/acorn/-/acorn-8.14.0.tgz
+	https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz
+	https://registry.npmjs.org/agentkeepalive/-/agentkeepalive-4.5.0.tgz
+	https://registry.npmjs.org/aggregate-error/-/aggregate-error-3.1.0.tgz
+	https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz
+	https://registry.npmjs.org/ansi-colors/-/ansi-colors-4.1.3.tgz
+	https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz
+	https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz
+	https://registry.npmjs.org/aproba/-/aproba-2.0.0.tgz
+	https://registry.npmjs.org/are-we-there-yet/-/are-we-there-yet-3.0.1.tgz
+	https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz
+	https://registry.npmjs.org/array-buffer-byte-length/-/array-buffer-byte-length-1.0.1.tgz
+	https://registry.npmjs.org/array-includes/-/array-includes-3.1.8.tgz
+	https://registry.npmjs.org/array-union/-/array-union-2.1.0.tgz
+	https://registry.npmjs.org/array.prototype.flat/-/array.prototype.flat-1.3.2.tgz
+	https://registry.npmjs.org/arraybuffer.prototype.slice/-/arraybuffer.prototype.slice-1.0.3.tgz
+	https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz
+	https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.7.tgz
+	https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz
+	https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz
+	https://registry.npmjs.org/braces/-/braces-3.0.3.tgz
+	https://registry.npmjs.org/browserify-zlib/-/browserify-zlib-0.1.4.tgz
+	https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz
+	https://registry.npmjs.org/builtins/-/builtins-1.0.3.tgz
+	https://registry.npmjs.org/cacache/-/cacache-15.3.0.tgz
+	https://registry.npmjs.org/call-bind/-/call-bind-1.0.7.tgz
+	https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz
+	https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz
+	https://registry.npmjs.org/chownr/-/chownr-2.0.0.tgz
+	https://registry.npmjs.org/clean-stack/-/clean-stack-2.2.0.tgz
+	https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz
+	https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz
+	https://registry.npmjs.org/color-support/-/color-support-1.1.3.tgz
+	https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz
+	https://registry.npmjs.org/commander/-/commander-8.3.0.tgz
+	https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz
+	https://registry.npmjs.org/console-control-strings/-/console-control-strings-1.1.0.tgz
+	https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.3.tgz
+	https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.3.tgz
+	https://registry.npmjs.org/data-view-buffer/-/data-view-buffer-1.0.1.tgz
+	https://registry.npmjs.org/data-view-byte-length/-/data-view-byte-length-1.0.1.tgz
+	https://registry.npmjs.org/data-view-byte-offset/-/data-view-byte-offset-1.0.0.tgz
+	https://registry.npmjs.org/debug/-/debug-2.6.9.tgz
+	https://registry.npmjs.org/debug/-/debug-3.2.7.tgz
+	https://registry.npmjs.org/debug/-/debug-4.3.7.tgz
+	https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz
+	https://registry.npmjs.org/define-data-property/-/define-data-property-1.1.4.tgz
+	https://registry.npmjs.org/define-properties/-/define-properties-1.2.1.tgz
+	https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz
+	https://registry.npmjs.org/delegates/-/delegates-1.0.0.tgz
+	https://registry.npmjs.org/dir-glob/-/dir-glob-3.0.1.tgz
+	https://registry.npmjs.org/doctrine/-/doctrine-2.1.0.tgz
+	https://registry.npmjs.org/doctrine/-/doctrine-3.0.0.tgz
+	https://registry.npmjs.org/duplexify/-/duplexify-3.7.1.tgz
+	https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz
+	https://registry.npmjs.org/encoding/-/encoding-0.1.13.tgz
+	https://registry.npmjs.org/end-of-stream/-/end-of-stream-1.4.4.tgz
+	https://registry.npmjs.org/enquirer/-/enquirer-2.4.1.tgz
+	https://registry.npmjs.org/env-paths/-/env-paths-2.2.1.tgz
+	https://registry.npmjs.org/err-code/-/err-code-2.0.3.tgz
+	https://registry.npmjs.org/es-abstract/-/es-abstract-1.23.3.tgz
+	https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.0.tgz
+	https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz
+	https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.0.0.tgz
+	https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.0.3.tgz
+	https://registry.npmjs.org/es-shim-unscopables/-/es-shim-unscopables-1.0.2.tgz
+	https://registry.npmjs.org/es-to-primitive/-/es-to-primitive-1.2.1.tgz
+	https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz
+	https://registry.npmjs.org/eslint-import-resolver-node/-/eslint-import-resolver-node-0.3.9.tgz
+	https://registry.npmjs.org/eslint-module-utils/-/eslint-module-utils-2.12.0.tgz
+	https://registry.npmjs.org/eslint-plugin-import/-/eslint-plugin-import-2.25.3.tgz
+	https://registry.npmjs.org/eslint-scope/-/eslint-scope-5.1.1.tgz
+	https://registry.npmjs.org/eslint-scope/-/eslint-scope-7.2.2.tgz
+	https://registry.npmjs.org/eslint-utils/-/eslint-utils-3.0.0.tgz
+	https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-2.1.0.tgz
+	https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz
+	https://registry.npmjs.org/eslint/-/eslint-8.5.0.tgz
+	https://registry.npmjs.org/espree/-/espree-9.6.1.tgz
+	https://registry.npmjs.org/esquery/-/esquery-1.6.0.tgz
+	https://registry.npmjs.org/esrecurse/-/esrecurse-4.3.0.tgz
+	https://registry.npmjs.org/estraverse/-/estraverse-4.3.0.tgz
+	https://registry.npmjs.org/estraverse/-/estraverse-5.3.0.tgz
+	https://registry.npmjs.org/esutils/-/esutils-2.0.3.tgz
+	https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz
+	https://registry.npmjs.org/fast-glob/-/fast-glob-3.3.2.tgz
+	https://registry.npmjs.org/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz
+	https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz
+	https://registry.npmjs.org/fastq/-/fastq-1.17.1.tgz
+	https://registry.npmjs.org/file-entry-cache/-/file-entry-cache-6.0.1.tgz
+	https://registry.npmjs.org/fill-range/-/fill-range-7.1.1.tgz
+	https://registry.npmjs.org/flat-cache/-/flat-cache-3.2.0.tgz
+	https://registry.npmjs.org/flatted/-/flatted-3.3.1.tgz
+	https://registry.npmjs.org/for-each/-/for-each-0.3.3.tgz
+	https://registry.npmjs.org/form-data/-/form-data-4.0.1.tgz
+	https://registry.npmjs.org/fs-minipass/-/fs-minipass-2.1.0.tgz
+	https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz
+	https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz
+	https://registry.npmjs.org/function.prototype.name/-/function.prototype.name-1.1.6.tgz
+	https://registry.npmjs.org/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz
+	https://registry.npmjs.org/functions-have-names/-/functions-have-names-1.2.3.tgz
+	https://registry.npmjs.org/gauge/-/gauge-4.0.4.tgz
+	https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.2.4.tgz
+	https://registry.npmjs.org/get-symbol-description/-/get-symbol-description-1.0.2.tgz
+	https://registry.npmjs.org/glob-parent/-/glob-parent-5.1.2.tgz
+	https://registry.npmjs.org/glob-parent/-/glob-parent-6.0.2.tgz
+	https://registry.npmjs.org/glob/-/glob-7.2.3.tgz
+	https://registry.npmjs.org/globals/-/globals-13.24.0.tgz
+	https://registry.npmjs.org/globalthis/-/globalthis-1.0.4.tgz
+	https://registry.npmjs.org/globby/-/globby-11.1.0.tgz
+	https://registry.npmjs.org/gopd/-/gopd-1.0.1.tgz
+	https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz
+	https://registry.npmjs.org/gunzip-maybe/-/gunzip-maybe-1.4.2.tgz
+	https://registry.npmjs.org/has-bigints/-/has-bigints-1.0.2.tgz
+	https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz
+	https://registry.npmjs.org/has-property-descriptors/-/has-property-descriptors-1.0.2.tgz
+	https://registry.npmjs.org/has-proto/-/has-proto-1.0.3.tgz
+	https://registry.npmjs.org/has-symbols/-/has-symbols-1.0.3.tgz
+	https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz
+	https://registry.npmjs.org/has-unicode/-/has-unicode-2.0.1.tgz
+	https://registry.npmjs.org/has/-/has-1.0.4.tgz
+	https://registry.npmjs.org/hasown/-/hasown-2.0.2.tgz
+	https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-4.1.0.tgz
+	https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.1.1.tgz
+	https://registry.npmjs.org/http-proxy-agent/-/http-proxy-agent-4.0.1.tgz
+	https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz
+	https://registry.npmjs.org/humanize-ms/-/humanize-ms-1.2.1.tgz
+	https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz
+	https://registry.npmjs.org/ignore-walk/-/ignore-walk-4.0.1.tgz
+	https://registry.npmjs.org/ignore/-/ignore-4.0.6.tgz
+	https://registry.npmjs.org/ignore/-/ignore-5.3.2.tgz
+	https://registry.npmjs.org/import-fresh/-/import-fresh-3.3.0.tgz
+	https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz
+	https://registry.npmjs.org/indent-string/-/indent-string-4.0.0.tgz
+	https://registry.npmjs.org/infer-owner/-/infer-owner-1.0.4.tgz
+	https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz
+	https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz
+	https://registry.npmjs.org/internal-slot/-/internal-slot-1.0.7.tgz
+	https://registry.npmjs.org/ip-address/-/ip-address-9.0.5.tgz
+	https://registry.npmjs.org/is-array-buffer/-/is-array-buffer-3.0.4.tgz
+	https://registry.npmjs.org/is-bigint/-/is-bigint-1.0.4.tgz
+	https://registry.npmjs.org/is-boolean-object/-/is-boolean-object-1.1.2.tgz
+	https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz
+	https://registry.npmjs.org/is-core-module/-/is-core-module-2.15.1.tgz
+	https://registry.npmjs.org/is-data-view/-/is-data-view-1.0.1.tgz
+	https://registry.npmjs.org/is-date-object/-/is-date-object-1.0.5.tgz
+	https://registry.npmjs.org/is-deflate/-/is-deflate-1.0.0.tgz
+	https://registry.npmjs.org/is-extglob/-/is-extglob-2.1.1.tgz
+	https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz
+	https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz
+	https://registry.npmjs.org/is-gzip/-/is-gzip-1.0.0.tgz
+	https://registry.npmjs.org/is-lambda/-/is-lambda-1.0.1.tgz
+	https://registry.npmjs.org/is-negative-zero/-/is-negative-zero-2.0.3.tgz
+	https://registry.npmjs.org/is-number-object/-/is-number-object-1.0.7.tgz
+	https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz
+	https://registry.npmjs.org/is-regex/-/is-regex-1.1.4.tgz
+	https://registry.npmjs.org/is-shared-array-buffer/-/is-shared-array-buffer-1.0.3.tgz
+	https://registry.npmjs.org/is-string/-/is-string-1.0.7.tgz
+	https://registry.npmjs.org/is-symbol/-/is-symbol-1.0.4.tgz
+	https://registry.npmjs.org/is-typed-array/-/is-typed-array-1.1.13.tgz
+	https://registry.npmjs.org/is-weakref/-/is-weakref-1.0.2.tgz
+	https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz
+	https://registry.npmjs.org/isarray/-/isarray-2.0.5.tgz
+	https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz
+	https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.0.tgz
+	https://registry.npmjs.org/jsbn/-/jsbn-1.1.0.tgz
+	https://registry.npmjs.org/json-buffer/-/json-buffer-3.0.1.tgz
+	https://registry.npmjs.org/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz
+	https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz
+	https://registry.npmjs.org/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz
+	https://registry.npmjs.org/json5/-/json5-1.0.2.tgz
+	https://registry.npmjs.org/jsonparse/-/jsonparse-1.3.1.tgz
+	https://registry.npmjs.org/keyv/-/keyv-4.5.4.tgz
+	https://registry.npmjs.org/levn/-/levn-0.4.1.tgz
+	https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz
+	https://registry.npmjs.org/lru-cache/-/lru-cache-6.0.0.tgz
+	https://registry.npmjs.org/make-fetch-happen/-/make-fetch-happen-9.1.0.tgz
+	https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz
+	https://registry.npmjs.org/micromatch/-/micromatch-4.0.8.tgz
+	https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz
+	https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz
+	https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz
+	https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz
+	https://registry.npmjs.org/minipass-collect/-/minipass-collect-1.0.2.tgz
+	https://registry.npmjs.org/minipass-fetch/-/minipass-fetch-1.4.1.tgz
+	https://registry.npmjs.org/minipass-flush/-/minipass-flush-1.0.5.tgz
+	https://registry.npmjs.org/minipass-json-stream/-/minipass-json-stream-1.0.2.tgz
+	https://registry.npmjs.org/minipass-pipeline/-/minipass-pipeline-1.2.4.tgz
+	https://registry.npmjs.org/minipass-sized/-/minipass-sized-1.0.3.tgz
+	https://registry.npmjs.org/minipass/-/minipass-3.3.6.tgz
+	https://registry.npmjs.org/minipass/-/minipass-5.0.0.tgz
+	https://registry.npmjs.org/minizlib/-/minizlib-2.1.2.tgz
+	https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz
+	https://registry.npmjs.org/ms/-/ms-2.0.0.tgz
+	https://registry.npmjs.org/ms/-/ms-2.1.3.tgz
+	https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz
+	https://registry.npmjs.org/negotiator/-/negotiator-0.6.4.tgz
+	https://registry.npmjs.org/node-gyp/-/node-gyp-8.4.1.tgz
+	https://registry.npmjs.org/nopt/-/nopt-5.0.0.tgz
+	https://registry.npmjs.org/npm-bundled/-/npm-bundled-1.1.2.tgz
+	https://registry.npmjs.org/npm-install-checks/-/npm-install-checks-4.0.0.tgz
+	https://registry.npmjs.org/npm-normalize-package-bin/-/npm-normalize-package-bin-1.0.1.tgz
+	https://registry.npmjs.org/npm-package-arg/-/npm-package-arg-8.1.5.tgz
+	https://registry.npmjs.org/npm-packlist/-/npm-packlist-3.0.0.tgz
+	https://registry.npmjs.org/npm-pick-manifest/-/npm-pick-manifest-6.1.1.tgz
+	https://registry.npmjs.org/npm-registry-fetch/-/npm-registry-fetch-11.0.0.tgz
+	https://registry.npmjs.org/npmlog/-/npmlog-6.0.2.tgz
+	https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.2.tgz
+	https://registry.npmjs.org/object-keys/-/object-keys-1.1.1.tgz
+	https://registry.npmjs.org/object.assign/-/object.assign-4.1.5.tgz
+	https://registry.npmjs.org/object.values/-/object.values-1.2.0.tgz
+	https://registry.npmjs.org/once/-/once-1.4.0.tgz
+	https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz
+	https://registry.npmjs.org/p-map/-/p-map-4.0.0.tgz
+	https://registry.npmjs.org/pacote/-/pacote-12.0.2.tgz
+	https://registry.npmjs.org/pako/-/pako-0.2.9.tgz
+	https://registry.npmjs.org/parent-module/-/parent-module-1.0.1.tgz
+	https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz
+	https://registry.npmjs.org/path-key/-/path-key-3.1.1.tgz
+	https://registry.npmjs.org/path-parse/-/path-parse-1.0.7.tgz
+	https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz
+	https://registry.npmjs.org/peek-stream/-/peek-stream-1.1.3.tgz
+	https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz
+	https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz
+	https://registry.npmjs.org/possible-typed-array-names/-/possible-typed-array-names-1.0.0.tgz
+	https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz
+	https://registry.npmjs.org/prettier/-/prettier-2.5.1.tgz
+	https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz
+	https://registry.npmjs.org/progress/-/progress-2.0.3.tgz
+	https://registry.npmjs.org/promise-inflight/-/promise-inflight-1.0.1.tgz
+	https://registry.npmjs.org/promise-retry/-/promise-retry-2.0.1.tgz
+	https://registry.npmjs.org/pump/-/pump-2.0.1.tgz
+	https://registry.npmjs.org/pumpify/-/pumpify-1.5.1.tgz
+	https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz
+	https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz
+	https://registry.npmjs.org/read-package-json-fast/-/read-package-json-fast-2.0.3.tgz
+	https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz
+	https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz
+	https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.5.3.tgz
+	https://registry.npmjs.org/regexpp/-/regexpp-3.2.0.tgz
+	https://registry.npmjs.org/resolve-from/-/resolve-from-4.0.0.tgz
+	https://registry.npmjs.org/resolve/-/resolve-1.22.8.tgz
+	https://registry.npmjs.org/retry/-/retry-0.12.0.tgz
+	https://registry.npmjs.org/reusify/-/reusify-1.0.4.tgz
+	https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz
+	https://registry.npmjs.org/run-parallel/-/run-parallel-1.2.0.tgz
+	https://registry.npmjs.org/safe-array-concat/-/safe-array-concat-1.1.2.tgz
+	https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz
+	https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz
+	https://registry.npmjs.org/safe-regex-test/-/safe-regex-test-1.0.3.tgz
+	https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz
+	https://registry.npmjs.org/semver/-/semver-7.6.3.tgz
+	https://registry.npmjs.org/set-blocking/-/set-blocking-2.0.0.tgz
+	https://registry.npmjs.org/set-function-length/-/set-function-length-1.2.2.tgz
+	https://registry.npmjs.org/set-function-name/-/set-function-name-2.0.2.tgz
+	https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz
+	https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz
+	https://registry.npmjs.org/shrinkpack/-/shrinkpack-0.20.0.tgz
+	https://registry.npmjs.org/side-channel/-/side-channel-1.0.6.tgz
+	https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz
+	https://registry.npmjs.org/slash/-/slash-3.0.0.tgz
+	https://registry.npmjs.org/smart-buffer/-/smart-buffer-4.2.0.tgz
+	https://registry.npmjs.org/socks-proxy-agent/-/socks-proxy-agent-6.2.1.tgz
+	https://registry.npmjs.org/socks/-/socks-2.8.3.tgz
+	https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.1.3.tgz
+	https://registry.npmjs.org/ssri/-/ssri-8.0.1.tgz
+	https://registry.npmjs.org/stream-shift/-/stream-shift-1.0.3.tgz
+	https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz
+	https://registry.npmjs.org/string.prototype.trim/-/string.prototype.trim-1.2.9.tgz
+	https://registry.npmjs.org/string.prototype.trimend/-/string.prototype.trimend-1.0.8.tgz
+	https://registry.npmjs.org/string.prototype.trimstart/-/string.prototype.trimstart-1.0.8.tgz
+	https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz
+	https://registry.npmjs.org/string_decoder/-/string_decoder-1.3.0.tgz
+	https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz
+	https://registry.npmjs.org/strip-bom/-/strip-bom-3.0.0.tgz
+	https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-3.1.1.tgz
+	https://registry.npmjs.org/supports-color/-/supports-color-7.2.0.tgz
+	https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz
+	https://registry.npmjs.org/tar/-/tar-6.2.1.tgz
+	https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz
+	https://registry.npmjs.org/through2/-/through2-2.0.5.tgz
+	https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz
+	https://registry.npmjs.org/tsconfig-paths/-/tsconfig-paths-3.15.0.tgz
+	https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz
+	https://registry.npmjs.org/tsutils/-/tsutils-3.21.0.tgz
+	https://registry.npmjs.org/type-check/-/type-check-0.4.0.tgz
+	https://registry.npmjs.org/type-fest/-/type-fest-0.20.2.tgz
+	https://registry.npmjs.org/typed-array-buffer/-/typed-array-buffer-1.0.2.tgz
+	https://registry.npmjs.org/typed-array-byte-length/-/typed-array-byte-length-1.0.1.tgz
+	https://registry.npmjs.org/typed-array-byte-offset/-/typed-array-byte-offset-1.0.2.tgz
+	https://registry.npmjs.org/typed-array-length/-/typed-array-length-1.0.6.tgz
+	https://registry.npmjs.org/typescript/-/typescript-4.5.4.tgz
+	https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.0.2.tgz
+	https://registry.npmjs.org/unique-filename/-/unique-filename-1.1.1.tgz
+	https://registry.npmjs.org/unique-slug/-/unique-slug-2.0.2.tgz
+	https://registry.npmjs.org/uri-js/-/uri-js-4.4.1.tgz
+	https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz
+	https://registry.npmjs.org/v8-compile-cache/-/v8-compile-cache-2.4.0.tgz
+	https://registry.npmjs.org/validate-npm-package-name/-/validate-npm-package-name-3.0.0.tgz
+	https://registry.npmjs.org/which-boxed-primitive/-/which-boxed-primitive-1.0.2.tgz
+	https://registry.npmjs.org/which-typed-array/-/which-typed-array-1.1.15.tgz
+	https://registry.npmjs.org/which/-/which-2.0.2.tgz
+	https://registry.npmjs.org/wide-align/-/wide-align-1.1.5.tgz
+	https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.5.tgz
+	https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz
+	https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz
+	https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz
 	)
 	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-1.15.9.tgz -> @vscode-ripgrep-1.15.9.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -1930,8 +2273,6 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	reh? ( net-libs/nodejs )
-	reh-web? ( net-libs/nodejs )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
@@ -1961,7 +2302,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	!temp-fix? ( net-libs/nodejs )
+	net-libs/nodejs
 	sys-apps/yarn
 "
 
@@ -1999,14 +2340,6 @@ src_unpack() {
 	fi
 }
 
-node() {
-	if use temp-fix; then
-		"/usr/bin/node" "$@"
-	else
-		"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node" "$@"
-	fi
-}
-
 src_prepare() {
 	default
 
@@ -2020,6 +2353,14 @@ src_prepare() {
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+
+	if ! use build-online; then
+	einfo "Replacing git dependencies with local tgz files"
+	pushd "extensions/emmet" > /dev/null || die
+		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-0.4.0.tgz\"\2|" package.json || die
+		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
+	popd > /dev/null || die
+	fi 
 
 	if use reh || use reh-web; then
 		sed -i '/ripgrep"/d' remote/package.json || die
@@ -2141,51 +2482,21 @@ src_configure() {
 	#TODO: exported but unavailable if emerge/ebuild restarted
 	export VSCODE_ARCH
 
-	# #TODO: should work starting with electron-22
-	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
-	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
-	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	# fi
-
-	# if use electron-32 || use electron-33; then
-	# 	use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	# fi
-
-	# if use build-online; then
-	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
-	# else
-	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
-	# fi
-
-	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
-
-	if ! use build-online; then
-		ebegin "Hydrating npm cache"
-		local TAR_FILES=$(ls "${DISTDIR}"/*.tgz 2>/dev/null)
-		npm cache add "${NPM_DEFAULT_FLAGS}" $TAR_FILES || die
-		eend $? || die
-	fi
-
 	ebegin "Installing node_modules"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
-	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
-	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 
 	local VS_NATIVE_KEYMAP_V=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
 	local VS_RIPGREP_V=$(node -p "require('./package-lock.json').packages['node_modules/@vscode/ripgrep'].version || process.exit(1)" || die)
-	# echo "$PATH"
 
 	npm config set update-notifier false || die
 	npm config set loglevel error || die
@@ -2194,19 +2505,22 @@ src_configure() {
 		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
 		npm config set offline true || die
 
-		pushd "extensions/emmet" > /dev/null || die
-		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-vscode.tgz\"\2|" package.json || die
-		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
-		popd > /dev/null || die
+		einfo "Unpacking shrinkpack"
+		mkdir -p node_modules || die
+		tar -xzf "${DISTDIR}/shrinkpack-0.20.0.tgz" -C node_modules || die
+		mv node_modules/package node_modules/shrinkpack || die
+		cp "${FILESDIR}/shrinkpack-package-lock.json" node_modules/shrinkpack/package-lock.json || die
+		sed -i "s|{{DISTDIR}}|${DISTDIR}|g" node_modules/shrinkpack/package-lock.json || die
+		patch -p1 -i "${FILESDIR}/shrinkpack.patch" || die
+		/usr/bin/node /usr/bin/npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
+
+		einfo "Changing npm packages sources"
+		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/shrinkpack/*' -exec dirname {} \; | sort -u); do
+			node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" $dir > /dev/null || die
+		done
 	fi
 
-	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
-	# --ignore-optional
-	# --ignore-engines
-	# --production=true
-	# --no-progress
-	# --skip-integrity-check
-	# --verbose
+	/usr/bin/node /usr/bin/npm clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 
 	if use electron-32 || use electron-33; then
 		einfo "Restoring native-keymap with stdc++20 support"
@@ -2246,8 +2560,6 @@ src_configure() {
 	if use reh || use reh-web; then
 		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
 	fi
-
-	find . -type f -name "*.asar" -exec rm -f {} + || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
