@@ -193,7 +193,6 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
-	sed -i '/\.pipe(createAsar/,/node_modules\.asar/{d;}' build/gulpfile.vscode.js || die
 
 	einfo "Removing ASAR support"
 	sed -i '/\.pipe(createAsar/,/node_modules\.asar/{d;}' build/gulpfile.vscode.js || die
@@ -267,11 +266,6 @@ src_configure() {
 	export VSCODE_ARCH
 
 	ebegin "Installing node_modules"
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
 	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
@@ -298,7 +292,7 @@ src_configure() {
 		patch -p1 -i "${FILESDIR}/shrinkpack.patch" || die
 
 		einfo "Installing shrinkpack dependencies"
-		/usr/bin/node /usr/bin/npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
+		npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
 
 		einfo "Altering all package-lock.json for offline mode"
 		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; | sort -u); do
@@ -307,7 +301,14 @@ src_configure() {
 	fi
 
 	einfo "Installing vscode dependencies"
-	/usr/bin/node /usr/bin/npm clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
+	OLD_PATH=$PATH
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
+	SYS_NPM="/usr/bin/node /usr/bin/npm"
+
+	$SYS_NPM clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 
 	if use electron-32 || use electron-33; then
 		einfo "Restoring native-keymap with stdc++20 support"
@@ -315,17 +316,17 @@ src_configure() {
 		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
 		fi
 
-		npm install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
+		$SYS_NPM install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
 		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
-		npm rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
+		$SYS_NPM rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	fi
+
+	export PATH=${OLD_PATH}
 
 	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
 	# For webpack >= 5.61.0
 	sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
-
-	export PATH=${OLD_PATH}
 
 	einfo "Restoring vscode-ripgrep"
 	pushd "node_modules/@vscode" > /dev/null || die
@@ -373,12 +374,6 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
-
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
 	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
@@ -390,17 +385,9 @@ src_compile() {
 	if use reh-web; then
 		node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 	fi
-
-	export PATH=${OLD_PATH}
 }
 
 src_install() {
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
-
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
@@ -452,7 +439,6 @@ src_install() {
 	doins appdata/*
 
 	popd > /dev/null || die
-	export PATH=${OLD_PATH}
 }
 
 
