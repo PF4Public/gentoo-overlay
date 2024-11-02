@@ -2348,7 +2348,10 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
+
+	einfo "Removing ASAR support"
 	sed -i '/\.pipe(createAsar/,/node_modules\.asar/{d;}' build/gulpfile.vscode.js || die
+	find . -type f -name "*.asar" -exec rm -f {} + || die
 	#sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
