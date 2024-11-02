@@ -2358,7 +2358,7 @@ src_prepare() {
 	einfo "Replacing git dependencies with local tgz files"
 	pushd "extensions/emmet" > /dev/null || die
 		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-0.4.0.tgz\"\2|" package.json || die
-		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
+		npm install @emmetio/css-parser --package-lock-only > /dev/null || die
 	popd > /dev/null || die
 	fi 
 

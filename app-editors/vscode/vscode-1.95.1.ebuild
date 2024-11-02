@@ -2293,7 +2293,7 @@ src_prepare() {
 	einfo "Replacing git dependencies with local tgz files"
 	pushd "extensions/emmet" > /dev/null || die
 		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-0.4.0.tgz\"\2|" package.json || die
-		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
+		npm install @emmetio/css-parser --package-lock-only > /dev/null || die
 	popd > /dev/null || die
 	fi 
 
@@ -2423,7 +2423,7 @@ src_configure() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --build-from-source --no-audit --no-progress"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
