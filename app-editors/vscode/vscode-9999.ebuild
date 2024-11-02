@@ -17,7 +17,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -50,8 +50,6 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	reh? ( net-libs/nodejs )
-	reh-web? ( net-libs/nodejs )
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
@@ -81,7 +79,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	!temp-fix? ( net-libs/nodejs )
+	net-libs/nodejs
 	sys-apps/yarn
 "
 
@@ -119,14 +117,6 @@ src_unpack() {
 	fi
 }
 
-node() {
-	if use temp-fix; then
-		"/usr/bin/node" "$@"
-	else
-		"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node" "$@"
-	fi
-}
-
 src_prepare() {
 	default
 
@@ -139,7 +129,18 @@ src_prepare() {
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
+	# tree-sitter is an optional package, but is not built as a mandatory one because it is deprecated
+	# mask it until it is updated to version >0.21.0
+	sed -i '/tree-sitter"/d' build/package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+
+	if ! use build-online; then
+	einfo "Replacing git dependencies with local tgz files"
+	pushd "extensions/emmet" > /dev/null || die
+		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-0.4.0.tgz\"\2|" package.json || die
+		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
+	popd > /dev/null || die
+	fi 
 
 	if use reh || use reh-web; then
 		sed -i '/ripgrep"/d' remote/package.json || die
@@ -261,51 +262,21 @@ src_configure() {
 	#TODO: exported but unavailable if emerge/ebuild restarted
 	export VSCODE_ARCH
 
-	# #TODO: should work starting with electron-22
-	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
-	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
-	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	# fi
-
-	# if use electron-32 || use electron-33; then
-	# 	use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	# fi
-
-	# if use build-online; then
-	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
-	# else
-	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
-	# fi
-
-	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
-
-	if ! use build-online; then
-		ebegin "Hydrating npm cache"
-		local TAR_FILES=$(ls "${DISTDIR}"/*.tgz 2>/dev/null)
-		npm cache add "${NPM_DEFAULT_FLAGS}" $TAR_FILES || die
-		eend $? || die
-	fi
-
 	ebegin "Installing node_modules"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
-	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
-	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 
 	local VS_NATIVE_KEYMAP_V=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
 	local VS_RIPGREP_V=$(node -p "require('./package-lock.json').packages['node_modules/@vscode/ripgrep'].version || process.exit(1)" || die)
-	# echo "$PATH"
 
 	npm config set update-notifier false || die
 	npm config set loglevel error || die
@@ -314,28 +285,25 @@ src_configure() {
 		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
 		npm config set offline true || die
 
-		pushd "extensions/emmet" > /dev/null || die
-		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-vscode.tgz\"\2|" package.json || die
-		npm install @emmetio/css-parser ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
-		popd > /dev/null || die
+		einfo "Unpacking shrinkpack"
+		mkdir -p node_modules || die
+		tar -xzf "${DISTDIR}/shrinkpack-0.20.0.tgz" -C node_modules || die
+		mv node_modules/package node_modules/shrinkpack || die
+		cp "${FILESDIR}/shrinkpack-package-lock.json" node_modules/shrinkpack/package-lock.json || die
+		sed -i "s|{{DISTDIR}}|${DISTDIR}|g" node_modules/shrinkpack/package-lock.json || die
+		patch -p1 -i "${FILESDIR}/shrinkpack.patch" || die
+
+		einfo "Installing shrinkpack dependencies"
+		/usr/bin/node /usr/bin/npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
+
+		einfo "Altering all package-lock.json for offline mode"
+		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; | sort -u); do
+			node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" $dir > /dev/null || die
+		done
 	fi
 
-	pushd "build" > /dev/null || die
-		if use build-online; then
-			sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"^0.22.0\"\2|" package.json || die
-		else
-			sed -i "s|\(\"tree-sitter\":\s*\).*\(,\)|\1\"file:${DISTDIR}/tree-sitter-0.22.0.tgz\"\2|" package.json || die
-		fi
-		npm install tree-sitter ${NPM_DEFAULT_FLAGS} --package-lock-only > /dev/null || die
-	popd > /dev/null || die
-
-	npm ci ${NPM_DEFAULT_FLAGS} > /dev/null || die
-	# --ignore-optional
-	# --ignore-engines
-	# --production=true
-	# --no-progress
-	# --skip-integrity-check
-	# --verbose
+	einfo "Installing vscode dependencies"
+	/usr/bin/node /usr/bin/npm clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 
 	if use electron-32 || use electron-33; then
 		einfo "Restoring native-keymap with stdc++20 support"
@@ -375,8 +343,6 @@ src_configure() {
 	if use reh || use reh-web; then
 		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
 	fi
-
-	find . -type f -name "*.asar" -exec rm -f {} + || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
@@ -456,6 +422,7 @@ src_install() {
 	#doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
+	fperms +x ${VSCODE_HOME}/node_modules/@vscode/ripgrep/bin/rg
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
