@@ -2512,14 +2512,17 @@ src_configure() {
 		cp "${FILESDIR}/shrinkpack-package-lock.json" node_modules/shrinkpack/package-lock.json || die
 		sed -i "s|{{DISTDIR}}|${DISTDIR}|g" node_modules/shrinkpack/package-lock.json || die
 		patch -p1 -i "${FILESDIR}/shrinkpack.patch" || die
+
+		einfo "Installing shrinkpack dependencies"
 		/usr/bin/node /usr/bin/npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
 
-		einfo "Changing npm packages sources"
-		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/shrinkpack/*' -exec dirname {} \; | sort -u); do
+		einfo "Altering all package-lock.json for offline mode"
+		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; | sort -u); do
 			node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" $dir > /dev/null || die
 		done
 	fi
 
+	einfo "Installing vscode dependencies"
 	/usr/bin/node /usr/bin/npm clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
 
 	if use electron-32 || use electron-33; then
