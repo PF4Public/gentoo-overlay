@@ -2490,7 +2490,6 @@ src_configure() {
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 		mkdir ripgrep/bin || die
-		ln -s /usr/bin/rg ripgrep/bin/rg || die
 	popd > /dev/null || die
 
 	if use reh || use reh-web; then
@@ -2560,6 +2559,7 @@ src_install() {
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
+	dosym /usr/bin/rg "${VSCODE_HOME}/node_modules/@vscode/ripgrep/bin/rg"
 
 	insinto "${VSCODE_HOME}"
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
