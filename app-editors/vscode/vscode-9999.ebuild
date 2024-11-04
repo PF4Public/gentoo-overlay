@@ -266,6 +266,7 @@ src_configure() {
 	export VSCODE_ARCH
 
 	ebegin "Installing node_modules"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
@@ -372,7 +373,7 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
-	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 

@@ -2251,6 +2251,7 @@ src_configure() {
 
 	ebegin "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
@@ -2329,7 +2330,7 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 
 	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
