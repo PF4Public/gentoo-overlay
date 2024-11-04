@@ -2381,7 +2381,6 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
-	fperms +x ${VSCODE_HOME}/node_modules/@vscode/ripgrep/bin/rg
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
