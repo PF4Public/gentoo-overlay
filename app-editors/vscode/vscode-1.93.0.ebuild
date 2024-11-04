@@ -2292,7 +2292,6 @@ src_configure() {
 		mv package ripgrep
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
-		mkdir ripgrep/bin || die
 		ln -s /usr/bin/rg ripgrep/bin/rg || die
 	popd > /dev/null || die
 	eend $? || die
