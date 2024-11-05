@@ -2234,7 +2234,6 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	net-libs/nodejs
-	sys-apps/yarn
 "
 
 python_check_deps() {
