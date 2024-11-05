@@ -2451,9 +2451,10 @@ src_configure() {
 		npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
 
 		einfo "Altering all package-lock.json for offline mode"
-		for dir in $(find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; | sort -u); do
-			node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" $dir > /dev/null || die
-		done
+		find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; \
+			| sort -u \
+			| xargs -P "$(nproc)" -I {} node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" "{}" > /dev/null \
+			|| { die; }
 	fi
 
 	einfo "Installing vscode dependencies"
