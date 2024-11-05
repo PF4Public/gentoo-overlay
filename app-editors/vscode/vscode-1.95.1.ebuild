@@ -2450,7 +2450,7 @@ src_configure() {
 		npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
 
 		einfo "Altering all package-lock.json for offline mode"
-		find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -exec dirname {} \; \
+		find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -not -path '*/test/*' -exec dirname {} \; \
 			| sort -u \
 			| xargs -P "$(nproc)" -I {} node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" "{}" > /dev/null \
 			|| { die; }
@@ -2511,7 +2511,7 @@ src_configure() {
 	#TODO Does it really? Investigate later
 	# einfo "Fixing l10n-dev"
 	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
-	einfo "Purging the npm cache"
+	einfo "Purging npm cache"
 	npm cache clean --force || die
 }
 
