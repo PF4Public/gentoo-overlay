@@ -1536,7 +1536,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
-		"${FILESDIR}/more-locales.patch"
 	)
 
 	ewarn
