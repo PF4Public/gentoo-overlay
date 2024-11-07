@@ -1721,10 +1721,10 @@ src_prepare() {
 		ebegin "Applying domain substitution"
 		"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 		eend $? || die
-	fi
 
-	if use ungoogled; then
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
+	else
+		eapply "${FILESDIR}/more-locales.patch"
 	fi
 
 	declare -A patches=(
