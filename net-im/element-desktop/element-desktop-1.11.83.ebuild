@@ -1008,7 +1008,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	native-modules? ( virtual/rust )
+	native-modules? ( dev-lang/rust )
 	net-libs/nodejs
 	sys-apps/yarn
 "
