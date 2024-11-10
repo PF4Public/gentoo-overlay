@@ -41,12 +41,6 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	)
 
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-2.1.2.tgz -> @azure-abort-controller-2.1.2.tgz
 	https://registry.yarnpkg.com/@azure/core-asynciterator-polyfill/-/core-asynciterator-polyfill-1.0.2.tgz -> @azure-core-asynciterator-polyfill-1.0.2.tgz
@@ -660,7 +654,6 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/linkify-it/-/linkify-it-4.0.1.tgz
 	https://registry.yarnpkg.com/linkify-it/-/linkify-it-5.0.0.tgz
 	https://registry.yarnpkg.com/lint-staged/-/lint-staged-10.2.11.tgz
-	https://registry.yarnpkg.com/lint/-/lint-1.1.2.tgz
 	https://registry.yarnpkg.com/listr2/-/listr2-2.2.0.tgz
 	https://registry.yarnpkg.com/load-json-file/-/load-json-file-5.3.0.tgz
 	https://registry.yarnpkg.com/load-plugin/-/load-plugin-4.0.1.tgz
@@ -1663,7 +1656,8 @@ src_prepare() {
 		sed -i '/chrome_file_system_access_permission_context.cc/,+166d' \
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 
-		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml chrome_file_system_access_permission_context.cc"
+		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
+			chrome_file_system_access_permission_context.cc layer_tree_view.cc oom.cc"
 
 		local ugc_unneeded=(
 			# GN bootstrap
@@ -1773,7 +1767,7 @@ src_prepare() {
 			einfo "$i"
 			# ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
-				--exclude="*/uv/test/*" --exclude="*.rst" \
+				--exclude="*/uv/test/*" --exclude="*.rst" --exclude="test/mjsunit/*" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				-p1 < "${S}/${patch_folder}/$i" || die
