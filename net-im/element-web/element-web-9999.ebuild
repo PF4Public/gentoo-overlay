@@ -77,7 +77,7 @@ src_configure() {
 	yarn config set nodedir /usr/include/node || die
 
 	# Removing sentry dependency
-	sed -i '/sentry/d' "${WORKDIR}/${P}/package.json" || die
+	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/package.json" || die
 	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
 	sed -i '/process.env.SENTRY_DSN \&\&/,/}),/s/^/\/\//' "${WORKDIR}/${P}/webpack.config.js" || die
 
