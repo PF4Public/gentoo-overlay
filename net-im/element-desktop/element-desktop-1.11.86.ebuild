@@ -1160,7 +1160,7 @@ src_compile() {
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 
 	node node_modules/.bin/tsc || die
-	node node_modules/.bin/ts-node scripts/copy-res.ts || die
+	node node_modules/.bin/tsx scripts/copy-res.ts || die
 
 	if use native-modules
 	then
