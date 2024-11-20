@@ -68,15 +68,6 @@ CROMITE_COMMIT_ID="5ae31e6b965f3f62c1ad886b5c843921baeedaea"
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
-	["dc9db222b929f5da415216134b77d7f3bf141813"]="." #131+
-	["7e28832cd3320d2b603e6ef9468581e1c65c14f1"]="." #131+
-	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
-	["4c49d7f04f43ab4757637cac21cfef7c0cd060fc"]="." #131+
-	["47fb59539e5744467eb6f7aae52f5a169910d56c"]="." #131+
-	["39583ff118920284de516d262979960e7159bcfc"]="." #131+
-	["c502d310d8cb91f1c1098a7287e75114023e57f0"]="." #131+
-	["40c273b2c0f5f26e16e67428ceaafd8b339bb61f"]="." #131+
-	["8739a5b33176e82e06a746163c0c76de4908ced9"]="." #131+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -1883,4 +1874,3 @@ git_wrapper () {
 		git "$@" || die
 	fi
 }
-
