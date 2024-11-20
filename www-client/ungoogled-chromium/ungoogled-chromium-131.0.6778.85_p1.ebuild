@@ -23,11 +23,10 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
+PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
 	ppc64? (
-		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
-		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
+		https://gitlab.solidsilicon.io/public-development/open-source/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
 "
 # Gentoo tarball:
@@ -37,7 +36,7 @@ LICENSE="BSD cromite? ( GPL-3 )"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine cpu_flags_ppc_vsx3"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -435,8 +434,7 @@ src_unpack() {
 	fi
 
 	if use ppc64; then
-		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
-		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
+		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
 }
 
@@ -444,7 +442,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler.patch" "${T}"
+	cp -f "${FILESDIR}/compiler-131.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -460,7 +458,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
+		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -468,11 +467,47 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-130-fontations.patch"
+		"${FILESDIR}/chromium-131-fontations.patch"
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 	)
+
+	shopt -s globstar nullglob
+	# 130: moved the PPC64 patches into the chromium-patches repo
+	local patch
+	for patch in "${WORKDIR}/chromium-patches-${PATCH_V}"/**/*.patch; do
+		elog "Applying patch: ${patch}"
+		if [[ ${patch} == *"ppc64le"* ]]; then
+			use ppc64 && PATCHES+=( "${patch}" )
+		else
+			PATCHES+=( "${patch}" )
+		fi
+	done
+
+	# We can't use the bundled compiler builtins with the system toolchain
+	# `grep` is a development convenience to ensure we fail early when google changes something.
+	local builtins_match="if (is_clang && !is_nacl && !is_cronet_build) {"
+	grep -q "${builtins_match}" build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
+	sed -i -e "/${builtins_match}/,+2d" build/config/compiler/BUILD.gn
+
+	if use ppc64; then
+		# Above this level there are ungoogled-chromium patches that we can't apply
+		local patchset_dir="${WORKDIR}/openpower-patches-${PPC64_HASH}/patches/ppc64le"
+		# Apply the OpenPOWER patches
+		local power9_patch="patches/ppc64le/core/baseline-isa-3-0.patch"
+		for patch in ${patchset_dir}/**/*.{patch,diff}; do
+			if [[ ${patch} == *"${power9_patch}" ]]; then
+				use cpu_flags_ppc_vsx3 && PATCHES+=( "${patch}" )
+			else
+				PATCHES+=( "${patch}" )
+			fi
+		done
+
+		PATCHES+=( "${WORKDIR}/openpower-patches-${PPC64_HASH}/patches/upstream/blink-fix-size-assertions.patch" )
+	fi
+
+	shopt -u globstar nullglob
 
 	ewarn
 	ewarn "Following features are disabled:"
@@ -514,19 +549,6 @@ src_prepare() {
 			fi
 			popd > /dev/null || die
 		done
-	fi
-
-	if use ppc64 ; then
-		local p
-		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
-				eapply_wrapper "${WORKDIR}/debian/patches/${p}"
-			fi
-		done
-		PATCHES+=(
-			"${WORKDIR}/ppc64le"
-			"${WORKDIR}/debian/patches/fixes/rust-clanglib.patch"
-		)
 	fi
 
 	if ! use bluetooth ; then
@@ -861,9 +883,9 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/diff
 		third_party/devtools-frontend/src/front_end/third_party/i18n
 		third_party/devtools-frontend/src/front_end/third_party/intl-messageformat
+		third_party/devtools-frontend/src/front_end/third_party/json5
 		third_party/devtools-frontend/src/front_end/third_party/lighthouse
 		third_party/devtools-frontend/src/front_end/third_party/lit
-		third_party/devtools-frontend/src/front_end/third_party/lodash-isequal
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
@@ -897,6 +919,17 @@ src_prepare() {
 		third_party/highway
 		third_party/hunspell
 		third_party/iccjpeg
+		third_party/ink_stroke_modeler/src/ink_stroke_modeler
+		third_party/ink_stroke_modeler/src/ink_stroke_modeler/internal
+		third_party/ink/src/ink/brush
+		third_party/ink/src/ink/color
+		third_party/ink/src/ink/geometry
+		third_party/ink/src/ink/rendering
+		third_party/ink/src/ink/rendering/skia/common_internal
+		third_party/ink/src/ink/rendering/skia/native
+		third_party/ink/src/ink/rendering/skia/native/internal
+		third_party/ink/src/ink/strokes
+		third_party/ink/src/ink/types
 		third_party/inspector_protocol
 		third_party/ipcz
 		third_party/jinja2
@@ -1023,8 +1056,10 @@ src_prepare() {
 		third_party/tflite/src/third_party/eigen3
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
-		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/tflite/src/third_party/xla/xla/tsl/framework
+		third_party/tflite/src/third_party/xla/xla/tsl/lib/random
+		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
+		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
@@ -1107,14 +1142,10 @@ src_prepare() {
 		keeplibs+=( third_party/re2 )
 	fi
 
+	# Arch-specific
 	if use arm64 || use ppc64 ; then
 		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
 	fi
-
-	if use cromite ; then
-		keeplibs+=( third_party/ungoogled )
-	fi
-
 	# we need to generate ppc64 stuff because upstream does not ship it yet
 	# it has to be done before unbundling.
 	if use ppc64; then
@@ -1133,6 +1164,10 @@ src_prepare() {
 		cp libavcodec/ppc/h264dsp.c libavcodec/ppc/h264dsp_ppc.c || die
 		cp libavcodec/ppc/h264qpel.c libavcodec/ppc/h264qpel_ppc.c || die
 		popd >/dev/null || die
+	fi
+
+	if use cromite ; then
+		keeplibs+=( third_party/ungoogled )
 	fi
 
 	ebegin "Removing bundled libraries"
@@ -1338,6 +1373,13 @@ src_configure() {
 
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
+	# TODO 131: The above call clobbers `enable_freetype = true` in the freetype gni file
+	# drop the last line, then append the freetype line and a new curly brace to end the block
+	local freetype_gni="build/config/freetype/freetype.gni"
+	sed -i -e '$d' ${freetype_gni} || die
+	echo "  enable_freetype = true" >> ${freetype_gni} || die
+	echo "}" >> ${freetype_gni} || die
+
 	# See dependency logic in third_party/BUILD.gn
 	myconf_gn+=" use_system_harfbuzz=$(usex system-harfbuzz true false)"
 
@@ -1515,11 +1557,7 @@ src_configure() {
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 	fi
 
-	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
-	# Depending on GCC version the warnings are different and we don't want
-	# the build to fail because of that.
 	myconf_gn+=" treat_warnings_as_errors=false"
-
 	# Disable fatal linker warnings, bug 506268.
 	myconf_gn+=" fatal_linker_warnings=false"
 
@@ -1557,6 +1595,11 @@ src_configure() {
 
 	# Don't need nocompile checks and GN crashes with our config
 	myconf_gn+=" enable_nocompile_tests=false"
+
+	# 131 began laying the groundwork for replacing freetype with
+	# "Rust-based Fontations set of libraries plus Skia path rendering"
+	# We now need to opt-in
+	myconf_gn+=" enable_freetype=true"
 
 	# Enable ozone wayland and/or headless support
 	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
