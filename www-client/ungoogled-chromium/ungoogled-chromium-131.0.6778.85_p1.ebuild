@@ -66,7 +66,7 @@ CROMITE_COMMIT_ID="5ae31e6b965f3f62c1ad886b5c843921baeedaea"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["3ff08caa35db539fcc3dded353ec03c9f6a6efe7"]="third_party/dawn/src"
+	["3ff08caa35db539fcc3dded353ec03c9f6a6efe7"]="third_party/dawn"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 )
 
