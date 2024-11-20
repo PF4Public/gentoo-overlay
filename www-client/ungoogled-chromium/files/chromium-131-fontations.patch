@@ -51,6 +51,21 @@
    }
  
    if (is_win) {
+@@ -724,13 +696,7 @@
+     # skia_core_and_effects rather than the other way around.
+     public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
+   }
+-  if (use_blink) {
+-    # Fontations Rust/C++ bridge interfaces, needed by SkTypeface.
+-    deps += [
+-      ":bridge_rust_side",
+-      ":path_bridge",
+-    ]
+-  }
++
+   visibility = [ ":skia" ]
+ }
+ 
 --- a/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
 +++ b/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
 @@ -12,7 +12,6 @@

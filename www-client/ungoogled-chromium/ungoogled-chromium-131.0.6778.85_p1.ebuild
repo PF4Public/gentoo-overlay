@@ -65,7 +65,7 @@ UGC_COMMIT_ID="fa1a8c4816e3c633e4068877b847cc0780400eaa"
 CROMITE_COMMIT_ID="5ae31e6b965f3f62c1ad886b5c843921baeedaea"
 
 declare -A CHROMIUM_COMMITS=(
-	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src" 
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 )
 
