@@ -66,6 +66,7 @@ CROMITE_COMMIT_ID="5ae31e6b965f3f62c1ad886b5c843921baeedaea"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["3ff08caa35db539fcc3dded353ec03c9f6a6efe7"]="third_party/dawn/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 )
 
@@ -102,6 +103,9 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
 		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+		SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
@@ -530,6 +534,8 @@ src_prepare() {
 				patch_prefix="angle"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
 				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+				patch_prefix="dawn"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 				patch_prefix="vulkan-utility-libraries"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
