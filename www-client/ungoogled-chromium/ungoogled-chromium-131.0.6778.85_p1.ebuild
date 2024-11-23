@@ -67,7 +67,12 @@ CROMITE_COMMIT_ID="5ae31e6b965f3f62c1ad886b5c843921baeedaea"
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["3ff08caa35db539fcc3dded353ec03c9f6a6efe7"]="third_party/dawn"
+	["36e597995147c021798182a5ebe1681f11f730fd"]="third_party/webrtc"
+	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #132+
+	["8fa8d8f68f5bf71e70038994276e0225f006eb73"]="." #132+
+	["1f9a4db9f8f0d8b1561a6e264d2d88f064f19fbc"]="." #132+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -106,6 +111,9 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
 		SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+		SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
@@ -464,6 +472,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
 		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-131-const-atomicstring-conversion.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -475,6 +484,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-129-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -536,6 +546,8 @@ src_prepare() {
 				patch_prefix="quiche"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
 				patch_prefix="dawn"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+				patch_prefix="ink"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 				patch_prefix="vulkan-utility-libraries"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
