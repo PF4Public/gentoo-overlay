@@ -36,6 +36,14 @@
  
  # External-facing config for dependent code.
  config("skia_config") {
+@@ -180,7 +180,6 @@
+   if (use_blink && enable_freetype) {
+     defines += [
+       "SK_TYPEFACE_FACTORY_FREETYPE",
+-      "SK_TYPEFACE_FACTORY_FONTATIONS",
+       "SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE",
+     ]
+   }
 @@ -427,13 +405,7 @@
        sources += skia_ports_fontmgr_empty_sources
        public += skia_ports_fontmgr_empty_public
