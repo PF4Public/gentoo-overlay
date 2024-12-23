@@ -1290,7 +1290,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	js-type-check? ( virtual/jre )
-	clang? ( sys-devel/clang sys-devel/lld )
+	clang? ( llvm-core/clang llvm-core/lld )
 	sys-apps/yarn
 "
 
@@ -1483,7 +1483,7 @@ src_prepare() {
 
 	use vdpau && eapply "${FILESDIR}/vdpau-support-r4.patch"
 
-	if has_version ">=sys-devel/clang-15"; then
+	if has_version ">=llvm-core/clang-15"; then
 		eapply "${FILESDIR}/clang-15.patch"
 	fi
 
