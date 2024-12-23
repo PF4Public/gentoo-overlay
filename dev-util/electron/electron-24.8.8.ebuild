@@ -1266,7 +1266,7 @@ BDEPEND="
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
-	clang? ( sys-devel/clang sys-devel/lld )
+	clang? ( llvm-core/clang llvm-core/lld )
 	sys-apps/yarn
 "
 

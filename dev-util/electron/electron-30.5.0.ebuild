@@ -1247,8 +1247,8 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >=sys-devel/clang-18 >=sys-devel/lld-18	)
-		!pgo? ( sys-devel/clang sys-devel/lld )
+		pgo? ( >=llvm-core/clang-18 >=llvm-core/lld-18	)
+		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
 	sys-apps/yarn
 "

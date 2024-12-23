@@ -1202,7 +1202,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	js-type-check? ( virtual/jre )
-	clang? ( sys-devel/clang sys-devel/lld )
+	clang? ( llvm-core/clang llvm-core/lld )
 	sys-apps/yarn
 "
 
