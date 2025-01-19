@@ -39,7 +39,48 @@
        "memory/discardable_memory.cc",
        "memory/discardable_memory.h",
        "memory/discardable_memory_allocator.cc",
-@@ -3564,7 +3555,7 @@
+@@ -2447,40 +2438,6 @@
+   }
+ }
+ 
+-rust_bindgen("logging_log_severity_bindgen") {
+-  # TODO(danakj): Maybe combine all base bindgen targets, or all base/logging
+-  # ones even) into a single GN target? But the GN rule needs to handle multiple
+-  # headers then.
+-  header = "logging/log_severity.h"
+-  cpp = true
+-  visibility = [ ":*" ]
+-
+-  # Transitive generated header dependency.
+-  deps = [ ":debugging_buildflags" ]
+-}
+-
+-rust_bindgen("logging_rust_log_integration_bindgen") {
+-  header = "logging/rust_log_integration.h"
+-  cpp = true
+-  visibility = [ ":*" ]
+-
+-  # Transitive generated header dependency.
+-  deps = [ ":debugging_buildflags" ]
+-}
+-
+-rust_static_library("rust_logger") {
+-  allow_unsafe = true  # Unsafe needed for FFI.
+-  deps = [
+-    ":logging_log_severity_bindgen",
+-    ":logging_rust_log_integration_bindgen",
+-    "//third_party/rust/log/v0_4:lib",
+-  ]
+-  visibility = [ ":base" ]
+-  sources = [ "logging/rust_logger.rs" ]
+-  crate_root = "logging/rust_logger.rs"
+-
+-  cxx_bindings = [ "logging/rust_logger.rs" ]
+-}
+ 
+ if (is_linux || is_chromeos) {
+   # Split out as a separate target for two reasons:
+@@ -3564,7 +3521,7 @@
      sources += [ "location_unittest.cc" ]
    }
  
@@ -48,7 +89,7 @@
      sources += [
        "containers/span_rust_unittest.cc",
        "strings/string_piece_rust_unittest.cc",
-@@ -3617,7 +3608,7 @@
+@@ -3617,7 +3574,7 @@
      deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
    }
  
