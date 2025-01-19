@@ -108,13 +108,13 @@
  import("//pdf/features.gni")
  import("//ppapi/buildflags/buildflags.gni")
  import("//printing/buildflags/buildflags.gni")
-@@ -888,12 +887,10 @@
+@@ -888,12 +887,9 @@
  
    deps = [
      ":rust_build_tests",
 -    "//base:base_unittests",  # There is rust stuff in here.
 -    "//testing/rust_gtest_interop:rust_gtest_interop_unittests",
-     "//third_party/cloud_authenticator/processor",
+-    "//third_party/cloud_authenticator/processor",
    ]
  
 -  if (enable_rust_mojo) {
@@ -157,3 +157,13 @@
      "//base",
      "//base:base_static",
      "//base:i18n",
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -341,7 +341,6 @@
+     "//services/metrics/public/cpp:ukm_builders",
+     "//services/metrics/public/mojom:mojom",
+     "//services/network/public/cpp:cpp",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base:base",
