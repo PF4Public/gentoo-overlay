@@ -70,9 +70,6 @@ declare -A CHROMIUM_COMMITS=(
 	["36e597995147c021798182a5ebe1681f11f730fd"]="third_party/webrtc"
 	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
-	["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #132+
-	["8fa8d8f68f5bf71e70038994276e0225f006eb73"]="." #132+
-	["1f9a4db9f8f0d8b1561a6e264d2d88f064f19fbc"]="." #132+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -169,7 +166,6 @@ COMMON_SNAPSHOT_DEPEND="
 	media-libs/fontconfig:=
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
-	media-libs/lcms
 	media-libs/libjpeg-turbo:=
 	system-png? ( media-libs/libpng:= )
 	system-zstd? ( >=app-arch/zstd-1.5.5:= )
@@ -181,7 +177,6 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
-	x11-libs/libdrm:=
 	!headless? (
 		dev-libs/glib:2
 		>=media-libs/alsa-lib-1.0.19:=
@@ -459,11 +454,6 @@ src_prepare() {
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
 
-	# disable global media controls, crashes with libstdc++
-	sed -i -e \
-		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
-		"chrome/browser/media/router/media_router_feature.cc"
-
 	local PATCHES=(
 		"${T}/compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -472,7 +462,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
 		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
-		"${FILESDIR}/chromium-131-const-atomicstring-conversion.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -491,37 +480,39 @@ src_prepare() {
 	# 130: moved the PPC64 patches into the chromium-patches repo
 	local patch
 	for patch in "${WORKDIR}/chromium-patches-${PATCH_V}"/**/*.patch; do
-		elog "Applying patch: ${patch}"
-		if [[ ${patch} == *"ppc64le"* ]]; then
-			use ppc64 && PATCHES+=( "${patch}" )
-		else
-			PATCHES+=( "${patch}" )
-		fi
+			if [[ ${patch} == *"ppc64le"* ]]; then
+					use ppc64 && PATCHES+=( "${patch}" )
+			else
+					PATCHES+=( "${patch}" )
+			fi
 	done
+	shopt -u globstar nullglob
 
-	# # We can't use the bundled compiler builtins with the system toolchain
-	# # `grep` is a development convenience to ensure we fail early when google changes something.
-	# local builtins_match="if (is_clang && !is_nacl && !is_cronet_build) {"
-	# grep -q "${builtins_match}" build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
-	# sed -i -e "/${builtins_match}/,+2d" build/config/compiler/BUILD.gn
+	# We can't use the bundled compiler builtins with the system toolchain
+	# `grep` is a development convenience to ensure we fail early when google changes something.
+	local builtins_match="if (is_clang && !is_nacl && !is_cronet_build) {"
+	grep -q "${builtins_match}" build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
+	sed -i -e "/${builtins_match}/,+2d" build/config/compiler/BUILD.gn
 
 	if use ppc64; then
-		# Above this level there are ungoogled-chromium patches that we can't apply
-		local patchset_dir="${WORKDIR}/openpower-patches-${PPC64_HASH}/patches/ppc64le"
-		# Apply the OpenPOWER patches
-		local power9_patch="patches/ppc64le/core/baseline-isa-3-0.patch"
-		for patch in ${patchset_dir}/**/*.{patch,diff}; do
-			if [[ ${patch} == *"${power9_patch}" ]]; then
-				use cpu_flags_ppc_vsx3 && PATCHES+=( "${patch}" )
-			else
-				PATCHES+=( "${patch}" )
-			fi
+		local patchset_dir="${WORKDIR}/openpower-patches-${PPC64_HASH}/patches"
+		# patch causes build errors on 4K page systems (https://bugs.gentoo.org/show_bug.cgi?id=940304)
+		local page_size_patch="ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
+		local isa_3_patch="ppc64le/core/baseline-isa-3-0.patch"
+		# Apply the OpenPOWER patches (check for page size and isa3.0)
+		openpower_patches=( $(grep -E "^ppc64le|^upstream" "${patchset_dir}/series" | grep -v "${page_size_patch}" |
+			grep -v "${isa_3_patch}" || die) )
+		for patch in "${openpower_patches[@]}"; do
+			PATCHES+=( "${patchset_dir}/${patch}" )
 		done
-
-		PATCHES+=( "${WORKDIR}/openpower-patches-${PPC64_HASH}/patches/upstream/blink-fix-size-assertions.patch" )
+		if [[ $(getconf PAGESIZE) == 65536 ]]; then
+			PATCHES+=( "${patchset_dir}/${page_size_patch}" )
+		fi
+		# We use vsx3 as a proxy for 'want isa3.0' (POWER9)
+		if use cpu_flags_ppc_vsx3 ; then
+			PATCHES+=( +"${patchset_dir}/${isa_3_patch}" )
+		fi
 	fi
-
-	shopt -u globstar nullglob
 
 	ewarn
 	ewarn "Following features are disabled:"
@@ -803,6 +794,8 @@ src_prepare() {
 	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 	eend $? || die
 
+	# remove_bundled_libraries.py walks the source tree and looks for paths containing the substring 'third_party'
+	# whitelist matches use the right-most matching path component, so we need to whitelist from that point down.
 	local keeplibs=(
 		base/third_party/cityhash
 	)
@@ -962,6 +955,7 @@ src_prepare() {
 		third_party/leveldatabase
 		third_party/libaddressinput
 		third_party/libavif
+		third_party/libdrm
 	)
 	use system-libevent || keeplibs+=(
 		third_party/libevent
@@ -973,6 +967,9 @@ src_prepare() {
 		third_party/libsecret
 		third_party/libsrtp
 		third_party/libsync
+		third_party/libtess2/libtess2
+		third_party/libtess2/src/Include
+		third_party/libtess2/src/Source
 		third_party/liburlpattern
 	)
 	use system-libusb || keeplibs+=(
@@ -1184,6 +1181,31 @@ src_prepare() {
 		popd >/dev/null || die
 	fi
 
+	# Sanity check keeplibs, on major version bumps it is often necessary to update this list
+	# and this enables us to hit them all at once.
+	# There are some entries that need to be whitelisted (TODO: Why? The file is understandable, the rest seem odd)
+	whitelist_libs=(
+		net/third_party/quic
+		third_party/devtools-frontend/src/front_end/third_party/additional_readme_paths.json
+		third_party/libjingle
+		third_party/mesa
+		third_party/skia/third_party/vulkan
+		third_party/vulkan
+	)
+	local not_found_libs=()
+	for lib in "${keeplibs[@]}"; do
+		if [[ ! -d "${lib}" ]] && ! has "${lib}" "${whitelist_libs[@]}"; then
+			not_found_libs+=( "${lib}" )
+		fi
+	done
+
+	if [[ ${#not_found_libs[@]} -gt 0 ]]; then
+		eerror "The following \`keeplibs\` directories were not found in the source tree:"
+		for lib in "${not_found_libs[@]}"; do
+			eerror "  ${lib}"
+		done
+	fi
+
 	if use cromite ; then
 		keeplibs+=( third_party/ungoogled )
 	fi
@@ -1305,7 +1327,6 @@ src_configure() {
 		flac
 		fontconfig
 		freetype
-		libdrm
 		libjpeg
 		libwebp
 		libxml
@@ -1631,7 +1652,6 @@ src_configure() {
 		myconf_gn+=" enable_print_preview=false"
 		myconf_gn+=" enable_remoting=false"
 	else
-		myconf_gn+=" use_system_libdrm=true"
 		myconf_gn+=" use_system_minigbm=true"
 		myconf_gn+=" use_xkbcommon=true"
 		if use qt5 || use qt6; then
