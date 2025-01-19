@@ -436,7 +436,7 @@ src_unpack() {
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
 	# Gentoo tarball:
 	# tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-gentoo.tar.xz" -C "${WORKDIR}" || die
-	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}.tar.xz" -C "${WORKDIR}" || die
+	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-lite.tar.xz" -C "${WORKDIR}" || die
 
 	unpack ${UGC_URL#*->}
 	# Warned you!
