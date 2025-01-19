@@ -37,4 +37,22 @@
      deps += [ "//build/rust:cxx_cppdeps" ]
    }
  
-
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -28,7 +28,6 @@
+ import("//gpu/vulkan/features.gni")
+ import("//media/gpu/args.gni")
+ import("//media/media_options.gni")
+-import("//mojo/public/rust/rust.gni")
+ import("//pdf/features.gni")
+ import("//ppapi/buildflags/buildflags.gni")
+ import("//printing/buildflags/buildflags.gni")
+@@ -888,8 +887,6 @@
+ 
+   deps = [
+     ":rust_build_tests",
+-    "//base:base_unittests",  # There is rust stuff in here.
+-    "//testing/rust_gtest_interop:rust_gtest_interop_unittests",
+     "//third_party/cloud_authenticator/processor",
+   ]
+ 
