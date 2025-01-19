@@ -1,14 +1,3 @@
---- a/build/config/compiler/BUILD.gn
-+++ b/build/config/compiler/BUILD.gn
-@@ -1761,7 +1761,7 @@
-   # the C++ symbols. This config ensures the C++ symbols exist and are strong in
-   # order to cause that replacement to occur by explicitly linking in clang's
-   # compiler-rt library.
--  if (is_clang && !is_nacl && !is_cronet_build) {
-+  if (is_clang && toolchain_has_rust) {
-     configs += [ "//build/config/clang:compiler_builtins" ]
-   }
- 
 --- a/build/config/clang/BUILD.gn
 +++ b/build/config/clang/BUILD.gn
 @@ -237,7 +237,12 @@

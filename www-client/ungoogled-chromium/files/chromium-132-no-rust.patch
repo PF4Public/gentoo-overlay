@@ -1,0 +1,40 @@
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -1024,8 +1024,7 @@
+ 
+     # NaCl does not support Rust.
+     deps += [
+-      ":rust_logger",
+-      "//third_party/rust/serde_json_lenient/v0_2/wrapper",
++      ":rust_logger"
+     ]
+   }
+ 
+@@ -1063,7 +1062,7 @@
+     "//third_party/abseil-cpp:absl",
+   ]
+ 
+-  if (!is_nacl) {
++  if (is_nacl) {
+     sources += [
+       "containers/span_rust.h",
+       "strings/string_view_rust.h",
+@@ -3564,7 +3563,7 @@
+     sources += [ "location_unittest.cc" ]
+   }
+ 
+-  if (!is_nacl) {
++  if (is_nacl) {
+     sources += [
+       "containers/span_rust_unittest.cc",
+       "strings/string_piece_rust_unittest.cc",
+@@ -3617,7 +3616,7 @@
+     deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
+   }
+ 
+-  if (!is_nacl) {
++  if (is_nacl) {
+     deps += [ "//build/rust:cxx_cppdeps" ]
+   }
+ 
+
