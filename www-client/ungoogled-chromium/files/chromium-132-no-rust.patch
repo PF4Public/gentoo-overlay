@@ -47,7 +47,7 @@
  import("//pdf/features.gni")
  import("//ppapi/buildflags/buildflags.gni")
  import("//printing/buildflags/buildflags.gni")
-@@ -888,8 +887,6 @@
+@@ -888,12 +887,10 @@
  
    deps = [
      ":rust_build_tests",
@@ -56,3 +56,8 @@
      "//third_party/cloud_authenticator/processor",
    ]
  
+-  if (enable_rust_mojo) {
++  if (false) {
+     deps += [
+       "//mojo/public/rust:mojo_rust",
+       "//mojo/public/rust:mojo_rust_integration_unittests",

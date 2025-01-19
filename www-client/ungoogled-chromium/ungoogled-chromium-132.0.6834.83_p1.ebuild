@@ -472,7 +472,7 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-132-no-rust.patch" 
+		"${FILESDIR}/chromium-132-no-rust.patch"
 	)
 
 	shopt -s globstar nullglob
