@@ -742,6 +742,8 @@ src_prepare() {
 	sed -i "\!ios/!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/icu/!d" "${ugc_pruning_list}" || die
 	sed -i "\!third_party/libjpeg_turbo/!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/snappy/!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/closure_compiler/!d" "${ugc_pruning_list}" || die
 
 	#* Didn't unpack them at the first place
 	sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
