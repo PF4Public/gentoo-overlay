@@ -1,0 +1,115 @@
+--- a/skia/BUILD.gn
++++ b/skia/BUILD.gn
+@@ -8,7 +8,6 @@
+ import("//build/config/freetype/freetype.gni")
+ import("//build/config/rust.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//gpu/vulkan/features.gni")
+ import("//testing/test.gni")
+ import("//third_party/skia/gn/shared_sources.gni")
+@@ -48,27 +48,6 @@
+   ]
+ }
+ 
+-source_set("path_bridge") {
+-  sources = skia_fontations_path_bridge_sources
+-}
+-
+-rust_static_library("bridge_rust_side") {
+-  allow_unsafe = true
+-  crate_root = skia_fontations_bridge_root
+-  sources = skia_fontations_bridge_sources
+-  cxx_bindings = skia_fontations_bridge_sources
+-  deps = [
+-    ":path_bridge",
+-    "//third_party/rust/font_types/v0_7:lib",
+-    "//third_party/rust/read_fonts/v0_23:lib",
+-    "//third_party/rust/skrifa/v0_24:lib",
+-  ]
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+ 
+ # External-facing config for dependent code.
+ config("skia_config") {
+@@ -180,7 +180,6 @@
+   if (use_blink && enable_freetype) {
+     defines += [
+       "SK_TYPEFACE_FACTORY_FREETYPE",
+-      "SK_TYPEFACE_FACTORY_FONTATIONS",
+       "SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE",
+     ]
+   }
+@@ -427,13 +405,7 @@
+       sources += skia_ports_fontmgr_empty_sources
+       public += skia_ports_fontmgr_empty_public
+     }
+-    sources += skia_ports_typeface_fontations_sources
+-
+-    # Fontations Rust/C++ bridge interfaces.
+-    deps += [
+-      ":bridge_rust_side",
+-      ":path_bridge",
+-    ]
++
+   }
+ 
+   if (is_win) {
+@@ -724,13 +696,7 @@
+     # skia_core_and_effects rather than the other way around.
+     public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
+   }
+-  if (use_blink) {
+-    # Fontations Rust/C++ bridge interfaces, needed by SkTypeface.
+-    deps += [
+-      ":bridge_rust_side",
+-      ":path_bridge",
+-    ]
+-  }
++
+   visibility = [ ":skia" ]
+ }
+ 
+--- a/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
++++ b/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
+@@ -12,7 +12,6 @@
+ #include "third_party/blink/renderer/platform/fonts/opentype/font_format_check.h"
+ #include "third_party/skia/include/core/SkStream.h"
+ #include "third_party/skia/include/core/SkTypeface.h"
+-#include "third_party/skia/include/ports/SkTypeface_fontations.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+ #include "third_party/blink/renderer/platform/fonts/win/dwrite_font_format_support.h"
+@@ -54,7 +53,7 @@
+ }
+ 
+ sk_sp<SkTypeface> MakeTypefaceDefaultFontMgr(sk_sp<SkData> data) {
+-#if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
++#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
+   if (RuntimeEnabledFeatures::FontationsFontBackendEnabled()) {
+     std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(data));
+     return SkTypeface_Make_Fontations(std::move(stream), SkFontArguments());
+@@ -82,10 +81,6 @@
+ }
+ #endif
+ 
+-sk_sp<SkTypeface> MakeTypefaceFontations(sk_sp<SkData> data) {
+-  std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(data));
+-  return SkTypeface_Make_Fontations(std::move(stream), SkFontArguments());
+-}
+ 
+ sk_sp<SkTypeface> MakeVariationsTypeface(
+     sk_sp<SkData> data,
+@@ -187,7 +182,6 @@
+   const FontFormatCheck format_check(data);
+   const FontInstantiator instantiator = {
+       MakeTypefaceDefaultFontMgr,
+-      MakeTypefaceFontations,
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+       MakeTypefaceFallback,
+ #endif
+

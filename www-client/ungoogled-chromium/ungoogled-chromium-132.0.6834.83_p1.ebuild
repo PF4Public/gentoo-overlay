@@ -66,8 +66,6 @@ CROMITE_COMMIT_ID="36e27b9c60c551348fe4e65a537d16c76d9b48e8"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["3ff08caa35db539fcc3dded353ec03c9f6a6efe7"]="third_party/dawn"
-	["36e597995147c021798182a5ebe1681f11f730fd"]="third_party/webrtc"
 	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 )
@@ -449,7 +447,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler-131.patch" "${T}/compiler.patch"
+	cp -f "${FILESDIR}/compiler-132.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -466,11 +464,11 @@ src_prepare() {
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
-		"${FILESDIR}/chromium-127-crabby.patch"
+		"${FILESDIR}/chromium-132-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-131-fontations.patch"
-		"${FILESDIR}/chromium-129-no-link-builtins.patch"
+		"${FILESDIR}/chromium-132-fontations.patch"
+		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
@@ -523,7 +521,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-130-libstdc++.patch"
-			"${FILESDIR}/font-gc-r2.patch"
+			"${FILESDIR}/font-gc-r3.patch"
 		)
 	fi
 
@@ -740,6 +738,11 @@ src_prepare() {
 		)
 	fi
 
+	#* Temporary fix
+	sed -i "\!ios/!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/icu/!d" "${ugc_pruning_list}" || die
+	sed -i "\!third_party/libjpeg_turbo/!d" "${ugc_pruning_list}" || die
+
 	#* Didn't unpack them at the first place
 	sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
 	sed -i "\!build/linux/debian_bullseye_amd64-sysroot!d" "${ugc_pruning_list}" || die
@@ -750,7 +753,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		sed -i "\!third_party/libc!d" "${ugc_pruning_list}" || die
 	fi
-	sed -i "s|debug('Files|error('Files|" \
+	sed -i "s|debug('files|error('files|" \
 		"${UGC_WD}/utils/prune_binaries.py" || die
 	sed -i "\!third_party/node/linux!d" \
 		"${UGC_WD}/utils/prune_binaries.py" || die
