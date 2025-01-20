@@ -157,6 +157,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
 	system-libusb? ( virtual/libusb:1 )
 	system-icu? ( >=dev-libs/icu-71.1:= )
+	cromite? ( dev-util/patchutils )
 	>=dev-libs/libxml2-2.12.4:=[icu]
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
@@ -656,8 +657,14 @@ src_prepare() {
 			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
-			einfo "Applying ${i##*/}"
-			git_wrapper apply -p1 --exclude="chrome/android/*" < "$i"
+			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
+				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
+				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
+				einfo "Git binary patch: ${i##*/}"
+				git_wrapper apply -p1 < "$i"
+			else
+				filter_wrapper "$i" --exclude="chrome/android/*"
+			fi
 		done
 
 		#! conflicting patches
@@ -1952,5 +1959,14 @@ git_wrapper () {
 		git "$@"
 	else
 		git "$@" || die
+	fi
+}
+
+filter_wrapper () {
+	einfo "Applying $1"
+	if [ ! -z "${NODIE}" ]; then
+		filterdiff -p1 "${@:2}" < "$1" | patch -p1
+	else
+		filterdiff -p1 "${@:2}" < "$1" | patch -p1 || die
 	fi
 }
