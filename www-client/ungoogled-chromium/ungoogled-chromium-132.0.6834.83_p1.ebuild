@@ -656,15 +656,8 @@ src_prepare() {
 			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
-			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
-				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
-				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
-				einfo "Git binary patch: ${i##*/}"
-				git_wrapper apply -p1 < "$i"
-			else
-				# einfo "${i##*/}"
-				eapply_wrapper  "$i"
-			fi
+			einfo "Applying ${i##*/}"
+			git_wrapper apply -p1 --exclude="*/chrome/android/*" < "$i"
 		done
 
 		#! conflicting patches
