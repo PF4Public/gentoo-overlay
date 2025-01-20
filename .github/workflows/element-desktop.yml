@@ -94,6 +94,10 @@ jobs:
             experimental: true
           - use: 'electron-32'
             experimental: true
+          - use: 'electron-33'
+            experimental: true
+          - use: 'electron-34'
+            experimental: true
 
     steps:
       - name: Check out the repo

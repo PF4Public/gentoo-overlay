@@ -104,6 +104,10 @@ jobs:
             experimental: true
           - use: '-temp-fix electron-32'
             experimental: true
+          - use: '-temp-fix electron-33'
+            experimental: true
+          - use: '-temp-fix electron-34'
+            experimental: true
 
     steps:
       - name: Check out the repo
