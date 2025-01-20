@@ -694,7 +694,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	if use hevc; then
-		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
+		sed -i '/^bool IsDecoderHevcProfileSupported(const VideoType& type) {$/{s++bool IsDecoderHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
 	fi
 
@@ -1963,7 +1963,7 @@ git_wrapper () {
 }
 
 filter_wrapper () {
-	einfo "Applying $1"
+	einfo "Applying ${i##*/}"
 	if [ ! -z "${NODIE}" ]; then
 		filterdiff -p1 "${@:2}" < "$1" | patch -p1
 	else
