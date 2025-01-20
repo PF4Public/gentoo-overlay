@@ -657,7 +657,7 @@ src_prepare() {
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
 			einfo "Applying ${i##*/}"
-			git_wrapper apply -p1 --exclude="*/chrome/android/*" < "$i"
+			git_wrapper apply -p1 --exclude="chrome/android/*" < "$i"
 		done
 
 		#! conflicting patches
