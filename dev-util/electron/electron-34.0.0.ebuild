@@ -1739,7 +1739,7 @@ src_prepare() {
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
-				--exclude="*/buildtools/third_party/libc++/*" \
+				--exclude="*/libc++/*" \
 				-p1 < "${S}/${patch_folder}/$i" || die
 			# eend $? || die
 			popd > /dev/null || die
