@@ -2151,10 +2151,6 @@ src_prepare() {
 		done
 	fi
 
-	if use cromite ; then
-		keeplibs+=( third_party/ungoogled )
-	fi
-
 	ebegin "Removing bundled libraries"
 	# Remove most bundled libraries. Some are still needed.
 	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
