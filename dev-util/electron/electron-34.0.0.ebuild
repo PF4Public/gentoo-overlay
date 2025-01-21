@@ -32,17 +32,14 @@ UGC_WD="${WORKDIR}/${UGC_PF}"
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
-PATCHSET_PPC64="126.0.6478.126-1raptor0~deb12u1"
+PPC64_HASH="c11b515d9addc3f8b516502e553ace507eb81815"
 SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz
 	mirror+https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 	ppc64? (
-		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
-		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
+		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
 
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
-	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://codeload.github.com/nodejs/nan/tar.gz/e14bdcd1f72d62bca1d541b66da43130384ec213
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.4.tgz -> @azure-abort-controller-1.0.4.tgz
 	https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-2.1.2.tgz -> @azure-abort-controller-2.1.2.tgz
@@ -1366,7 +1363,7 @@ src_unpack() {
 	fi
 
 	einfo "Unpacking chromium-${CHROMIUM_VERSION/_*}.tar.xz to ${WORKDIR}"
-	tar ${XCLD} -xf "${DISTDIR}/chromium-${CHROMIUM_VERSION/_*}.tar.xz" -C "${WORKDIR}" || die
+	tar ${XCLD} -xf "${DISTDIR}/chromium-${CHROMIUM_VERSION/_*}-lite.tar.xz" -C "${WORKDIR}" || die
 
 	unpack "${P}.tar.gz"
 	unpack "node-v${NODE_VERSION}.tar.xz"
@@ -1375,8 +1372,7 @@ src_unpack() {
 	# Warned you!
 
 	if use ppc64; then
-		unpack "chromium_${PATCHSET_PPC64}.debian.tar.xz"
-		unpack "chromium-ppc64le-gentoo-patches-1.tar.xz"
+		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
 }
 
