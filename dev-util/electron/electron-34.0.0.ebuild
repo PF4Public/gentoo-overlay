@@ -1082,16 +1082,9 @@ REQUIRED_USE="
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
+	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
-	["dc9db222b929f5da415216134b77d7f3bf141813"]="." #131+
-	["7e28832cd3320d2b603e6ef9468581e1c65c14f1"]="." #131+
-	["b51da416e04ecc9edafff531f9678c6404e654b7"]="." #131+
-	["4c49d7f04f43ab4757637cac21cfef7c0cd060fc"]="." #131+
-	["47fb59539e5744467eb6f7aae52f5a169910d56c"]="." #131+
-	["39583ff118920284de516d262979960e7159bcfc"]="." #131+
-	["c502d310d8cb91f1c1098a7287e75114023e57f0"]="." #131+
-	["40c273b2c0f5f26e16e67428ceaafd8b339bb61f"]="." #131+
-	["8739a5b33176e82e06a746163c0c76de4908ced9"]="." #131+
+	["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
 )
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
@@ -1118,6 +1111,12 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
 		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+		SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+		SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
 		"
 		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
@@ -1171,7 +1170,6 @@ COMMON_SNAPSHOT_DEPEND="
 	media-libs/fontconfig:=
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
-	media-libs/lcms
 	media-libs/libjpeg-turbo:=
 	system-png? ( media-libs/libpng:= )
 	system-zstd? ( >=app-arch/zstd-1.5.5:= )
@@ -1183,7 +1181,6 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
-	x11-libs/libdrm:=
 	dev-libs/glib:2
 	>=media-libs/alsa-lib-1.0.19:=
 	pulseaudio? (
@@ -1380,7 +1377,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler.patch" "${T}"
+	cp -f "${FILESDIR}/compiler-132.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -1450,19 +1447,60 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
-		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
+		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
-		"${FILESDIR}/chromium-127-crabby.patch"
+		"${FILESDIR}/chromium-132-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-130-fontations.patch"
-		"${FILESDIR}/chromium-129-no-link-builtins.patch"
+		"${FILESDIR}/chromium-132-fontations.patch"
+		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
+		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
+		"${FILESDIR}/chromium-132-no-rust.patch"
 	)
+
+	shopt -s globstar nullglob
+	# 130: moved the PPC64 patches into the chromium-patches repo
+	local patch
+	for patch in "${WORKDIR}/chromium-patches-${PATCH_V}"/**/*.patch; do
+			if [[ ${patch} == *"ppc64le"* ]]; then
+					use ppc64 && PATCHES+=( "${patch}" )
+			else
+					PATCHES+=( "${patch}" )
+			fi
+	done
+	shopt -u globstar nullglob
+
+	# We can't use the bundled compiler builtins with the system toolchain
+	# `grep` is a development convenience to ensure we fail early when google changes something.
+	local builtins_match="if (is_clang && !is_nacl && !is_cronet_build) {"
+	grep -q "${builtins_match}" build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
+	sed -i -e "/${builtins_match}/,+2d" build/config/compiler/BUILD.gn
+
+	if use ppc64; then
+		local patchset_dir="${WORKDIR}/openpower-patches-${PPC64_HASH}/patches"
+		# patch causes build errors on 4K page systems (https://bugs.gentoo.org/show_bug.cgi?id=940304)
+		local page_size_patch="ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
+		local isa_3_patch="ppc64le/core/baseline-isa-3-0.patch"
+		# Apply the OpenPOWER patches (check for page size and isa3.0)
+		openpower_patches=( $(grep -E "^ppc64le|^upstream" "${patchset_dir}/series" | grep -v "${page_size_patch}" |
+			grep -v "${isa_3_patch}" || die) )
+		for patch in "${openpower_patches[@]}"; do
+			PATCHES+=( "${patchset_dir}/${patch}" )
+		done
+		if [[ $(getconf PAGESIZE) == 65536 ]]; then
+			PATCHES+=( "${patchset_dir}/${page_size_patch}" )
+		fi
+		# We use vsx3 as a proxy for 'want isa3.0' (POWER9)
+		if use cpu_flags_ppc_vsx3 ; then
+			PATCHES+=( +"${patchset_dir}/${isa_3_patch}" )
+		fi
+	fi
 
 	ewarn
 	ewarn "Following features are disabled:"
@@ -1473,7 +1511,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-130-libstdc++.patch"
-			"${FILESDIR}/font-gc-r2.patch"
+			"${FILESDIR}/font-gc-r3.patch"
 		)
 	fi
 
@@ -1485,6 +1523,10 @@ src_prepare() {
 				patch_prefix="angle"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
 				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+				patch_prefix="dawn"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+				patch_prefix="ink"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
 				patch_prefix="vulkan-utility-libraries"
 			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
@@ -1504,19 +1546,6 @@ src_prepare() {
 			fi
 			popd > /dev/null || die
 		done
-	fi
-
-	if use ppc64 ; then
-		local p
-		for p in $(grep -v "^#" "${WORKDIR}"/debian/patches/series | grep "^ppc64le" || die); do
-			if [[ ! $p =~ "fix-breakpad-compile.patch" ]]; then
-				eapply "${WORKDIR}/debian/patches/${p}"
-			fi
-		done
-		PATCHES+=(
-			"${WORKDIR}/ppc64le"
-			"${WORKDIR}/debian/patches/fixes/rust-clanglib.patch"
-		)
 	fi
 
 	default
@@ -1539,7 +1568,7 @@ src_prepare() {
 	use bluetooth || eapply "${FILESDIR}/disable-bluez-r1.patch"
 
 	if use hevc; then
-		sed -i '/^bool IsHevcProfileSupported(const VideoType& type) {$/{s++bool IsHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
+		sed -i '/^bool IsDecoderHevcProfileSupported(const VideoType& type) {$/{s++bool IsDecoderHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
 	fi
 
@@ -1592,6 +1621,13 @@ src_prepare() {
 			# GN bootstrap
 			extra/debian/gn/parallel
 		)
+
+		#* Temporary fix
+		sed -i "\!ios/!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/icu/!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/libjpeg_turbo/!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/snappy/!d" "${ugc_pruning_list}" || die
+		sed -i "\!third_party/closure_compiler/!d" "${ugc_pruning_list}" || die
 
 		#* Didn't unpack them at the first place
 		sed -i "\!build/linux/debian_bullseye_i386-sysroot!d" "${ugc_pruning_list}" || die
@@ -1802,9 +1838,9 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/diff
 		third_party/devtools-frontend/src/front_end/third_party/i18n
 		third_party/devtools-frontend/src/front_end/third_party/intl-messageformat
+		third_party/devtools-frontend/src/front_end/third_party/json5
 		third_party/devtools-frontend/src/front_end/third_party/lighthouse
 		third_party/devtools-frontend/src/front_end/third_party/lit
-		third_party/devtools-frontend/src/front_end/third_party/lodash-isequal
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
@@ -1838,6 +1874,17 @@ src_prepare() {
 		third_party/highway
 		third_party/hunspell
 		third_party/iccjpeg
+		third_party/ink_stroke_modeler/src/ink_stroke_modeler
+		third_party/ink_stroke_modeler/src/ink_stroke_modeler/internal
+		third_party/ink/src/ink/brush
+		third_party/ink/src/ink/color
+		third_party/ink/src/ink/geometry
+		third_party/ink/src/ink/rendering
+		third_party/ink/src/ink/rendering/skia/common_internal
+		third_party/ink/src/ink/rendering/skia/native
+		third_party/ink/src/ink/rendering/skia/native/internal
+		third_party/ink/src/ink/strokes
+		third_party/ink/src/ink/types
 		third_party/inspector_protocol
 		third_party/ipcz
 		third_party/jinja2
@@ -1852,6 +1899,7 @@ src_prepare() {
 		third_party/leveldatabase
 		third_party/libaddressinput
 		third_party/libavif
+		third_party/libdrm
 	)
 	use system-libevent || keeplibs+=(
 		third_party/libevent
@@ -1863,6 +1911,9 @@ src_prepare() {
 		third_party/libsecret
 		third_party/libsrtp
 		third_party/libsync
+		third_party/libtess2/libtess2
+		third_party/libtess2/src/Include
+		third_party/libtess2/src/Source
 		third_party/liburlpattern
 	)
 	use system-libusb || keeplibs+=(
@@ -1964,8 +2015,10 @@ src_prepare() {
 		third_party/tflite/src/third_party/eigen3
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
-		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/tflite/src/third_party/xla/xla/tsl/framework
+		third_party/tflite/src/third_party/xla/xla/tsl/lib/random
+		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
+		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
@@ -2048,6 +2101,7 @@ src_prepare() {
 		keeplibs+=( third_party/re2 )
 	fi
 
+	# Arch-specific
 	if use arm64 || use ppc64 ; then
 		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
 	fi
@@ -2069,6 +2123,35 @@ src_prepare() {
 		cp libavcodec/ppc/h264dsp.c libavcodec/ppc/h264dsp_ppc.c || die
 		cp libavcodec/ppc/h264qpel.c libavcodec/ppc/h264qpel_ppc.c || die
 		popd >/dev/null || die
+	fi
+
+	# Sanity check keeplibs, on major version bumps it is often necessary to update this list
+	# and this enables us to hit them all at once.
+	# There are some entries that need to be whitelisted (TODO: Why? The file is understandable, the rest seem odd)
+	whitelist_libs=(
+		net/third_party/quic
+		third_party/devtools-frontend/src/front_end/third_party/additional_readme_paths.json
+		third_party/libjingle
+		third_party/mesa
+		third_party/skia/third_party/vulkan
+		third_party/vulkan
+	)
+	local not_found_libs=()
+	for lib in "${keeplibs[@]}"; do
+		if [[ ! -d "${lib}" ]] && ! has "${lib}" "${whitelist_libs[@]}"; then
+			not_found_libs+=( "${lib}" )
+		fi
+	done
+
+	if [[ ${#not_found_libs[@]} -gt 0 ]]; then
+		eerror "The following \`keeplibs\` directories were not found in the source tree:"
+		for lib in "${not_found_libs[@]}"; do
+			eerror "  ${lib}"
+		done
+	fi
+
+	if use cromite ; then
+		keeplibs+=( third_party/ungoogled )
 	fi
 
 	ebegin "Removing bundled libraries"
@@ -2133,7 +2216,7 @@ src_configure() {
 	fi
 
 	# Force lld for lto or pgo builds only, otherwise disable, bug 641556
-	if use thinlto || use pgo || use nvidia; then
+	if use thinlto || use pgo || use clang || use nvidia; then
 		myconf_gn+=" use_lld=true"
 	else
 		myconf_gn+=" use_lld=false"
@@ -2205,7 +2288,6 @@ src_configure() {
 		flac
 		fontconfig
 		freetype
-		libdrm
 		libjpeg
 		libwebp
 		libxml
@@ -2290,6 +2372,13 @@ src_configure() {
 	)
 
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
+
+	# TODO 131: The above call clobbers `enable_freetype = true` in the freetype gni file
+	# drop the last line, then append the freetype line and a new curly brace to end the block
+	local freetype_gni="build/config/freetype/freetype.gni"
+	sed -i -e '$d' ${freetype_gni} || die
+	echo "  enable_freetype = true" >> ${freetype_gni} || die
+	echo "}" >> ${freetype_gni} || die
 
 	# See dependency logic in third_party/BUILD.gn
 	myconf_gn+=" use_system_harfbuzz=$(usex system-harfbuzz true false)"
@@ -2443,11 +2532,7 @@ src_configure() {
 		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 	fi
 
-	# Make sure that -Werror doesn't get added to CFLAGS by the build system.
-	# Depending on GCC version the warnings are different and we don't want
-	# the build to fail because of that.
 	myconf_gn+=" treat_warnings_as_errors=false"
-
 	# Disable fatal linker warnings, bug 506268.
 	myconf_gn+=" fatal_linker_warnings=false"
 
@@ -2485,6 +2570,11 @@ src_configure() {
 
 	# Don't need nocompile checks and GN crashes with our config
 	myconf_gn+=" enable_nocompile_tests=false"
+
+	# 131 began laying the groundwork for replacing freetype with
+	# "Rust-based Fontations set of libraries plus Skia path rendering"
+	# We now need to opt-in
+	myconf_gn+=" enable_freetype=true"
 
 	# Enable ozone wayland support
 	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
@@ -2606,7 +2696,7 @@ src_install() {
 	)
 
 	# Install bundled xdg-utils, avoids installing X11 libraries with USE="-X wayland"
-	# doins out/Release/xdg-{settings,mime}
+	doins out/Release/xdg-{settings,mime}
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat

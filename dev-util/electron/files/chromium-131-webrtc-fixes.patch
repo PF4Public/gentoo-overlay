@@ -1,0 +1,21 @@
+--- a/third_party/webrtc/rtc_base/ssl_stream_adapter.h
++++ b/third_party/webrtc/rtc_base/ssl_stream_adapter.h
+@@ -15,6 +15,7 @@
+ #include <stdint.h>
+ 
+ #include <memory>
++#include <optional>
+ #include <string>
+ #include <vector>
+ 
+--- a/third_party/webrtc/rtc_base/openssl_stream_adapter.h
++++ b/third_party/webrtc/rtc_base/openssl_stream_adapter.h
+@@ -102,7 +102,7 @@
+   void Close() override;
+   StreamState GetState() const override;
+ 
+-  std::optional<absl::string_view> GetTlsCipherSuiteName() const override;
++  std::optional<absl::string_view> GetTlsCipherSuiteName() const;
+ 
+   bool GetSslCipherSuite(int* cipher) const override;
+   [[deprecated("Use GetSslVersionBytes")]] SSLProtocolVersion GetSslVersion()
