@@ -260,3 +260,31 @@
    // Connects Rust logging with the //base logging functionality.
    internal::init_rust_log_crate();
  #endif
+--- a/third_party/blink/common/chrome_debug_urls.cc
++++ b/third_party/blink/common/chrome_debug_urls.cc
+@@ -11,7 +11,6 @@
+ #include "base/threading/platform_thread.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/common/crash_helpers.h"
+-#include "third_party/blink/common/rust_crash/src/lib.rs.h"
+ #include "url/gurl.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -117,7 +116,7 @@
+     // Ensure that ASAN works even in Rust code.
+     LOG(ERROR) << "Intentionally causing ASAN heap overflow in Rust"
+                << " because user navigated to " << url.spec();
+-    crash_in_rust_with_overflow();
++    //crash_in_rust_with_overflow();
+   }
+ }
+ #endif  // ADDRESS_SANITIZER
+@@ -137,7 +136,7 @@
+   } else if (url == kChromeUICrashRustURL) {
+     // Cause a typical crash in Rust code, so we can test that call stack
+     // collection and symbol mangling work across the language boundary.
+-    crash_in_rust();
++    //crash_in_rust();
+   } else if (url == kChromeUIDumpURL) {
+     // This URL will only correctly create a crash dump file if content is
+     // hosted in a process that has correctly called
