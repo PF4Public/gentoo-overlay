@@ -2577,7 +2577,6 @@ src_configure() {
 	# Enable ozone wayland support
 	myconf_gn+=" use_ozone=true ozone_auto_platforms=false"
 	myconf_gn+=" ozone_platform_headless=true"
-	myconf_gn+=" use_system_libdrm=true"
 	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_xkbcommon=true"
 	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
