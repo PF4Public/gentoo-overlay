@@ -69,6 +69,7 @@ declare -A CHROMIUM_COMMITS=(
 	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 	["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
+	["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
 )
 
 UGC_PV="${PV/_p/-}"
