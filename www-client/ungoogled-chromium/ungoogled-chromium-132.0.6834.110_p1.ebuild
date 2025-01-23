@@ -68,6 +68,7 @@ declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
 	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
 	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 	["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
 	["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
 )
@@ -476,6 +477,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
+		"${FILESDIR}/chromium-132-optional-lens.patch"
 	)
 
 	shopt -s globstar nullglob
