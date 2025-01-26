@@ -1435,11 +1435,6 @@ src_prepare() {
 		fi
 	popd > /dev/null || die
 
-	# disable global media controls, crashes with libstdc++
-	sed -i -e \
-		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
-		"chrome/browser/media/router/media_router_feature.cc"
-
 	local PATCHES=(
 		"${T}/compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -1462,6 +1457,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
+		"${FILESDIR}/fix-pdf.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -2691,8 +2687,8 @@ src_install() {
 		[[ ${#files[@]} -gt 0 ]] && doins "${files[@]}"
 	)
 
-	# Install bundled xdg-utils, avoids installing X11 libraries with USE="-X wayland"
-	doins out/Release/xdg-{settings,mime}
+	# # Install bundled xdg-utils, avoids installing X11 libraries with USE="-X wayland"
+	# doins out/Release/xdg-{settings,mime}
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat
