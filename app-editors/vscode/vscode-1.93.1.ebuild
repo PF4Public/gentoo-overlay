@@ -12,7 +12,6 @@ HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
 VS_RIPGREP_V="1.15.9"
-VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
 	https://codeload.github.com/ramya-rao-a/css-parser/tar.gz/370c480ac103bd17c7bcfb34bf5d577dc40d3660
 	https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz
@@ -2252,6 +2251,7 @@ src_configure() {
 
 	ebegin "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
@@ -2329,7 +2329,7 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 
 	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
@@ -2397,6 +2397,7 @@ src_install() {
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
@@ -2414,7 +2415,7 @@ src_install() {
 	sed -i 's$x-scheme-handler/code-oss$x-scheme-handler/code-oss;x-scheme-handler/vscode$' \
 		applications/*handler.desktop || die
 	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion pixmaps zsh
+	doins -r applications bash-completion mime pixmaps zsh
 
 	insinto /usr/share/metainfo/
 	doins appdata/*

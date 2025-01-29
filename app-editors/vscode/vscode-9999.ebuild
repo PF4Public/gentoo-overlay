@@ -11,14 +11,13 @@ DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
 LICENSE="MIT"
 SLOT="0"
-VS_RIPGREP_V="1.15.9"
 SRC_URI="
-	https://registry.yarnpkg.com/@vscode/ripgrep/-/ripgrep-${VS_RIPGREP_V}.tgz -> @vscode-ripgrep-${VS_RIPGREP_V}.tgz
+	https://registry.npmjs.org/@vscode/ripgrep/-/ripgrep-1.15.9.tgz -> @vscode-ripgrep-1.15.9.tgz
 "
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 openvsx reh reh-web substitute-urls"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -56,13 +55,15 @@ COMMON_DEPEND="
 	electron-29? ( dev-util/electron:29 )
 	electron-31? ( dev-util/electron:31 )
 	electron-32? ( dev-util/electron:32 )
+	electron-33? ( dev-util/electron:33 )
 	!electron-27? (
 	!electron-28? (
 	!electron-29? (
 	!electron-31? (
 	!electron-32? (
+	!electron-33? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) )
+	) ) ) ) ) )
 "
 
 #TODO: oniguruma?
@@ -78,8 +79,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	!temp-fix? ( net-libs/nodejs )
-	sys-apps/yarn
+	net-libs/nodejs
 "
 
 python_check_deps() {
@@ -97,6 +97,8 @@ src_unpack() {
 		export ELECTRON_SLOT=31
 	elif use electron-32; then
 		export ELECTRON_SLOT=32
+	elif use electron-33; then
+		export ELECTRON_SLOT=33
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -126,10 +128,26 @@ src_prepare() {
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
+	# tree-sitter is an optional package, but is not built as a mandatory one because it is deprecated
+	# mask it until it is updated to version >0.21.0
+	sed -i '/tree-sitter"/d' build/package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
-	einfo "Allowing any nodejs version"
-	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
+	if ! use build-online; then
+	einfo "Replacing git dependencies with local tgz files"
+	pushd "extensions/emmet" > /dev/null || die
+		sed -i "s|\(\"@emmetio/css-parser\":\s*\).*\(,\)|\1\"file:${DISTDIR}/@emmetio-css-parser-0.4.0.tgz\"\2|" package.json || die
+		npm install @emmetio/css-parser --package-lock-only > /dev/null || die
+	popd > /dev/null || die
+	fi 
+
+	if use reh || use reh-web; then
+		sed -i '/ripgrep"/d' remote/package.json || die
+	fi
+
+	if use electron-32 || use electron-33; then
+		sed -i '/native-keymap"/d' package.json || die
+	fi
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
@@ -141,7 +159,6 @@ src_prepare() {
 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
 	# sed -i '/"electron"/d' package.json || die
-	# sed -i '/vscode-ripgrep/d' remote/package.json || die
 	# sed -i '/"playwright"/d' package.json || die
 	sed -i '/test-web"/d' package.json || die
 
@@ -164,10 +181,22 @@ src_prepare() {
 	einfo "Editing build/gulpfile.extensions.js"
 	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
+	if use reh || use reh-web; then
+		einfo "Editing build/gulpfile.reh.js"
+		sed -i '/gulp.task(`node-${platform}-${arch}`)/d' build/gulpfile.reh.js || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/code-server-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/remote-cli/code-linux.sh || die
+		sed -i 's|\$ROOT/node|/usr/bin/node|' resources/server/bin/helpers/browser-linux.sh || die
+	fi
+
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
-	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
+
+	einfo "Removing ASAR support"
+	sed -i '/\.pipe(createAsar/,/node_modules\.asar/{d;}' build/gulpfile.vscode.js || die
+	find . -type f -name "*.asar" -exec rm -f {} + || die
+	#sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
@@ -235,75 +264,89 @@ src_configure() {
 	#TODO: exported but unavailable if emerge/ebuild restarted
 	export VSCODE_ARCH
 
-	# #TODO: should work starting with electron-22
-	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
-	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
-	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
-	# fi
+	ebegin "Installing node_modules"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
+	export NPM_DEFAULT_FLAGS="--nodedir=/usr/include/electron-${ELECTRON_SLOT}/node --arch=${VSCODE_ARCH} --no-audit --no-progress"
+	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 
-	#TODO: temp fix
-	if use electron-32; then
-		# CPPFLAGS="${CPPFLAGS} -std=c++20";
-		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
+	local VS_NATIVE_KEYMAP_V=$(node -p "require('./package-lock.json').packages['node_modules/native-keymap'].version || process.exit(1)" || die)
+	local VS_RIPGREP_V=$(node -p "require('./package-lock.json').packages['node_modules/@vscode/ripgrep'].version || process.exit(1)" || die)
+
+	npm config set update-notifier false || die
+	npm config set loglevel error || die
+
+	if ! use build-online; then
+		NPM_DEFAULT_FLAGS="${NPM_DEFAULT_FLAGS} --offline"
+		npm config set offline true || die
+
+		einfo "Unpacking shrinkpack"
+		mkdir -p node_modules || die
+		tar -xzf "${DISTDIR}/shrinkpack-0.20.0.tgz" -C node_modules || die
+		mv node_modules/package node_modules/shrinkpack || die
+		cp "${FILESDIR}/shrinkpack-package-lock.json" node_modules/shrinkpack/package-lock.json || die
+		sed -i "s|{{DISTDIR}}|${DISTDIR}|g" node_modules/shrinkpack/package-lock.json || die
+		patch -p1 -i "${FILESDIR}/shrinkpack.patch" || die
+
+		einfo "Installing shrinkpack dependencies"
+		npm install ${NPM_DEFAULT_FLAGS} --prefix node_modules/shrinkpack > /dev/null || die
+
+		einfo "Altering all package-lock.json for offline mode"
+		find . -type f -name 'package-lock.json' -not -path '*/node_modules/*' -not -path '*/test/*' -exec dirname {} \; \
+			| sort -u \
+			| xargs -P "$(nproc)" -I {} node node_modules/shrinkpack/dist/bin.js "${DISTDIR}" "{}" > /dev/null \
+			|| { die; }
 	fi
 
-	# if use build-online; then
-	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
-	# else
-	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
-	# fi
-
-	ebegin "Installing node_modules"
-	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+	einfo "Installing vscode dependencies"
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
-	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
-	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-	# echo "$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	if ! use build-online; then
-		ONLINE_OFFLINE="--offline"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	SYS_NPM="/usr/bin/node /usr/bin/npm"
+
+	$SYS_NPM clean-install ${NPM_DEFAULT_FLAGS} > /dev/null || die
+
+	if use electron-32 || use electron-33; then
+		einfo "Restoring native-keymap with stdc++20 support"
+		if ! use build-online; then
+		sed -i "s|\"dependencies\": {|\"dependencies\": {\"native-keymap\": \"file:${DISTDIR}/native-keymap-${VS_NATIVE_KEYMAP_V}.tgz\",|" package.json || die
+		fi
+
+		$SYS_NPM install native-keymap ${NPM_DEFAULT_FLAGS} --ignore-scripts > /dev/null || die
+		sed -i "/\\['OS==\"linux\"', {/a\\\t  \"cflags_cc\": [ \"-std=c++20\" ]," node_modules/native-keymap/binding.gyp || die
+		$SYS_NPM rebuild native-keymap ${NPM_DEFAULT_FLAGS} > /dev/null || die
 	fi
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
-		--arch=${VSCODE_ARCH} --no-progress || die
-	# --ignore-optional
-	# --ignore-engines
-	# --production=true
-	# --no-progress
-	# --skip-integrity-check
-	# --verbose
+
+	export PATH=${OLD_PATH}
 
 	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
 	# For webpack >= 5.61.0
 	sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 
-	export PATH=${OLD_PATH}
-
 	einfo "Restoring vscode-ripgrep"
 	pushd "node_modules/@vscode" > /dev/null || die
-		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-		mv package ripgrep
+		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz" || die
+		mv package ripgrep || die
 		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
 		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
+
+	if use reh || use reh-web; then
+		cp -r node_modules/@vscode/ripgrep remote/node_modules/@vscode
+	fi
+
 	eend $? || die
 	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
-	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
-	#rm -rf extensions/css-language-features/server/test > /dev/null || die
+	if use reh || use reh-web; then
+		sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" remote/package.json || die
+	fi
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
@@ -313,6 +356,8 @@ src_configure() {
 	#TODO Does it really? Investigate later
 	# einfo "Fixing l10n-dev"
 	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
+	einfo "Purging npm cache"
+	npm cache clean --force || die
 }
 
 src_compile() {
@@ -328,55 +373,22 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
+	export NODE_OPTIONS="--max-old-space-size=8192 --heapsnapshot-near-heap-limit=5"
 
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
-	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
-
-	if use temp-fix; then
 	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
-	else
-	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
-	fi
 
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
-		if use temp-fix; then
 		node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
-		else
-		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
-		fi
 	fi
 	if use reh-web; then
-		if use temp-fix; then
 		node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
-		else
-		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
-		fi
 	fi
-
-	export PATH=${OLD_PATH}
 }
 
 src_install() {
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
+	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 
-	if use temp-fix; then
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	else
-	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
 	exeinto "${VSCODE_HOME}"
@@ -388,28 +400,29 @@ src_install() {
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
+	exec /usr/bin/env \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
+	dosym /usr/bin/rg "${VSCODE_HOME}/node_modules/@vscode/ripgrep/bin/rg"
 
 	insinto "${VSCODE_HOME}"
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
+	#doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
-		tar cf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
+		tar czf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
 		doins vscode-server-linux-x64.tar.gz
 	fi
 	if use reh-web; then
-		tar cf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
+		tar czf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
 		doins vscode-server-linux-x64-web.tar.gz
 	fi
 
@@ -419,13 +432,12 @@ src_install() {
 	sed -i 's$x-scheme-handler/code-oss$x-scheme-handler/code-oss;x-scheme-handler/vscode$' \
 		applications/*handler.desktop || die
 	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion pixmaps zsh
+	doins -r applications bash-completion mime pixmaps zsh
 
 	insinto /usr/share/metainfo/
 	doins appdata/*
 
 	popd > /dev/null || die
-	export PATH=${OLD_PATH}
 }
 
 
