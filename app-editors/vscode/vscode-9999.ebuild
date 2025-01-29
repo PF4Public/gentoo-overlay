@@ -18,7 +18,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 electron-34 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -56,13 +56,17 @@ COMMON_DEPEND="
 	electron-29? ( dev-util/electron:29 )
 	electron-31? ( dev-util/electron:31 )
 	electron-32? ( dev-util/electron:32 )
+	electron-33? ( dev-util/electron:33 )
+	electron-34? ( dev-util/electron:34 )
 	!electron-27? (
 	!electron-28? (
 	!electron-29? (
 	!electron-31? (
 	!electron-32? (
+	!electron-33? (
+	!electron-34? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) )
+	) ) ) ) ) ) )
 "
 
 #TODO: oniguruma?
@@ -97,6 +101,10 @@ src_unpack() {
 		export ELECTRON_SLOT=31
 	elif use electron-32; then
 		export ELECTRON_SLOT=32
+	elif use electron-33; then
+		export ELECTRON_SLOT=33
+	elif use electron-34; then
+		export ELECTRON_SLOT=34
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -243,7 +251,7 @@ src_configure() {
 	# fi
 
 	#TODO: temp fix
-	if use electron-32; then
+	if use electron-32 || use electron-33 || use electron-34; then
 		# CPPFLAGS="${CPPFLAGS} -std=c++20";
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
