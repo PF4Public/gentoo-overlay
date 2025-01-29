@@ -632,6 +632,7 @@ src_prepare() {
 			--exclude="*/cctest/*" --exclude="*/unittests/*" \
 			--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 			--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
+			--exclude="android_webview/*" \
 			-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
 		# eend $? || die
 	done
