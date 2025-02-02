@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
 RESTRICT="
@@ -1732,12 +1732,13 @@ src_install() {
 	# 	newicon -s ${size} "${branding}/product_logo_${size}.png" \
 	# 		chromium-browser.png
 	# done
-	# newicon -s 128 chrome/app/theme/chromium/win/tiles/SmallLogo.png cromite-browser.png
+	#TODO restore android icon
+	newicon -s 128 chrome/app/theme/chromium/win/tiles/SmallLogo.png cromite-browser.png
 	# newicon -s 256 chrome/app/theme/chromium/win/tiles/Logo.png cromite-browser.png
-	newicon -s 48 chrome/android/java/res_chromium_base/mipmap-mdpi/app_icon.png cromite-browser.png
-	newicon -s 72 chrome/android/java/res_chromium_base/mipmap-hdpi/app_icon.png cromite-browser.png
-	newicon -s 96 chrome/android/java/res_chromium_base/mipmap-xhdpi/app_icon.png cromite-browser.png
-	newicon -s 192 chrome/android/java/res_chromium_base/mipmap-xxxhdpi/app_icon.png cromite-browser.png
+	# newicon -s 48 chrome/android/java/res_chromium_base/mipmap-mdpi/app_icon.png cromite-browser.png
+	# newicon -s 72 chrome/android/java/res_chromium_base/mipmap-hdpi/app_icon.png cromite-browser.png
+	# newicon -s 96 chrome/android/java/res_chromium_base/mipmap-xhdpi/app_icon.png cromite-browser.png
+	# newicon -s 192 chrome/android/java/res_chromium_base/mipmap-xxxhdpi/app_icon.png cromite-browser.png
 
 	# Install desktop entry
 	domenu out/Release/cromite-browser-cromite.desktop

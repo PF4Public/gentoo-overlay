@@ -1,16 +1,14 @@
-# Copyright 2009-2023 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 PYTHON_COMPAT=( python3_{11..13} )
 
-inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
+inherit python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
-LICENSE="MIT"
-SLOT="0"
 VS_RIPGREP_V="1.15.9"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
@@ -2013,18 +2011,17 @@ SRC_URI="!build-online? (
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE+=" +build-online"
+	IUSE="+build-online "
 	ELECTRON_SLOT_DEFAULT="30"
 else
-	IUSE+=" build-online"
+	IUSE="build-online "
 	ELECTRON_SLOT_DEFAULT="30"
-	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		DOWNLOAD+="${PV}.tar.gz -> ${P}.tar.gz"
@@ -2035,10 +2032,11 @@ else
 fi
 
 SRC_URI+="${DOWNLOAD}"
+LICENSE="MIT"
+SLOT="0"
+IUSE+="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
-
-REQUIRED_USE=""
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -2078,7 +2076,7 @@ BDEPEND="
 "
 
 python_check_deps() {
-        python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
 
 src_unpack() {
@@ -2377,7 +2375,7 @@ src_install() {
 	exeinto "${VSCODE_HOME}"
 	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
 
-	awk -i inplace -v text="$(cat ${FILESDIR}/read_flags_file)" '!/^#/ && !p {print text; p=1} 1' "${WORKDIR}"/V*/bin/code-oss
+	awk -i inplace -v text="$(cat \"${FILESDIR}/read_flags_file\")" '!/^#/ && !p {print text; p=1} 1' "${WORKDIR}"/V*/bin/code-oss
 	sed -i "s|@ELECTRON@|code-oss|" "${WORKDIR}"/V*/bin/code-oss
 
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
@@ -2422,7 +2420,6 @@ src_install() {
 	popd > /dev/null || die
 	export PATH=${OLD_PATH}
 }
-
 
 pkg_postrm() {
 	xdg_icon_cache_update

@@ -7,7 +7,6 @@
 	<upstream>
 		<remote-id type="github">vector-im/element-web</remote-id>
 	</upstream>
-	<longdescription>A glossy Matrix collaboration client for the web</longdescription>
 	<use>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 	</use>

@@ -9,9 +9,6 @@
 		<bugs-to>https://github.com/FontManager/font-manager/issues</bugs-to>
 		<doc>http://fontmanager.github.io/</doc>
 	</upstream>
-	<longdescription>
-		A simple font management application for GTK Desktop Environments
-	</longdescription>
 	<use>
 		<flag name="adwaita">Use Adwaita stylesheet</flag>
 		<flag name="manager">Build font-manager</flag>

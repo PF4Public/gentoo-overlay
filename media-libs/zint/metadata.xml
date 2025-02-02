@@ -4,4 +4,7 @@
 	<maintainer type="person">
 		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
+	<upstream>
+		<remote-id type="sourceforge">zint</remote-id>
+	</upstream>
 </pkgmetadata>
