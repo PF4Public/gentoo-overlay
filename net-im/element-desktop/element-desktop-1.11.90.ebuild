@@ -1,16 +1,14 @@
-# Copyright 2009-2024 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 PYTHON_COMPAT=( python3_{11..13} )
 
-inherit desktop flag-o-matic multilib python-any-r1 xdg-utils
+inherit desktop python-any-r1 xdg-utils
 
 DESCRIPTION="A glossy Matrix collaboration client for desktop"
 HOMEPAGE="https://element.io/"
-LICENSE="Apache-2.0"
-SLOT="0"
 SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.2.0.tgz
 	https://registry.yarnpkg.com/@action-validator/cli/-/cli-0.6.0.tgz -> @action-validator-cli-0.6.0.tgz
@@ -1045,17 +1043,16 @@ SRC_URI="!build-online? (
 REPO="https://github.com/vector-im/element-desktop"
 ELECTRON_SLOT_DEFAULT="32"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-27 electron-28 electron-30 electron-31 electron-29 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE+=" +build-online"
+	IUSE="+build-online "
 else
-	IUSE+=" build-online"
-	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+	IUSE="build-online "
+	KEYWORDS="amd64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
@@ -1067,6 +1064,9 @@ else
 fi
 
 SRC_URI+="${DOWNLOAD}"
+LICENSE="Apache-2.0"
+SLOT="0"
+IUSE+="electron-27 electron-28 electron-30 electron-31 electron-29 native-modules"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE="
@@ -1229,7 +1229,7 @@ src_install() {
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
 /usr/$(get_libdir)/element-desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/element-desktop
 	doexe dist/linux-unpacked/resources/element-desktop
-	dosym "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
+	dosym -r "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
 
 	# Install icons
 	local branding size
