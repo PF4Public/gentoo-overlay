@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,7 +7,8 @@ inherit savedconfig toolchain-funcs
 
 DESCRIPTION="linux-image ebuild is used to build linux kernel image using savedconfig"
 HOMEPAGE="https://github.com/PF4Public/gentoo-overlay/tree/master/sys-kernel/linux-image"
-SRC_URI=""
+
+S="${WORKDIR}/linux-${PV}-gentoo-$PR"
 
 LICENSE="GPL-2"
 SLOT="${PVR}"
@@ -19,8 +20,6 @@ IUSE="+savedconfig"
 REQUIRED_USE="savedconfig"
 
 DEPEND="~sys-kernel/gentoo-sources-${PVR}"
-
-S="${WORKDIR}/linux-${PV}-gentoo-$PR"
 
 #TODO restrict bindists maybe
 RESTRICT="strip"

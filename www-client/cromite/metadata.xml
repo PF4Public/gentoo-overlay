@@ -8,9 +8,6 @@
 		<remote-id type="github">uazo/cromite</remote-id>
 		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
 	</upstream>
-	<longdescription>
-		Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!
-	</longdescription>
 	<use>
 		<flag name="cfi">Build with CFI (Control Flow Integrity) enabled. It requires "-stdlib=libc++", see #40 for more details.</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
@@ -29,10 +26,8 @@
 		<flag name="override-data-dir">Change default user data directory to "~/.config/cromite". No data moved automatically.</flag>
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
-		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
-		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-abseil-cpp">Use the system <pkg>dev-cpp/abseil-cpp</pkg> instead of the bundled one</flag>
 		<flag name="system-av1">Use the system <pkg>media-libs/libaom</pkg> and <pkg>media-libs/dav1d</pkg> instead of the bundled ones</flag>
 		<flag name="system-brotli">Use the system <pkg>app-arch/brotli</pkg> instead of the bundled one</flag>
