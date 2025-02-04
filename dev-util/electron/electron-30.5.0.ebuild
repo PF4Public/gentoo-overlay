@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,8 +10,7 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
-inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 flag-o-matic llvm multiprocessing ninja-utils pax-utils python-any-r1 toolchain-funcs
 
 CHROMIUM_VERSION_WARNING="true"
 CHROMIUM_VERSION="124.0.6367.207"
@@ -1056,26 +1055,6 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.2.tgz
 "
 
-LICENSE="BSD"
-SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
-RESTRICT="
-	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
-	!system-openh264? ( bindist )
-	mirror
-"
-REQUIRED_USE="
-	thinlto? ( clang )
-	optimize-thinlto? ( thinlto )
-	pgo? ( clang )
-	x86? ( !thinlto )
-	!proprietary-codecs? ( !hevc )
-	hevc? ( system-ffmpeg )
-	vaapi? ( !system-av1 !system-libvpx )
-"
-
 declare -A CHROMIUM_COMMITS=(
 	["2f934a47e9709cac9ce04d312b7aa496948bced6"]="third_party/angle"
 	["c1af894e0f5c4f732a983e7c93227854e203570e"]="net/third_party/quiche/src"
@@ -1114,10 +1093,33 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
+S="${WORKDIR}/${CHROMIUM_P}"
+
+LICENSE="BSD"
+SLOT="$(ver_cut 1)/$(ver_cut 2-)"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
+IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
+
 for i in ${IUSE_SYSTEM_LIBS}; do
 	[[ $i =~ ^(\+)?(.*)$ ]]
 	IUSE+=" ${BASH_REMATCH[1]}system-${BASH_REMATCH[2]}"
 done
+
+RESTRICT="
+	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
+	!system-openh264? ( bindist )
+	mirror
+"
+REQUIRED_USE="
+	thinlto? ( clang )
+	optimize-thinlto? ( thinlto )
+	pgo? ( clang )
+	x86? ( !thinlto )
+	!proprietary-codecs? ( !hevc )
+	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
+"
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -1253,8 +1255,6 @@ BDEPEND="
 	sys-apps/yarn
 "
 
-S="${WORKDIR}/${CHROMIUM_P}"
-
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
@@ -1331,7 +1331,7 @@ src_prepare() {
 	python_setup
 
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${PATCH_V}/chromium-*-compiler.patch || die
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/chromium-patches-${PATCH_V}"/chromium-*-compiler.patch || die
 	fi
 
 	# einfo "Disabling dugite"

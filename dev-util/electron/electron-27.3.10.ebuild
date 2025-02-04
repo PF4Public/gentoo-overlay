@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,8 +10,7 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
-inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 flag-o-matic llvm multiprocessing ninja-utils pax-utils python-any-r1 toolchain-funcs
 
 CHROMIUM_VERSION_WARNING="true"
 CHROMIUM_VERSION="118.0.5993.120"
@@ -1069,6 +1068,26 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.2.tgz
 "
 
+declare -A CHROMIUM_COMMITS=(
+	["5e9fb4130a537d1a36ab0f8db705a498abeb5d57"]="."
+	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
+)
+
+if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		else
+		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
+		"
+		fi
+	done
+fi
+
+S="${WORKDIR}/${CHROMIUM_P}"
+
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
@@ -1087,24 +1106,6 @@ REQUIRED_USE="
 	hevc? ( system-ffmpeg )
 	vaapi? ( !system-av1 !system-libvpx )
 "
-
-declare -A CHROMIUM_COMMITS=(
-	["5e9fb4130a537d1a36ab0f8db705a498abeb5d57"]="."
-	["267f9bdd53a37d1cbee760d5af07880198e1beef"]="third_party/webrtc"
-)
-
-if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${!CHROMIUM_COMMITS[@]}"; do
-		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
-		#TODO: is it safe to use this mirror?
-		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
-		"
-		else
-		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
-		"
-		fi
-	done
-fi
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -1239,8 +1240,6 @@ BDEPEND="
 	sys-apps/yarn
 "
 
-S="${WORKDIR}/${CHROMIUM_P}"
-
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
@@ -1316,7 +1315,7 @@ src_prepare() {
 	python_setup
 
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' ${WORKDIR}/chromium-patches-${CHROMIUM_VERSION%%.*}/chromium-*-compiler.patch || die
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/chromium-patches-${CHROMIUM_VERSION%%.*}"/chromium-*-compiler.patch || die
 	fi
 
 	# einfo "Disabling dugite"

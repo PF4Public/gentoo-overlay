@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,8 +11,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
-inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 flag-o-matic llvm multiprocessing ninja-utils pax-utils python-any-r1 toolchain-funcs
 
 CHROMIUM_VERSION_WARNING="false"
 CHROMIUM_VERSION="132.0.6834.83"
@@ -1059,26 +1058,6 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 	https://registry.yarnpkg.com/zwitch/-/zwitch-2.0.2.tgz
 "
 
-LICENSE="BSD"
-SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
-RESTRICT="
-	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
-	!system-openh264? ( bindist )
-	mirror
-"
-REQUIRED_USE="
-	thinlto? ( clang )
-	optimize-thinlto? ( thinlto )
-	pgo? ( clang )
-	x86? ( !thinlto )
-	!proprietary-codecs? ( !hevc )
-	hevc? ( system-ffmpeg )
-	vaapi? ( !system-av1 !system-libvpx )
-"
-
 # UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
 
 declare -A CHROMIUM_COMMITS=(
@@ -1134,10 +1113,33 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
+S="${WORKDIR}/${CHROMIUM_P}"
+
+LICENSE="BSD"
+SLOT="$(ver_cut 1)/$(ver_cut 2-)"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
+IUSE="+X bluetooth +clang cups cpu_flags_arm_neon custom-cflags debug dev-dependencies gtk4 hangouts hevc kerberos libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
+
 for i in ${IUSE_SYSTEM_LIBS}; do
 	[[ $i =~ ^(\+)?(.*)$ ]]
 	IUSE+=" ${BASH_REMATCH[1]}system-${BASH_REMATCH[2]}"
 done
+
+RESTRICT="
+	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
+	!system-openh264? ( bindist )
+	mirror
+"
+REQUIRED_USE="
+	thinlto? ( clang )
+	optimize-thinlto? ( thinlto )
+	pgo? ( clang )
+	x86? ( !thinlto )
+	!proprietary-codecs? ( !hevc )
+	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
+"
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -1279,8 +1281,6 @@ BDEPEND="
 	)
 	sys-apps/yarn
 "
-
-S="${WORKDIR}/${CHROMIUM_P}"
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"

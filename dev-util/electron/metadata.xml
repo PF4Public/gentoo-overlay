@@ -9,9 +9,6 @@
 		<bugs-to>https://github.com/electron/electron/issues</bugs-to>
 		<doc>https://www.electronjs.org/docs</doc>
 	</upstream>
-	<longdescription>
-		Electron is a cross platform application development framework based on web technologies based on Chromium
-	</longdescription>
 	<use>
 		<flag name="bluetooth">Enable Bluetooth. Disabling bluetooth does break WebAuthn. Could also break something else. Improved patch is welcome.</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
@@ -20,17 +17,14 @@
 		<flag name="gtk4">Build with GTK4 headers</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="hevc">Enable HEVC decoding support. Should work with system-ffmpeg, but might require additional patching for the built-in one.</flag>
-		<flag name="js-type-check">Enable JavaScript type-checking for Chrome's web technology-based UI. Requires Java.</flag>
 		<flag name="libcxx">Use bundled C++ Standard Library (libc++)</flag>
 		<flag name="nvidia">Use libXNVCtrl library from <pkg>x11-drivers/nvidia-drivers</pkg> instead of the bundled one</flag>
 		<flag name="optimize-thinlto">Whether to enable ThinLTO optimizations. Turning ThinLTO optimizations on can substantially increase link time and binary size, but they generally also make binaries a fair bit faster.</flag>
 		<flag name="optimize-webui">Optimize parts of Chromium's UI written with web technologies (HTML/CSS/JS) for runtime performance purposes. This does more work at compile time for speed benefits at runtime.</flag>
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
-		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
-		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-abseil-cpp">Use the system <pkg>dev-cpp/abseil-cpp</pkg> instead of the bundled one</flag>
 		<flag name="system-av1">Use the system <pkg>media-libs/libaom</pkg> and <pkg>media-libs/dav1d</pkg> instead of the bundled ones</flag>
 		<flag name="system-brotli">Use the system <pkg>app-arch/brotli</pkg> instead of the bundled one</flag>
