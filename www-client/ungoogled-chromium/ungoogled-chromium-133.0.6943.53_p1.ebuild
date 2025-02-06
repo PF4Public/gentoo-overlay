@@ -465,12 +465,12 @@ src_prepare() {
 		"${FILESDIR}/chromium-132-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-132-fontations.patch"
 		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
+		"${FILESDIR}/chromium-133-fontations.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 	)
 
@@ -521,7 +521,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-130-libstdc++.patch"
-			"${FILESDIR}/font-gc-r3.patch"
+			"${FILESDIR}/font-gc-r4.patch"
 		)
 	fi
 
@@ -560,7 +560,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r1.patch"
+			"${FILESDIR}/disable-bluez-r2.patch"
 		)
 	fi
 
