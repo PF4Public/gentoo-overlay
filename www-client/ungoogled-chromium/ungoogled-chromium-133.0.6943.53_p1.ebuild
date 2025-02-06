@@ -65,9 +65,6 @@ UGC_COMMIT_ID="e9d134265c0ef43ce5625a792722e62a29cf2bc5"
 CROMITE_COMMIT_ID="5587d7b1583e1e3e133188008dae9de649a56ac0"
 
 declare -A CHROMIUM_COMMITS=(
-	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
-	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 )
 
@@ -472,9 +469,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-127-separate-qt56.patch"
-		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
+		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -577,24 +574,8 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-99-opus.patch"
 		)
-		if has_version "<media-video/ffmpeg-5.0"; then
-			PATCHES+=(
-				"${FILESDIR}/chromium-118-ffmpeg.patch"
-				"${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
-			)
-		else
-			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
-		fi
-		if has_version "<media-video/ffmpeg-6.0"; then
-			PATCHES+=(
-				"${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
-				"${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
-			)
-		fi
-		if has_version "<media-video/ffmpeg-6.1"; then
-			eapply_wrapper -R "${FILESDIR}/ffmpeg-nb_coded_side_data-dolby.diff"
-			eapply_wrapper -R "${FILESDIR}/ffmpeg-nb_coded_side_data-r1.patch"
-		fi
+		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
+		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
 	fi
 
 	if use system-openjpeg ; then
