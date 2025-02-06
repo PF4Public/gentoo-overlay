@@ -1283,6 +1283,7 @@ src_configure() {
 
 	# Disable rust for now; it's only used for testing and we don't need the additional bdep
 	myconf_gn+=" enable_rust=false"
+	myconf_gn+=" enable_rust_png=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=$(usex debug true false)"
