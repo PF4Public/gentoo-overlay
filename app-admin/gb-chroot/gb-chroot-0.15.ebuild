@@ -8,6 +8,7 @@ inherit bash-completion-r1
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PF4Public/gb-chroot.git"
+	SRC_URI=""
 else
 	SRC_URI="https://github.com/PF4Public/gb-chroot/archive/${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~alpha amd64 arm arm64 hppa ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"

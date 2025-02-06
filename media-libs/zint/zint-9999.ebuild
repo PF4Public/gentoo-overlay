@@ -19,6 +19,7 @@ DOCS=( README )
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://git.code.sf.net/p/zint/code"
+	SRC_URI=""
 else
 	KEYWORDS="amd64 x86"
 	SRC_URI="https://downloads.sourceforge.net/project/zint/zint/${PV}/${P}-src.tar.gz"

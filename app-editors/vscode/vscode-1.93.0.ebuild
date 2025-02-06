@@ -9,6 +9,7 @@ inherit python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
 VS_RIPGREP_V="1.15.9"
 VS_ESBUILD_V="0.23.0"
 SRC_URI="!build-online? (
@@ -2016,10 +2017,10 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE="+build-online "
+	IUSE+=" +build-online"
 	ELECTRON_SLOT_DEFAULT="30"
 else
-	IUSE="build-online "
+	IUSE+=" build-online"
 	ELECTRON_SLOT_DEFAULT="30"
 	KEYWORDS="amd64 ~arm64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
@@ -2034,7 +2035,6 @@ fi
 SRC_URI+="${DOWNLOAD}"
 LICENSE="MIT"
 SLOT="0"
-IUSE+="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 openvsx reh reh-web substitute-urls temp-fix"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 

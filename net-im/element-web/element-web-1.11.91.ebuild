@@ -1748,12 +1748,6 @@ SLOT="0"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-COMMON_DEPEND=""
-
-RDEPEND="${COMMON_DEPEND}"
-
-DEPEND="${COMMON_DEPEND}"
-
 BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/yarn
