@@ -929,6 +929,7 @@ src_prepare() {
 		third_party/fp16
 		third_party/freetype
 		third_party/fusejs
+		third_party/fuzztest
 		third_party/fxdiv
 		third_party/gemmlowp
 		third_party/google_input_tools
@@ -957,7 +958,7 @@ src_prepare() {
 		third_party/jsoncpp
 	)
 	keeplibs+=(
-		third_party/jstemplate
+		# third_party/jstemplate lite-tarball
 		third_party/khronos
 		third_party/lens_server_proto
 		third_party/leveldatabase
@@ -1042,7 +1043,7 @@ src_prepare() {
 		third_party/puffin
 		third_party/pyjson5
 		third_party/pyyaml
-		third_party/qcms
+		# third_party/qcms lite-tarball
 		third_party/rapidhash
 		third_party/rnnoise
 		third_party/ruy
@@ -1052,6 +1053,7 @@ src_prepare() {
 		third_party/sentencepiece
 		third_party/sentencepiece/src/third_party/darts_clone
 		third_party/shell-encryption
+		third_party/simdutf
 		third_party/simplejson
 		third_party/six
 		third_party/skia
@@ -1086,6 +1088,7 @@ src_prepare() {
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
+		third_party/wasm_tts_engine
 		third_party/wayland
 		third_party/webdriver
 		third_party/webgpu-cts
@@ -1110,9 +1113,9 @@ src_prepare() {
 		third_party/zlib/google
 		third_party/zxcvbn-cpp
 		url/third_party/mozilla
-		v8/src/third_party/siphash
-		v8/src/third_party/utf8-decoder
-		v8/src/third_party/valgrind
+		# v8/src/third_party/siphash lite-tarball
+		# v8/src/third_party/utf8-decoder lite-tarball
+		# v8/src/third_party/valgrind lite-tarball
 		v8/third_party/glibc
 		v8/third_party/inspector_protocol
 		v8/third_party/v8
