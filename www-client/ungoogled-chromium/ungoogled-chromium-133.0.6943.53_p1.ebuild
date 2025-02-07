@@ -23,8 +23,9 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PPC64_HASH="c11b515d9addc3f8b516502e553ace507eb81815"
-SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz
+PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
+LITE_TARBALL=1
+SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz
 	ppc64? (
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
@@ -56,13 +57,13 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="e9d134265c0ef43ce5625a792722e62a29cf2bc5"
+#UGC_COMMIT_ID="e9d134265c0ef43ce5625a792722e62a29cf2bc5"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="5587d7b1583e1e3e133188008dae9de649a56ac0"
+CROMITE_COMMIT_ID="3fc3e3c23494d21b4bb997d1e408b25014ce973d"
 
 declare -A CHROMIUM_COMMITS=(
 	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
@@ -427,7 +428,7 @@ src_unpack() {
 	einfo "Unpacking chromium-${PV/_*}.tar.xz to ${WORKDIR}"
 	# Gentoo tarball:
 	# tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-gentoo.tar.xz" -C "${WORKDIR}" || die
-	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-lite.tar.xz" -C "${WORKDIR}" || die
+	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz" -C "${WORKDIR}" || die
 
 	unpack ${UGC_URL#*->}
 	# Warned you!
@@ -497,7 +498,7 @@ src_prepare() {
 		# patch causes build errors on 4K page systems (https://bugs.gentoo.org/show_bug.cgi?id=940304)
 		local page_size_patch="ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
 		local isa_3_patch="ppc64le/core/baseline-isa-3-0.patch"
-		# Apply the OpenPOWER patches (check for page size and isa3.0)
+		# Apply the OpenPOWER patches (check for page size and isa 3.0)
 		openpower_patches=( $(grep -E "^ppc64le|^upstream" "${patchset_dir}/series" | grep -v "${page_size_patch}" |
 			grep -v "${isa_3_patch}" || die) )
 		for patch in "${openpower_patches[@]}"; do
@@ -508,7 +509,7 @@ src_prepare() {
 		fi
 		# We use vsx3 as a proxy for 'want isa3.0' (POWER9)
 		if use cpu_flags_ppc_vsx3 ; then
-			PATCHES+=( +"${patchset_dir}/${isa_3_patch}" )
+			PATCHES+=( "${patchset_dir}/${isa_3_patch}" )
 		fi
 	fi
 
@@ -938,15 +939,12 @@ src_prepare() {
 		third_party/jsoncpp
 	)
 	keeplibs+=(
-		# third_party/jstemplate lite-tarball
 		third_party/khronos
 		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
 		third_party/libavif
 		third_party/libdrm
-	)
-	keeplibs+=(
 		third_party/libgav1
 		third_party/libjingle
 		third_party/libphonenumber
@@ -1020,7 +1018,6 @@ src_prepare() {
 		third_party/puffin
 		third_party/pyjson5
 		third_party/pyyaml
-		# third_party/qcms lite-tarball
 		third_party/rapidhash
 		third_party/rnnoise
 		third_party/ruy
@@ -1090,12 +1087,12 @@ src_prepare() {
 		third_party/zlib/google
 		third_party/zxcvbn-cpp
 		url/third_party/mozilla
-		# v8/src/third_party/siphash lite-tarball
-		# v8/src/third_party/utf8-decoder lite-tarball
-		# v8/src/third_party/valgrind lite-tarball
 		v8/third_party/glibc
 		v8/third_party/inspector_protocol
+		v8/third_party/siphash
+		v8/third_party/utf8-decoder
 		v8/third_party/v8
+		v8/third_party/valgrind
 
 		# gyp -> gn leftovers
 		third_party/speech-dispatcher
