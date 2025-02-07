@@ -3,16 +3,20 @@
 
 EAPI=8
 
+GCC_MIN_VER=12 # needs verification
+GN_MIN_VER=0.2165
+
+CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
+	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
+	sv sw ta te th tr uk ur vi zh-CN zh-TW"
+
+LLVM_COMPAT=( 19 )
+LLVM_OPTIONAL=1
 PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
 
-CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
-	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
-	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
-	vi zh-CN zh-HK zh-TW zu"
-
-inherit check-reqs chromium-2 desktop flag-o-matic llvm multiprocessing ninja-utils pax-utils
-inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 ninja-utils pax-utils
+inherit python-any-r1 readme.gentoo-r1 systemd toolchain-funcs xdg-utils
 
 # Use following environment variables to customise the build
 # EXTRA_GN — pass extra options to gn
@@ -24,7 +28,9 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="c11b515d9addc3f8b516502e553ace507eb81815"
+PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz
+	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	ppc64? (
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
@@ -111,7 +117,7 @@ LICENSE="BSD cromite? ( GPL-3 )"
 SLOT="0"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine cpu_flags_ppc_vsx3"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt6 screencast selinux cromite vaapi wayland widevine cpu_flags_ppc_vsx3"
 
 for i in ${IUSE_SYSTEM_LIBS}; do
 	[[ $i =~ ^(\+)?(.*)$ ]]
@@ -124,12 +130,10 @@ RESTRICT="
 	cromite? ( bindist )
 "
 REQUIRED_USE="
-	thinlto? ( clang )
-	optimize-thinlto? ( thinlto )
-	cfi? ( thinlto )
+	clang? ( ${LLVM_REQUIRED_USE} )
 	pgo? ( clang )
-	x86? ( !thinlto !widevine )
-	debug? ( !official )
+	x86? ( !widevine )
+	ppc64? ( !cfi )
 	screencast? ( wayland )
 	!headless? ( || ( X wayland ) )
 	!proprietary-codecs? ( !hevc )
@@ -162,7 +166,7 @@ COMMON_SNAPSHOT_DEPEND="
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
 	system-libusb? ( virtual/libusb:1 )
-	system-icu? ( >=dev-libs/icu-71.1:= )
+	system-icu? ( >=dev-libs/icu-73.0:= )
 	cromite? ( dev-util/patchutils )
 	>=dev-libs/libxml2-2.12.4:=[icu]
 	dev-libs/nspr:=
@@ -172,7 +176,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
 	media-libs/libjpeg-turbo:=
-	system-png? ( media-libs/libpng:= )
+	system-png? ( media-libs/libpng:=[-apng(-)] )
 	system-zstd? ( >=app-arch/zstd-1.5.5:= )
 	>=media-libs/libwebp-0.4.0:=
 	media-libs/mesa:=[gbm(+)]
@@ -243,10 +247,6 @@ COMMON_DEPEND="
 		x11-libs/cairo:=
 		x11-libs/gdk-pixbuf:2
 		x11-libs/pango:=
-		qt5? (
-			dev-qt/qtcore:5
-			dev-qt/qtwidgets:5
-		)
 		qt6? ( dev-qt/qtbase:6[gui,widgets] )
 	)
 "
@@ -257,7 +257,6 @@ RDEPEND="${COMMON_DEPEND}
 			x11-libs/gtk+:3[X?,wayland?]
 			gui-libs/gtk:4[X?,wayland?]
 		)
-		qt5? ( dev-qt/qtgui:5[X?,wayland?] )
 		qt6? ( dev-qt/qtbase:6[X?,wayland?] )
 	)
 	virtual/ttf-fonts
@@ -284,10 +283,9 @@ BDEPEND="
 	')
 	>=app-arch/gzip-1.7
 	!headless? (
-		qt5? ( dev-qt/qtcore:5 )
 		qt6? ( dev-qt/qtbase:6 )
 	)
-	>=dev-build/gn-0.2114
+	>=dev-build/gn-${GN_MIN_VER}
 	dev-build/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.0.3
@@ -297,10 +295,20 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
-		!pgo? ( llvm-core/clang llvm-core/lld )
+		$(llvm_gen_dep '
+			llvm-core/llvm:${LLVM_SLOT}
+			!pgo? (
+				llvm-core/clang:${LLVM_SLOT}
+				|| ( llvm-core/lld:${LLVM_SLOT} sys-devel/mold )
+			)
+			pgo? (
+				>llvm-core/clang-19.0.0_pre20240518:${LLVM_SLOT}
+				|| ( >llvm-core/lld-19.0.0_pre20240518:${LLVM_SLOT} sys-devel/mold )
+			)
+			cfi? ( llvm-runtimes/compiler-rt-sanitizers:${LLVM_SLOT}[cfi] )
+		')
 	)
-	cfi? ( llvm-core/clang-runtime[sanitize] )
+	!clang? ( >=sys-devel/gcc-${GCC_MIN_VER} )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
@@ -344,11 +352,11 @@ pre_build_checks() {
 	# Check build requirements: bugs #471810, #541816, #914220
 	# We're going to start doing maths here on the size of an unpacked source tarball,
 	# this should make updates easier as chromium continues to balloon in size.
-	local BASE_DISK=18
+	local BASE_DISK=24
 	local EXTRA_DISK=1
 	local CHECKREQS_MEMORY="4G"
 	tc-is-cross-compiler && EXTRA_DISK=2
-	if use thinlto || use pgo; then
+	if tc-is-lto || use pgo || tc-ld-is-mold; then
 		CHECKREQS_MEMORY="9G"
 		tc-is-cross-compiler && EXTRA_DISK=4
 		use pgo && EXTRA_DISK=8
@@ -364,6 +372,19 @@ pre_build_checks() {
 }
 
 pkg_pretend() {
+	if tc-ld-is-mold; then
+		ewarn
+		ewarn "Build Chromium with mold may consume too much memory"
+		ewarn "Set MOLD_JOBS=1 and/or -Wl,--thread-count=N properly to prevent OOM issue"
+		ewarn
+	fi
+	if use !clang; then
+		ewarn
+		ewarn "GCC is _not_ supported upstream, though patches are welcome"
+		ewarn "It is left for anyone, who is willing to try and fix"
+		ewarn "It almost never worked, good luck!"
+		ewarn
+	fi
 	if use libcxx; then
 		ewarn
 		ewarn "Building with libcxx, please be aware that system-*"
@@ -397,7 +418,7 @@ pkg_pretend() {
 	pre_build_checks
 
 	if use headless; then
-		local headless_unused_flags=("cups" "kerberos" "pulseaudio" "qt5" "qt6" "vaapi" "wayland")
+		local headless_unused_flags=("cups" "kerberos" "pulseaudio" "qt6" "vaapi" "wayland")
 		for myiuse in ${headless_unused_flags[@]}; do
 			use ${myiuse} && ewarn "Ignoring USE=${myiuse}, USE=headless is set."
 		done
@@ -406,6 +427,58 @@ pkg_pretend() {
 
 pkg_setup() {
 	pre_build_checks
+
+	# The linux:unbundle toolchain in GN grabs CC, CXX, CPP (etc) from the environment
+	# We'll set these to clang here then use llvm-utils functions to very explicitly set these
+	# to a sane value.
+	# This is effectively the 'force-clang' path if GCC support is re-added.
+	# TODO: check if the user has already selected a specific impl via make.conf and respect that.
+	use_lto="false"
+	if tc-is-lto; then
+		# https://bugs.gentoo.org/912381
+		if use clang && ! use x86; then
+			use_lto="true"
+		fi
+		# We can rely on GN to do this for us; anecdotally without this builds
+		# take significantly longer with LTO enabled and it doesn't hurt anything.
+		filter-lto
+	fi
+
+	if [ "$use_lto" = "false" ] && use official; then
+		einfo "USE=official selected and LTO not detected."
+		einfo "It is _highly_ recommended that LTO be enabled for performance reasons"
+		einfo "and to be consistent with the upstream \"official\" build optimisations."
+	fi
+
+	if [ "$use_lto" = "false" ] && use cfi; then
+		die "CFI requires LTO"
+	fi
+
+	export use_lto
+
+	if use clang; then
+		llvm-r1_pkg_setup
+
+		# Forcing clang; respect llvm_slot_x to enable selection of impl from LLVM_COMPAT
+		einfo "Enforcing the use of clang due to USE=clang ..."
+		AR=llvm-ar
+		CPP="${CHOST}-clang++-${LLVM_SLOT} -E"
+		NM=llvm-nm
+		CC="${CHOST}-clang-${LLVM_SLOT}"
+		CXX="${CHOST}-clang++-${LLVM_SLOT}"
+		if tc-is-cross-compiler; then
+			CPP="${CBUILD}-clang++-${LLVM_SLOT} -E"
+		fi
+	else
+		einfo "Enforcing the use of gcc due to USE=-clang ..."
+		CC=${CHOST}-gcc
+		CXX=${CHOST}-g++
+	fi
+
+	# Users should never hit this, it's purely a development convenience
+	if ver_test $(gn --version || die) -lt ${GN_MIN_VER}; then
+		die "dev-build/gn >= ${GN_MIN_VER} is required to build this Chromium"
+	fi
 
 	chromium_suid_sandbox_check_kernel_config
 }
@@ -435,6 +508,7 @@ src_unpack() {
 	# Gentoo tarball:
 	# tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-gentoo.tar.xz" -C "${WORKDIR}" || die
 	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-lite.tar.xz" -C "${WORKDIR}" || die
+	unpack chromium-patches-${PATCH_V}.tar.bz2
 
 	unpack ${UGC_URL#*->}
 	# Warned you!
@@ -452,13 +526,13 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler-132.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
+		sed -i '/default_stack_frames/Q' "${WORKDIR}/chromium-patches-${PATCH_V}/chromium-${PATCH_V}-compiler.patch" || die
 	fi
 
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/chromium-130-interference-size.patch" || die
+
 	local PATCHES=(
-		"${T}/compiler.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
@@ -471,14 +545,14 @@ src_prepare() {
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-132-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
-		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
 		"${FILESDIR}/chromium-132-fontations.patch"
 		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-127-separate-qt56.patch"
 		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
+		"${FILESDIR}/chromium-132-mold.patch"
+		"${FILESDIR}/chromium-134-qt5-optional.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -587,7 +661,7 @@ src_prepare() {
 				"${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 			)
 		else
-			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
+			has_version ">=media-video/ffmpeg-5.0[av-stream-get-first-dts]" || die "You should enable av-stream-get-first-dts use flag for >=media-video/ffmpeg-5.0"
 		fi
 		if has_version "<media-video/ffmpeg-6.0"; then
 			PATCHES+=(
@@ -1215,16 +1289,16 @@ src_prepare() {
 		for lib in "${not_found_libs[@]}"; do
 			eerror "  ${lib}"
 		done
+		[[ -z "${NODIE}" ]] && die "Please update the ebuild."
 	fi
 
 	if use cromite ; then
 		keeplibs+=( third_party/ungoogled )
 	fi
 
-	ebegin "Removing bundled libraries"
 	# Remove most bundled libraries. Some are still needed.
-	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove
-	eend $? || die
+	einfo "Unbundling third-party libraries ..."
+	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 
 	# bundled eu-strip is for amd64 only and we don't want to pre-stripped binaries
 	mkdir -p buildtools/third_party/eu-strip/bin || die
@@ -1237,27 +1311,18 @@ src_configure() {
 
 	local myconf_gn=""
 
-	# Make sure the build system will use the right tools, bug #340795.
-	tc-export AR CC CXX NM
+	# We already forced the "correct" clang via pkg_setup
 
-	if use clang && ! tc-is-clang ; then
-		einfo "Enforcing the use of clang due to USE=clang ..."
-		if tc-is-cross-compiler; then
-			CC="${CBUILD}-clang -target ${CHOST} --sysroot ${ESYSROOT}"
-			CXX="${CBUILD}-clang++ -target ${CHOST} --sysroot ${ESYSROOT}"
-			BUILD_CC=${CBUILD}-clang
-			BUILD_CXX=${CBUILD}-clang++
-		else
-			CC=${CHOST}-clang
-			CXX=${CHOST}-clang++
-		fi
-		strip-unsupported-flags
-	elif ! use clang && ! tc-is-gcc ; then
-		einfo "Enforcing the use of gcc due to USE=-clang ..."
-		CC=${CHOST}-gcc
-		CXX=${CHOST}-g++
-		strip-unsupported-flags
+	if tc-is-cross-compiler; then
+		CC="${CC} -target ${CHOST} --sysroot ${ESYSROOT}"
+		CXX="${CXX} -target ${CHOST} --sysroot ${ESYSROOT}"
+		BUILD_AR=${AR}
+		BUILD_CC=${CC}
+		BUILD_CXX=${CXX}
+		BUILD_NM=${NM}
 	fi
+
+	strip-unsupported-flags
 
 	if tc-is-clang; then
 		myconf_gn+=" is_clang=true clang_use_chrome_plugins=false"
@@ -1265,23 +1330,21 @@ src_configure() {
 		myconf_gn+=" is_clang=false"
 	fi
 
-	# Force lld for lto or pgo builds only, otherwise disable, bug 641556
-	if use thinlto || use pgo || use clang || use nvidia; then
-		myconf_gn+=" use_lld=true"
-	else
+	if tc-ld-is-mold; then
+		myconf_gn+=" use_mold=true"
 		myconf_gn+=" use_lld=false"
-	fi
-
-	if use thinlto || use pgo; then
-		AR=llvm-ar
-		NM=llvm-nm
-		if tc-is-cross-compiler; then
-			BUILD_AR=llvm-ar
-			BUILD_NM=llvm-nm
+	else
+		myconf_gn+=" use_mold=false"
+		if tc-is-clang || use nvidia; then
+			myconf_gn+=" use_lld=true"
+		else
+			myconf_gn+=" use_lld=false"
 		fi
 	fi
 
-	# Define a custom toolchain for GN
+	# Make sure the build system will use the right tools, bug #340795.
+	tc-export AR CC CXX NM
+
 	myconf_gn+=" custom_toolchain=\"//build/toolchain/linux/unbundle:default\""
 
 	if tc-is-cross-compiler; then
@@ -1308,24 +1371,12 @@ src_configure() {
 	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
-	myconf_gn+=" is_debug=$(usex debug true false)"
+	myconf_gn+=" is_debug=false"
 
 	# enable DCHECK with USE=debug only, increases chrome binary size by 30%, bug #811138.
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
 	myconf_gn+=" dcheck_always_on=$(usex debug true false)"
 	myconf_gn+=" dcheck_is_configurable=$(usex debug true false)"
-
-	myconf_gn+=" enable_iterator_debugging=$(usex debug true false)"
-
-	if use debug; then
-		myconf_gn+=" symbol_level=2"
-		myconf_gn+=" blink_symbol_level=2"
-		myconf_gn+=" v8_symbol_level=2"
-	else
-		myconf_gn+=" symbol_level=0"
-		myconf_gn+=" blink_symbol_level=0"
-		myconf_gn+=" v8_symbol_level=0"
-	fi
 
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
@@ -1463,8 +1514,6 @@ src_configure() {
 	# Chromium builds provided by Linux distros) should disable the testing config
 	myconf_gn+=" disable_fieldtrial_testing_config=true"
 
-	myconf_gn+=" use_gold=false"
-
 	# The sysroot is the oldest debian image that chromium supports, we don't need it
 	myconf_gn+=" use_sysroot=false"
 
@@ -1473,16 +1522,12 @@ src_configure() {
 		myconf_gn+=" use_custom_libcxx=true"
 	else
 		myconf_gn+=" use_custom_libcxx=false"
+		append-cppflags -U_GLIBCXX_ASSERTIONS #See #318
 	fi
 
 	myconf_gn+=" use_bluez=$(usex bluetooth true false)"
 
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
-
-	if use cfi; then
-		myconf_gn+=" use_cfi_icall=true"
-		myconf_gn+=" use_cfi_cast=true"
-	fi
 
 	if use pgo; then
 		myconf_gn+=" chrome_pgo_phase=2"
@@ -1544,10 +1589,9 @@ src_configure() {
 		filter-flags "-O*" "-Wl,-O*" #See #25
 		strip-flags
 
+		# Debug info section overflows without component build
 		# Prevent linker from running out of address space, bug #471810 .
-		if use x86; then
-			filter-flags "-g*"
-		fi
+		filter-flags "-g*"
 
 		# Prevent libvpx/xnnpack build failures. Bug 530248, 544702, 546984, 853646.
 		if [[ ${myarch} == amd64 || ${myarch} == x86 ]]; then
@@ -1562,17 +1606,12 @@ src_configure() {
 		fi
 	fi
 
-	local dest_cpu=""
-
 	if [[ $myarch = amd64 ]] ; then
-		dest_cpu=x64
 		myconf_gn+=" target_cpu=\"x64\""
 		ffmpeg_target_arch=x64
-		dest_cpu="x64"
 	elif [[ $myarch = x86 ]] ; then
 		myconf_gn+=" target_cpu=\"x86\""
 		ffmpeg_target_arch=ia32
-		dest_cpu="x86"
 
 		# This is normally defined by compiler_cpu_abi in
 		# build/config/compiler/BUILD.gn, but we patch that part out.
@@ -1580,31 +1619,11 @@ src_configure() {
 	elif [[ $myarch = arm64 ]] ; then
 		myconf_gn+=" target_cpu=\"arm64\""
 		ffmpeg_target_arch=arm64
-		dest_cpu="arm64"
-	elif [[ $myarch = arm ]] ; then
-		myconf_gn+=" target_cpu=\"arm\""
-		ffmpeg_target_arch=$(usex cpu_flags_arm_neon arm-neon arm)
-		dest_cpu="arm"
 	elif [[ $myarch = ppc64 ]] ; then
 		myconf_gn+=" target_cpu=\"ppc64\""
 		ffmpeg_target_arch=ppc64
-		dest_cpu="ppc64"
 	else
 		die "Failed to determine target arch, got '$myarch'."
-	fi
-
-	if use thinlto; then
-		# We need to change the default value of import-instr-limit in
-		# LLVM to limit the text size increase. The default value is
-		# 100, and we change it to 30 to reduce the text size increase
-		# from 25% to 10%. The performance number of page_cycler is the
-		# same on two of the thinLTO configurations, we got 1% slowdown
-		# on speedometer when changing import-instr-limit from 100 to 30.
-		# append-ldflags "-Wl,-plugin-opt,-import-instr-limit=30"
-		sed -i '/import_instr_limit = 5/{s++import_instr_limit = 30+;h};${x;/./{x;q0};x;q1}' \
-			build/config/compiler/BUILD.gn || die
-
-		append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
 	fi
 
 	myconf_gn+=" treat_warnings_as_errors=false"
@@ -1629,8 +1648,9 @@ src_configure() {
 	# https://bugs.gentoo.org/654216
 	addpredict /dev/dri/ #nowarn
 
-	# Disable unknown warning message from clang.
 	if tc-is-clang; then
+		# We don't use the same clang version as upstream, and with -Werror
+		# we need to make sure that we don't get superfluous warnings.
 		append-flags -Wno-unknown-warning-option
 		if tc-is-cross-compiler; then
 			export BUILD_CXXFLAGS+=" -Wno-unknown-warning-option"
@@ -1665,7 +1685,9 @@ src_configure() {
 	else
 		myconf_gn+=" use_system_minigbm=true"
 		myconf_gn+=" use_xkbcommon=true"
-		if use qt5 || use qt6; then
+		myconf_gn+=" use_qt5=false"
+		if use qt6; then
+			myconf_gn+=" use_qt6=true"
 			local cbuild_libdir=$(get_libdir)
 			if tc-is-cross-compiler; then
 				# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
@@ -1673,21 +1695,9 @@ src_configure() {
 				cbuild_libdir=${cbuild_libdir:2}
 				cbuild_libdir=${cbuild_libdir/% }
 			fi
-			if use qt5; then
-				if tc-is-cross-compiler; then
-					myconf_gn+=" moc_qt5_path=\"${EPREFIX}/${cbuild_libdir}/qt5/bin\""
-				else
-					myconf_gn+=" moc_qt5_path=\"$(qt5_get_bindir)\""
-				fi
-			fi
-			if use qt6; then
-				myconf_gn+=" moc_qt6_path=\"${EPREFIX}/usr/${cbuild_libdir}/qt6/libexec\""
-			fi
-
-			myconf_gn+=" use_qt=true"
-			myconf_gn+=" use_qt6=$(usex qt6 true false)"
+			myconf_gn+=" moc_qt6_path=\"${EPREFIX}/usr/${cbuild_libdir}/qt6/libexec\""
 		else
-			myconf_gn+=" use_qt=false"
+			myconf_gn+=" use_qt6=false"
 		fi
 		myconf_gn+=" ozone_platform_x11=$(usex X true false)"
 		myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
@@ -1700,16 +1710,17 @@ src_configure() {
 		myconf_gn+=" arm_control_flow_integrity=\"none\""
 	fi
 
+	myconf_gn+=" use_thin_lto=${use_lto}"
+	myconf_gn+=" thin_lto_enable_optimizations=${use_lto}"
+
 	# Enable official builds
 	myconf_gn+=" is_official_build=$(usex official true false)"
-	myconf_gn+=" use_thin_lto=$(usex thinlto true false)"
-	myconf_gn+=" thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 	if use official; then
 		# Allow building against system libraries in official builds
 		sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 			tools/generate_shim_headers/generate_shim_headers.py || die
-	else
-		myconf_gn+=" devtools_skip_typecheck=false"
+		# Don't add symbols to build
+		myconf_gn+=" symbol_level=0"
 	fi
 
 	# user CXXFLAGS might overwrite -march=armv8-a+crc+crypto, bug #851639
@@ -1752,7 +1763,8 @@ src_configure() {
 
 src_compile() {
 	# Final link uses lots of file descriptors.
-	ulimit -n 2048
+	# Much larger, required by mold, https://github.com/rui314/mold/issues/336
+	ulimit -n 1048576
 
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
@@ -1920,8 +1932,7 @@ pkg_postinst() {
 	if ! use headless; then
 		if use vaapi; then
 			elog "VA-API is disabled by default at runtime. You have to enable it"
-			elog "by adding --enable-features=VaapiVideoDecoder and "
-			elog "--disable-features=UseChromeOSDirectVideoDecoder to CHROMIUM_FLAGS"
+			elog "by adding --enable-features=VaapiVideoDecoder to CHROMIUM_FLAGS"
 			elog "in /etc/chromium/default."
 		fi
 		if use screencast; then
@@ -1942,12 +1953,14 @@ pkg_postinst() {
 			elog "widevine requires binary plugins, which are distributed separately"
 			elog "Make sure you have www-plugins/chrome-binary-plugins installed"
 		fi
-		if use qt5 && use qt6; then
-			elog "Chromium automatically selects Qt5 or Qt6 based on your desktop"
-			elog "environment. To override you need to pass --qt-version=5 or"
-			elog "--qt-version=6, e.g. by adding it to CHROMIUM_FLAGS in"
-			elog "/etc/chromium/default."
-		fi
+	fi
+
+	if systemd_is_booted && ! [[ -f "/etc/machine-id" ]]; then
+		ewarn "The lack of an '/etc/machine-id' file on this system booted with systemd"
+		ewarn "indicates that the Gentoo handbook was not followed to completion."
+		ewarn ""
+		ewarn "Chromium is known to behave unpredictably with this system configuration;"
+		ewarn "please complete the configuration of this system before logging any bugs."
 	fi
 }
 
