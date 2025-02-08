@@ -1714,6 +1714,10 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
+			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ]; then
+				ewarn "Skipping ${i} due to... reasons..."
+				continue;
+			fi
 			if [ "$i" = "sysroot.patch" ] ||
 				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
 				if use ungoogled; then
