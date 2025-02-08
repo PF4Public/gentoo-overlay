@@ -1236,7 +1236,7 @@ BDEPEND="
 	>=app-arch/gzip-1.7
 	>=dev-build/gn-0.2114
 	dev-lang/perl
-	>=dev-build/ninja-1.7.2
+	app-alternatives/ninja
 	>=dev-util/gperf-3.0.3
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector,npm]
