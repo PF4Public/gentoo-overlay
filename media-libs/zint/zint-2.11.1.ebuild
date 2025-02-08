@@ -1,11 +1,11 @@
-# Copyright 2020-2022 Gentoo Authors
+# Copyright 2020-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Taken from Jorgicio's Gentoo overlay and modified
 
 EAPI=8
 
-inherit cmake desktop
+inherit cmake desktop xdg-utils
 
 DESCRIPTION="Barcode encoding library supporting over 50 symbologies"
 HOMEPAGE="http://zint.org.uk"
@@ -22,7 +22,7 @@ if [[ ${PV} = *9999* ]]; then
 	SRC_URI=""
 else
 	KEYWORDS="amd64 x86"
-	SRC_URI="mirror://sourceforge/${PN}/${P}-src.tar.gz"
+	SRC_URI="https://downloads.sourceforge.net/project/zint/zint/${PV}/${P}-src.tar.gz"
 	S="${WORKDIR}/${P}-src"
 fi
 
@@ -67,10 +67,8 @@ src_install() {
 	cmake_src_install
 
 	if use qt5; then
-		insinto /usr/share/applications/
-		doins *.desktop
-		insinto /usr/share/pixmaps/
-		doins *.png
+		domenu *.desktop
+		doicon *.png
 	fi
 }
 

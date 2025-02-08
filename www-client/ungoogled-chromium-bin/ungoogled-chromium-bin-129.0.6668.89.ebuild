@@ -17,12 +17,14 @@ SRC_URI="
 	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
 	# x86? ( ${DL_URL}/i686.tar.bz2 -> ${PF}-i686.tar.bz2 )"
 
-RESTRICT="mirror"
+S="${WORKDIR}"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="convert-dict widevine"
+
+RESTRICT="mirror"
 
 REQUIRED_USE="
 	x86? ( !widevine )"
@@ -91,7 +93,6 @@ GTK+ icon theme.
 For native file dialogs in KDE, install kde-apps/kdialog."
 
 QA_PREBUILT="*"
-S="${WORKDIR}"
 
 pkg_pretend() {
 	if ! use widevine; then

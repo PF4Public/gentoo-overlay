@@ -1,0 +1,7 @@
+# Copyright 2025 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# Chromium code is not very friendly to system abseil-cpp, see #218
+# If you know how to fix this, feel free to submit a PR
+# The build will fail!
+www-client/ungoogled-chromium system-abseil-cpp

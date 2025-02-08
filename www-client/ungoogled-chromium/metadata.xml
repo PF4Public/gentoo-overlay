@@ -39,10 +39,8 @@
 		<flag name="override-data-dir">Change default user data directory to "~/.config/ungoogled-chromium". No data moved automatically.</flag>
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
-		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
-		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-abseil-cpp">Use the system <pkg>dev-cpp/abseil-cpp</pkg> instead of the bundled one</flag>
 		<flag name="system-av1">Use the system <pkg>media-libs/libaom</pkg> and <pkg>media-libs/dav1d</pkg> instead of the bundled ones</flag>
 		<flag name="system-brotli">Use the system <pkg>app-arch/brotli</pkg> instead of the bundled one</flag>
@@ -63,7 +61,6 @@
 		<flag name="system-woff2">Use the system <pkg>media-libs/woff2</pkg> instead of the bundled one</flag>
 		<flag name="system-zstd">Use the system <pkg>app-arch/zstd</pkg> instead of the bundled one</flag>
 		<flag name="thinlto">Build with ThinLTO support. LTO (Link Time Optimization) achieves better runtime performance through whole-program analysis and cross-module optimization (highly recommended).</flag>
-		<flag name="uazo-bromite">Apply also select uazo/Bromite patches. Highly experimental! Those are separate work of uazo and Bromite. Please consider Bromite licensing terms when deciding if you're allowed to distribute binaries built with these patches.</flag>
 		<flag name="widevine">Unsupported closed-source DRM capability (required by Netflix VOD)</flag>
 	</use>
 </pkgmetadata>

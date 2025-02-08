@@ -1,4 +1,4 @@
-# Copyright 2009-2024 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,7 +10,7 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm multiprocessing ninja-utils pax-utils
 inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 # Use following environment variables to customise the build
@@ -28,30 +28,6 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 		https://quickbuild.io/~raptor-engineering-public/+archive/ubuntu/chromium/+files/chromium_${PATCHSET_PPC64}.debian.tar.xz
 		https://deps.gentoo.zip/chromium-ppc64le-gentoo-patches-1.tar.xz
 	)
-"
-
-LICENSE="BSD cromite? ( GPL-3 )"
-SLOT="0"
-KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine"
-RESTRICT="
-	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
-	!system-openh264? ( bindist )
-	cromite? ( bindist )
-"
-REQUIRED_USE="
-	thinlto? ( clang )
-	optimize-thinlto? ( thinlto )
-	cfi? ( thinlto )
-	pgo? ( clang )
-	x86? ( !thinlto !widevine )
-	debug? ( !official )
-	screencast? ( wayland )
-	!headless? ( || ( X wayland ) )
-	!proprietary-codecs? ( !hevc )
-	hevc? ( system-ffmpeg )
-	vaapi? ( !system-av1 !system-libvpx )
 "
 
 #UGC_COMMIT_ID="ed9aac185809b2bfd54018f02898d6575befaefb"
@@ -119,10 +95,37 @@ fi
 SRC_URI+="cromite? ( https://github.com/uazo/cromite/archive/${CROMITE_COMMIT_ID}.tar.gz -> cromite-${CROMITE_COMMIT_ID}.tar.gz )
 "
 
+S="${WORKDIR}/chromium-${PV/_*}"
+
+LICENSE="BSD cromite? ( GPL-3 )"
+SLOT="0"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto cromite vaapi wayland widevine"
+
 for i in ${IUSE_SYSTEM_LIBS}; do
 	[[ $i =~ ^(\+)?(.*)$ ]]
 	IUSE+=" ${BASH_REMATCH[1]}system-${BASH_REMATCH[2]}"
 done
+
+RESTRICT="
+	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
+	!system-openh264? ( bindist )
+	cromite? ( bindist )
+"
+REQUIRED_USE="
+	thinlto? ( clang )
+	optimize-thinlto? ( thinlto )
+	cfi? ( thinlto )
+	pgo? ( clang )
+	x86? ( !thinlto !widevine )
+	debug? ( !official )
+	screencast? ( wayland )
+	!headless? ( || ( X wayland ) )
+	!proprietary-codecs? ( !hevc )
+	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
+"
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -322,8 +325,6 @@ If you have one of above packages installed, but don't want to use
 them in Chromium, then add --password-store=basic to CHROMIUM_FLAGS
 in /etc/chromium/default.
 "
-
-S="${WORKDIR}/chromium-${PV/_*}"
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"

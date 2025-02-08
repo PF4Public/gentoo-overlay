@@ -9,9 +9,6 @@
 		<bugs-to>https://github.com/StevenBlack/hosts/issues</bugs-to>
 		<doc>https://github.com/StevenBlack/hosts/wiki</doc>
 	</upstream>
-	<longdescription>
-		A hosts file from several well-curated sources
-	</longdescription>
 	<use>
 		<flag name="fakenews">Add fake news sites</flag>
 		<flag name="gambling">Add common online betting sites</flag>

@@ -4,7 +4,7 @@
 	<maintainer type="person">
 		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
-	<longdescription>
-		linux-image ebuild is used to build linux kernel image using savedconfig
-	</longdescription>
+	<upstream>
+		<remote-id type="github">PF4Public/gentoo-overlay</remote-id>
+	</upstream>
 </pkgmetadata>

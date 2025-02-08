@@ -1,4 +1,4 @@
-# Copyright 2009-2024 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,7 +11,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm multiprocessing ninja-utils pax-utils
 inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 
 # Use following environment variables to customise the build
@@ -23,7 +23,7 @@ CROMITE_COMMIT_ID="32fa8435523f71f1d2b6ac2facdea91e874c6904"
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
 
-DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
+DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements"
 HOMEPAGE="https://github.com/uazo/cromite"
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}.tar.xz
@@ -34,29 +34,6 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 "
 # Gentoo tarball:
 # https://chromium-tarballs.distfiles.gentoo.org/chromium-${PV/_*}.tar.xz -> chromium-${PV/_*}-gentoo.tar.xz
-
-LICENSE="GPL-3"
-SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
-RESTRICT="
-	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
-	!system-openh264? ( bindist )
-"
-REQUIRED_USE="
-	thinlto? ( clang )
-	optimize-thinlto? ( thinlto )
-	cfi? ( thinlto )
-	pgo? ( clang )
-	x86? ( !thinlto !widevine )
-	debug? ( !official )
-	screencast? ( wayland )
-	!headless? ( || ( X wayland ) )
-	!proprietary-codecs? ( !hevc )
-	hevc? ( system-ffmpeg )
-	vaapi? ( !system-av1 !system-libvpx )
-"
 
 declare -A CHROMIUM_COMMITS=(
 	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
@@ -107,11 +84,36 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
+S="${WORKDIR}/chromium-${PV/_*}"
+
+LICENSE="GPL-3"
+SLOT="0"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libevent libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
 
 for i in ${IUSE_SYSTEM_LIBS}; do
 	[[ $i =~ ^(\+)?(.*)$ ]]
 	IUSE+=" ${BASH_REMATCH[1]}system-${BASH_REMATCH[2]}"
 done
+
+RESTRICT="
+	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
+	!system-openh264? ( bindist )
+"
+REQUIRED_USE="
+	thinlto? ( clang )
+	optimize-thinlto? ( thinlto )
+	cfi? ( thinlto )
+	pgo? ( clang )
+	x86? ( !thinlto !widevine )
+	debug? ( !official )
+	screencast? ( wayland )
+	!headless? ( || ( X wayland ) )
+	!proprietary-codecs? ( !hevc )
+	hevc? ( system-ffmpeg )
+	vaapi? ( !system-av1 !system-libvpx )
+"
 
 COMMON_X_DEPEND="
 	x11-libs/libXcomposite:=
@@ -276,10 +278,10 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >sys-devel/clang-19.0.0_pre20240518 >sys-devel/lld-19.0.0_pre20240518	)
-		!pgo? ( sys-devel/clang sys-devel/lld )
+		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
+		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
-	cfi? ( sys-devel/clang-runtime[sanitize] )
+	cfi? ( llvm-core/clang-runtime[sanitize] )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
@@ -314,8 +316,6 @@ If you have one of above packages installed, but don't want to use
 them in Chromium, then add --password-store=basic to CHROMIUM_FLAGS
 in /etc/chromium/default.
 "
-
-S="${WORKDIR}/chromium-${PV/_*}"
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"

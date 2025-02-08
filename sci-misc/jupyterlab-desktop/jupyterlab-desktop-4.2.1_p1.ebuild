@@ -1,14 +1,12 @@
-# Copyright 2009-2023 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit desktop multilib xdg-utils
+inherit desktop xdg-utils
 
 DESCRIPTION="JupyterLab desktop application, based on Electron"
 HOMEPAGE="https://jupyter.org/"
-LICENSE="BSD"
-SLOT="0"
 SRC_URI="
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.2.0.tgz
 	https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz -> @babel-code-frame-7.18.6.tgz
@@ -666,15 +664,14 @@ SRC_URI="
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
 ELECTRON_SLOT_DEFAULT="27"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-28 electron-29 electron-30 electron-31 electron-32"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
-	IUSE+=" +build-online"
+	IUSE="+build-online "
 else
-	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		DOWNLOAD+="v${PV/_p/-}.tar.gz -> ${P}.tar.gz"
@@ -683,14 +680,15 @@ else
 		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${CODE_COMMIT_ID}"
 	fi
-	IUSE+=" build-online"
+	IUSE="build-online "
 fi
 
 SRC_URI+="${DOWNLOAD}"
+LICENSE="BSD"
+SLOT="0"
+IUSE+="electron-28 electron-29 electron-30 electron-31 electron-32"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
-
-REQUIRED_USE=""
 
 COMMON_DEPEND="
 	electron-28? ( dev-util/electron:28 )
@@ -829,7 +827,7 @@ src_install() {
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
 --app=\"/usr/$(get_libdir)/jupyterlab-desktop/app.asar\" \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/jupyterlab-desktop
 	doexe dist/linux-unpacked/resources/jupyterlab-desktop
-	dosym "/usr/$(get_libdir)/jupyterlab-desktop/jupyterlab-desktop" /usr/bin/jupyterlab-desktop
+	dosym -r "/usr/$(get_libdir)/jupyterlab-desktop/jupyterlab-desktop" /usr/bin/jupyterlab-desktop
 
 	newicon -s 512 dist-resources/icons/512x512.png jupyterlab-desktop.png
 
