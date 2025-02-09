@@ -61,6 +61,7 @@ REQUIRED_USE="
 
 declare -A CHROMIUM_COMMITS=(
 	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	["63c33ef8035608d31b3f44841df70b30925e3073"]="."
 )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
@@ -493,7 +494,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-130-libstdc++.patch"
+			"${FILESDIR}/chromium-133-libstdc++.patch"
 			"${FILESDIR}/font-gc-r4.patch"
 		)
 	fi
