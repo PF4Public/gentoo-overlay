@@ -1132,7 +1132,10 @@ src_prepare() {
 	fi
 
 	if use libcxx; then
-		keeplibs+=( third_party/libc++ )
+		keeplibs+=(
+				third_party/libc++
+				third_party/llvm-libc
+		)
 	fi
 
 	if ! use system-openh264; then
