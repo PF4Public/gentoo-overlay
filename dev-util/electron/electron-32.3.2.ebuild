@@ -1664,7 +1664,7 @@ src_prepare() {
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
-			chrome_file_system_access_permission_context.cc layer_tree_view.cc oom.cc video_capture_oracle.cc"
+			chrome_file_system_access_permission_context.cc layer_tree_view.cc oom.cc"
 
 		local ugc_unneeded=(
 			# GN bootstrap
@@ -1759,6 +1759,10 @@ src_prepare() {
 					ewarn "Skipping ${i} due to ungoogled."
 					continue;
 				fi
+			fi
+			if [ "$i" = "fix_osr_stutter_in_both_cpu_and_gpu_capture_when_page_has_animation.patch" ]; then
+				ewarn "Skipping ${i}: doesn't apply."
+				continue;
 			fi
 			# if [ "$i" = "fix_preserve_proper_method_names_as-is_in_error_stack.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
