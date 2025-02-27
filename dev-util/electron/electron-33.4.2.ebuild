@@ -1779,7 +1779,7 @@ src_prepare() {
 			einfo "$i"
 			# ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
-				--exclude="*/uv/test/*" --exclude="*.rst" \
+				--exclude="*/uv/test/*" --exclude="*.rst" --exclude="test/mjsunit/*" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				-p1 < "${S}/${patch_folder}/$i" || die
