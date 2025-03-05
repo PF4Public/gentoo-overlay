@@ -165,7 +165,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
 	media-libs/libjpeg-turbo:=
-	system-png? ( media-libs/libpng:= )
+	system-png? ( media-libs/libpng:=[-apng(-)] )
 	system-zstd? ( >=app-arch/zstd-1.5.5:= )
 	>=media-libs/libwebp-0.4.0:=
 	media-libs/mesa:=[gbm(+)]
@@ -228,7 +228,6 @@ COMMON_DEPEND="
 	media-libs/flac:=
 	sys-libs/zlib:=[minizip]
 	!headless? (
-		X? ( ${COMMON_X_DEPEND} )
 		>=app-accessibility/at-spi2-core-2.46.0:2
 		media-libs/mesa:=[X?,wayland?]
 		cups? ( >=net-print/cups-1.3.11:= )
@@ -241,6 +240,7 @@ COMMON_DEPEND="
 			dev-qt/qtwidgets:5
 		)
 		qt6? ( dev-qt/qtbase:6[gui,widgets] )
+		X? ( ${COMMON_X_DEPEND} )
 	)
 "
 
@@ -459,7 +459,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
-		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-134-map_droppable-glibc.patch"
+		"${FILESDIR}/chromium-134-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-135-fix-non-wayland-build.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -911,7 +913,6 @@ src_prepare() {
 		third_party/fp16
 		third_party/freetype
 		third_party/fusejs
-		third_party/fuzztest
 		third_party/fxdiv
 		third_party/gemmlowp
 		third_party/google_input_tools
@@ -1023,6 +1024,7 @@ src_prepare() {
 		third_party/rnnoise
 		third_party/ruy
 		third_party/s2cellid
+		third_party/search_engines_data
 		third_party/securemessage
 		third_party/selenium-atoms
 		third_party/sentencepiece
@@ -1088,10 +1090,11 @@ src_prepare() {
 		third_party/zlib/google
 		third_party/zxcvbn-cpp
 		url/third_party/mozilla
-		v8/third_party/glibc
-		v8/third_party/inspector_protocol
 		v8/third_party/siphash
 		v8/third_party/utf8-decoder
+		v8/third_party/glibc
+		v8/third_party/inspector_protocol
+		v8/third_party/rapidhash-v8
 		v8/third_party/v8
 		v8/third_party/valgrind
 
