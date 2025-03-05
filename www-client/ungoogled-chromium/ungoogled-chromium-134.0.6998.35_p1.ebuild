@@ -26,7 +26,7 @@ HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
 LITE_TARBALL=1
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz
-	ppc64? (
+	ppc64? ( 
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
 "
