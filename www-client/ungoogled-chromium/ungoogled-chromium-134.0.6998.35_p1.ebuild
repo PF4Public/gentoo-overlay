@@ -68,7 +68,10 @@ CROMITE_COMMIT_ID="387be3e56b1132799a2508ab8ab5a7e5e2635a7e"
 declare -A CHROMIUM_COMMITS=(
 	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 	["-7c6c78ad4e0ed6a0e1204264b02db8f85d34994e"]="."
-	["63c33ef8035608d31b3f44841df70b30925e3073"]="."
+	["63c33ef8035608d31b3f44841df70b30925e3073"]="." # 135+
+	["1e7508ce083f6c7e43011f899faf10537a6379e2"]="." # 135+
+	["5edd4972ff364d7bad465925249a7184e36c3226"]="." # 135+
+	["4ca8cffec2e6dea43de24a6a9d88095b73ab10f4"]="." # 135+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -525,6 +528,7 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-134-libstdc++.patch"
+			"${FILESDIR}/chromium-134-stdatomic.patch"
 			"${FILESDIR}/font-gc-r4.patch"
 		)
 	fi
