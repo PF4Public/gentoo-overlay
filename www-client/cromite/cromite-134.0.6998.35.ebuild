@@ -603,14 +603,14 @@ src_prepare() {
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
-	#? Is it getting out of hand already?
-	sed -i 's$.*crabbyavif_image_decoder.h.*$ #include "third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h"$' \
-		"${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/Add-support-to-jxl.patch" || die
-
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/cromite_patches_list.txt"
 	for i in "${topatch[@]}"; do
 		if [ -z "$i" ] || [[ "$i" =~ ^#.* ]]; then
 			continue
+		fi
+		if [ "$i" = "Add-support-to-jxl.patch" ]; then
+			ewarn "Skipping ${i}"
+			continue;
 		fi
 		einfo "$i"
 		# ebegin "$i"
