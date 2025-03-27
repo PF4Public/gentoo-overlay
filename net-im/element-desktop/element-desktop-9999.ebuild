@@ -139,7 +139,7 @@ src_compile() {
 	sed -i '/playwright":/d' package.json || die
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	node /usr/bin/yarn install --ignore-scripts ${ONLINE_OFFLINE} --no-progress || die
 
 	node node_modules/.bin/tsc || die
 	node node_modules/.bin/tsx scripts/copy-res.ts || die
@@ -169,11 +169,11 @@ src_compile() {
 		cp package.json yarn.lock ${distdir} || die
 		pushd ${distdir} &> /dev/null || die
 		node /usr/bin/yarn install ${ONLINE_OFFLINE} --production \
-			--no-progress --frozen-lockfile || die
+			--no-progress --frozen-lockfile --ignore-scripts || die
 		popd &> /dev/null || die
 		rm ${distdir}/yarn.lock || die
 		if use native-modules; then
-			cp -r .hak/hakModules/keytar .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
+			cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
 		fi
 
 		einfo "Creating archive"
