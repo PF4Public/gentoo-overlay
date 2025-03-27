@@ -1157,6 +1157,9 @@ src_compile() {
 	# #! Until electron-builder >=22.11.5
 	# yarn config set ignore-engines true || die
 
+	#! Fixing CI?
+	sed -i '/"electron"/d' package.json || die
+
 	if ! use build-online; then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
