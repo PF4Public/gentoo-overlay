@@ -12,7 +12,7 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI="!build-online? (
-	https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2 -> node-gyp-06b29aafb7708acef8b3669835c8a7857ebc92d2
+	https://github.com/electron/node-gyp/archive/06b29aafb7708acef8b3669835c8a7857ebc92d2.tar.gz -> node-gyp-06b29aafb7708acef8b3669835c8a7857ebc92d2
 
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.2.0.tgz
 	https://registry.yarnpkg.com/@action-validator/cli/-/cli-0.6.0.tgz -> @action-validator-cli-0.6.0.tgz
