@@ -12,6 +12,8 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI="!build-online? (
+	https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2 -> node-gyp-06b29aafb7708acef8b3669835c8a7857ebc92d2
+
 	https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.2.0.tgz
 	https://registry.yarnpkg.com/@action-validator/cli/-/cli-0.6.0.tgz -> @action-validator-cli-0.6.0.tgz
 	https://registry.yarnpkg.com/@action-validator/core/-/core-0.6.0.tgz -> @action-validator-core-0.6.0.tgz
@@ -1156,9 +1158,6 @@ src_compile() {
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	# #! Until electron-builder >=22.11.5
 	# yarn config set ignore-engines true || die
-
-	#! Fixing CI?
-	touch "${DISTDIR}/node-gyp-06b29aafb7708acef8b3669835c8a7857ebc92d2"
 
 	if ! use build-online; then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
