@@ -1,4 +1,4 @@
-# Copyright 2009-2022 Gentoo Authors
+# Copyright 2009-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -1133,12 +1133,12 @@ REQUIRED_USE="
 # UGC_COMMIT_ID="9756f4778855da36c246852e669495f9e124bab3"
 
 declare -A CHROMIUM_COMMITS=(
-	["587c2cf8b11d3c32fa26887063eda3171a3d353e"]="third_party/ruy/src"
-	["047055e64ec01205365d0b1357bc2b00c547eb93"]="third_party/ink/src"
-	["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
 	["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-	["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
-	["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
+	["-7c6c78ad4e0ed6a0e1204264b02db8f85d34994e"]="."
+	["63c33ef8035608d31b3f44841df70b30925e3073"]="." # 135+
+	["1e7508ce083f6c7e43011f899faf10537a6379e2"]="." # 135+
+	["5edd4972ff364d7bad465925249a7184e36c3226"]="." # 135+
+	["4ca8cffec2e6dea43de24a6a9d88095b73ab10f4"]="." # 135+
 )
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
@@ -1210,7 +1210,6 @@ COMMON_SNAPSHOT_DEPEND="
 	system-woff2? ( media-libs/woff2 )
 	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
-	system-libevent? ( dev-libs/libevent )
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
@@ -1493,22 +1492,22 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
-		"${FILESDIR}/chromium-131-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-134-map_droppable-glibc.patch"
+		"${FILESDIR}/chromium-134-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-135-fix-non-wayland-build.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
-		"${FILESDIR}/chromium-132-crabby.patch"
 		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-132-fontations.patch"
 		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-127-separate-qt56.patch"
-		"${FILESDIR}/chromium-131-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
-		"${FILESDIR}/fix-pdf.patch"
+		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
+		"${FILESDIR}/chromium-134-fontations.patch"
+		"${FILESDIR}/chromium-134-crabby.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -1534,7 +1533,7 @@ src_prepare() {
 		# patch causes build errors on 4K page systems (https://bugs.gentoo.org/show_bug.cgi?id=940304)
 		local page_size_patch="ppc64le/third_party/use-sysconf-page-size-on-ppc64.patch"
 		local isa_3_patch="ppc64le/core/baseline-isa-3-0.patch"
-		# Apply the OpenPOWER patches (check for page size and isa3.0)
+		# Apply the OpenPOWER patches (check for page size and isa 3.0)
 		openpower_patches=( $(grep -E "^ppc64le|^upstream" "${patchset_dir}/series" | grep -v "${page_size_patch}" |
 			grep -v "${isa_3_patch}" || die) )
 		for patch in "${openpower_patches[@]}"; do
@@ -1545,7 +1544,7 @@ src_prepare() {
 		fi
 		# We use vsx3 as a proxy for 'want isa3.0' (POWER9)
 		if use cpu_flags_ppc_vsx3 ; then
-			PATCHES+=( +"${patchset_dir}/${isa_3_patch}" )
+			PATCHES+=( "${patchset_dir}/${isa_3_patch}" )
 		fi
 	fi
 
@@ -1557,8 +1556,9 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-130-libstdc++.patch"
-			"${FILESDIR}/font-gc-r3.patch"
+			"${FILESDIR}/chromium-134-libstdc++.patch"
+			"${FILESDIR}/chromium-134-stdatomic.patch"
+			"${FILESDIR}/font-gc-r4.patch"
 		)
 	fi
 
@@ -1595,6 +1595,18 @@ src_prepare() {
 		done
 	fi
 
+	use bluetooth || eapply "${FILESDIR}/disable-bluez-r2.patch"
+
+	if use system-ffmpeg; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-99-opus.patch"
+		)
+		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
+		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
+	fi
+
+	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
+
 	default
 
 	ln -s "${WORKDIR}/${P}" electron || die
@@ -1612,8 +1624,6 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
-	use bluetooth || eapply "${FILESDIR}/disable-bluez-r1.patch"
-
 	if use hevc; then
 		sed -i '/^bool IsDecoderHevcProfileSupported(const VideoType& type) {$/{s++bool IsDecoderHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
 			media/base/supported_types.cc || die
@@ -1626,26 +1636,6 @@ src_prepare() {
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
-	use system-ffmpeg && eapply "${FILESDIR}/chromium-99-opus.patch"
-
-	if use system-ffmpeg; then
-		if has_version "<media-video/ffmpeg-5.0"; then
-			eapply "${FILESDIR}/chromium-118-ffmpeg.patch"
-			eapply "${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
-		else
-			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
-		fi
-		if has_version "<media-video/ffmpeg-6.0"; then
-			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg.patch"
-			eapply "${FILESDIR}/reverse-roll-src-third_party-ffmpeg_duration.patch"
-		fi
-		if has_version "<media-video/ffmpeg-6.1"; then
-			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-dolby.diff"
-			eapply -R "${FILESDIR}/ffmpeg-nb_coded_side_data-r1.patch"
-		fi
-	fi
-
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
 	if use ungoogled; then
 		# From here we adapt ungoogled-chromium's patches to our needs
@@ -1945,18 +1935,11 @@ src_prepare() {
 		third_party/jsoncpp
 	)
 	keeplibs+=(
-		third_party/jstemplate
 		third_party/khronos
 		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
-		third_party/libavif
 		third_party/libdrm
-	)
-	use system-libevent || keeplibs+=(
-		third_party/libevent
-	)
-	keeplibs+=(
 		third_party/libgav1
 		third_party/libjingle
 		third_party/libphonenumber
@@ -2030,16 +2013,17 @@ src_prepare() {
 		third_party/puffin
 		third_party/pyjson5
 		third_party/pyyaml
-		third_party/qcms
 		third_party/rapidhash
 		third_party/rnnoise
 		third_party/ruy
 		third_party/s2cellid
+		third_party/search_engines_data
 		third_party/securemessage
 		third_party/selenium-atoms
 		third_party/sentencepiece
 		third_party/sentencepiece/src/third_party/darts_clone
 		third_party/shell-encryption
+		third_party/simdutf
 		third_party/simplejson
 		third_party/six
 		third_party/skia
@@ -2074,6 +2058,7 @@ src_prepare() {
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
+		third_party/wasm_tts_engine
 		third_party/wayland
 		third_party/webdriver
 		third_party/webgpu-cts
@@ -2098,12 +2083,13 @@ src_prepare() {
 		third_party/zlib/google
 		third_party/zxcvbn-cpp
 		url/third_party/mozilla
-		v8/src/third_party/siphash
-		v8/src/third_party/utf8-decoder
-		v8/src/third_party/valgrind
+		v8/third_party/siphash
+		v8/third_party/utf8-decoder
 		v8/third_party/glibc
 		v8/third_party/inspector_protocol
+		v8/third_party/rapidhash-v8
 		v8/third_party/v8
+		v8/third_party/valgrind
 
 		# gyp -> gn leftovers
 		third_party/speech-dispatcher
@@ -2142,7 +2128,10 @@ src_prepare() {
 	fi
 
 	if use libcxx; then
-		keeplibs+=( third_party/libc++ )
+		keeplibs+=(
+				third_party/libc++
+				third_party/llvm-libc
+		)
 	fi
 
 	if ! use system-openh264; then
@@ -2196,9 +2185,9 @@ src_prepare() {
 	done
 
 	if [[ ${#not_found_libs[@]} -gt 0 ]]; then
-		eerror "The following \`keeplibs\` directories were not found in the source tree:"
+		ewarn "The following \`keeplibs\` directories were not found in the source tree:"
 		for lib in "${not_found_libs[@]}"; do
-			eerror "  ${lib}"
+			ewarn "  ${lib}"
 		done
 	fi
 
@@ -2304,6 +2293,7 @@ src_configure() {
 
 	# Disable rust for now; it's only used for testing and we don't need the additional bdep
 	myconf_gn+=" enable_rust=false"
+	myconf_gn+=" enable_rust_png=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=$(usex debug true false)"
