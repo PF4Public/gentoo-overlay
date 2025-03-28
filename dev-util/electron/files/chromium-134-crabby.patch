@@ -1,0 +1,54 @@
+--- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
++++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
+@@ -77,14 +77,6 @@
+     "//ui/gfx/geometry:geometry_skia",
+   ]
+ 
+-  if (enable_av1_decoder) {
+-    sources += [
+-      "avif/crabbyavif_image_decoder.cc",
+-      "avif/crabbyavif_image_decoder.h",
+-    ]
+-
+-    deps += [ "//third_party/crabbyavif" ]
+-  }
+ 
+   if (enable_rust_png) {
+     sources += [
+--- a/third_party/blink/renderer/platform/image-decoders/image_decoder.cc
++++ b/third_party/blink/renderer/platform/image-decoders/image_decoder.cc
+@@ -51,9 +51,6 @@
+ #include "ui/gfx/geometry/size.h"
+ #include "ui/gfx/geometry/size_conversions.h"
+ 
+-#if BUILDFLAG(ENABLE_AV1_DECODER)
+-#include "third_party/blink/renderer/platform/image-decoders/avif/crabbyavif_image_decoder.h"
+-#endif
+ 
+ namespace blink {
+ 
+@@ -196,11 +193,6 @@
+   if (MatchesBMPSignature(contents)) {
+     return "image/bmp";
+   }
+-#if BUILDFLAG(ENABLE_AV1_DECODER)
+-  if (CrabbyAVIFImageDecoder::MatchesAVIFSignature(fast_reader)) {
+-    return "image/avif";
+-  }
+-#endif
+ 
+   return String();
+ }
+@@ -305,12 +297,6 @@
+   } else if (mime_type == "image/bmp" || mime_type == "image/x-xbitmap") {
+     decoder = std::make_unique<BMPImageDecoder>(alpha_option, color_behavior,
+                                                 max_decoded_bytes);
+-#if BUILDFLAG(ENABLE_AV1_DECODER)
+-  } else if (mime_type == "image/avif") {
+-    decoder = std::make_unique<CrabbyAVIFImageDecoder>(
+-        alpha_option, high_bit_depth_decoding_option, color_behavior, aux_image,
+-        max_decoded_bytes, animation_option);
+-#endif
+   }
+ 
+   if (decoder) {
