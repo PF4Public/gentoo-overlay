@@ -1455,6 +1455,9 @@ src_prepare() {
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
 		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
+		sed -i 's/Path(__file__).resolve()/Path(__file__).absolute()/' script/node/generate_node_headers.py || die
+		sed -i 's/os.path.join(node_root_dir, file)/os.path.abspath(os.path.join(node_root_dir, file))/' script/node/generate_node_headers.py || die
+
 		# #? Funny, huh?
 		# sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
 		# 	script/lib/get-version.js || die
@@ -2685,7 +2688,6 @@ src_compile() {
 	local -x PYTHONPATH=
 
 	#! Fixing things
-	export PYTHONPATH="${WORKDIR}/${NODE_P}/tools"
 	export ELECTRON_OUT_DIR=Release
 	eninja -C out/Release electron:node_headers
 
