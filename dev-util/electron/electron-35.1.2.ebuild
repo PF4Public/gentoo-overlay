@@ -2684,6 +2684,9 @@ src_compile() {
 	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
 	local -x PYTHONPATH=
 
+	#! Fixing things
+	export PYTHONPATH="${WORKDIR}/${NODE_P}/tools"
+	export ELECTRON_OUT_DIR=Release
 	eninja -C out/Release electron:node_headers
 
 	# Build mksnapshot and pax-mark it.
