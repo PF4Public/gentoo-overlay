@@ -2766,8 +2766,8 @@ src_install() {
 	exeinto "${CHROMIUM_HOME}/node_modules/npm/bin/"
 	doexe "${FILESDIR}/node-gyp"
 
-	insinto "/usr/include/electron-${PV%%.*}/"
-	doins -r out/Release/gen/node_headers/include/node
+	insinto "/usr/include/electron-${PV%%.*}/node/"
+	doins -r out/Release/gen/node_headers/include
 
 }
 
