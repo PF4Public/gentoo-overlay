@@ -1511,6 +1511,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-134-fontations.patch"
 		"${FILESDIR}/chromium-134-crabby.patch"
+		"${FILESDIR}/fix-pdf-r1.patch"
 	)
 
 	shopt -s globstar nullglob
