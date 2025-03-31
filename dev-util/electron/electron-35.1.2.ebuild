@@ -2482,7 +2482,7 @@ src_configure() {
 	myconf_gn+=" use_unofficial_version_number=false"
 
 	# myconf_gn+=" enable_swiftshader=false"
-	myconf_gn+=" enterprise_local_content_analysis=0"
+	myconf_gn+=" enterprise_local_content_analysis=false"
 
 	# Additional flags
 	myconf_gn+=" perfetto_use_system_zlib=true"
