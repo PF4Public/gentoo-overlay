@@ -2472,12 +2472,12 @@ src_configure() {
 	if use ungoogled; then
 	myconf_gn+=" enable_mdns=false"
 	myconf_gn+=" enable_service_discovery=false"
-	myconf_gn+=" safe_browsing_mode=0"
 	fi
 	myconf_gn+=" exclude_unwind_tables=true"
 	myconf_gn+=" google_api_key=\"\""
 	myconf_gn+=" google_default_client_id=\"\""
 	myconf_gn+=" google_default_client_secret=\"\""
+	myconf_gn+=" safe_browsing_mode=0"
 	myconf_gn+=" use_official_google_api_keys=false"
 	myconf_gn+=" use_unofficial_version_number=false"
 
