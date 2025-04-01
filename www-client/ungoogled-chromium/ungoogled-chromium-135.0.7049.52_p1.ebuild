@@ -471,11 +471,11 @@ src_prepare() {
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
 		"${FILESDIR}/chromium-132-no-link-builtins.patch"
 		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-132-no-rust.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-134-fontations.patch"
 		"${FILESDIR}/chromium-134-crabby.patch"
+		"${FILESDIR}/chromium-135-no-rust.patch"
+		"${FILESDIR}/chromium-135-fontations.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -565,7 +565,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r2.patch"
+			"${FILESDIR}/disable-bluez-r3.patch"
 		)
 	fi
 
