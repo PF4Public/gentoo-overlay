@@ -1485,6 +1485,7 @@ src_prepare() {
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
+		eapply "${FILESDIR}/ungoogled-electron.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1511,7 +1512,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-fontations.patch"
 		"${FILESDIR}/chromium-134-crabby.patch"
 		"${FILESDIR}/fix-pdf-r1.patch"
-		"${FILESDIR}/ungoogled-electron.patch"
 	)
 
 	shopt -s globstar nullglob
