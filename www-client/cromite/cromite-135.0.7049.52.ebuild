@@ -604,7 +604,8 @@ src_prepare() {
 		if [ -z "$i" ] || [[ "$i" =~ ^#.* ]]; then
 			continue
 		fi
-		if [ "$i" = "Add-support-to-jxl.patch" ]; then
+		if [ "$i" = "Add-support-to-jxl.patch" ] ||
+			[ "$i" = "Do-not-check-for-the-presence-of-use-remoteexec.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
 		fi
