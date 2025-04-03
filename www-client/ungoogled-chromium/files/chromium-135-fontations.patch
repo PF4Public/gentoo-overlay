@@ -112,4 +112,48 @@
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
        MakeTypefaceFallback,
  #endif
+--- a/skia/ext/font_utils.cc
++++ b/skia/ext/font_utils.cc
+@@ -64,13 +64,7 @@
+   return SkFontMgr_New_CoreText(nullptr);
+ #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+   sk_sp<SkFontConfigInterface> fci(SkFontConfigInterface::RefGlobal());
+-  if (base::FeatureList::IsEnabled(skia::kFontationsLinuxSystemFonts)) {
+-    return fci ? SkFontMgr_New_FCI(std::move(fci),
+-                                   SkFontScanner_Make_Fontations())
+-               : nullptr;
+-  } else {
+-    return fci ? SkFontMgr_New_FCI(std::move(fci)) : nullptr;
+-  }
++  return fci ? SkFontMgr_New_FCI(std::move(fci)) : nullptr;
+ #elif BUILDFLAG(IS_FUCHSIA)
+   fuchsia::fonts::ProviderSyncPtr provider;
+   base::ComponentContextForProcess()->svc()->Connect(provider.NewRequest());
+--- a/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
++++ b/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
+@@ -29,11 +29,7 @@
+   font_identity.fID = config_id;
+   font_identity.fTTCIndex = ttc_index;
+ 
+-  if (base::FeatureList::IsEnabled(skia::kFontationsLinuxSystemFonts)) {
+-    return fci->makeTypeface(font_identity, SkFontMgr_New_Fontations_Empty());
+-  } else {
+     return fci->makeTypeface(font_identity, skia::DefaultFontMgr());
+-  }
+ #else
+   NOTREACHED();
+ #endif
+@@ -46,12 +42,7 @@
+ #if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA) && \
+     !BUILDFLAG(IS_APPLE)
+ 
+-  if (base::FeatureList::IsEnabled(skia::kFontationsLinuxSystemFonts)) {
+-    return SkFontMgr_New_Fontations_Empty()->makeFromFile(filename.c_str(),
+-                                                          ttc_index);
+-  } else {
+     return skia::DefaultFontMgr()->makeFromFile(filename.c_str(), ttc_index);
+-  }
+ #else
+   NOTREACHED();
+ #endif
 
