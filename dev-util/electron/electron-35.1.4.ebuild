@@ -1273,7 +1273,7 @@ COMMON_DEPEND="
 	app-arch/bzip2:=
 	dev-libs/expat:=
 	system-ffmpeg? (
-		>=media-video/ffmpeg-4.3:=
+		>=media-video/ffmpeg-6.1:=
 		|| (
 			media-video/ffmpeg[-samba]
 			>=net-fs/samba-4.5.10-r1[-debug(-)]
