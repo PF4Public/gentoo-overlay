@@ -15,7 +15,7 @@ SRC_URI=""
 
 REPO="https://github.com/cypress-io/cypress"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 electron-34 electron-35"
+IUSE="electron-27 electron-28 electron-29 electron-30 electron-31 electron-32 electron-34 electron-35"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -51,17 +51,17 @@ COMMON_DEPEND="
 	electron-27? ( dev-util/electron:27 )
 	electron-28? ( dev-util/electron:28 )
 	electron-29? ( dev-util/electron:29 )
+	electron-30? ( dev-util/electron:30 )
 	electron-31? ( dev-util/electron:31 )
 	electron-32? ( dev-util/electron:32 )
-	electron-33? ( dev-util/electron:33 )
 	electron-34? ( dev-util/electron:34 )
 	electron-35? ( dev-util/electron:35 )
 	!electron-27? (
 	!electron-28? (
 	!electron-29? (
+	!electron-30? (
 	!electron-31? (
 	!electron-32? (
-	!electron-33? (
 	!electron-34? (
 	!electron-35? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
@@ -94,12 +94,12 @@ src_unpack() {
 		export ELECTRON_SLOT=28
 	elif use electron-29; then
 		export ELECTRON_SLOT=29
+	elif use electron-30; then
+		export ELECTRON_SLOT=30
 	elif use electron-31; then
 		export ELECTRON_SLOT=31
 	elif use electron-32; then
 		export ELECTRON_SLOT=32
-	elif use electron-33; then
-		export ELECTRON_SLOT=33
 	elif use electron-34; then
 		export ELECTRON_SLOT=34
 	elif use electron-35; then
