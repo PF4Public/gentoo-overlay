@@ -1287,6 +1287,7 @@ src_configure() {
 		myconf_gn+=" use_custom_libcxx=true"
 	else
 		myconf_gn+=" use_custom_libcxx=false"
+		append-cppflags -U_GLIBCXX_ASSERTIONS #See #318
 	fi
 
 	myconf_gn+=" use_bluez=$(usex bluetooth true false)"
