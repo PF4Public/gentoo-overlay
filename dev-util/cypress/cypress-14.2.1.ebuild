@@ -4425,6 +4425,7 @@ src_unpack() {
 
 src_prepare() {
 	default
+	sed -i 's$"resolutions": {$"resolutions": {"@electron/node-gyp": "10.2.0-electron.1",$' package.json || die;
 }
 
 src_configure() {
