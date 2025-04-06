@@ -498,6 +498,7 @@ src_prepare() {
 			"${FILESDIR}/chromium-135-libstdc++.patch"
 			"${FILESDIR}/chromium-134-stdatomic.patch"
 			"${FILESDIR}/font-gc-r4.patch"
+			"${FILESDIR}/cromite-libstdc++.patch"
 		)
 	fi
 
