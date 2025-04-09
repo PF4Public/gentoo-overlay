@@ -177,6 +177,7 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
+	>=media-libs/libavif-1.2.0:=
 	!headless? (
 		dev-libs/glib:2
 		>=media-libs/alsa-lib-1.0.19:=
@@ -473,9 +474,9 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-134-crabby.patch"
 		"${FILESDIR}/chromium-135-no-rust.patch"
 		"${FILESDIR}/chromium-135-fontations.patch"
+		"${FILESDIR}/chromium-135-crabby.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -517,9 +518,8 @@ src_prepare() {
 	fi
 
 	ewarn
-	ewarn "Following features are disabled:"
-	ewarn " - Fontations Rust font stack"
-	ewarn " - Crabby Avif parser/decoder implementation in Rust"
+	ewarn "Fontations Rust font stack is disabled"
+	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
 
 	if ! use libcxx ; then
