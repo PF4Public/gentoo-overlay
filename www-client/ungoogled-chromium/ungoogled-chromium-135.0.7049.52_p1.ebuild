@@ -1757,7 +1757,7 @@ src_compile() {
 
 	pax-mark m out/Release/chrome
 
-	use enable-driver && mv out/Release/chromedriver{.unstripped,}
+	use enable-driver && mv out/Release/chromedriver
 
 	rm -f out/Release/locales/*.pak.info || die
 
