@@ -1,0 +1,70 @@
+author: Andres Salomon <dilinger@queued.net>
+
+This is a workaround for the various issues around fonts being garbage
+collected instead of manually refcounted and freed. Crashes show up when
+using gcc's libstdc++ but not with llvm's libc++, because apparently
+llvm's libc++ doesn't care if string destructors are called on invalid
+strings. But gcc's libstdc++ does, as does upstream's ASAN builds (which
+manually track/validate memory usage). So upstream created this ASAN
+workaround - however, GCC needs it also.
+
+This should go upstream, but in a form that selects for GCC and
+clang with libstdc++.
+
+Also, TODO: check if that DCHECK() is actually doing something useful
+on ASAN builds, or if it's optimized away and/or calling has_value() is
+actually truly a sanity check.
+
+upstream ASAN fixes: https://chromium-review.googlesource.com/c/chromium/src/+/5629253
+
+--- a/third_party/blink/renderer/platform/fonts/font_face_creation_params.h
++++ b/third_party/blink/renderer/platform/fonts/font_face_creation_params.h
+@@ -79,8 +79,11 @@ class FontFaceCreationParams {
+   }
+   const std::string& Filename() const {
+     DCHECK_EQ(creation_type_, kCreateFontByFciIdAndTtcIndex);
+-#if defined(ADDRESS_SANITIZER)
+-    DCHECK(filename_.has_value());
++#if 1
++    //DCHECK(filename_.has_value());
++    if (!filename_.has_value()) {
++      LOG(ERROR) << "filename has no value!";
++    }
+     return *filename_;
+ #else
+     return filename_;
+@@ -126,7 +129,7 @@ class FontFaceCreationParams {
+   AtomicString family_;
+ 
+   void SetFilename(std::string& filename) {
+-#if defined(ADDRESS_SANITIZER)
++#if 1
+     *filename_ = filename;
+ #else
+     filename_ = filename;
+@@ -134,7 +137,7 @@ class FontFaceCreationParams {
+   }
+ 
+   bool FilenameEqual(const FontFaceCreationParams& other) const {
+-#if defined(ADDRESS_SANITIZER)
++#if 1
+     if (!filename_.has_value() || !other.filename_.has_value()) {
+       return filename_.has_value() == other.filename_.has_value();
+     }
+@@ -145,14 +148,14 @@ class FontFaceCreationParams {
+   }
+ 
+   bool HasFilename() const {
+-#if defined(ADDRESS_SANITIZER)
++#if 1
+     return filename_.has_value();
+ #else
+     return true;
+ #endif
+   }
+ 
+-#if defined(ADDRESS_SANITIZER)
++#if 1
+   // We put the `std::string` behind an optional as ASAN counter checks require
+   // that we properly call constructors and destructors for all strings. This is
+   // not the case when `FontFaceCreationParams` is used in `WTF::HashMap` as key

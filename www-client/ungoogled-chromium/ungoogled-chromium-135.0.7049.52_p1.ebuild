@@ -525,7 +525,7 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-135-libstdc++.patch"
 			"${FILESDIR}/chromium-134-stdatomic.patch"
-			"${FILESDIR}/font-gc-r4.patch"
+			"${FILESDIR}/font-gc-asan.patch"
 		)
 	fi
 

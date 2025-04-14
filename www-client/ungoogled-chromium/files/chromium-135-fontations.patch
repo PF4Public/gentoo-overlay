@@ -156,4 +156,65 @@
  #else
    NOTREACHED();
  #endif
-
+--- a/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
++++ b/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
+@@ -100,13 +100,7 @@
+ sk_sp<SkTypeface> MakeSbixTypeface(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-  // If we're on a OS with FreeType as backend, or on Windows, where we used to
+-  // use FreeType for SBIX, switch to Fontations for SBIX.
+-  if ((IsFreeTypeSystemRasterizer() || IsWin()) &&
+-      (RuntimeEnabledFeatures::FontationsForSelectedFormatsEnabled() ||
+-       RuntimeEnabledFeatures::FontationsFontBackendEnabled())) {
+-    return instantiator.make_fontations(data);
+-  }
++
+ #if BUILDFLAG(IS_WIN)
+   return instantiator.make_fallback(data);
+ #else
+@@ -118,12 +112,7 @@
+ sk_sp<SkTypeface> MakeColrV0Typeface(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-  // On FreeType systems, move to Fontations for COLRv0.
+-  if ((IsApple() || IsFreeTypeSystemRasterizer()) &&
+-      (RuntimeEnabledFeatures::FontationsForSelectedFormatsEnabled() ||
+-       RuntimeEnabledFeatures::FontationsFontBackendEnabled())) {
+-    return instantiator.make_fontations(data);
+-  }
++
+ 
+ #if BUILDFLAG(IS_APPLE)
+   return instantiator.make_fallback(data);
+@@ -144,16 +133,13 @@
+   }
+ #endif
+ 
+-  if ((RuntimeEnabledFeatures::FontationsForSelectedFormatsEnabled() ||
+-       RuntimeEnabledFeatures::FontationsFontBackendEnabled())) {
+-    return instantiator.make_fontations(data);
+-  } else {
++
+ #if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
+     return instantiator.make_fallback(data);
+ #else
+     return instantiator.make_system(data);
+ #endif
+-  }
++
+ }
+ 
+ sk_sp<SkTypeface> MakeUseFallbackIfNeeded(
+@@ -169,10 +155,7 @@
+ sk_sp<SkTypeface> MakeFontationsFallbackPreferred(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-  if (RuntimeEnabledFeatures::FontationsForSelectedFormatsEnabled() ||
+-      RuntimeEnabledFeatures::FontationsFontBackendEnabled()) {
+-    return instantiator.make_fontations(data);
+-  }
++
+   return MakeUseFallbackIfNeeded(data, instantiator);
+ }
+ 
