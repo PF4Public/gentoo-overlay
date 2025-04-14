@@ -40,7 +40,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp  libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
-IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless hevc kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
+IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
@@ -54,8 +54,6 @@ REQUIRED_USE="
 	debug? ( !official )
 	screencast? ( wayland )
 	!headless? ( || ( X wayland ) )
-	!proprietary-codecs? ( !hevc )
-	hevc? ( system-ffmpeg )
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
@@ -154,6 +152,7 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
+	>=media-libs/libavif-1.2.0:=
 	!headless? (
 		dev-libs/glib:2
 		>=media-libs/alsa-lib-1.0.19:=
@@ -434,6 +433,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
 		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
+		"${FILESDIR}/chromium-135-webrtc-pipewire.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -444,9 +444,9 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-134-crabby.patch"
 		"${FILESDIR}/chromium-135-no-rust.patch"
 		"${FILESDIR}/chromium-135-fontations.patch"
+		"${FILESDIR}/chromium-135-crabby.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -488,17 +488,15 @@ src_prepare() {
 	fi
 
 	ewarn
-	ewarn "Following features are disabled:"
-	ewarn " - Fontations Rust font stack"
-	ewarn " - Crabby Avif parser/decoder implementation in Rust"
+	ewarn "Fontations Rust font stack is disabled"
+	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
 
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-135-libstdc++.patch"
 			"${FILESDIR}/chromium-134-stdatomic.patch"
-			"${FILESDIR}/font-gc-r4.patch"
-			"${FILESDIR}/cromite-libstdc++.patch"
+			"${FILESDIR}/font-gc-asan.patch"
 		)
 	fi
 
@@ -549,7 +547,8 @@ src_prepare() {
 
 	if use system-ffmpeg; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-99-opus.patch"
+			"${FILESDIR}/chromium-135-opus.patch"
+			"${FILESDIR}/chromium-135-hevc.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
@@ -582,11 +581,6 @@ src_prepare() {
 		build/linux/unbundle/replace_gn_files.py || die
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
-
-	if use hevc; then
-		sed -i '/^bool IsDecoderHevcProfileSupported(const VideoType& type) {$/{s++bool IsDecoderHevcProfileSupported(const VideoType\& type) { return true;+;h};${x;/./{x;q0};x;q1}' \
-			media/base/supported_types.cc || die
-	fi
 
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"cromite";+;h};${x;/./{x;q0};x;q1}' \
@@ -621,6 +615,10 @@ src_prepare() {
 			-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
 		# eend $? || die
 	done
+
+	if ! use libcxx ; then
+		eapply "${FILESDIR}/cromite-libstdc++.patch"
+	fi
 
 	local keeplibs=(
 		base/third_party/cityhash
@@ -1313,8 +1311,6 @@ src_configure() {
 	myconf_gn+=" enable_pdf=true"
 	myconf_gn+=" use_system_lcms2=true"
 	myconf_gn+=" enable_print_preview=true"
-	myconf_gn+=" enable_platform_hevc=$(usex hevc true false)"
-	myconf_gn+=" enable_hevc_parser_and_hw_decoder=$(usex hevc true false)"
 
 	# Ungoogled flags
 	myconf_gn+=" build_with_tflite_lib=false"
