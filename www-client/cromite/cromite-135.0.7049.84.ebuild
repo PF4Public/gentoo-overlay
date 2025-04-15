@@ -600,7 +600,8 @@ src_prepare() {
 			continue
 		fi
 		if [ "$i" = "Add-support-to-jxl.patch" ] ||
-			[ "$i" = "Do-not-check-for-the-presence-of-use-remoteexec.patch" ]; then
+			[ "$i" = "Do-not-check-for-the-presence-of-use-remoteexec.patch" ] ||
+			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
 		fi
