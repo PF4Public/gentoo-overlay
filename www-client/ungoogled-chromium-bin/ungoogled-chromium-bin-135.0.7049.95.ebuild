@@ -59,7 +59,7 @@ CDEPEND="
 	media-libs/flac
 	>=media-libs/libwebp-0.4.0
 	sys-libs/zlib[minizip]
-	>=media-libs/libavif-1.2.0:=
+	>=media-libs/libavif-1.2.0
 	app-accessibility/at-spi2-core
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
