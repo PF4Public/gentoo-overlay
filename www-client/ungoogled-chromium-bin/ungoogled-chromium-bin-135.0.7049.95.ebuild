@@ -101,6 +101,10 @@ pkg_pretend() {
 		ewarn "If you think this is a mistake let me know in #193"
 		ewarn
 	fi
+	ewarn
+	ewarn "Fontations Rust font stack is disabled"
+	ewarn "Using media-libs/libavif instead of CrabbyAvif"
+	ewarn
 }
 
 src_install() {
