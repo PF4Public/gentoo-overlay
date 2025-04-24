@@ -68,8 +68,8 @@ declare -A CHROMIUM_COMMITS=(
 	["-7c6c78ad4e0ed6a0e1204264b02db8f85d34994e"]="."
 	["-49b23faa16ad14e96601aea8772c7279fcbd6b44"]="."
 	["-6db9674ad4375d40db7df622652287ccdae82f24"]="."
-	["-be0c460cbca7b0c927e44a529b8489c6d50ea463"]="."
 )
+CHROMIUM_COMMITS+=(["-be0c460cbca7b0c927e44a529b8489c6d50ea463"]=".")
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
