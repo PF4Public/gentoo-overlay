@@ -56,6 +56,7 @@ RDEPEND="
 	sys-apps/util-linux
 	sys-auth/polkit
 	virtual/libcrypt:*
+	x11-libs/libXcursor
 	x11-libs/libXinerama
 	x11-libs/libXxf86vm
 	x11-libs/libdrm
