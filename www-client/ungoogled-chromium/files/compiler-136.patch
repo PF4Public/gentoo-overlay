@@ -17,7 +17,6 @@ This includes things like disabling rust nightly features.
    ]
  
    # Here we enable -fno-delete-null-pointer-checks, which makes various nullptr
-
 @@ -567,61 +564,7 @@ config("compiler") {
      ldflags += [ "-Wl,-z,keep-text-section-prefix" ]
    }
