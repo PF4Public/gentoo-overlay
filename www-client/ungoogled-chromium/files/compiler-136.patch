@@ -1,14 +1,10 @@
-From 00683131977068f7ab8b44e919d03a453fb8fb8c Mon Sep 17 00:00:00 2001
-From: Matt Jolly <Matt.Jolly@footclan.ninja>
-Date: Wed, 7 Aug 2024 20:12:06 +1000
 Subject: [PATCH] This patch configures the Chromium build to work
-
-... with Gentoo.
+with Gentoo.
 
 This includes things like disabling rust nightly features.
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -307,9 +307,6 @@ config("compiler") {
+@@ -307,12 +307,8 @@ config("compiler") {
  
    configs += [
      # See the definitions below.
@@ -17,7 +13,11 @@ This includes things like disabling rust nightly features.
 -    ":compiler_cpu_abi",
      ":compiler_codegen",
      ":compiler_deterministic",
-     ":clang_warning_suppression",
+-    ":clang_warning_suppression",
+   ]
+ 
+   # Here we enable -fno-delete-null-pointer-checks, which makes various nullptr
+
 @@ -567,61 +564,7 @@ config("compiler") {
      ldflags += [ "-Wl,-z,keep-text-section-prefix" ]
    }
