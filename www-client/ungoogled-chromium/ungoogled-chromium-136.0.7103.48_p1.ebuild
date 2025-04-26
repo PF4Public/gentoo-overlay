@@ -453,7 +453,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler-132.patch" "${T}/compiler.patch"
+	cp -f "${FILESDIR}/compiler-136.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -478,9 +478,9 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-135-no-rust.patch"
-		"${FILESDIR}/chromium-135-fontations.patch"
 		"${FILESDIR}/chromium-135-crabby.patch"
+		"${FILESDIR}/chromium-136-no-rust.patch"
+		"${FILESDIR}/chromium-136-fontations.patch"
 	)
 
 	shopt -s globstar nullglob
