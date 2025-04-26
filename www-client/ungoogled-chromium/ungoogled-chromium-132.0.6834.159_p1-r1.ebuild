@@ -28,9 +28,7 @@ inherit python-any-r1 readme.gentoo-r1 systemd toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="c11b515d9addc3f8b516502e553ace507eb81815"
-PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz
-	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	ppc64? (
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
@@ -133,6 +131,7 @@ REQUIRED_USE="
 	clang? ( ${LLVM_REQUIRED_USE} )
 	pgo? ( clang )
 	x86? ( !widevine )
+	debug? ( !official )
 	ppc64? ( !cfi )
 	screencast? ( wayland )
 	!headless? ( || ( X wayland ) )
@@ -286,7 +285,7 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	>=dev-build/gn-${GN_MIN_VER}
-	dev-build/ninja
+	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.0.3
 	dev-vcs/git
@@ -356,7 +355,7 @@ pre_build_checks() {
 	local EXTRA_DISK=1
 	local CHECKREQS_MEMORY="4G"
 	tc-is-cross-compiler && EXTRA_DISK=2
-	if tc-is-lto || use pgo || tc-ld-is-mold; then
+	if tc-is-lto || use pgo; then
 		CHECKREQS_MEMORY="9G"
 		tc-is-cross-compiler && EXTRA_DISK=4
 		use pgo && EXTRA_DISK=8
@@ -372,12 +371,6 @@ pre_build_checks() {
 }
 
 pkg_pretend() {
-	if tc-ld-is-mold; then
-		ewarn
-		ewarn "Build Chromium with mold may consume too much memory"
-		ewarn "Set MOLD_JOBS=1 and/or -Wl,--thread-count=N properly to prevent OOM issue"
-		ewarn
-	fi
 	if use !clang; then
 		ewarn
 		ewarn "GCC is _not_ supported upstream, though patches are welcome"
@@ -508,7 +501,6 @@ src_unpack() {
 	# Gentoo tarball:
 	# tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-gentoo.tar.xz" -C "${WORKDIR}" || die
 	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-lite.tar.xz" -C "${WORKDIR}" || die
-	unpack chromium-patches-${PATCH_V}.tar.bz2
 
 	unpack ${UGC_URL#*->}
 	# Warned you!
@@ -526,11 +518,10 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	if ! use custom-cflags; then #See #25 #92
-		sed -i '/default_stack_frames/Q' "${WORKDIR}/chromium-patches-${PATCH_V}/chromium-${PATCH_V}-compiler.patch" || die
+	cp -f "${FILESDIR}/chromium-132-compiler.patch" "${T}/compiler.patch" || die
+	if ! use custom-cflags; then # See #25 #92
+		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
-
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/chromium-130-interference-size.patch" || die
 
 	local PATCHES=(
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -553,19 +544,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-132-mold.patch"
 		"${FILESDIR}/chromium-134-qt5-optional.patch"
+		"${T}/compiler.patch"
 	)
-
-	shopt -s globstar nullglob
-	# 130: moved the PPC64 patches into the chromium-patches repo
-	local patch
-	for patch in "${WORKDIR}/chromium-patches-${PATCH_V}"/**/*.patch; do
-			if [[ ${patch} == *"ppc64le"* ]]; then
-					use ppc64 && PATCHES+=( "${patch}" )
-			else
-					PATCHES+=( "${patch}" )
-			fi
-	done
-	shopt -u globstar nullglob
 
 	# We can't use the bundled compiler builtins with the system toolchain
 	# `grep` is a development convenience to ensure we fail early when google changes something.
@@ -589,7 +569,7 @@ src_prepare() {
 		fi
 		# We use vsx3 as a proxy for 'want isa3.0' (POWER9)
 		if use cpu_flags_ppc_vsx3 ; then
-			PATCHES+=( +"${patchset_dir}/${isa_3_patch}" )
+			PATCHES+=( "${patchset_dir}/${isa_3_patch}" )
 		fi
 	fi
 
@@ -661,7 +641,7 @@ src_prepare() {
 				"${FILESDIR}/unbundle-ffmpeg-av_stream_get_first_dts.patch"
 			)
 		else
-			has_version ">=media-video/ffmpeg-5.0[av-stream-get-first-dts]" || die "You should enable av-stream-get-first-dts use flag for >=media-video/ffmpeg-5.0"
+			ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
 		fi
 		if has_version "<media-video/ffmpeg-6.0"; then
 			PATCHES+=(
@@ -1289,7 +1269,6 @@ src_prepare() {
 		for lib in "${not_found_libs[@]}"; do
 			eerror "  ${lib}"
 		done
-		[[ -z "${NODIE}" ]] && die "Please update the ebuild."
 	fi
 
 	if use cromite ; then
@@ -1371,7 +1350,7 @@ src_configure() {
 	myconf_gn+=" enable_rust=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
-	myconf_gn+=" is_debug=false"
+	myconf_gn+=" is_debug=$(usex debug true false)"
 
 	# enable DCHECK with USE=debug only, increases chrome binary size by 30%, bug #811138.
 	# DCHECK is fatal by default, make it configurable at runtime, #bug 807881.
@@ -1522,12 +1501,17 @@ src_configure() {
 		myconf_gn+=" use_custom_libcxx=true"
 	else
 		myconf_gn+=" use_custom_libcxx=false"
-		append-cppflags -U_GLIBCXX_ASSERTIONS #See #318
+		append-cppflags -U_GLIBCXX_ASSERTIONS # See #318
 	fi
 
 	myconf_gn+=" use_bluez=$(usex bluetooth true false)"
 
 	myconf_gn+=" is_cfi=$(usex cfi true false)"
+
+	if use cfi; then
+		myconf_gn+=" use_cfi_icall=true"
+		myconf_gn+=" use_cfi_cast=true"
+	fi
 
 	if use pgo; then
 		myconf_gn+=" chrome_pgo_phase=2"
@@ -1586,12 +1570,13 @@ src_configure() {
 
 	# Avoid CFLAGS problems
 	if ! use custom-cflags; then
-		filter-flags "-O*" "-Wl,-O*" #See #25
+		filter-flags "-O*" "-Wl,-O*" # See #25
 		strip-flags
 
-		# Debug info section overflows without component build
 		# Prevent linker from running out of address space, bug #471810 .
-		filter-flags "-g*"
+		if use x86; then
+			filter-flags "-g*"
+		fi
 
 		# Prevent libvpx/xnnpack build failures. Bug 530248, 544702, 546984, 853646.
 		if [[ ${myarch} == amd64 || ${myarch} == x86 ]]; then
@@ -1721,6 +1706,8 @@ src_configure() {
 			tools/generate_shim_headers/generate_shim_headers.py || die
 		# Don't add symbols to build
 		myconf_gn+=" symbol_level=0"
+	else
+		myconf_gn+=" devtools_skip_typecheck=false" # See #142
 	fi
 
 	# user CXXFLAGS might overwrite -march=armv8-a+crc+crypto, bug #851639
@@ -1892,7 +1879,7 @@ src_install() {
 		doins out/Release/swiftshader/*.so
 	fi
 
-	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so /usr/$(get_libdir)/chromium-browser/libwidevinecdm.so
+	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so "${CHROMIUM_HOME}/libwidevinecdm.so"
 
 	# Install icons
 	local branding size
