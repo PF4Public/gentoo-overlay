@@ -72,6 +72,7 @@ CHROMIUM_COMMITS=(
 	-234e68c6b6cf66bec7f367c3be40ff19b5100cc5
 	-be0c460cbca7b0c927e44a529b8489c6d50ea463
 	-4308d83bdf54a2f99329708308a358f930000c63
+	ba427d080df41b82e0e121326e9dd8e1853ea7bc
 )
 
 UGC_PV="${PV/_p/-}"
@@ -528,7 +529,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-135-libstdc++.patch"
+			"${FILESDIR}/chromium-136-libstdc++.patch"
 			"${FILESDIR}/chromium-134-stdatomic.patch"
 			"${FILESDIR}/font-gc-asan.patch"
 		)
