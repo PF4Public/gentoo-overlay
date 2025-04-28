@@ -542,7 +542,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r3.patch"
+			"${FILESDIR}/disable-bluez-r4.patch"
 		)
 	fi
 
@@ -1603,8 +1603,6 @@ src_compile() {
 	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
 	local -x PYTHONPATH=
 
-	use convert-dict && eninja -C out/Release convert_dict
-
 	# Build mksnapshot and pax-mark it.
 	if use pax-kernel; then
 		local x
@@ -1622,6 +1620,8 @@ src_compile() {
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
 	eninja -C out/Release chrome
+
+	use convert-dict && eninja -C out/Release convert_dict
 
 	use enable-driver && eninja -C out/Release chromedriver
 	#use suid && eninja -C out/Release chrome_sandbox
