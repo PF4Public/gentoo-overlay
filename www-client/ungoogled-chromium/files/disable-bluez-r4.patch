@@ -49,3 +49,16 @@ see also https://github.com/PF4Public/gentoo-overlay/issues/254
    if (override_values_) {
      return override_values_->GetLESupported();
    }
+--- a/chrome/browser/metrics/bluetooth_metrics_provider.cc
++++ b/chrome/browser/metrics/bluetooth_metrics_provider.cc
+@@ -16,9 +16,7 @@
+
+ bool BluetoothMetricsProvider::ProvideHistograms() {
+   base::UmaHistogramEnumeration("Bluetooth.StackName",
+-                                floss::features::IsFlossEnabled()
+-                                    ? BluetoothStackName::kFloss
+-                                    : BluetoothStackName::kBlueZ);
++                                BluetoothStackName::kBlueZ);
+   return true;
+ }
+
