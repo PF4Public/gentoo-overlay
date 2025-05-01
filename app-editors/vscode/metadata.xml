@@ -33,6 +33,7 @@
 		<flag name="electron-33">Build against electron-33 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-34">Build against electron-34 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-35">Build against electron-35 instead of the default one. Use at your own risk!</flag>
+		<flag name="electron-36">Build against electron-36 instead of the default one. Use at your own risk!</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
 		<flag name="reh">Build Remote Extension Host</flag>
 		<flag name="reh-web">Build Remote Extension Host for Web</flag>
