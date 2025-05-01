@@ -2,10 +2,10 @@ name: element-desktop
 on:
   push:
     paths:
-    - 'net-im/element-desktop/**'
+    - 'net-im/element-desktop/*.ebuild'
   pull_request:
     paths:
-    - 'net-im/element-desktop/**'
+    - 'net-im/element-desktop/*.ebuild'
 
 jobs:
   default:

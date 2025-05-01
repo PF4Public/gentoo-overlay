@@ -2,10 +2,10 @@ name: electron
 on:
   push:
     paths:
-    - 'dev-util/electron/**'
+    - 'dev-util/electron/*.ebuild'
   pull_request:
     paths:
-    - 'dev-util/electron/**'
+    - 'dev-util/electron/*.ebuild'
 
 jobs:
   default:

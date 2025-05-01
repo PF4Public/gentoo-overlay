@@ -2,10 +2,10 @@ name: jupyterlab-desktop
 on:
   push:
     paths:
-    - 'sci-misc/jupyterlab-desktop/**'
+    - 'sci-misc/jupyterlab-desktop/*.ebuild'
   pull_request:
     paths:
-    - 'sci-misc/jupyterlab-desktop/**'
+    - 'sci-misc/jupyterlab-desktop/*.ebuild'
 
 jobs:
   default:

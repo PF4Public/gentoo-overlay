@@ -2,10 +2,10 @@ name: gb-chroot
 on:
   push:
     paths:
-    - 'app-admin/gb-chroot/**'
+    - 'app-admin/gb-chroot/*.ebuild'
   pull_request:
     paths:
-    - 'app-admin/gb-chroot/**'
+    - 'app-admin/gb-chroot/*.ebuild'
 
 jobs:
   ebuild:

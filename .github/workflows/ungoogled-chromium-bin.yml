@@ -2,10 +2,10 @@ name: ungoogled-chromium-bin
 on:
   push:
     paths:
-    - 'www-client/ungoogled-chromium-bin/**'
+    - 'www-client/ungoogled-chromium-bin/*.ebuild'
   pull_request:
     paths:
-    - 'www-client/ungoogled-chromium-bin/**'
+    - 'www-client/ungoogled-chromium-bin/*.ebuild'
 
 jobs:
   ebuild:

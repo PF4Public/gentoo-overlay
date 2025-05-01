@@ -2,10 +2,10 @@ name: zint
 on:
   push:
     paths:
-    - 'media-libs/zint/**'
+    - 'media-libs/zint/*.ebuild'
   pull_request:
     paths:
-    - 'media-libs/zint/**'
+    - 'media-libs/zint/*.ebuild'
 
 jobs:
   ebuild:

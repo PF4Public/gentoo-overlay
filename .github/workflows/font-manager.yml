@@ -2,10 +2,10 @@ name: font-manager
 on:
   push:
     paths:
-    - 'app-misc/font-manager/**'
+    - 'app-misc/font-manager/*.ebuild'
   pull_request:
     paths:
-    - 'app-misc/font-manager/**'
+    - 'app-misc/font-manager/*.ebuild'
 
 jobs:
   ebuild:

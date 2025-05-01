@@ -2,10 +2,10 @@ name: caffeine-ng
 on:
   push:
     paths:
-    - 'x11-misc/caffeine-ng/**'
+    - 'x11-misc/caffeine-ng/*.ebuild'
   pull_request:
     paths:
-    - 'x11-misc/caffeine-ng/**'
+    - 'x11-misc/caffeine-ng/*.ebuild'
 
 jobs:
   ebuild:

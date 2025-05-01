@@ -2,10 +2,10 @@ name: element-web
 on:
   push:
     paths:
-    - 'net-im/element-web/**'
+    - 'net-im/element-web/*.ebuild'
   pull_request:
     paths:
-    - 'net-im/element-web/**'
+    - 'net-im/element-web/*.ebuild'
 
 jobs:
   ebuild:

@@ -2,10 +2,10 @@ name: sb-hosts
 on:
   push:
     paths:
-    - 'net-misc/sb-hosts/**'
+    - 'net-misc/sb-hosts/*.ebuild'
   pull_request:
     paths:
-    - 'net-misc/sb-hosts/**'
+    - 'net-misc/sb-hosts/*.ebuild'
 
 jobs:
   ebuild:

@@ -2,10 +2,10 @@ name: ungoogled-chromium
 on:
   push:
     paths:
-    - 'www-client/ungoogled-chromium/**'
+    - 'www-client/ungoogled-chromium/*.ebuild'
   pull_request:
     paths:
-    - 'www-client/ungoogled-chromium/**'
+    - 'www-client/ungoogled-chromium/*.ebuild'
 
 jobs:
   default:

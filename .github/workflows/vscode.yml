@@ -2,10 +2,10 @@ name: vscode
 on:
   push:
     paths:
-    - 'app-editors/vscode/**'
+    - 'app-editors/vscode/*.ebuild'
   pull_request:
     paths:
-    - 'app-editors/vscode/**'
+    - 'app-editors/vscode/*.ebuild'
 
 jobs:
   default:

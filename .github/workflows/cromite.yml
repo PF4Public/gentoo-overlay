@@ -2,10 +2,10 @@ name: cromite
 on:
   push:
     paths:
-    - 'www-client/cromite/**'
+    - 'www-client/cromite/*.ebuild'
   pull_request:
     paths:
-    - 'www-client/cromite/**'
+    - 'www-client/cromite/*.ebuild'
 
 jobs:
   default:
