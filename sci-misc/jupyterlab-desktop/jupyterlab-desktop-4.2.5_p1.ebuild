@@ -666,7 +666,7 @@ SRC_URI="
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
 ELECTRON_SLOT_DEFAULT="27"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-28 electron-29 electron-30 electron-31 electron-32 electron-33 electron-34 electron-35"
+IUSE="electron-28 electron-29 electron-30 electron-31 electron-32 electron-33 electron-34 electron-35 electron-36"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -701,6 +701,7 @@ COMMON_DEPEND="
 	electron-33? ( dev-util/electron:33 )
 	electron-34? ( dev-util/electron:34 )
 	electron-35? ( dev-util/electron:35 )
+	electron-36? ( dev-util/electron:36 )
 	!electron-28? (
 	!electron-29? (
 	!electron-30? (
@@ -709,8 +710,9 @@ COMMON_DEPEND="
 	!electron-33? (
 	!electron-34? (
 	!electron-35? (
+	!electron-36? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) )
+	) ) ) ) ) ) ) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -741,6 +743,8 @@ src_unpack() {
 		export ELECTRON_SLOT=34
 	elif use electron-35; then
 		export ELECTRON_SLOT=35
+	elif use electron-36; then
+		export ELECTRON_SLOT=36
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
@@ -764,7 +768,7 @@ src_prepare() {
 	einfo "Using system python by default"
 	sed -i 's$getBundledPythonPath();$"/usr/bin/python";getBundledPythonPath();$' src/main/registry.ts || die
 
-	if use electron-28 || use electron-29 || use electron-30 || use electron-31 || use electron-32 || use electron-33 || use electron-34 || use electron-35; then
+	if use electron-28 || use electron-29 || use electron-30 || use electron-31 || use electron-32 || use electron-33 || use electron-34 || use electron-35 || use electron-36; then
 		einfo "Disabling development mode"
 		sed -i 's$isDevMode(): boolean {$isDevMode(): boolean {return false;$' src/main/utils.ts || die
 	fi
