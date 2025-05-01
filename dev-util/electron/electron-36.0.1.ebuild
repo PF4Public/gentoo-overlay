@@ -1772,7 +1772,7 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
-				[ "$i" = "patches/chromium/revert_enable_crel_for_arm32_targets.patch" ]; then
+				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
 				continue;
 			fi
