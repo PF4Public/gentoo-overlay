@@ -1449,9 +1449,9 @@ src_prepare() {
 
 		sed -i 's/std::vector<const/std::vector</' patches/chromium/feat_add_data_parameter_to_processsingleton.patch || die
 		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.cc || die
-		sed -i 's/std::vector<const/std::vector</' shell/browser/api/electron_api_app.h || die
-		sed -i 's/std::variant/absl::variant/' shell/browser/electron_browser_context.h || die
-		sed -i 's/std::get_if/absl::get_if/' shell/browser/electron_browser_context.cc || die
+		sed -i 's/std::vector<const/std::vector</' shell/browseshell/browser/electron_browser_context.ccr/api/electron_api_app.h || die
+		# sed -i 's/std::variant/absl::variant/' shell/browser/electron_browser_context.h || die
+		# sed -i 's/std::get_if/absl::get_if/' shell/browser/electron_browser_context.cc || die
 		sed -i 's/constexpr CodeAndShiftedChar/CodeAndShiftedChar/' shell/common/keyboard_util.cc || die
 
 		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
