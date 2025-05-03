@@ -1237,6 +1237,7 @@ COMMON_SNAPSHOT_DEPEND="
 		>=media-libs/libaom-3.7.0:=
 	)
 	sys-libs/zlib:=
+	>=media-libs/libavif-1.2.0:=
 	dev-libs/glib:2
 	>=media-libs/alsa-lib-1.0.19:=
 	pulseaudio? (
