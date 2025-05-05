@@ -432,6 +432,7 @@ src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/00LIN-Build-fixes.patch"
 		"${T}/compiler.patch"
+		"${FILESDIR}/enable-extra-locales.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
