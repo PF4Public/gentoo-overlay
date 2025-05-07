@@ -18,17 +18,17 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 electron-34 electron-35 electron-36 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 electron-30 electron-35 electron-36 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="30"
+	ELECTRON_SLOT_DEFAULT="34"
 else
 	IUSE+=" build-online"
-	ELECTRON_SLOT_DEFAULT="30"
+	ELECTRON_SLOT_DEFAULT="34"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -57,7 +57,7 @@ COMMON_DEPEND="
 	electron-31? ( dev-util/electron:31 )
 	electron-32? ( dev-util/electron:32 )
 	electron-33? ( dev-util/electron:33 )
-	electron-34? ( dev-util/electron:34 )
+	electron-30? ( dev-util/electron:30 )
 	electron-35? ( dev-util/electron:35 )
 	electron-36? ( dev-util/electron:36 )
 	!electron-27? (
@@ -66,7 +66,7 @@ COMMON_DEPEND="
 	!electron-31? (
 	!electron-32? (
 	!electron-33? (
-	!electron-34? (
+	!electron-30? (
 	!electron-35? (
 	!electron-36? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
@@ -106,8 +106,8 @@ src_unpack() {
 		export ELECTRON_SLOT=32
 	elif use electron-33; then
 		export ELECTRON_SLOT=33
-	elif use electron-34; then
-		export ELECTRON_SLOT=34
+	elif use electron-30; then
+		export ELECTRON_SLOT=30
 	elif use electron-35; then
 		export ELECTRON_SLOT=35
 	elif use electron-36; then
@@ -176,8 +176,8 @@ src_prepare() {
 	sed -i '/test\/monaco/d' build/npm/dirs.js || die
 	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.js || die
 
-	einfo "Editing build/gulpfile.extensions.js"
-	sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
+	# einfo "Editing build/gulpfile.extensions.js"
+	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
 	einfo "Editing build/gulpfile.vscode.js"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
