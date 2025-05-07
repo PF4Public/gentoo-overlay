@@ -1,0 +1,28 @@
+diff --git a/desktop/scripts/build-utils.tsx b/desktop/scripts/build-utils.tsx
+index 685a1b852..e06882ad2 100644
+--- a/desktop/scripts/build-utils.tsx
++++ b/desktop/scripts/build-utils.tsx
+@@ -109,6 +109,7 @@ async function compile(
+         resolverMainFields: ['flipperBundlerEntry', 'module', 'main'],
+         blacklistRE: /\.native\.js$/,
+         sourceExts: ['js', 'jsx', 'ts', 'tsx', 'json', 'mjs', 'cjs'],
++        useWatchman: false,
+       },
+     },
+     {
+@@ -218,6 +219,7 @@ export async function compileMain() {
+         sourceExts: ['tsx', 'ts', 'js'],
+         resolverMainFields: ['flipperBundlerEntry', 'module', 'main'],
+         blacklistRE: /\.native\.js$/,
++        useWatchman: false,
+       },
+     });
+     await Metro.runBuild(config, {
+@@ -357,6 +359,7 @@ export async function buildBrowserBundle(outDir: string, dev: boolean) {
+         }
+         return defaultResolve(context, moduleName, ...rest);
+       },
++      useWatchman: false,
+     },
+   });
+   await Metro.runBuild(config, {
