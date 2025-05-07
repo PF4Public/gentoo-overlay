@@ -258,7 +258,7 @@ src_configure() {
 	# fi
 
 	#TODO: temp fix
-	if use electron-32 || use electron-33 || use electron-34 || use electron-35 || use electron-36; then
+	if use electron-32 || use electron-33 || use electron-35 || use electron-36; then
 		# CPPFLAGS="${CPPFLAGS} -std=c++20";
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
