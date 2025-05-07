@@ -87,7 +87,6 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	!temp-fix? ( net-libs/nodejs )
-	sys-apps/yarn
 "
 
 python_check_deps() {
@@ -286,13 +285,13 @@ src_configure() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	# echo "$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	if ! use build-online; then
-		ONLINE_OFFLINE="--offline"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	fi
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} \
+	# yarn config set disable-self-update-check true || die
+	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	# if ! use build-online; then
+	# 	ONLINE_OFFLINE="--offline"
+	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	# fi
+	npm install --frozen-lockfile ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 	# --ignore-optional
 	# --ignore-engines
