@@ -228,6 +228,10 @@ src_prepare() {
 		grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
 	eend $? || die
 	fi
+
+	einfo "Disabling signature verification for extensions"
+	einfo "as it depends on a package from a hidden repository"
+	patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
 }
 
 src_configure() {
@@ -414,7 +418,7 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	#TODO asar?
+	#TODO why no asar?
 	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
