@@ -27,7 +27,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE+=" +build-online"
 	ELECTRON_SLOT_DEFAULT="34"
 else
-	IUSE+=" build-online"
+	IUSE+=" +build-online"
 	ELECTRON_SLOT_DEFAULT="34"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
@@ -91,6 +91,16 @@ BDEPEND="
 
 python_check_deps() {
         python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+}
+
+pkg_pretend() {
+	if ! use build-online; then
+		ewarn
+		ewarn "Offline build is not implemented yet"
+		ewarn "Subscribe to #377 to stay informed"
+		ewarn
+		[[ -z "${NODIE}" ]] && die "The build will fail!"
+	fi
 }
 
 src_unpack() {
@@ -463,11 +473,11 @@ pkg_postinst() {
 		ewarn
 	fi
 
-	elog
-	elog "Normally vscode ships some builtin extensions, but they are omitted here"
-	elog "Consult product.json for a list if you want to install them manually"
-	elog "ms-vscode.references-view is one of them, for example"
-	elog
+	# elog
+	# elog "Normally vscode ships some builtin extensions, but they are omitted here"
+	# elog "Consult product.json for a list if you want to install them manually"
+	# elog "ms-vscode.references-view is one of them, for example"
+	# elog
 
 	xdg_icon_cache_update
 	xdg_desktop_database_update
