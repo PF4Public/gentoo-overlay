@@ -1748,7 +1748,7 @@ src_prepare() {
 	fi
 
 	if use system-zstd; then
-		sed -i '/zstd:headers$/{s++zstd_headers+;h};${x;/./{x;q0};x;q1}' \
+		sed -i '/zstd:headers/{s++zstd_headers+;h};${x;/./{x;q0};x;q1}' \
 			electron/patches/node/build_add_gn_build_files.patch || die
 	fi
 
