@@ -78,7 +78,7 @@ jobs:
           - 'api-proposals badge-providers'
           - 'openvsx'
           - 'substitute-urls'
-          - 'build-online'
+          # - 'build-online'
         include:
           - use: 'reh reh-web'
             experimental: true
