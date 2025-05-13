@@ -81,20 +81,6 @@ jobs:
         use:
           - 'build-online'
         include:
-          - use: 'electron-27'
-            experimental: true
-          - use: 'electron-28'
-            experimental: true
-          - use: 'electron-29'
-            experimental: true
-          - use: 'electron-30'
-            experimental: true
-          - use: 'electron-31'
-            experimental: true
-          - use: 'electron-32'
-            experimental: true
-          - use: 'electron-33'
-            experimental: true
           - use: 'electron-34'
             experimental: true
           - use: 'electron-35'
