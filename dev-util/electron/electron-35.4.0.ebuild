@@ -1736,6 +1736,11 @@ src_prepare() {
 		eapply "${FILESDIR}/more-locales.patch"
 	fi
 
+	if use system-zstd; then
+		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
+			electron/patches/node/build_add_gn_build_files.patch || die
+	fi
+	
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
