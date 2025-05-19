@@ -365,6 +365,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/@types/webpack/-/webpack-5.28.5.tgz -> @types-webpack-5.28.5.tgz
 	https://registry.yarnpkg.com/@types/which/-/which-2.0.0.tgz -> @types-which-2.0.0.tgz
 	https://registry.yarnpkg.com/@types/which/-/which-3.0.0.tgz -> @types-which-3.0.0.tgz
+	https://registry.yarnpkg.com/@types/which/-/which-3.0.4.tgz -> @types-which-3.0.4.tgz
 	https://registry.yarnpkg.com/@types/wicg-file-system-access/-/wicg-file-system-access-2020.9.6.tgz -> @types-wicg-file-system-access-2020.9.6.tgz
 	https://registry.yarnpkg.com/@types/windows-foreground-love/-/windows-foreground-love-0.3.0.tgz -> @types-windows-foreground-love-0.3.0.tgz
 	https://registry.yarnpkg.com/@types/winreg/-/winreg-1.2.30.tgz -> @types-winreg-1.2.30.tgz
@@ -1956,6 +1957,7 @@ SRC_URI="!build-online? (
 	https://registry.yarnpkg.com/which/-/which-1.3.1.tgz
 	https://registry.yarnpkg.com/which/-/which-2.0.2.tgz
 	https://registry.yarnpkg.com/which/-/which-4.0.0.tgz
+	https://registry.yarnpkg.com/which/-/which-5.0.0.tgz
 	https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.0.tgz
 	https://registry.yarnpkg.com/windows-foreground-love/-/windows-foreground-love-0.5.0.tgz
 	https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.4.tgz
@@ -2133,6 +2135,9 @@ src_prepare() {
 
 	einfo "Add PPC target to package build scripts"
 	patch -p1 -i "${FILESDIR}/ppc64le/add-ppc-target.patch" || die
+
+	einfo "Add support for launching from a distribution directory"
+	patch -p1 -i "${FILESDIR}/add-distribution-dir-support.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
@@ -2397,10 +2402,10 @@ src_install() {
 	sed -i "s|@ELECTRON@|code-oss|" "${WORKDIR}"/V*/bin/code-oss
 
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
+	VSCODE_DISTDIR=1
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
 	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
+	exec /usr/bin/env \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
