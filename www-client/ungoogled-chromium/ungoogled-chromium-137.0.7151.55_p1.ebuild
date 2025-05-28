@@ -61,7 +61,7 @@ UGC_COMMIT_ID="76f98dc4eb94681cd0d585854928127233354b08"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="1abdac0aff0916b1e4a4bd52f1896eec00834262"
+CROMITE_COMMIT_ID="b4f8d96284c854cbe6448d2e30ee5a30ce3f0b82"
 
 # CHROMIUM_COMMITS=(
 # 	-da443d7bd3777a5dd0587ecff1fbad1722b106b5
@@ -454,7 +454,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler-136.patch" "${T}/compiler.patch"
+	cp -f "${FILESDIR}/compiler-137.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -482,8 +482,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-135-crabby.patch"
-		"${FILESDIR}/chromium-136-no-rust.patch"
 		"${FILESDIR}/chromium-136-fontations.patch"
+		"${FILESDIR}/chromium-137-no-rust.patch"
 	)
 
 	shopt -s globstar nullglob
