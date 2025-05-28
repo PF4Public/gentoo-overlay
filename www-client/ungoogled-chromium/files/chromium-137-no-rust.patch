@@ -321,3 +321,16 @@
  
        libs = [ "z" ]
      }
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -71,10 +71,6 @@
+     ]
+     if (enable_constraints) {
+       defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
+-      deps += [
+-        "//build/rust/allocator",
+-        "//third_party/rust/llguidance/v0_7:lib",
+-      ]
+     }
+     if (use_blink) {
+       deps += [ "//gpu/config" ]

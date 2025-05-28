@@ -483,7 +483,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-135-crabby.patch"
 		"${FILESDIR}/chromium-136-fontations.patch"
-		"${FILESDIR}/chromium-137-no-rust.patch"
+		"${FILESDIR}/chromium-137-no-rust.patch" 
 	)
 
 	shopt -s globstar nullglob
