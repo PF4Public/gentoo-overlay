@@ -483,7 +483,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-135-crabby.patch"
 		"${FILESDIR}/chromium-136-fontations.patch"
-		"${FILESDIR}/chromium-137-no-rust.patch" 
+		"${FILESDIR}/chromium-137-no-rust.patch"
 	)
 
 	shopt -s globstar nullglob
@@ -885,6 +885,7 @@ src_prepare() {
 		third_party/ced
 		third_party/cld_3
 		third_party/closure_compiler
+		third_party/compiler-rt # Since M137 atomic is required; we could probably unbundle this as a target of opportunity.
 		third_party/content_analysis_sdk
 		third_party/cpuinfo
 		third_party/crabbyavif
