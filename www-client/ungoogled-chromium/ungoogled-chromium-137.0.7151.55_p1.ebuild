@@ -529,6 +529,12 @@ src_prepare() {
 	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
 
+	if ! use clang ; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-137-gcc.patch"
+		)
+	fi
+
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-136-libstdc++.patch"
