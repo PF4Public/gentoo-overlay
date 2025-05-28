@@ -638,7 +638,8 @@ src_prepare() {
 			ewarn "Skipping ${i}"
 			continue;
 		fi
-		if [ "$i" = "Add-kill-switch-for-unsupported-clangd-flags.patch" ]; then
+		if [ "$i" = "Add-kill-switch-for-unsupported-clangd-flags.patch" ] ||
+			[ "$i" = "Fix-chromium-build-bugs.patch" ]; then
 			ewarn "Skipping ${i}: already applied"
 			continue;
 		fi
