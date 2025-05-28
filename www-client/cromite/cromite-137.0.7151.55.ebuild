@@ -424,7 +424,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f "${FILESDIR}/compiler-137.patch" "${T}/compiler.patch" 
+	cp -f "${FILESDIR}/compiler-137.patch" "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -636,6 +636,10 @@ src_prepare() {
 			[ "$i" = "Add-search-engine.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
 			ewarn "Skipping ${i}"
+			continue;
+		fi
+		if [ "$i" = "Add-kill-switch-for-unsupported-clangd-flags.patch" ]; then
+			ewarn "Skipping ${i}: already applied"
 			continue;
 		fi
 		einfo "$i"
