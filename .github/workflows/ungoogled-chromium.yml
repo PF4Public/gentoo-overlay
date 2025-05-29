@@ -82,7 +82,6 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - -clang
           - custom-cflags
           - vaapi -system-libvpx -system-av1
           - -official
@@ -90,6 +89,8 @@ jobs:
           - headless -X -wayland
           - cromite
         include:
+          - use: -clang
+            experimental: true
           - use: -libcxx
             experimental: true
           - use: libcxx
