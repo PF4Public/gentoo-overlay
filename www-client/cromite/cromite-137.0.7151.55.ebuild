@@ -57,17 +57,10 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# CHROMIUM_COMMITS=(
-# 	-da443d7bd3777a5dd0587ecff1fbad1722b106b5
-# 	-7c6c78ad4e0ed6a0e1204264b02db8f85d34994e
-# 	-49b23faa16ad14e96601aea8772c7279fcbd6b44
-# 	-6db9674ad4375d40db7df622652287ccdae82f24
-# 	-fd011815c455976b15e31966f826628b4f9f61d4
-# 	-234e68c6b6cf66bec7f367c3be40ff19b5100cc5
-# 	-be0c460cbca7b0c927e44a529b8489c6d50ea463
-# 	-4308d83bdf54a2f99329708308a358f930000c63
-# 	ba427d080df41b82e0e121326e9dd8e1853ea7bc
-# )
+CHROMIUM_COMMITS=(
+	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
+)
+
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
