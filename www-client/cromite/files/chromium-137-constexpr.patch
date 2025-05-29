@@ -1,0 +1,18 @@
+author: Andres Salomon <dilinger@debian.org>
+description: work around clang19/libstdc++14 constexpr issue
+
+../../media/base/picture_in_picture_events_info.cc:37:40: error: constexpr variable 'bool_to_string' must be initialized by a constant expression
+   37 |   constexpr std::array<std::string, 2> bool_to_string{"false", "true"};
+
+
+--- a/media/base/picture_in_picture_events_info.cc
++++ b/media/base/picture_in_picture_events_info.cc
+@@ -34,7 +34,7 @@ std::string PictureInPictureEventsInfo::
+ // static
+ std::string PictureInPictureEventsInfo::AutoPipInfoToString(
+     AutoPipInfo auto_pip_info) {
+-  constexpr std::array<std::string, 2> bool_to_string{"false", "true"};
++  constexpr std::array<const char*, 2> bool_to_string{"false", "true"};
+   return base::StringPrintf(
+       "{Reason: %s, has audio focus: %s, is_playing: %s, was recently audible: "
+       "%s, has safe url: %s, meets media engagement conditions: %s, blocked "
