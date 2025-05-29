@@ -75,14 +75,3 @@
      stream_config_rtx.ssrc = rtx.ssrcs[index];
      stream_config_rtx.payload_type = rtx.payload_type;
    }
---- a/base/containers/span_forward_internal.h
-+++ b/base/containers/span_forward_internal.h
-@@ -4,6 +4,8 @@
- 
- #ifndef BASE_CONTAINERS_SPAN_FORWARD_INTERNAL_H_
- #define BASE_CONTAINERS_SPAN_FORWARD_INTERNAL_H_
-+
-+#include <limits>
- 
- namespace base {
- 

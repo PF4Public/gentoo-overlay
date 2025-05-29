@@ -65,6 +65,7 @@ CROMITE_COMMIT_ID="b4f8d96284c854cbe6448d2e30ee5a30ce3f0b82"
 
 CHROMIUM_COMMITS=(
 	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
+	4a007f6c1a2f601a88262255c802e5b20edfd2a7 #138+
 )
 
 UGC_PV="${PV/_p/-}"
@@ -531,6 +532,7 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-137-libstdc++.patch"
 			"${FILESDIR}/chromium-134-stdatomic.patch"
+			"${FILESDIR}/chromium-137-constexpr.patch"
 			"${FILESDIR}/font-gc-asan.patch"
 		)
 	fi
