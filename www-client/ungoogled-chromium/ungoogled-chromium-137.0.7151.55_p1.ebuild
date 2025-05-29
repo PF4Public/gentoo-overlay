@@ -880,8 +880,8 @@ src_prepare() {
 		third_party/cld_3
 		third_party/closure_compiler
 	)
-	use libcxx || keeplibs+=(
-		third_party/compiler-rt # Since M137 atomic is required; we could probably unbundle this as a target of opportunity.
+	use libcxx && keeplibs+=(
+		third_party/compiler-rt
 	)
 	keeplibs+=(
 		third_party/content_analysis_sdk
