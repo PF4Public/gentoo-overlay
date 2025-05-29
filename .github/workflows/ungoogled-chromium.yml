@@ -89,11 +89,9 @@ jobs:
           - headless -X -wayland
           - cromite
         include:
-          - use: -clang
+          - use: -clang -libcxx
             experimental: true
-          - use: -libcxx
-            experimental: true
-          - use: libcxx
+          - use: clang libcxx
             experimental: true
           - use: pgo
             experimental: true
