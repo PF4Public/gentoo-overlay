@@ -1534,6 +1534,8 @@ src_configure() {
 	myconf_gn+=" enable_chromium_prelude=false"
 	myconf_gn+=" enable_updater=false"
 	myconf_gn+=" enable_update_notifications=false"
+	myconf_gn+=" enable_video_effects=false"
+	myconf_gn+=" enable_constraints=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
