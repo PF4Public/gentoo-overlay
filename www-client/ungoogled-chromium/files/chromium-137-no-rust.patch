@@ -334,3 +334,14 @@
      }
      if (use_blink) {
        deps += [ "//gpu/config" ]
+--- a/services/on_device_model/BUILD.gn
++++ b/services/on_device_model/BUILD.gn
+@@ -14,8 +14,6 @@
+   ]
+   deps = [
+     "//components/optimization_guide/core:features",
+-    "//services/on_device_model/fake",
+-    "//services/on_device_model/ml:ml_no_internal",
+ 
+     # TODO(crbug.com/41492700): Remove this once possible. This is a hack due to
+     # an implicit dependency via //third_party/utf via language_detection above.

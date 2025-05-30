@@ -75,3 +75,30 @@
      stream_config_rtx.ssrc = rtx.ssrcs[index];
      stream_config_rtx.payload_type = rtx.payload_type;
    }
+--- a/components/compose/core/browser/config.cc
++++ b/components/compose/core/browser/config.cc
+@@ -46,11 +46,11 @@
+ }
+ 
+ constexpr auto DEFAULT_COMPOSE_ENABLED_COUNTRIES =
+-    base::MakeFixedFlatSet<std::string>({"bd", "ca", "gh", "in", "ke", "my",
++    base::MakeFixedFlatSet<std::string_view>({"bd", "ca", "gh", "in", "ke", "my",
+                                          "ng", "ph", "pk", "sg", "tz", "ug",
+                                          "us", "zm", "zw"});
+ constexpr auto DEFAULT_PROACTIVE_NUDGE_ENABLED_COUNTRIES =
+-    base::MakeFixedFlatSet<std::string>({"us"});
++    base::MakeFixedFlatSet<std::string_view>({"us"});
+ 
+ }  // namespace
+ 
+--- a/chrome/browser/actor/tools/navigate_tool.cc
++++ b/chrome/browser/actor/tools/navigate_tool.cc
+@@ -72,7 +72,7 @@
+       return;
+     }
+ 
+-    post_navigation_state_.emplace();
++    post_navigation_state_.emplace(PostNavigationState{});
+     content::GetUIThreadTaskRunner()->PostDelayedTask(
+         FROM_HERE,
+         base::BindOnce(&NavigateTool::Timeout, weak_ptr_factory_.GetWeakPtr()),
