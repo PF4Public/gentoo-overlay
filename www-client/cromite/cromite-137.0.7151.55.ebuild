@@ -1380,8 +1380,6 @@ src_configure() {
 	myconf_gn+=" enable_chromium_prelude=false"
 	myconf_gn+=" enable_updater=false"
 	myconf_gn+=" enable_update_notifications=false"
-	myconf_gn+=" build_with_model_execution=false"
-	myconf_gn+=" enable_on_device_translation=false"
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
