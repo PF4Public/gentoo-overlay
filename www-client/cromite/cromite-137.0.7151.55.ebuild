@@ -60,6 +60,7 @@ REQUIRED_USE="
 CHROMIUM_COMMITS=(
 	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
 	4a007f6c1a2f601a88262255c802e5b20edfd2a7 #138+
+	4c736420952f355f18bdc4f4ea2d16e4514fa034 #138+
 )
 
 
@@ -1379,6 +1380,8 @@ src_configure() {
 	myconf_gn+=" enable_chromium_prelude=false"
 	myconf_gn+=" enable_updater=false"
 	myconf_gn+=" enable_update_notifications=false"
+	myconf_gn+=" build_with_model_execution=false"
+	myconf_gn+=" enable_on_device_translation=false"
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
