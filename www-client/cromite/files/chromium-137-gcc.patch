@@ -347,3 +347,72 @@
 +    : hash<base::StrongAlias<class ui::AXPlatformNodeIdTag, int32_t>> {};
  }  // namespace std
  #endif  // UI_ACCESSIBILITY_PLATFORM_AX_PLATFORM_NODE_ID_H_
+ --- a/build/config/compiler/BUILD.gn    2025-05-30 10:35:22.653087056 +0700
+ +++ b/build/config/compiler/BUILD.gn    2025-05-30 17:23:50.049834962 +0700
+ @@ -1695,6 +1695,11 @@
+    ldflags = []
+    configs = []
+ 
+ +  if (!is_clang) {
+ +    # Disable warnings that are known to fail 'gcc' build.
+ +    cflags += [ "-Wno-changes-meaning" ]
+ +  }
+ +
+    if (is_win) {
+      if (fatal_linker_warnings) {
+        arflags = [ "/WX" ]
+--- a/tools/json_to_struct/aggregation.py   2025-05-30 10:35:39.843087580 +0700
++++ b/tools/json_to_struct/aggregation.py   2025-05-30 17:24:21.772835930 +0700
+@@ -134,7 +134,7 @@
+     Returns:
+         str: The generated C++ array aggregation code.
+     """
+-  res = f'\nconst auto {aggregation.name} =\n'
++  res = f'\nconst std::array<const {type_name}*, {len(aggregation.elements)}> {aggregation.name} =\n'
+   res += f'    std::array<const {type_name}*, {len(aggregation.elements)}>'
+
+   res += '({{\n'
+@@ -157,7 +157,7 @@
+     """
+   key_type = aggregation.map_key_type
+
+-  res = f'\nconst auto {aggregation.name} =\n'
++  res = f'\nconst base::fixed_flat_map<{key_type}, const {type_name}*, {len(aggregation.GetSortedMapElements())}> {aggregation.name} =\n'
+   res += f'    base::MakeFixedFlatMap<{key_type}, const {type_name}*>'
+
+   res += '({\n'
+--- a/third_party/blink/renderer/core/dom/node.h.orig     2025-05-31 18:38:02.662435994 +0700
++++ b/third_party/blink/renderer/core/dom/node.h  2025-05-31 18:38:09.698436209 +0700
+@@ -1249,9 +1249,9 @@
+ 
+  private:
+   static constexpr struct ParentNodeTag {
+-  } kParentNodeTag;
++  } kParentNodeTag{};
+   static constexpr struct ShadowHostTag {
+-  } kShadowHostTag;
++  } kShadowHostTag{};
+ 
+   using TaggedParentOrShadowHostNode =
+       subtle::TaggedUncompressedMember<Node, ParentNodeTag, ShadowHostTag>;
+--- a/extensions/browser/api/extensions_api_client.cc.1   2025-06-01 17:32:58.370139140 +0700
++++ b/extensions/browser/api/extensions_api_client.cc     2025-06-01 17:33:15.728139670 +0700
+@@ -6,6 +6,18 @@
+ 
+ #include "build/build_config.h"
+ #include "extensions/browser/api/messaging/native_message_host.h"
++#include "extensions/browser/guest_view/app_view/app_view_guest_delegate.h"
++#include "extensions/browser/guest_view/extension_options/extension_options_guest_delegate.h"
++#include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
++#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h"
++#include "extensions/browser/guest_view/web_view/web_view_guest_delegate.h"
++#include "extensions/browser/guest_view/web_view/web_view_permission_helper_delegate.h"
++#include "extensions/browser/api/declarative_content/content_rules_registry.h"
++#include "extensions/browser/api/device_permissions_prompt.h"
++#include "extensions/browser/api/virtual_keyboard_private/virtual_keyboard_delegate.h"
++#include "extensions/browser/supervised_user_extensions_delegate.h"
++#include "extensions/browser/api/system_display/display_info_provider.h"
++#include "extensions/browser/api/messaging/native_message_port_dispatcher.h"
+ 
+ namespace extensions {
+ 
