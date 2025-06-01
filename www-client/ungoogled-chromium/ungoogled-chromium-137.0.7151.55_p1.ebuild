@@ -719,6 +719,10 @@ src_prepare() {
 			third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
+	if use system-av1; then
+		eapply_wrapper "${FILESDIR}/chromium-system-av1.patch"
+	fi
+
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 		pushd "${UGC_WD}" >/dev/null
