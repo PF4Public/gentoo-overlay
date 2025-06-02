@@ -20,7 +20,6 @@
 		<flag name="gtk4">Build with GTK4 headers</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="headless">Build Ozone only with headless backend, NOT RECOMMENDED for general uses</flag>
-		<flag name="hevc">Enable HEVC decoding support. Should work with system-ffmpeg, but might require additional patching for the built-in one.</flag>
 		<flag name="libcxx">Use bundled C++ Standard Library (libc++)</flag>
 		<flag name="nvidia">Use libXNVCtrl library from <pkg>x11-drivers/nvidia-drivers</pkg> instead of the bundled one</flag>
 		<flag name="official">Enable Official build instead of Developer build</flag>
@@ -29,7 +28,6 @@
 		<flag name="override-data-dir">Change default user data directory to "~/.config/cromite". No data moved automatically.</flag>
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
-		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
@@ -42,7 +40,6 @@
 		<flag name="system-harfbuzz">Use the system <pkg>media-libs/harfbuzz</pkg> instead of the bundled one</flag>
 		<flag name="system-icu">Use the system <pkg>dev-libs/icu</pkg> instead of the bundled one</flag>
 		<flag name="system-jsoncpp">Use the system <pkg>dev-libs/jsoncpp</pkg> instead of the bundled one</flag>
-		<flag name="system-libevent">Use the system <pkg>dev-libs/libevent</pkg> instead of the bundled one</flag>
 		<flag name="system-libjxl">Use the system <pkg>media-libs/libjxl</pkg> instead of the bundled one</flag>
 		<flag name="system-libusb">Use the system <pkg>dev-libs/libusb</pkg> instead of the bundled one</flag>
 		<flag name="system-libvpx">Use the system <pkg>media-libs/libvpx</pkg> instead of the bundled one</flag>
