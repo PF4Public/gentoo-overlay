@@ -595,6 +595,18 @@ src_prepare() {
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
 	fi
 
+	if use system-av1; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-av1.patch"
+		)
+	fi
+
+	if use system-libvpx; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-libvpx.patch"
+		)
+	fi
+
 	if use system-openjpeg ; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-system-openjpeg-r4.patch"
@@ -717,14 +729,6 @@ src_prepare() {
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		sed -i '/^#define ABSL_OPTION_USE_STD_OPTIONAL.*$/{s++#define ABSL_OPTION_USE_STD_OPTIONAL 0+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
-	fi
-
-	if use system-av1; then
-		eapply_wrapper "${FILESDIR}/chromium-system-av1.patch"
-	fi
-
-	if use system-libvpx; then
-		eapply_wrapper "${FILESDIR}/chromium-system-libvpx.patch"
 	fi
 
 	#* Applying UGC PRs here
