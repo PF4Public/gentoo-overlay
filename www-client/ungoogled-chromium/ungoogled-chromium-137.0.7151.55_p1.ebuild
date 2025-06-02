@@ -723,6 +723,10 @@ src_prepare() {
 		eapply_wrapper "${FILESDIR}/chromium-system-av1.patch"
 	fi
 
+	if use system-libvpx; then
+		eapply_wrapper "${FILESDIR}/chromium-system-libvpx.patch"
+	fi
+
 	#* Applying UGC PRs here
 	if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 		pushd "${UGC_WD}" >/dev/null
