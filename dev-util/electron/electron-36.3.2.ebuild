@@ -1581,6 +1581,18 @@ src_prepare() {
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
 	fi
 
+	if use system-av1; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-av1.patch"
+		)
+	fi
+
+	if use system-libvpx; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-libvpx.patch"
+		)
+	fi
+
 	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r4.patch"
 
 	default
