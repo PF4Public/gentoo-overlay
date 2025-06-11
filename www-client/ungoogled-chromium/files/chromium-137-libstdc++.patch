@@ -3,28 +3,28 @@
 @@ -145,7 +145,7 @@ std::pair<std::string, std::string> SetH
      title_to_set.resize(kShortTitleLength);
    }
- 
+
 -  return std::make_tuple(entry.url.spec(), base::UTF16ToUTF8(title_to_set));
 +  return std::make_pair(entry.url.spec(), base::UTF16ToUTF8(title_to_set));
  }
- 
+
  // Helper function to check if entry is present in local database (local-side
 --- a/components/viz/service/display/surface_aggregator.cc
 +++ b/components/viz/service/display/surface_aggregator.cc
 @@ -2210,7 +2210,7 @@ AggregatedFrame SurfaceAggregator::Aggre
    root_surface_id_ = surface_id;
- 
+
    // Start recording new stats for this aggregation.
 -  stats_.emplace();
 +  stats_.emplace(AggregateStatistics{});
- 
+
    base::ElapsedTimer prewalk_timer;
    ResolvedFrameData* resolved_frame = GetResolvedFrame(surface_id);
 --- a/mojo/public/cpp/bindings/lib/multiplex_router.cc
 +++ b/mojo/public/cpp/bindings/lib/multiplex_router.cc
 @@ -893,7 +893,7 @@ bool MultiplexRouter::ExclusiveSyncWaitF
    DCHECK(!exclusive_sync_wait_);
- 
+
    scoped_refptr<MultiplexRouter> keep_alive(this);
 -  exclusive_sync_wait_.emplace();
 +  exclusive_sync_wait_.emplace(ExclusiveSyncWaitInfo{});
@@ -79,7 +79,7 @@
 +++ b/components/compose/core/browser/config.cc
 @@ -46,11 +46,11 @@
  }
- 
+
  constexpr auto DEFAULT_COMPOSE_ENABLED_COUNTRIES =
 -    base::MakeFixedFlatSet<std::string>({"bd", "ca", "gh", "in", "ke", "my",
 +    base::MakeFixedFlatSet<std::string_view>({"bd", "ca", "gh", "in", "ke", "my",
@@ -88,17 +88,27 @@
  constexpr auto DEFAULT_PROACTIVE_NUDGE_ENABLED_COUNTRIES =
 -    base::MakeFixedFlatSet<std::string>({"us"});
 +    base::MakeFixedFlatSet<std::string_view>({"us"});
- 
+
  }  // namespace
- 
+
 --- a/chrome/browser/actor/tools/navigate_tool.cc
 +++ b/chrome/browser/actor/tools/navigate_tool.cc
 @@ -72,7 +72,7 @@
        return;
      }
- 
+
 -    post_navigation_state_.emplace();
 +    post_navigation_state_.emplace(PostNavigationState{});
      content::GetUIThreadTaskRunner()->PostDelayedTask(
          FROM_HERE,
          base::BindOnce(&NavigateTool::Timeout, weak_ptr_factory_.GetWeakPtr()),
+--- a/third_party/blink/renderer/platform/wtf/text/string_view.h
++++ b/third_party/blink/renderer/platform/wtf/text/string_view.h
+@@ -20,6 +20,7 @@
+ #include "third_party/blink/renderer/platform/wtf/allocator/allocator.h"
+ #include "third_party/blink/renderer/platform/wtf/get_ptr.h"
+ #include "third_party/blink/renderer/platform/wtf/text/string_impl.h"
++#include "third_party/blink/renderer/platform/wtf/text/code_point_iterator.h"
+ 
+ #if DCHECK_IS_ON()
+ #include "base/memory/scoped_refptr.h"
