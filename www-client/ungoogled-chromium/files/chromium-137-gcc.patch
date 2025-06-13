@@ -295,16 +295,6 @@
        : StringTypeAdapter<const LChar*>(buffer) {}
  };
  
---- a/third_party/blink/renderer/platform/wtf/text/string_view.h
-+++ b/third_party/blink/renderer/platform/wtf/text/string_view.h
-@@ -20,6 +20,7 @@
- #include "third_party/blink/renderer/platform/wtf/allocator/allocator.h"
- #include "third_party/blink/renderer/platform/wtf/get_ptr.h"
- #include "third_party/blink/renderer/platform/wtf/text/string_impl.h"
-+#include "third_party/blink/renderer/platform/wtf/text/code_point_iterator.h"
- 
- #if DCHECK_IS_ON()
- #include "base/memory/scoped_refptr.h"
 --- a/third_party/perfetto/src/tracing/internal/tracing_muxer_fake.cc
 +++ b/third_party/perfetto/src/tracing/internal/tracing_muxer_fake.cc
 @@ -27,13 +27,11 @@ PERFETTO_NORETURN void FailUninitialized
