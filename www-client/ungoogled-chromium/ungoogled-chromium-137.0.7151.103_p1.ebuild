@@ -480,6 +480,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-135-crabby.patch"
 		"${FILESDIR}/chromium-136-fontations.patch"
 		"${FILESDIR}/chromium-137-no-rust.patch"
+		"${FILESDIR}/chromium-137-fix-for-kde.patch"
 	)
 
 	shopt -s globstar nullglob
