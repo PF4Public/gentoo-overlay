@@ -385,13 +385,6 @@ pkg_pretend() {
 		ewarn "Not all patches are applied, let me know if others should be considered too"
 		ewarn
 	fi
-	if use system-abseil-cpp; then
-		ewarn
-		ewarn "Chromium code is not very friendly to system abseil-cpp, see #218"
-		ewarn "If you know how to fix this, feel free to submit a PR"
-		ewarn
-		[[ -z "${NODIE}" ]] && die "The build will fail!"
-	fi
 	pre_build_checks
 
 	if use headless; then
@@ -728,8 +721,9 @@ src_prepare() {
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-system-abseil.patch"
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
-		sed -i '/^#define ABSL_OPTION_USE_STD_OPTIONAL.*$/{s++#define ABSL_OPTION_USE_STD_OPTIONAL 0+;h};${x;/./{x;q0};x;q1}' \
+		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
+
 	fi
 
 	#* Applying UGC PRs here
@@ -1373,6 +1367,7 @@ src_configure() {
 		absl_base
 		absl_cleanup
 		absl_container
+		absl_crc
 		absl_debugging
 		absl_flags
 		absl_functional
