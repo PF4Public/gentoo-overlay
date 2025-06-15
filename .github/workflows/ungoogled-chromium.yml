@@ -93,6 +93,8 @@ jobs:
             experimental: true
           - use: clang libcxx
             experimental: true
+          - use: system-abseil-cpp system-libvpx system-av1
+            experimental: true
           - use: pgo
             experimental: true
           - use: thinlto optimize-thinlto
