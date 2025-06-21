@@ -1457,7 +1457,7 @@ src_prepare() {
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
 		eapply "${FILESDIR}/ungoogled-electron.patch" || die
-		eapply "${FILESDIR}/fix-portal.patch" || die
+		eapply "${FILESDIR}/fix-portal-r1.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
