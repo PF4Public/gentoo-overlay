@@ -456,7 +456,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
 		"${FILESDIR}/chromium-137-openh264-include-path.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
-		"${FILESDIR}/chromium-137-pdfium-system-libpng.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-123-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
