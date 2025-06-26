@@ -440,7 +440,7 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/**/compiler-*.patch "${T}/compiler.patch"
+	cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/compiler-*.patch "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -468,9 +468,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-135-crabby.patch"
-		"${FILESDIR}/chromium-136-fontations.patch"
-		"${FILESDIR}/chromium-137-no-rust.patch"
 		"${FILESDIR}/chromium-137-fix-for-kde.patch"
+		"${FILESDIR}/chromium-138-fontations.patch"
+		"${FILESDIR}/chromium-138-no-rust.patch"
 	)
 
 	#shopt -s globstar nullglob
@@ -513,7 +513,7 @@ src_prepare() {
 
 	if ! use clang ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-137-gcc.patch"
+			"${FILESDIR}/chromium-138-gcc.patch"
 		)
 	fi
 
