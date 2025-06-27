@@ -469,7 +469,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-135-crabby.patch"
 		"${FILESDIR}/chromium-137-fix-for-kde.patch"
 		"${FILESDIR}/chromium-138-fontations.patch"
-		"${FILESDIR}/chromium-138-no-rust.patch" 
+		"${FILESDIR}/chromium-138-no-rust.patch"
 	)
 
 	#shopt -s globstar nullglob
@@ -1533,6 +1533,7 @@ src_configure() {
 	myconf_gn+=" enable_update_notifications=false"
 	myconf_gn+=" enable_video_effects=false"
 	myconf_gn+=" enable_constraints=false"
+	myconf_gn+=" rtc_rusty_base64=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
