@@ -470,6 +470,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-138-fontations.patch"
 		"${FILESDIR}/chromium-138-no-rust.patch"
 		"${FILESDIR}/chromium-138-crabby.patch"
+		"${FILESDIR}/chromium-138-gcc.patch"
+		"${FILESDIR}/chromium-134-stdatomic.patch"
+		"${FILESDIR}/chromium-137-constexpr.patch"
+		"${FILESDIR}/font-gc-asan.patch"
 	)
 
 	#shopt -s globstar nullglob
@@ -509,21 +513,6 @@ src_prepare() {
 	ewarn "Fontations Rust font stack is disabled"
 	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
-
-	if ! use clang ; then
-		PATCHES+=(
-			"${FILESDIR}/chromium-138-gcc.patch"
-		)
-	fi
-
-	if ! use libcxx ; then
-		PATCHES+=(
-			"${FILESDIR}/chromium-137-libstdc++.patch"
-			"${FILESDIR}/chromium-134-stdatomic.patch"
-			"${FILESDIR}/chromium-137-constexpr.patch"
-			"${FILESDIR}/font-gc-asan.patch"
-		)
-	fi
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		for i in "${CHROMIUM_COMMITS[@]}"; do
