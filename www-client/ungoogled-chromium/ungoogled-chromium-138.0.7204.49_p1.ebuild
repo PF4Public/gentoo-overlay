@@ -63,7 +63,7 @@ REQUIRED_USE="
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="7422a67051e60a7e1af6c5bb6e5f27cacc2e335d"
+CROMITE_COMMIT_ID="fb30b6a212c5ae5bb0e6feeac4ad5673a0b8e38e"
 
 # CHROMIUM_COMMITS=(
 # 	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
@@ -466,10 +466,10 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-132-optional-lens.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-135-crabby.patch"
 		"${FILESDIR}/chromium-137-fix-for-kde.patch"
 		"${FILESDIR}/chromium-138-fontations.patch"
 		"${FILESDIR}/chromium-138-no-rust.patch"
+		"${FILESDIR}/chromium-138-crabby.patch"
 	)
 
 	#shopt -s globstar nullglob
@@ -677,15 +677,15 @@ src_prepare() {
 
 	fi
 
-	if [[ ${LLVM_SLOT} == "19" ]]; then
-		# Upstream now hard depend on a feature that was added in LLVM 20.1, but we don't want to stabilise that yet.
-		# Do the temp file shuffle in case someone is using something other than `gawk`
-		{
-			awk '/config\("clang_warning_suppression"\) \{/	{ print $0 " }"; sub(/clang/, "xclang"); print; next }
-				{ print }' build/config/compiler/BUILD.gn > "${T}/build.gn" && \
-				mv "${T}/build.gn" build/config/compiler/BUILD.gn
-		} || die "Unable to disable warning suppression"
-	fi
+	# if [[ ${LLVM_SLOT} == "19" ]]; then
+	# 	# Upstream now hard depend on a feature that was added in LLVM 20.1, but we don't want to stabilise that yet.
+	# 	# Do the temp file shuffle in case someone is using something other than `gawk`
+	# 	{
+	# 		awk '/config\("clang_warning_suppression"\) \{/	{ print $0 " }"; sub(/clang/, "xclang"); print; next }
+	# 			{ print }' build/config/compiler/BUILD.gn > "${T}/build.gn" && \
+	# 			mv "${T}/build.gn" build/config/compiler/BUILD.gn
+	# 	} || die "Unable to disable warning suppression"
+	# fi
 
 	# Not included in -lite tarballs, but we should check for it anyway.
 	if [[ -f third_party/node/linux/node-linux-x64/bin/node ]]; then

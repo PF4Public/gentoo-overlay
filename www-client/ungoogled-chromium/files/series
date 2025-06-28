@@ -1,7 +1,0 @@
-chromium-138-no-rust.patch
-chromium-138-fontations.patch
-chromium-135-crabby.patch
-chromium-137-libstdc++.patch
-chromium-134-stdatomic.patch
-font-gc-asan.patch
-chromium-138-gcc.patch
