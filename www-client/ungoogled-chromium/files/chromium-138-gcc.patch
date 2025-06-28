@@ -327,3 +327,17 @@
 +    : hash<base::StrongAlias<class ui::AXPlatformNodeIdTag, int32_t>> {};
  }  // namespace std
  #endif  // UI_ACCESSIBILITY_PLATFORM_AX_PLATFORM_NODE_ID_H_
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1818,7 +1818,10 @@
+
+   if (!is_clang) {
+     # Disable warnings that are known to fail 'gcc' build.
+-    cflags += [ "-Wno-changes-meaning" ]
++    cflags_cc += [ "-Wno-changes-meaning" ]
++
++    # Reduce g++ memory usage at the cost of less verbose error messages.
++    cflags_cc += [ "-ftrack-macro-expansion=0" ]
+   }
+
+   if (is_win) {
