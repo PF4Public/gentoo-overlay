@@ -140,17 +140,21 @@
  }
  
  sk_sp<SkTypeface> MakeTypefaceDefaultFontMgr(sk_sp<SkData> data) {
-@@ -50,9 +45,7 @@ sk_sp<SkTypeface> MakeTypefaceDefaultFon
+@@ -50,13 +45,7 @@ sk_sp<SkTypeface> MakeTypefaceDefaultFon
    return FontCache::Get().FontManager()->makeFromData(data, 0);
  #endif
  
 -#if BUILDFLAG(IS_APPLE)
    return skia::DefaultFontMgr()->makeFromData(data, 0);
 -#endif
+-
+-#if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
+-  return SkTypeface_Make_Fontations(data, SkFontArguments());
+-#endif
+ }
  
- #if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
-   return SkTypeface_Make_Fontations(data, SkFontArguments());
-@@ -65,10 +58,6 @@ sk_sp<SkTypeface> MakeTypefaceFallback(s
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+@@ -65,10 +54,6 @@ sk_sp<SkTypeface> MakeTypefaceFallback(s
  }
  #endif
  
@@ -161,7 +165,7 @@
  sk_sp<SkTypeface> MakeVariationsTypeface(
      sk_sp<SkData> data,
      const WebFontTypefaceFactory::FontInstantiator& instantiator) {
-@@ -88,9 +77,6 @@ sk_sp<SkTypeface> MakeSbixTypeface(
+@@ -88,9 +73,6 @@ sk_sp<SkTypeface> MakeSbixTypeface(
      const WebFontTypefaceFactory::FontInstantiator& instantiator) {
    // If we're on a OS with FreeType as backend, or on Windows, where we used to
    // use FreeType for SBIX, switch to Fontations for SBIX.
@@ -171,7 +175,7 @@
  
    // Remaining case, on Mac, CoreText can handle creating SBIX fonts.
    return instantiator.make_system(data);
-@@ -99,29 +85,21 @@ sk_sp<SkTypeface> MakeSbixTypeface(
+@@ -99,29 +81,21 @@ sk_sp<SkTypeface> MakeSbixTypeface(
  sk_sp<SkTypeface> MakeColrV0Typeface(
      sk_sp<SkData> data,
      const WebFontTypefaceFactory::FontInstantiator& instantiator) {
@@ -202,7 +206,7 @@
  }
  
  }  // namespace
-@@ -131,7 +109,6 @@ bool WebFontTypefaceFactory::CreateTypef
+@@ -131,7 +105,6 @@ bool WebFontTypefaceFactory::CreateTypef
    const FontFormatCheck format_check(data);
    const FontInstantiator instantiator = {
        MakeTypefaceDefaultFontMgr,
