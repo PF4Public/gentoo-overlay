@@ -518,3 +518,31 @@
 
    if (add_operation == RecordOperation::kInsertRecord) {
      AddOperationRecord(std::make_unique<DeleteOperation>(this, start_idx, ret));
+--- a/cc/tiles/gpu_image_decode_cache.h
++++ b/cc/tiles/gpu_image_decode_cache.h
+@@ -664,6 +664,8 @@
+       int speculative_decode_mip_level = -1;
+       int min_raster_mip_level = INT_MAX;
+       bool raster_task_takeover = false;
++      // https://github.com/llvm/llvm-project/issues/106346
++      SpeculativeDecodeUsageStats() noexcept = default;
+     };
+     std::optional<SpeculativeDecodeUsageStats> speculative_decode_usage_stats_;
+     
+--- a/components/autofill/core/browser/country_type.h
++++ b/components/autofill/core/browser/country_type.h
+@@ -14,12 +14,12 @@
+ // StrongAlias to distinguish it from language codes and coutries specified in
+ // address profiles or inferred from address forms. This country code is
+ // estimated by the variations::VariationsService.
+-using GeoIpCountryCode = base::StrongAlias<class GeoIpCountryTag, std::string>;
++using GeoIpCountryCode = base::StrongAlias<class GeoIpCountryTag, std::string_view>;
+ 
+ // Country code in the format of uppercase ISO 3166-1 alpha-2. Example: US, BR,
+ // IN. Empty if unknown.
+ // StrongAlias to distinguish countries specified in address profiles.
+ using AddressCountryCode =
+-    base::StrongAlias<class AutofillAddressCountryTag, std::string>;
++    base::StrongAlias<class AutofillAddressCountryTag, std::string_view>;
+ 
+ #endif  // COMPONENTS_AUTOFILL_CORE_BROWSER_COUNTRY_TYPE_H_
