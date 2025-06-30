@@ -518,3 +518,36 @@
 
    if (add_operation == RecordOperation::kInsertRecord) {
      AddOperationRecord(std::make_unique<DeleteOperation>(this, start_idx, ret));
+diff '--color=auto' -Naur --exclude out '--exclude=*.pyc' a/base/containers/fixed_flat_set.h chromium-138.0.7204.49/base/containers/fixed_flat_set.h
+--- a/base/containers/fixed_flat_set.h
++++ b/base/containers/fixed_flat_set.h
+@@ -88,7 +88,7 @@
+ //   constexpr auto kSet = base::MakeFixedFlatSet<std::string_view>(
+ //       base::sorted_unique, {"bar", "baz", "foo", "qux"});
+ template <class Key, size_t N, class Compare = std::less<>>
+-consteval fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
++constexpr fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
+     sorted_unique_t,
+     std::common_type_t<Key> (&&data)[N],
+     const Compare& comp = Compare()) {
+@@ -117,7 +117,7 @@
+ // Note: Wrapping `Key` in `std::common_type_t` below requires callers to
+ // explicitly specify `Key`, which is desired here.
+ template <class Key, class Compare = std::less<>, size_t N>
+-consteval fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
++constexpr fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
+     std::common_type_t<Key> (&&data)[N],
+     const Compare& comp = Compare()) {
+   std::ranges::sort(data, comp);
+diff '--color=auto' -Naur --exclude out '--exclude=*.pyc' a/cc/tiles/gpu_image_decode_cache.cc chromium-138.0.7204.49/cc/tiles/gpu_image_decode_cache.cc
+--- a/cc/tiles/gpu_image_decode_cache.cc
++++ b/cc/tiles/gpu_image_decode_cache.cc
+@@ -1131,7 +1131,7 @@
+     last_use = base::TimeTicks::Now();
+   }
+   if (speculative_decode) {
+-    speculative_decode_usage_stats_.emplace();
++    speculative_decode_usage_stats_.emplace(SpeculativeDecodeUsageStats{});
+     speculative_decode_usage_stats_->speculative_decode_mip_level =
+         upload_scale_mip_level;
+     TRACE_EVENT_INSTANT2(TRACE_DISABLED_BY_DEFAULT("loading"),
