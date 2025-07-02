@@ -703,7 +703,6 @@ src_prepare() {
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
-
 	fi
 
 	#* Applying UGC PRs here
@@ -1456,8 +1455,6 @@ src_configure() {
 	# Non-developer builds of Chromium (for example, non-Chrome browsers, or
 	# Chromium builds provided by Linux distros) should disable the testing config
 	myconf_gn+=" disable_fieldtrial_testing_config=true"
-
-	myconf_gn+=" use_gold=false"
 
 	# The sysroot is the oldest debian image that chromium supports, we don't need it
 	myconf_gn+=" use_sysroot=false"
