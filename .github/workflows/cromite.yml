@@ -90,11 +90,11 @@ jobs:
           - wayland
           - headless -X -wayland
         include:
-          - use: -libcxx
+          - use: -clang -libcxx
             experimental: true
-          - use: libcxx
+          - use: clang libcxx
             experimental: true
-          - use: -clang
+          - use: system-abseil-cpp system-libvpx system-av1
             experimental: true
           - use: pgo
             experimental: true
