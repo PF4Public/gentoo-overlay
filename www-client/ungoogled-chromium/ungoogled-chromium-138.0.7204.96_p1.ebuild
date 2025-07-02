@@ -616,7 +616,6 @@ src_prepare() {
 			"${BR_PA_PATH}/Enable-StrictOriginIsolation-and-SitePerProcess.patch"
 			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
 			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
-			"${BR_PA_PATH}/Hardening-against-incognito-mode-detection.patch"
 			"${BR_PA_PATH}/Client-hints-overrides.patch"
 			"${BR_PA_PATH}/Disable-idle-detection.patch"
 			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
