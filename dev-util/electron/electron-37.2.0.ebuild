@@ -2421,8 +2421,6 @@ src_configure() {
 
 	myconf_gn+=" disable_fieldtrial_testing_config=true"
 
-	myconf_gn+=" use_gold=false"
-
 	# The sysroot is the oldest debian image that chromium supports, we don't need it
 	myconf_gn+=" use_sysroot=false"
 
