@@ -88,6 +88,8 @@ jobs:
             experimental: true
           - use: '-temp-fix electron-36'
             experimental: true
+          - use: '-temp-fix electron-37'
+            experimental: true
 
     steps:
       - name: Check out the repo
