@@ -1,0 +1,16 @@
+--- a/build/linux/unbundle/absl_flags.gn        2025-06-27 23:47:57.409030835 +0700
++++ b/build/linux/unbundle/absl_flags.gn  2025-06-27 23:50:04.700034719 +0700
+@@ -89,3 +89,5 @@
+ 
+ source_set("flag_test") {
+ }
++source_set("marshalling") {
++}
+--- a/build/linux/unbundle/absl_strings.gn      2025-06-27 23:47:57.413030835 +0700
++++ b/build/linux/unbundle/absl_strings.gn        2025-06-27 23:48:52.588032519 +0700
+@@ -146,3 +146,5 @@
+ }
+ source_set("str_cat_test") {
+ }
++source_set("charset") {
++}
