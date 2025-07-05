@@ -1214,7 +1214,7 @@ src_compile() {
 		fi
 
 		einfo "Creating archive"
-		/usr/bin/node node_modules/@electron/asar/bin/asar.js pack ${distdir} ${distdir}/app.asar \
+		/usr/bin/node node_modules/@electron/asar/bin/asar.mjs pack ${distdir} ${distdir}/app.asar \
 			--unpack-dir '{**/Release,**/matrix-seshat}' || die
 		# Remove unarchived copies of files (they are still in app.asar)
 		rm -r ${distdir}/node_modules || die
