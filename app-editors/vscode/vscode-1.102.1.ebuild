@@ -157,8 +157,8 @@ src_prepare() {
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
-	einfo "Allowing any nodejs version"
-	sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
+	# einfo "Allowing any nodejs version"
+	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
@@ -302,6 +302,7 @@ src_configure() {
 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 	npm config set update-notifier false || die
 	# echo "$PATH"
 	# yarn config set disable-self-update-check true || die
