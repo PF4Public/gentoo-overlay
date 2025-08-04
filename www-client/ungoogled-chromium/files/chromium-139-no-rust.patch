@@ -1,0 +1,351 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -27,7 +27,6 @@ import("//extensions/buildflags/buildfla
+ import("//gpu/vulkan/features.gni")
+ import("//media/gpu/args.gni")
+ import("//media/media_options.gni")
+-import("//mojo/public/rust/rust.gni")
+ import("//pdf/features.gni")
+ import("//ppapi/buildflags/buildflags.gni")
+ import("//printing/buildflags/buildflags.gni")
+@@ -884,17 +883,10 @@ group("all_rust") {
+ 
+   deps = [
+     ":rust_build_tests",
+-    "//base:base_unittests",  # There is rust stuff in here.
+-    "//third_party/cloud_authenticator/processor",
+   ]
+ 
+-  # TODO(https://crbug.com/405379314): This fails to build on some iOS ASAN
+-  # builders.
+-  if (!is_ios || !is_asan) {
+-    deps += [ "//testing/rust_gtest_interop:rust_gtest_interop_unittests" ]
+-  }
+ 
+-  if (enable_rust_mojo) {
++  if (false) {
+     deps += [
+       "//mojo/public/rust:mojo_rust",
+       "//mojo/public/rust:mojo_rust_integration_unittests",
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -35,8 +35,6 @@ import("//build/config/sanitizers/saniti
+ import("//build/config/sysroot.gni")
+ import("//build/config/ui.gni")
+ import("//build/nocompile.gni")
+-import("//build/rust/rust_bindgen.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//build/util/process_version.gni")
+ import("//build_overrides/build.gni")
+ import("//testing/libfuzzer/fuzzer_test.gni")
+@@ -1052,10 +1050,6 @@ component("base") {
+   # Used by metrics/crc32
+   deps += [ "//third_party/zlib" ]
+ 
+-  deps += [
+-    ":rust_logger",
+-    "//third_party/rust/serde_json_lenient/v0_2/wrapper",
+-  ]
+ 
+   # `raw_ptr` cannot be made a component due to CRT symbol issues.
+   # Its gateway to being a component is through `//base`, so we have
+@@ -1090,11 +1084,6 @@ component("base") {
+     "//third_party/abseil-cpp:absl",
+   ]
+ 
+-  sources += [
+-    "containers/span_rust.h",
+-    "strings/string_view_rust.h",
+-  ]
+-
+   # Base provides conversions between CXX types and base types (e.g.
+   # std::string_view).
+   public_deps += [ "//build/rust:cxx_cppdeps" ]
+@@ -1564,8 +1553,6 @@ component("base") {
+     "files/scoped_temp_file.h",
+     "json/json_file_value_serializer.cc",
+     "json/json_file_value_serializer.h",
+-    "logging/rust_log_integration.cc",
+-    "logging/rust_log_integration.h",
+     "memory/discardable_memory.cc",
+     "memory/discardable_memory.h",
+     "memory/discardable_memory_allocator.cc",
+@@ -2502,62 +2489,6 @@ component("base") {
+   }
+ }
+ 
+-rust_bindgen("logging_log_severity_bindgen") {
+-  # TODO(danakj): Maybe combine all base bindgen targets, or all base/logging
+-  # ones even) into a single GN target? But the GN rule needs to handle multiple
+-  # headers then.
+-  header = "logging/log_severity.h"
+-  cpp = true
+-  visibility = [ ":*" ]
+-
+-  # Transitive generated header dependency.
+-  deps = [ ":debugging_buildflags" ]
+-}
+-
+-rust_static_library("rust_logger") {
+-  allow_unsafe = true  # Unsafe needed for FFI.
+-  deps = [
+-    ":logging_log_severity_bindgen",
+-    ":tracing_buildflags",
+-    "//build:chromeos_buildflags",
+-    "//third_party/rust/log/v0_4:lib",
+-
+-    # Needed because of circular dependency: base depends on this target and by
+-    # extension the cxx-generated C++ code, but the cxx-generated code includes
+-    # base headers and calls base code. This seems to generally not cause
+-    # issues, except for partition_alloc which applies configs when depended on.
+-    #
+-    # This allows the generated C++ code to transitively include partition alloc
+-    # headers without issue.
+-    #
+-    # TODO(collinbaker): determine how to handle these cxx bindings-induced
+-    # circular dependencies more robustly.
+-    "//base/allocator/partition_allocator:raw_ptr",
+-
+-    # Needed because logging/rust_logger.rs contains:
+-    #   include!("base/logging/rust_log_integration.h");
+-    # rust_log_integration.h ends up transitively #including
+-    # debug/debugging_buildflags.h, which is a generated header that needs to
+-    # be written first.
+-    #
+-    # Technically it would be more correct to depend on :base, which is the
+-    # target for rust_log_integration.h, but that's not possible due to circular
+-    # dependencies.
+-    #
+-    # Note if this is removed the build may still work by accident because
+-    # debug/debugging_buildflags.h still ends up being generated through a
+-    # dependency chain via :logging_log_severity_bindgen. But we should not
+-    # rely on that.
+-    #
+-    # See also https://crbug.com/406267472.
+-    ":debugging_buildflags",
+-  ]
+-  visibility = [ ":base" ]
+-  sources = [ "logging/rust_logger.rs" ]
+-  crate_root = "logging/rust_logger.rs"
+-
+-  cxx_bindings = [ "logging/rust_logger.rs" ]
+-}
+ 
+ if (is_linux || is_chromeos) {
+   # Split out as a separate target for two reasons:
+@@ -3694,11 +3625,6 @@ test("base_unittests") {
+     sources += [ "location_unittest.cc" ]
+   }
+ 
+-  sources += [
+-    "containers/span_rust_unittest.cc",
+-    "strings/string_piece_rust_unittest.cc",
+-  ]
+-
+   if (use_safe_libcxx || use_safe_libstdcxx) {
+     sources += [ "libcpp_hardening_test.cc" ]
+   }
+@@ -3747,8 +3673,6 @@ test("base_unittests") {
+     deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
+   }
+ 
+-  deps += [ "//build/rust:cxx_cppdeps" ]
+-
+   data_deps = [
+     "//base/test:immediate_crash_test_helper",
+     "//base/test:test_child_process",
+--- a/base/json/json_reader.cc
++++ b/base/json/json_reader.cc
+@@ -12,9 +12,6 @@
+ #include "base/strings/strcat.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "build/build_config.h"
+-#include "base/strings/string_view_rust.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/functions.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/lib.rs.h"
+ 
+ namespace {
+ const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
+@@ -86,40 +83,6 @@ void dict_set_str(base::Value::Dict& ctx
+   ctx.Set(base::RustStrToStringView(key), std::string(val));
+ }
+ 
+-namespace {
+-
+-base::JSONReader::Result DecodeJSONInRust(std::string_view json,
+-                                          int options,
+-                                          size_t max_depth) {
+-  const JsonOptions rust_options = {
+-      .allow_trailing_commas =
+-          (options & base::JSON_ALLOW_TRAILING_COMMAS) != 0,
+-      .replace_invalid_characters =
+-          (options & base::JSON_REPLACE_INVALID_CHARACTERS) != 0,
+-      .allow_comments = (options & base::JSON_ALLOW_COMMENTS) != 0,
+-      .allow_newlines = (options & base::JSON_ALLOW_NEWLINES_IN_STRINGS) != 0,
+-      .allow_vert_tab = (options & base::JSON_ALLOW_VERT_TAB) != 0,
+-      .allow_x_escapes = (options & base::JSON_ALLOW_X_ESCAPES) != 0,
+-      .max_depth = max_depth,
+-  };
+-
+-  base::Value::List list;
+-  DecodeError error;
+-  bool ok =
+-      decode_json(base::StringViewToRustSlice(json), rust_options, list, error);
+-
+-  if (!ok) {
+-    return base::unexpected(base::JSONReader::Error{
+-        .message = std::string(error.message),
+-        .line = error.line,
+-        .column = error.column,
+-    });
+-  }
+-
+-  return std::move(list.back());
+-}
+-
+-}  // namespace
+ }  // namespace serde_json_lenient
+ 
+ namespace base {
+--- a/base/logging.cc
++++ b/base/logging.cc
+@@ -119,7 +119,7 @@ typedef FILE* FileHandle;
+ #include "base/fuchsia/scoped_fx_logger.h"
+ #endif
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL)
+ #include "base/logging/rust_logger.rs.h"
+ #endif
+ 
+@@ -531,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSe
+   }
+ #endif
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL)
+   // Connects Rust logging with the //base logging functionality.
+   internal::init_rust_log_crate();
+ #endif
+--- a/base/test/BUILD.gn
++++ b/base/test/BUILD.gn
+@@ -6,7 +6,6 @@ import("//build/compiled_action.gni")
+ import("//build/config/features.gni")
+ import("//build/config/nacl/config.gni")
+ import("//build/config/ui.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//build_overrides/build.gni")
+ import("//third_party/protobuf/proto_library.gni")
+ 
+@@ -36,16 +35,6 @@ static_library("test_config") {
+   ]
+ }
+ 
+-rust_static_library("test_rust_logger_consumer") {
+-  allow_unsafe = true  # Unsafe needed for FFI
+-  testonly = true
+-  deps = [ "//third_party/rust/log/v0_4:lib" ]
+-  sources = [ "logging/test_rust_logger_consumer.rs" ]
+-
+-  crate_root = "logging/test_rust_logger_consumer.rs"
+-
+-  cxx_bindings = [ "logging/test_rust_logger_consumer.rs" ]
+-}
+ 
+ static_library("test_support") {
+   testonly = true
+@@ -190,7 +179,6 @@ static_library("test_support") {
+ 
+   public_deps = [
+     ":test_config",
+-    ":test_rust_logger_consumer",
+     "//base",
+     "//base:base_static",
+     "//base:i18n",
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -71,7 +71,6 @@ if (use_blink || (is_ios && build_with_i
+     ]
+     if (enable_constraints) {
+       defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
+-      deps += [ "//third_party/rust/llguidance/v0_7:lib" ]
+     }
+     if (use_blink) {
+       deps += [ "//gpu/config" ]
+--- a/services/on_device_model/ml/chrome_ml.cc
++++ b/services/on_device_model/ml/chrome_ml.cc
+@@ -24,7 +24,6 @@
+ #include "third_party/dawn/include/dawn/dawn_proc.h"
+ #include "third_party/dawn/include/dawn/native/DawnNative.h"
+ #include "third_party/dawn/include/dawn/webgpu_cpp.h"
+-#include "third_party/rust/chromium_crates_io/vendor/llguidance-v0_7/llguidance.h"
+ 
+ #if !BUILDFLAG(IS_IOS)
+ #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -311,7 +311,6 @@ source_set("common") {
+     "//services/metrics/public/mojom:mojom",
+     "//services/network/public/cpp:cpp",
+     "//services/network/public/mojom:mojom_permissions_policy",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base:base",
+--- a/third_party/blink/common/chrome_debug_urls.cc
++++ b/third_party/blink/common/chrome_debug_urls.cc
+@@ -12,7 +12,6 @@
+ #include "base/threading/platform_thread.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/common/crash_helpers.h"
+-#include "third_party/blink/common/rust_crash/src/lib.rs.h"
+ #include "url/gurl.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -118,7 +117,7 @@ NOINLINE void MaybeTriggerAsanError(cons
+     // Ensure that ASAN works even in Rust code.
+     LOG(ERROR) << "Intentionally causing ASAN heap overflow in Rust"
+                << " because user navigated to " << url.spec();
+-    crash_in_rust_with_overflow();
++    //crash_in_rust_with_overflow();
+   }
+ }
+ #endif  // ADDRESS_SANITIZER
+@@ -138,7 +137,7 @@ void HandleChromeDebugURL(const GURL& ur
+   } else if (url == kChromeUICrashRustURL) {
+     // Cause a typical crash in Rust code, so we can test that call stack
+     // collection and symbol mangling work across the language boundary.
+-    crash_in_rust();
++    //crash_in_rust();
+   } else if (url == kChromeUIDumpURL) {
+     // This URL will only correctly create a crash dump file if content is
+     // hosted in a process that has correctly called
+--- a/third_party/breakpad/BUILD.gn
++++ b/third_party/breakpad/BUILD.gn
+@@ -494,12 +494,7 @@ if (is_mac) {
+       # For breakpad/src/common/stabs_reader.h.
+       defines = [ "HAVE_MACH_O_NLIST_H" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-    }
++     }
+     test("breakpad_unittests") {
+       sources = [ "breakpad/src/common/module_unittest.cc" ]
+       deps = [
+@@ -742,12 +737,6 @@ if (is_linux || is_chromeos || is_androi
+ 
+       include_dirs = [ "breakpad/src" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-
+       libs = [ "z" ]
+     }
+   } else if (current_toolchain == default_toolchain) {

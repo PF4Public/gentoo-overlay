@@ -465,13 +465,13 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r2.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-137-fix-for-kde.patch"
-		"${FILESDIR}/chromium-138-fontations.patch"
-		"${FILESDIR}/chromium-138-no-rust.patch"
 		"${FILESDIR}/chromium-138-crabby.patch"
-		"${FILESDIR}/chromium-138-gcc.patch"
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
+		"${FILESDIR}/chromium-139-no-rust.patch"
+		"${FILESDIR}/chromium-139-fontations.patch"
+		"${FILESDIR}/chromium-139-gcc.patch"
 	)
 
 	#shopt -s globstar nullglob
