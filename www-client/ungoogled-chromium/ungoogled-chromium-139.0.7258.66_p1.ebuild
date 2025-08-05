@@ -67,10 +67,8 @@ CROMITE_COMMIT_ID="0e9691d965ad06a8e3ed50c86fe9cd160e0047e6"
 
 declare -A CHROMIUM_COMMITS=(
 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-	# ["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
-	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-	# ["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
 	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 )
 
 UGC_PV="${PV/_p/-}"
@@ -565,7 +563,7 @@ src_prepare() {
 
 	if use system-ffmpeg; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-135-opus.patch"
+			"${FILESDIR}/chromium-139-opus.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
