@@ -49,7 +49,7 @@
  
    # `raw_ptr` cannot be made a component due to CRT symbol issues.
    # Its gateway to being a component is through `//base`, so we have
-@@ -1090,11 +1084,6 @@ component("base") {
+@@ -1090,14 +1084,6 @@ component("base") {
      "//third_party/abseil-cpp:absl",
    ]
  
@@ -58,10 +58,13 @@
 -    "strings/string_view_rust.h",
 -  ]
 -
-   # Base provides conversions between CXX types and base types (e.g.
-   # std::string_view).
-   public_deps += [ "//build/rust:cxx_cppdeps" ]
-@@ -1564,8 +1553,6 @@ component("base") {
+-  # Base provides conversions between CXX types and base types (e.g.
+-  # std::string_view).
+-  public_deps += [ "//build/rust:cxx_cppdeps" ]
+ 
+   # Needed for <atomic> if using newer C++ library than sysroot, except if
+   # building inside the cros_sdk environment - use host_toolchain as a
+@@ -1564,8 +1550,6 @@ component("base") {
      "files/scoped_temp_file.h",
      "json/json_file_value_serializer.cc",
      "json/json_file_value_serializer.h",
@@ -70,7 +73,7 @@
      "memory/discardable_memory.cc",
      "memory/discardable_memory.h",
      "memory/discardable_memory_allocator.cc",
-@@ -2502,62 +2489,6 @@ component("base") {
+@@ -2502,62 +2486,6 @@ component("base") {
    }
  }
  
@@ -133,7 +136,7 @@
  
  if (is_linux || is_chromeos) {
    # Split out as a separate target for two reasons:
-@@ -3694,11 +3625,6 @@ test("base_unittests") {
+@@ -3694,11 +3622,6 @@ test("base_unittests") {
      sources += [ "location_unittest.cc" ]
    }
  
@@ -145,7 +148,7 @@
    if (use_safe_libcxx || use_safe_libstdcxx) {
      sources += [ "libcpp_hardening_test.cc" ]
    }
-@@ -3747,8 +3673,6 @@ test("base_unittests") {
+@@ -3747,8 +3670,6 @@ test("base_unittests") {
      deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
    }
  
