@@ -65,13 +65,13 @@ UGC_COMMIT_ID="a3c9fe6fad17d764be8a7946cd151878411b1e98"
 
 CROMITE_COMMIT_ID="0e9691d965ad06a8e3ed50c86fe9cd160e0047e6"
 
-# CHROMIUM_COMMITS=(
-# 	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
-# 	4a007f6c1a2f601a88262255c802e5b20edfd2a7 #138+
-# 	4c736420952f355f18bdc4f4ea2d16e4514fa034 #138+
-# 	2a82a46692e9ec825138a8cdecc758e29449f67d #138+
-# 	48b64da89b3ecb7ccb576a334b19b3066dd2b793 #138+
-# )
+declare -A CHROMIUM_COMMITS=(
+	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
+	# ["-84fcdd0620a72aa73ea521c682fb246067f2c14d"]="."
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	# ["67ee7171925fb9269f9082772abe3ca603ad9341"]="." #133+
+	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -96,34 +96,37 @@ if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
 fi
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
-	# for i in "${!CHROMIUM_COMMITS[@]}"; do
-		# if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
-		# #TODO: is it safe to use this mirror?
-		# SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
-		# SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
-		# SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
-		# SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
-		# SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
-		# SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
-		# SRC_URI+="https://github.com/google/ruy/commit/${i/-}.patch?full_index=true -> ruy-${i/-}.patch
-		# "
-		# else
+	# for i in "${CHROMIUM_COMMITS[@]}"; do
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+		SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ perfetto ]]; then
+		SRC_URI+="https://github.com/google/perfetto/commit/${i/-}.patch?full_index=true -> perfetto-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+		SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+		SRC_URI+="https://github.com/google/ruy/commit/${i/-}.patch?full_index=true -> ruy-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
-		# fi
+		fi
 	done
 fi
 
@@ -513,26 +516,28 @@ src_prepare() {
 	ewarn
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-		# for i in "${!CHROMIUM_COMMITS[@]}"; do
-			# if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
-			# 	patch_prefix="webrtc"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
-			# 	patch_prefix="angle"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
-			# 	patch_prefix="quiche"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
-			# 	patch_prefix="dawn"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
-			# 	patch_prefix="ink"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
-			# 	patch_prefix="vulkan-utility-libraries"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
-			# 	patch_prefix="ruy"
-			# else
+		# for i in "${CHROMIUM_COMMITS[@]}"; do
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+				patch_prefix="angle"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+				patch_prefix="dawn"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ perfetto ]]; then
+				patch_prefix="perfetto"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+				patch_prefix="ink"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+				patch_prefix="vulkan-utility-libraries"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+				patch_prefix="ruy"
+			else
 				patch_prefix="chromium"
-			# fi
-			# pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
@@ -542,7 +547,7 @@ src_prepare() {
 				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
-			# popd > /dev/null || die
+			popd > /dev/null || die
 		done
 	fi
 
