@@ -1327,9 +1327,6 @@ src_configure() {
 	# for development and debugging.
 	myconf_gn+=" is_component_build=false"
 
-	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
-	myconf_gn+=" enable_nacl=false"
-
 	local gn_system_libraries=(
 		flac
 		fontconfig
