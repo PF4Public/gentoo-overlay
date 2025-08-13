@@ -1,0 +1,1652 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -27,7 +27,6 @@ import("//extensions/buildflags/buildfla
+ import("//gpu/vulkan/features.gni")
+ import("//media/gpu/args.gni")
+ import("//media/media_options.gni")
+-import("//mojo/public/rust/rust.gni")
+ import("//pdf/features.gni")
+ import("//ppapi/buildflags/buildflags.gni")
+ import("//printing/buildflags/buildflags.gni")
+@@ -884,17 +883,10 @@ group("all_rust") {
+ 
+   deps = [
+     ":rust_build_tests",
+-    "//base:base_unittests",  # There is rust stuff in here.
+-    "//third_party/cloud_authenticator/processor",
+   ]
+ 
+-  # TODO(https://crbug.com/405379314): This fails to build on some iOS ASAN
+-  # builders.
+-  if (!is_ios || !is_asan) {
+-    deps += [ "//testing/rust_gtest_interop:rust_gtest_interop_unittests" ]
+-  }
+ 
+-  if (enable_rust_mojo) {
++  if (false) {
+     deps += [
+       "//mojo/public/rust:mojo_rust",
+       "//mojo/public/rust:mojo_rust_integration_unittests",
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -35,8 +35,6 @@ import("//build/config/sanitizers/saniti
+ import("//build/config/sysroot.gni")
+ import("//build/config/ui.gni")
+ import("//build/nocompile.gni")
+-import("//build/rust/rust_bindgen.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//build/util/process_version.gni")
+ import("//build_overrides/build.gni")
+ import("//testing/libfuzzer/fuzzer_test.gni")
+@@ -325,6 +323,8 @@ component("base") {
+     "hash/legacy_hash.cc",
+     "hash/legacy_hash.h",
+     "json/json_common.h",
++    "json/json_parser.cc",
++    "json/json_parser.h",
+     "json/json_reader.cc",
+     "json/json_reader.h",
+     "json/json_string_value_serializer.cc",
+@@ -1052,10 +1052,6 @@ component("base") {
+   # Used by metrics/crc32
+   deps += [ "//third_party/zlib" ]
+ 
+-  deps += [
+-    ":rust_logger",
+-    "//third_party/rust/serde_json_lenient/v0_2/wrapper",
+-  ]
+ 
+   # `raw_ptr` cannot be made a component due to CRT symbol issues.
+   # Its gateway to being a component is through `//base`, so we have
+@@ -1090,14 +1086,6 @@ component("base") {
+     "//third_party/abseil-cpp:absl",
+   ]
+ 
+-  sources += [
+-    "containers/span_rust.h",
+-    "strings/string_view_rust.h",
+-  ]
+-
+-  # Base provides conversions between CXX types and base types (e.g.
+-  # std::string_view).
+-  public_deps += [ "//build/rust:cxx_cppdeps" ]
+ 
+   # Needed for <atomic> if using newer C++ library than sysroot, except if
+   # building inside the cros_sdk environment - use host_toolchain as a
+@@ -1564,8 +1552,6 @@ component("base") {
+     "files/scoped_temp_file.h",
+     "json/json_file_value_serializer.cc",
+     "json/json_file_value_serializer.h",
+-    "logging/rust_log_integration.cc",
+-    "logging/rust_log_integration.h",
+     "memory/discardable_memory.cc",
+     "memory/discardable_memory.h",
+     "memory/discardable_memory_allocator.cc",
+@@ -2502,62 +2488,6 @@ component("base") {
+   }
+ }
+ 
+-rust_bindgen("logging_log_severity_bindgen") {
+-  # TODO(danakj): Maybe combine all base bindgen targets, or all base/logging
+-  # ones even) into a single GN target? But the GN rule needs to handle multiple
+-  # headers then.
+-  header = "logging/log_severity.h"
+-  cpp = true
+-  visibility = [ ":*" ]
+-
+-  # Transitive generated header dependency.
+-  deps = [ ":debugging_buildflags" ]
+-}
+-
+-rust_static_library("rust_logger") {
+-  allow_unsafe = true  # Unsafe needed for FFI.
+-  deps = [
+-    ":logging_log_severity_bindgen",
+-    ":tracing_buildflags",
+-    "//build:chromeos_buildflags",
+-    "//third_party/rust/log/v0_4:lib",
+-
+-    # Needed because of circular dependency: base depends on this target and by
+-    # extension the cxx-generated C++ code, but the cxx-generated code includes
+-    # base headers and calls base code. This seems to generally not cause
+-    # issues, except for partition_alloc which applies configs when depended on.
+-    #
+-    # This allows the generated C++ code to transitively include partition alloc
+-    # headers without issue.
+-    #
+-    # TODO(collinbaker): determine how to handle these cxx bindings-induced
+-    # circular dependencies more robustly.
+-    "//base/allocator/partition_allocator:raw_ptr",
+-
+-    # Needed because logging/rust_logger.rs contains:
+-    #   include!("base/logging/rust_log_integration.h");
+-    # rust_log_integration.h ends up transitively #including
+-    # debug/debugging_buildflags.h, which is a generated header that needs to
+-    # be written first.
+-    #
+-    # Technically it would be more correct to depend on :base, which is the
+-    # target for rust_log_integration.h, but that's not possible due to circular
+-    # dependencies.
+-    #
+-    # Note if this is removed the build may still work by accident because
+-    # debug/debugging_buildflags.h still ends up being generated through a
+-    # dependency chain via :logging_log_severity_bindgen. But we should not
+-    # rely on that.
+-    #
+-    # See also https://crbug.com/406267472.
+-    ":debugging_buildflags",
+-  ]
+-  visibility = [ ":base" ]
+-  sources = [ "logging/rust_logger.rs" ]
+-  crate_root = "logging/rust_logger.rs"
+-
+-  cxx_bindings = [ "logging/rust_logger.rs" ]
+-}
+ 
+ if (is_linux || is_chromeos) {
+   # Split out as a separate target for two reasons:
+@@ -3694,11 +3624,6 @@ test("base_unittests") {
+     sources += [ "location_unittest.cc" ]
+   }
+ 
+-  sources += [
+-    "containers/span_rust_unittest.cc",
+-    "strings/string_piece_rust_unittest.cc",
+-  ]
+-
+   if (use_safe_libcxx || use_safe_libstdcxx) {
+     sources += [ "libcpp_hardening_test.cc" ]
+   }
+@@ -3747,8 +3672,6 @@ test("base_unittests") {
+     deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
+   }
+ 
+-  deps += [ "//build/rust:cxx_cppdeps" ]
+-
+   data_deps = [
+     "//base/test:immediate_crash_test_helper",
+     "//base/test:test_child_process",
+--- /dev/null
++++ b/base/json/json_parser.cc
+@@ -0,0 +1,872 @@
++// Copyright 2012 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "base/json/json_parser.h"
++
++#include <algorithm>
++#include <cmath>
++#include <iterator>
++#include <memory>
++#include <string_view>
++#include <utility>
++#include <vector>
++
++#include "base/check_op.h"
++#include "base/compiler_specific.h"
++#include "base/feature_list.h"
++#include "base/features.h"
++#include "base/json/json_reader.h"
++#include "base/notreached.h"
++#include "base/numerics/safe_conversions.h"
++#include "base/strings/string_number_conversions.h"
++#include "base/strings/string_util.h"
++#include "base/strings/stringprintf.h"
++#include "base/strings/utf_string_conversion_utils.h"
++#include "base/strings/utf_string_conversions.h"
++#include "base/third_party/icu/icu_utf.h"
++#include "base/types/pass_key.h"
++
++namespace base::internal {
++
++namespace {
++
++// Values 1000 and above are used by JSONFileValueSerializer::JsonFileError.
++static_assert(JSONParser::JSON_PARSE_ERROR_COUNT < 1000,
++              "JSONParser error out of bounds");
++
++std::string ErrorCodeToString(JSONParser::JsonParseError error_code) {
++  switch (error_code) {
++    case JSONParser::JSON_NO_ERROR:
++      return std::string();
++    case JSONParser::JSON_SYNTAX_ERROR:
++      return JSONParser::kSyntaxError;
++    case JSONParser::JSON_INVALID_ESCAPE:
++      return JSONParser::kInvalidEscape;
++    case JSONParser::JSON_UNEXPECTED_TOKEN:
++      return JSONParser::kUnexpectedToken;
++    case JSONParser::JSON_TRAILING_COMMA:
++      return JSONParser::kTrailingComma;
++    case JSONParser::JSON_TOO_MUCH_NESTING:
++      return JSONParser::kTooMuchNesting;
++    case JSONParser::JSON_UNEXPECTED_DATA_AFTER_ROOT:
++      return JSONParser::kUnexpectedDataAfterRoot;
++    case JSONParser::JSON_UNSUPPORTED_ENCODING:
++      return JSONParser::kUnsupportedEncoding;
++    case JSONParser::JSON_UNQUOTED_DICTIONARY_KEY:
++      return JSONParser::kUnquotedDictionaryKey;
++    case JSONParser::JSON_UNREPRESENTABLE_NUMBER:
++      return JSONParser::kUnrepresentableNumber;
++    case JSONParser::JSON_PARSE_ERROR_COUNT:
++      NOTREACHED();
++  }
++  NOTREACHED();
++}
++
++const int32_t kExtendedASCIIStart = 0x80;
++constexpr base_icu::UChar32 kUnicodeReplacementPoint = 0xFFFD;
++
++// UnprefixedHexStringToInt acts like |HexStringToInt|, but enforces that the
++// input consists purely of hex digits. I.e. no "0x" nor "OX" prefix is
++// permitted.
++bool UnprefixedHexStringToInt(std::string_view input, int* output) {
++  for (char i : input) {
++    if (!IsHexDigit(i)) {
++      return false;
++    }
++  }
++  return HexStringToInt(input, output);
++}
++
++}  // namespace
++
++// This is U+FFFD.
++const char kUnicodeReplacementString[] = "\xEF\xBF\xBD";
++
++const char JSONParser::kSyntaxError[] = "Syntax error.";
++const char JSONParser::kInvalidEscape[] = "Invalid escape sequence.";
++const char JSONParser::kUnexpectedToken[] = "Unexpected token.";
++const char JSONParser::kTrailingComma[] = "Trailing comma not allowed.";
++const char JSONParser::kTooMuchNesting[] = "Too much nesting.";
++const char JSONParser::kUnexpectedDataAfterRoot[] =
++    "Unexpected data after root element.";
++const char JSONParser::kUnsupportedEncoding[] =
++    "Unsupported encoding. JSON must be UTF-8.";
++const char JSONParser::kUnquotedDictionaryKey[] =
++    "Dictionary keys must be quoted.";
++const char JSONParser::kUnrepresentableNumber[] =
++    "Number cannot be represented.";
++
++JSONParser::JSONParser(int options, size_t max_depth)
++    : options_(options),
++      max_depth_(max_depth),
++      index_(0),
++      stack_depth_(0),
++      line_number_(0),
++      index_last_line_(0),
++      error_code_(JSON_NO_ERROR),
++      error_line_(0),
++      error_column_(0) {
++  CHECK_LE(max_depth, kAbsoluteMaxDepth);
++}
++
++JSONParser::~JSONParser() = default;
++
++std::optional<Value> JSONParser::Parse(std::string_view input) {
++  input_ = input;
++  index_ = 0;
++  // Line and column counting is 1-based, but |index_| is 0-based. For example,
++  // if input is "Aaa\nB" then 'A' and 'B' are both in column 1 (at lines 1 and
++  // 2) and have indexes of 0 and 4. We track the line number explicitly (the
++  // |line_number_| field) and the column number implicitly (the difference
++  // between |index_| and |index_last_line_|). In calculating that difference,
++  // |index_last_line_| is the index of the '\r' or '\n', not the index of the
++  // first byte after the '\n'. For the 'B' in "Aaa\nB", its |index_| and
++  // |index_last_line_| would be 4 and 3: 'B' is in column (4 - 3) = 1. We
++  // initialize |index_last_line_| to -1, not 0, since -1 is the (out of range)
++  // index of the imaginary '\n' immediately before the start of the string:
++  // 'A' is in column (0 - -1) = 1.
++  line_number_ = 1;
++  index_last_line_ = static_cast<size_t>(-1);
++
++  error_code_ = JSON_NO_ERROR;
++  error_line_ = 0;
++  error_column_ = 0;
++
++  // When the input JSON string starts with a UTF-8 Byte-Order-Mark,
++  // advance the start position to avoid the ParseNextToken function mis-
++  // treating a Unicode BOM as an invalid character and returning NULL.
++  ConsumeIfMatch("\xEF\xBB\xBF");
++
++  // Parse the first and any nested tokens.
++  std::optional<Value> root(ParseNextToken());
++  if (!root) {
++    return std::nullopt;
++  }
++
++  // Make sure the input stream is at an end.
++  if (GetNextToken() != T_END_OF_INPUT) {
++    ReportError(JSON_UNEXPECTED_DATA_AFTER_ROOT, 0);
++    return std::nullopt;
++  }
++
++  return root;
++}
++
++JSONParser::JsonParseError JSONParser::error_code() const {
++  return error_code_;
++}
++
++std::string JSONParser::GetErrorMessage() const {
++  return FormatErrorMessage(error_line_, error_column_,
++                            ErrorCodeToString(error_code_));
++}
++
++int JSONParser::error_line() const {
++  return error_line_;
++}
++
++int JSONParser::error_column() const {
++  return error_column_;
++}
++
++// JSONParser private //////////////////////////////////////////////////////////
++
++std::optional<std::string_view> JSONParser::PeekChars(size_t count) {
++  if (count > input_.length() - index_) {
++    return std::nullopt;
++  }
++  // Using string_view::substr() was historically significantly slower
++  // (according to base_perftests) than constructing a substring manually.
++  //
++  // TODO(crbug.com/40284755): Is this still the case? Ideally the bounds check
++  // performed by substr would be deleted by the optimizer for being redundant
++  // with the runtime check above. However, to do so, the compiler would need
++  // to know `index_ <= input_.length()` is a class invariant. If we
++  // restructured the code so that we only stored the remaining data, that
++  // would avoid this, but it would prevent rewinding (the places in this file
++  // which look at `input_[index_ - 1]`.)
++  return UNSAFE_BUFFERS(std::string_view(input_.data() + index_, count));
++}
++
++std::optional<char> JSONParser::PeekChar() {
++  std::optional<std::string_view> chars = PeekChars(1);
++  if (chars) {
++    return (*chars)[0];
++  }
++  return std::nullopt;
++}
++
++std::optional<std::string_view> JSONParser::ConsumeChars(size_t count) {
++  std::optional<std::string_view> chars = PeekChars(count);
++  if (chars) {
++    index_ += count;
++  }
++  return chars;
++}
++
++std::optional<char> JSONParser::ConsumeChar() {
++  std::optional<std::string_view> chars = ConsumeChars(1);
++  if (chars) {
++    return (*chars)[0];
++  }
++  return std::nullopt;
++}
++
++const char* JSONParser::pos() {
++  CHECK_LE(index_, input_.length());
++  // SAFETY: Checked above.
++  return UNSAFE_BUFFERS(input_.data() + index_);
++}
++
++JSONParser::Token JSONParser::GetNextToken() {
++  EatWhitespaceAndComments();
++
++  std::optional<char> c = PeekChar();
++  if (!c) {
++    return T_END_OF_INPUT;
++  }
++
++  switch (*c) {
++    case '{':
++      return T_OBJECT_BEGIN;
++    case '}':
++      return T_OBJECT_END;
++    case '[':
++      return T_ARRAY_BEGIN;
++    case ']':
++      return T_ARRAY_END;
++    case '"':
++      return T_STRING;
++    case '0':
++    case '1':
++    case '2':
++    case '3':
++    case '4':
++    case '5':
++    case '6':
++    case '7':
++    case '8':
++    case '9':
++    case '-':
++      return T_NUMBER;
++    case 't':
++      return T_BOOL_TRUE;
++    case 'f':
++      return T_BOOL_FALSE;
++    case 'n':
++      return T_NULL;
++    case ',':
++      return T_LIST_SEPARATOR;
++    case ':':
++      return T_OBJECT_PAIR_SEPARATOR;
++    default:
++      return T_INVALID_TOKEN;
++  }
++}
++
++void JSONParser::EatWhitespaceAndComments() {
++  while (std::optional<char> c = PeekChar()) {
++    switch (*c) {
++      case '\r':
++      case '\n':
++        index_last_line_ = index_;
++        // Don't increment line_number_ twice for "\r\n".
++        if (!(c == '\n' && index_ > 0 && input_[index_ - 1] == '\r')) {
++          ++line_number_;
++        }
++        [[fallthrough]];
++      case ' ':
++      case '\t':
++        ConsumeChar();
++        break;
++      case '/':
++        if (!EatComment()) {
++          return;
++        }
++        break;
++      default:
++        return;
++    }
++  }
++}
++
++bool JSONParser::EatComment() {
++  std::optional<std::string_view> comment_start = PeekChars(2);
++  if (!comment_start) {
++    return false;
++  }
++
++  const bool comments_allowed = options_ & JSON_ALLOW_COMMENTS;
++
++  if (comment_start == "//") {
++    if (!comments_allowed) {
++      ReportError(JSON_UNEXPECTED_TOKEN, 0);
++      return false;
++    }
++
++    ConsumeChars(2);
++    // Single line comment, read to newline.
++    while (std::optional<char> c = PeekChar()) {
++      if (c == '\n' || c == '\r') {
++        return true;
++      }
++      ConsumeChar();
++    }
++  } else if (comment_start == "/*") {
++    if (!comments_allowed) {
++      ReportError(JSON_UNEXPECTED_TOKEN, 0);
++      return false;
++    }
++
++    ConsumeChars(2);
++    char previous_char = '\0';
++    // Block comment, read until end marker.
++    while (std::optional<char> c = PeekChar()) {
++      if (previous_char == '*' && c == '/') {
++        // EatWhitespaceAndComments will inspect pos(), which will still be on
++        // the last / of the comment, so advance once more (which may also be
++        // end of input).
++        ConsumeChar();
++        return true;
++      }
++      previous_char = *ConsumeChar();
++    }
++
++    // If the comment is unterminated, GetNextToken will report T_END_OF_INPUT.
++  }
++
++  return false;
++}
++
++std::optional<Value> JSONParser::ParseNextToken() {
++  return ParseToken(GetNextToken());
++}
++
++std::optional<Value> JSONParser::ParseToken(Token token) {
++  switch (token) {
++    case T_OBJECT_BEGIN:
++      return ConsumeDictionary();
++    case T_ARRAY_BEGIN:
++      return ConsumeList();
++    case T_STRING:
++      return ConsumeString();
++    case T_NUMBER:
++      return ConsumeNumber();
++    case T_BOOL_TRUE:
++    case T_BOOL_FALSE:
++    case T_NULL:
++      return ConsumeLiteral();
++    default:
++      ReportError(JSON_UNEXPECTED_TOKEN, 0);
++      return std::nullopt;
++  }
++}
++
++std::optional<Value> JSONParser::ConsumeDictionary() {
++  if (ConsumeChar() != '{') {
++    ReportError(JSON_UNEXPECTED_TOKEN, 0);
++    return std::nullopt;
++  }
++
++  StackMarker depth_check(max_depth_, &stack_depth_);
++  if (depth_check.IsTooDeep()) {
++    ReportError(JSON_TOO_MUCH_NESTING, -1);
++    return std::nullopt;
++  }
++
++  std::vector<std::pair<std::string, std::unique_ptr<Value>>> values;
++
++  Token token = GetNextToken();
++  while (token != T_OBJECT_END) {
++    if (token != T_STRING) {
++      ReportError(JSON_UNQUOTED_DICTIONARY_KEY, 0);
++      return std::nullopt;
++    }
++
++    // First consume the key.
++    std::optional<std::string> key = ConsumeStringRaw();
++    if (!key) {
++      return std::nullopt;
++    }
++
++    // Read the separator.
++    token = GetNextToken();
++    if (token != T_OBJECT_PAIR_SEPARATOR) {
++      ReportError(JSON_SYNTAX_ERROR, 0);
++      return std::nullopt;
++    }
++
++    // The next token is the value. Ownership transfers to |dict|.
++    ConsumeChar();
++    std::optional<Value> value = ParseNextToken();
++    if (!value) {
++      // ReportError from deeper level.
++      return std::nullopt;
++    }
++
++    values.emplace_back(std::move(*key),
++                        std::make_unique<Value>(std::move(*value)));
++
++    token = GetNextToken();
++    if (token == T_LIST_SEPARATOR) {
++      ConsumeChar();
++      token = GetNextToken();
++      if (token == T_OBJECT_END && !(options_ & JSON_ALLOW_TRAILING_COMMAS)) {
++        ReportError(JSON_TRAILING_COMMA, 0);
++        return std::nullopt;
++      }
++    } else if (token != T_OBJECT_END) {
++      ReportError(JSON_SYNTAX_ERROR, 0);
++      return std::nullopt;
++    }
++  }
++
++  ConsumeChar();  // Closing '}'.
++  // Reverse |dict_storage| to keep the last of elements with the same key in
++  // the input.
++  std::ranges::reverse(values);
++  return Value(Value::Dict(PassKey<JSONParser>(), std::move(values)));
++}
++
++std::optional<Value> JSONParser::ConsumeList() {
++  if (ConsumeChar() != '[') {
++    ReportError(JSON_UNEXPECTED_TOKEN, 0);
++    return std::nullopt;
++  }
++
++  StackMarker depth_check(max_depth_, &stack_depth_);
++  if (depth_check.IsTooDeep()) {
++    ReportError(JSON_TOO_MUCH_NESTING, -1);
++    return std::nullopt;
++  }
++
++  Value::List list;
++
++  Token token = GetNextToken();
++  while (token != T_ARRAY_END) {
++    std::optional<Value> item = ParseToken(token);
++    if (!item) {
++      // ReportError from deeper level.
++      return std::nullopt;
++    }
++
++    list.Append(std::move(*item));
++
++    token = GetNextToken();
++    if (token == T_LIST_SEPARATOR) {
++      ConsumeChar();
++      token = GetNextToken();
++      if (token == T_ARRAY_END && !(options_ & JSON_ALLOW_TRAILING_COMMAS)) {
++        ReportError(JSON_TRAILING_COMMA, 0);
++        return std::nullopt;
++      }
++    } else if (token != T_ARRAY_END) {
++      ReportError(JSON_SYNTAX_ERROR, 0);
++      return std::nullopt;
++    }
++  }
++
++  ConsumeChar();  // Closing ']'.
++
++  return Value(std::move(list));
++}
++
++std::optional<Value> JSONParser::ConsumeString() {
++  std::optional<std::string> string = ConsumeStringRaw();
++  if (!string) {
++    return std::nullopt;
++  }
++  return Value(std::move(*string));
++}
++
++std::optional<std::string> JSONParser::ConsumeStringRaw() {
++  if (ConsumeChar() != '"') {
++    ReportError(JSON_UNEXPECTED_TOKEN, 0);
++    return std::nullopt;
++  }
++
++  std::string string;
++  for (;;) {
++    auto [result, consumed] = ConsumeStringPart();
++    switch (result) {
++      case StringResult::kError:
++        return std::nullopt;
++
++      case StringResult::kDone:
++        // This is the last time we're appending, so pre-reserve the desired
++        // size, to prevent `+=` from overallocating. (In other cases, the
++        // overallocating is desirable for amortization.) In particular,
++        // the common case is that `string` is empty and we return in one step.
++        string.reserve(string.size() + consumed.size());
++        string += consumed;
++        return std::move(string);
++
++      case StringResult::kReplacementCharacter:
++        string += consumed;
++        string += kUnicodeReplacementString;
++        break;  // Keep parsing.
++
++      case StringResult::kEscape:
++        string += consumed;
++        std::optional<char> escape_char = ConsumeChar();
++        if (!escape_char) {
++          ReportError(JSON_INVALID_ESCAPE, -1);
++          return std::nullopt;
++        }
++
++        switch (*escape_char) {
++          // Allowed esape sequences:
++          case 'x': {  // UTF-8 sequence.
++            // UTF-8 \x escape sequences are not allowed in the spec, but they
++            // are supported here for backwards-compatiblity with the old
++            // parser.
++            if (!(options_ & JSON_ALLOW_X_ESCAPES)) {
++              ReportError(JSON_INVALID_ESCAPE, -1);
++              return std::nullopt;
++            }
++
++            std::optional<std::string_view> escape_sequence = ConsumeChars(2);
++            if (!escape_sequence) {
++              ReportError(JSON_INVALID_ESCAPE, -3);
++              return std::nullopt;
++            }
++
++            int hex_digit = 0;
++            if (!UnprefixedHexStringToInt(*escape_sequence, &hex_digit)) {
++              ReportError(JSON_INVALID_ESCAPE, -3);
++              return std::nullopt;
++            }
++
++            // A two-character hex sequence is at most 0xff and all codepoints
++            // up to 0xff are valid.
++            DCHECK_LE(hex_digit, 0xff);
++            DCHECK(IsValidCharacter(hex_digit));
++            WriteUnicodeCharacter(hex_digit, &string);
++            break;
++          }
++          case 'u': {  // UTF-16 sequence.
++            // UTF units are of the form \uXXXX.
++            base_icu::UChar32 code_point;
++            if (!DecodeUTF16(&code_point)) {
++              ReportError(JSON_INVALID_ESCAPE, -1);
++              return std::nullopt;
++            }
++            WriteUnicodeCharacter(code_point, &string);
++            break;
++          }
++          case '"':
++            string.push_back('"');
++            break;
++          case '\\':
++            string.push_back('\\');
++            break;
++          case '/':
++            string.push_back('/');
++            break;
++          case 'b':
++            string.push_back('\b');
++            break;
++          case 'f':
++            string.push_back('\f');
++            break;
++          case 'n':
++            string.push_back('\n');
++            break;
++          case 'r':
++            string.push_back('\r');
++            break;
++          case 't':
++            string.push_back('\t');
++            break;
++          case 'v':  // Not listed as valid escape sequence in the RFC.
++            if (!(options_ & JSON_ALLOW_VERT_TAB)) {
++              ReportError(JSON_INVALID_ESCAPE, -1);
++              return std::nullopt;
++            }
++            string.push_back('\v');
++            break;
++          // All other escape squences are illegal.
++          default:
++            ReportError(JSON_INVALID_ESCAPE, -1);
++            return std::nullopt;
++        }
++        break;  // Keep parsing.
++    }
++  }
++}
++
++std::pair<JSONParser::StringResult, std::string_view>
++JSONParser::ConsumeStringPart() {
++  const size_t start_index = index_;
++  while (std::optional<char> c = PeekChar()) {
++    // Handle non-ASCII characters, which never trigger any special handling
++    // beyond needing to be valid UTF-8. ASCII characters will be handled
++    // separately below.
++    if (static_cast<unsigned char>(*c) >= kExtendedASCIIStart) {
++      base_icu::UChar32 next_char = 0;
++      size_t last_index = index_;
++      if (!ReadUnicodeCharacter(input_.data(), input_.length(), &index_,
++                                &next_char)) {
++        if ((options_ & JSON_REPLACE_INVALID_CHARACTERS) == 0) {
++          ReportError(JSON_UNSUPPORTED_ENCODING, 0);
++          // No need to return consumed data.
++          return {StringResult::kError, {}};
++        }
++        ConsumeChar();
++        return {StringResult::kReplacementCharacter,
++                input_.substr(start_index, last_index - start_index)};
++      }
++
++      // Valid UTF-8 will be copied as-is into the output, so keep processing.
++      DCHECK_GE(next_char, kExtendedASCIIStart);
++      ConsumeChar();
++      continue;
++    }
++
++    if (*c == '"') {
++      std::string_view ret = input_.substr(start_index, index_ - start_index);
++      ConsumeChar();
++      return {StringResult::kDone, ret};
++    }
++    if (*c == '\\') {
++      std::string_view ret = input_.substr(start_index, index_ - start_index);
++      ConsumeChar();
++      return {StringResult::kEscape, ret};
++    }
++
++    // Per Section 7, "All Unicode characters may be placed within the
++    // quotation marks, except for the characters that MUST be escaped:
++    // quotation mark, reverse solidus, and the control characters (U+0000
++    // through U+001F)".
++    if (*c == '\n' || *c == '\r') {
++      if (!(options_ & JSON_ALLOW_NEWLINES_IN_STRINGS)) {
++        ReportError(JSON_UNSUPPORTED_ENCODING, -1);
++        return {StringResult::kError, {}};  // No need to return consumed data.
++      }
++    } else if (*c <= 0x1F) {
++      ReportError(JSON_UNSUPPORTED_ENCODING, -1);
++      return {StringResult::kError, {}};  // No need to return consumed data.
++    }
++
++    // If this character is not an escape sequence, track any line breaks and
++    // keep parsing. The JSON spec forbids unescaped ASCII control characters
++    // within a string, including '\r' and '\n', but this implementation is more
++    // lenient.
++    if (*c == '\r' || *c == '\n') {
++      index_last_line_ = index_;
++      // Don't increment line_number_ twice for "\r\n". We are guaranteed that
++      // (index_ > 0) because we are consuming a string, so we must have seen an
++      // opening '"' quote character.
++      if ((*c == '\r') || (input_[index_ - 1] != '\r')) {
++        ++line_number_;
++      }
++    }
++    ConsumeChar();
++  }
++
++  ReportError(JSON_SYNTAX_ERROR, -1);
++  return {StringResult::kError, {}};  // No need to return consumed data.
++}
++
++// Entry is at the first X in \uXXXX.
++bool JSONParser::DecodeUTF16(base_icu::UChar32* out_code_point) {
++  std::optional<std::string_view> escape_sequence = ConsumeChars(4);
++  if (!escape_sequence) {
++    return false;
++  }
++
++  // Consume the UTF-16 code unit, which may be a high surrogate.
++  int code_unit16_high = 0;
++  if (!UnprefixedHexStringToInt(*escape_sequence, &code_unit16_high)) {
++    return false;
++  }
++
++  // If this is a high surrogate, consume the next code unit to get the
++  // low surrogate.
++  if (CBU16_IS_SURROGATE(code_unit16_high)) {
++    // Make sure this is the high surrogate.
++    if (!CBU16_IS_SURROGATE_LEAD(code_unit16_high)) {
++      if ((options_ & JSON_REPLACE_INVALID_CHARACTERS) == 0) {
++        return false;
++      }
++      *out_code_point = kUnicodeReplacementPoint;
++      return true;
++    }
++
++    // Make sure that the token has more characters to consume the
++    // lower surrogate.
++    if (!ConsumeIfMatch("\\u")) {
++      if ((options_ & JSON_REPLACE_INVALID_CHARACTERS) == 0) {
++        return false;
++      }
++      *out_code_point = kUnicodeReplacementPoint;
++      return true;
++    }
++
++    escape_sequence = ConsumeChars(4);
++    if (!escape_sequence) {
++      return false;
++    }
++
++    int code_unit16_low = 0;
++    if (!UnprefixedHexStringToInt(*escape_sequence, &code_unit16_low)) {
++      return false;
++    }
++
++    if (!CBU16_IS_TRAIL(code_unit16_low)) {
++      if ((options_ & JSON_REPLACE_INVALID_CHARACTERS) == 0) {
++        return false;
++      }
++      *out_code_point = kUnicodeReplacementPoint;
++      return true;
++    }
++
++    base_icu::UChar32 code_point =
++        CBU16_GET_SUPPLEMENTARY(code_unit16_high, code_unit16_low);
++
++    *out_code_point = code_point;
++  } else {
++    // Not a surrogate.
++    DCHECK(CBU16_IS_SINGLE(code_unit16_high));
++
++    *out_code_point = code_unit16_high;
++  }
++
++  return true;
++}
++
++std::optional<Value> JSONParser::ConsumeNumber() {
++  const char* num_start = pos();
++  const size_t start_index = index_;
++  size_t end_index = start_index;
++
++  if (PeekChar() == '-') {
++    ConsumeChar();
++  }
++
++  if (!ReadInt(false)) {
++    ReportError(JSON_SYNTAX_ERROR, 0);
++    return std::nullopt;
++  }
++  end_index = index_;
++
++  // The optional fraction part.
++  if (PeekChar() == '.') {
++    ConsumeChar();
++    if (!ReadInt(true)) {
++      ReportError(JSON_SYNTAX_ERROR, 0);
++      return std::nullopt;
++    }
++    end_index = index_;
++  }
++
++  // Optional exponent part.
++  std::optional<char> c = PeekChar();
++  if (c == 'e' || c == 'E') {
++    ConsumeChar();
++    if (PeekChar() == '-' || PeekChar() == '+') {
++      ConsumeChar();
++    }
++    if (!ReadInt(true)) {
++      ReportError(JSON_SYNTAX_ERROR, 0);
++      return std::nullopt;
++    }
++    end_index = index_;
++  }
++
++  std::string_view num_string(num_start, end_index - start_index);
++
++  int num_int;
++  if (StringToInt(num_string, &num_int)) {
++    // StringToInt will treat `-0` as zero, losing the significance of the
++    // negation.
++    if (num_int == 0 && num_string.starts_with('-')) {
++      return Value(-0.0);
++    }
++    return Value(num_int);
++  }
++
++  double num_double;
++  if (StringToDouble(num_string, &num_double) && std::isfinite(num_double)) {
++    return Value(num_double);
++  }
++
++  ReportError(JSON_UNREPRESENTABLE_NUMBER, 0);
++  return std::nullopt;
++}
++
++bool JSONParser::ReadInt(bool allow_leading_zeros) {
++  size_t len = 0;
++  char first = 0;
++
++  while (std::optional<char> c = PeekChar()) {
++    if (!IsAsciiDigit(*c)) {
++      break;
++    }
++
++    if (len == 0) {
++      first = *c;
++    }
++
++    ++len;
++    ConsumeChar();
++  }
++
++  if (len == 0) {
++    return false;
++  }
++
++  if (!allow_leading_zeros && len > 1 && first == '0') {
++    return false;
++  }
++
++  return true;
++}
++
++std::optional<Value> JSONParser::ConsumeLiteral() {
++  if (ConsumeIfMatch("true")) {
++    return Value(true);
++  }
++  if (ConsumeIfMatch("false")) {
++    return Value(false);
++  }
++  if (ConsumeIfMatch("null")) {
++    return Value(Value::Type::NONE);
++  }
++  ReportError(JSON_SYNTAX_ERROR, 0);
++  return std::nullopt;
++}
++
++bool JSONParser::ConsumeIfMatch(std::string_view match) {
++  if (match == PeekChars(match.size())) {
++    ConsumeChars(match.size());
++    return true;
++  }
++  return false;
++}
++
++void JSONParser::ReportError(JsonParseError code, int column_adjust) {
++  error_code_ = code;
++  error_line_ = line_number_;
++  error_column_ = static_cast<int>(index_ - index_last_line_) + column_adjust;
++
++  // For a final blank line ('\n' and then EOF), a negative column_adjust may
++  // put us below 1, which doesn't really make sense for 1-based columns.
++  if (error_column_ < 1) {
++    error_column_ = 1;
++  }
++}
++
++// static
++std::string JSONParser::FormatErrorMessage(int line,
++                                           int column,
++                                           const std::string& description) {
++  if (line || column) {
++    return StringPrintf("Line: %i, column: %i, %s", line, column,
++                        description.c_str());
++  }
++  return description;
++}
++
++}  // namespace base::internal
+--- /dev/null
++++ b/base/json/json_parser.h
+@@ -0,0 +1,269 @@
++// Copyright 2012 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef BASE_JSON_JSON_PARSER_H_
++#define BASE_JSON_JSON_PARSER_H_
++
++#include <stddef.h>
++#include <stdint.h>
++
++#include <memory>
++#include <optional>
++#include <string>
++#include <string_view>
++#include <utility>
++
++#include "base/base_export.h"
++#include "base/compiler_specific.h"
++#include "base/gtest_prod_util.h"
++#include "base/json/json_common.h"
++#include "base/third_party/icu/icu_utf.h"
++#include "base/values.h"
++
++namespace base {
++
++class Value;
++
++namespace internal {
++
++class JSONParserTest;
++
++// The implementation behind the JSONReader interface. This class is not meant
++// to be used directly; it encapsulates logic that need not be exposed publicly.
++//
++// This parser guarantees O(n) time through the input string. Iteration happens
++// on the byte level, with the functions ConsumeChars() and ConsumeChar(). The
++// conversion from byte to JSON token happens without advancing the parser in
++// GetNextToken/ParseToken, that is tokenization operates on the current parser
++// position without advancing.
++//
++// Built on top of these are a family of Consume functions that iterate
++// internally. Invariant: on entry of a Consume function, the parser is wound
++// to the first byte of a valid JSON token. On exit, it is on the first byte
++// after the token that was just consumed, which would likely be the first byte
++// of the next token.
++class BASE_EXPORT JSONParser {
++ public:
++  // Error codes during parsing.
++  enum JsonParseError {
++    JSON_NO_ERROR = base::ValueDeserializer::kErrorCodeNoError,
++    JSON_SYNTAX_ERROR = base::ValueDeserializer::kErrorCodeInvalidFormat,
++    JSON_INVALID_ESCAPE,
++    JSON_UNEXPECTED_TOKEN,
++    JSON_TRAILING_COMMA,
++    JSON_TOO_MUCH_NESTING,
++    JSON_UNEXPECTED_DATA_AFTER_ROOT,
++    JSON_UNSUPPORTED_ENCODING,
++    JSON_UNQUOTED_DICTIONARY_KEY,
++    JSON_UNREPRESENTABLE_NUMBER,
++    JSON_PARSE_ERROR_COUNT
++  };
++
++  // String versions of parse error codes.
++  static const char kSyntaxError[];
++  static const char kInvalidEscape[];
++  static const char kUnexpectedToken[];
++  static const char kTrailingComma[];
++  static const char kTooMuchNesting[];
++  static const char kUnexpectedDataAfterRoot[];
++  static const char kUnsupportedEncoding[];
++  static const char kUnquotedDictionaryKey[];
++  static const char kUnrepresentableNumber[];
++
++  explicit JSONParser(int options, size_t max_depth = kAbsoluteMaxDepth);
++
++  JSONParser(const JSONParser&) = delete;
++  JSONParser& operator=(const JSONParser&) = delete;
++
++  ~JSONParser();
++
++  // Parses the input string according to the set options and returns the
++  // result as a Value.
++  // Wrap this in base::FooValue::From() to check the Value is of type Foo and
++  // convert to a FooValue at the same time.
++  std::optional<Value> Parse(std::string_view input);
++
++  // Returns the error code.
++  JsonParseError error_code() const;
++
++  // Returns the human-friendly error message.
++  std::string GetErrorMessage() const;
++
++  // Returns the error line number if parse error happened. Otherwise always
++  // returns 0.
++  int error_line() const;
++
++  // Returns the error column number if parse error happened. Otherwise always
++  // returns 0.
++  int error_column() const;
++
++ private:
++  enum Token {
++    T_OBJECT_BEGIN,  // {
++    T_OBJECT_END,    // }
++    T_ARRAY_BEGIN,   // [
++    T_ARRAY_END,     // ]
++    T_STRING,
++    T_NUMBER,
++    T_BOOL_TRUE,              // true
++    T_BOOL_FALSE,             // false
++    T_NULL,                   // null
++    T_LIST_SEPARATOR,         // ,
++    T_OBJECT_PAIR_SEPARATOR,  // :
++    T_END_OF_INPUT,
++    T_INVALID_TOKEN,
++  };
++
++  // Returns the next |count| bytes of the input stream, or nullopt if fewer
++  // than |count| bytes remain.
++  std::optional<std::string_view> PeekChars(size_t count);
++
++  // Calls PeekChars() with a |count| of 1.
++  std::optional<char> PeekChar();
++
++  // Returns the next |count| bytes of the input stream, or nullopt if fewer
++  // than |count| bytes remain, and advances the parser position by |count|.
++  std::optional<std::string_view> ConsumeChars(size_t count);
++
++  // Calls ConsumeChars() with a |count| of 1.
++  std::optional<char> ConsumeChar();
++
++  // Returns a pointer to the current character position.
++  const char* pos();
++
++  // Skips over whitespace and comments to find the next token in the stream.
++  // This does not advance the parser for non-whitespace or comment chars.
++  Token GetNextToken();
++
++  // Consumes whitespace characters and comments until the next non-that is
++  // encountered.
++  void EatWhitespaceAndComments();
++  // Helper function that consumes a comment, assuming that the parser is
++  // currently wound to a '/'.
++  bool EatComment();
++
++  // Calls GetNextToken() and then ParseToken().
++  std::optional<Value> ParseNextToken();
++
++  // Takes a token that represents the start of a Value ("a structural token"
++  // in RFC terms) and consumes it, returning the result as a Value.
++  std::optional<Value> ParseToken(Token token);
++
++  // Assuming that the parser is currently wound to '{', this parses a JSON
++  // object into a Value.
++  std::optional<Value> ConsumeDictionary();
++
++  // Assuming that the parser is wound to '[', this parses a JSON list into a
++  // Value.
++  std::optional<Value> ConsumeList();
++
++  // Calls through ConsumeStringRaw and wraps it in a value.
++  std::optional<Value> ConsumeString();
++
++  // Assuming that the parser is wound to a double quote, this parses a string,
++  // decoding any escape sequences and validating UTF-8. Returns the string on
++  // success or std::nullopt on error, with error information set.
++  std::optional<std::string> ConsumeStringRaw();
++
++  enum class StringResult {
++    // Parsing stopped because of invalid input. Error information has been set.
++    // The caller should return failure.
++    kError,
++    // Parsing stopped because the string is finished. The parser is wound to
++    // just paste the closing quote. The caller should stop parsing the string.
++    kDone,
++    // Parsing stopped because of invalid Unicode which should be replaced with
++    // a replacement character. The parser is wound to just past the input that
++    // should be a replacement character. The caller should add a replacement
++    // character and continue parsing.
++    kReplacementCharacter,
++    // Parsing stopped because of an escape sequence. The parser is wound to
++    // just past the backslash. The caller should consume the escape sequence
++    // and continue parsing.
++    kEscape,
++  };
++
++  // Consumes the portion of a JavaScript string which may be copied to the
++  // input with no conversions, stopping at one of the events above. Returns the
++  // reason parsing stopped and the data that was consumed. This should be
++  // called in a loop, handling all the cases above until reaching kDone.
++  std::pair<StringResult, std::string_view> ConsumeStringPart();
++
++  // Helper function for ConsumeStringRaw() that consumes the next four or 10
++  // bytes (parser is wound to the first character of a HEX sequence, with the
++  // potential for consuming another \uXXXX for a surrogate). Returns true on
++  // success and places the code point |out_code_point|, and false on failure.
++  bool DecodeUTF16(base_icu::UChar32* out_code_point);
++
++  // Assuming that the parser is wound to the start of a valid JSON number,
++  // this parses and converts it to either an int or double value.
++  std::optional<Value> ConsumeNumber();
++  // Helper that reads characters that are ints. Returns true if a number was
++  // read and false on error.
++  bool ReadInt(bool allow_leading_zeros);
++
++  // Consumes the literal values of |true|, |false|, and |null|, assuming the
++  // parser is wound to the first character of any of those.
++  std::optional<Value> ConsumeLiteral();
++
++  // Helper function that returns true if the byte squence |match| can be
++  // consumed at the current parser position. Returns false if there are fewer
++  // than |match|-length bytes or if the sequence does not match, and the
++  // parser state is unchanged.
++  bool ConsumeIfMatch(std::string_view match);
++
++  // Sets the error information to |code| at the current column, based on
++  // |index_| and |index_last_line_|, with an optional positive/negative
++  // adjustment by |column_adjust|.
++  void ReportError(JsonParseError code, int column_adjust);
++
++  // Given the line and column number of an error, formats one of the error
++  // message contants from json_reader.h for human display.
++  static std::string FormatErrorMessage(int line,
++                                        int column,
++                                        const std::string& description);
++
++  // base::JSONParserOptions that control parsing.
++  const int options_;
++
++  // Maximum depth to parse.
++  const size_t max_depth_;
++
++  // The input stream being parsed. Note: Not guaranteed to NUL-terminated.
++  std::string_view input_;
++
++  // The index in the input stream to which the parser is wound.
++  size_t index_;
++
++  // The number of times the parser has recursed (current stack depth).
++  size_t stack_depth_;
++
++  // The line number that the parser is at currently.
++  int line_number_;
++
++  // The last value of |index_| on the previous line.
++  size_t index_last_line_;
++
++  // Error information.
++  JsonParseError error_code_;
++  int error_line_;
++  int error_column_;
++
++  friend class JSONParserTest;
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, NextChar);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ConsumeDictionary);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ConsumeList);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ConsumeString);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ConsumeLiterals);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ConsumeNumbers);
++  FRIEND_TEST_ALL_PREFIXES(JSONParserTest, ErrorMessages);
++};
++
++// Used when decoding and an invalid utf-8 sequence is encountered.
++BASE_EXPORT extern const char kUnicodeReplacementString[];
++
++}  // namespace internal
++}  // namespace base
++
++#endif  // BASE_JSON_JSON_PARSER_H_
+--- a/base/json/json_reader.cc
++++ b/base/json/json_reader.cc
+@@ -12,115 +12,8 @@
+ #include "base/strings/strcat.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "build/build_config.h"
+-#include "base/strings/string_view_rust.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/functions.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/lib.rs.h"
+-
+-namespace {
+-const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
+-}  // namespace
+-
+-// This namespace defines FFI-friendly functions that are be called from Rust in
+-// //third_party/rust/serde_json_lenient/v0_2/wrapper/.
+-namespace serde_json_lenient {
+-
+-base::Value::List& list_append_list(base::Value::List& ctx) {
+-  ctx.Append(base::Value::List());
+-  return ctx.back().GetList();
+-}
+-
+-base::Value::Dict& list_append_dict(base::Value::List& ctx) {
+-  ctx.Append(base::Value::Dict());
+-  return ctx.back().GetDict();
+-}
+-
+-void list_append_none(base::Value::List& ctx) {
+-  ctx.Append(base::Value());
+-}
+ 
+-void list_append_bool(base::Value::List& ctx, bool val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_i32(base::Value::List& ctx, int32_t val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_f64(base::Value::List& ctx, double val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_str(base::Value::List& ctx, rust::Str val) {
+-  ctx.Append(std::string(val));
+-}
+-
+-base::Value::List& dict_set_list(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::List());
+-  return value->GetList();
+-}
+-
+-base::Value::Dict& dict_set_dict(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::Dict());
+-  return value->GetDict();
+-}
+-
+-void dict_set_none(base::Value::Dict& ctx, rust::Str key) {
+-  ctx.Set(base::RustStrToStringView(key), base::Value());
+-}
+-
+-void dict_set_bool(base::Value::Dict& ctx, rust::Str key, bool val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_i32(base::Value::Dict& ctx, rust::Str key, int32_t val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_f64(base::Value::Dict& ctx, rust::Str key, double val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_str(base::Value::Dict& ctx, rust::Str key, rust::Str val) {
+-  ctx.Set(base::RustStrToStringView(key), std::string(val));
+-}
+-
+-namespace {
+-
+-base::JSONReader::Result DecodeJSONInRust(std::string_view json,
+-                                          int options,
+-                                          size_t max_depth) {
+-  const JsonOptions rust_options = {
+-      .allow_trailing_commas =
+-          (options & base::JSON_ALLOW_TRAILING_COMMAS) != 0,
+-      .replace_invalid_characters =
+-          (options & base::JSON_REPLACE_INVALID_CHARACTERS) != 0,
+-      .allow_comments = (options & base::JSON_ALLOW_COMMENTS) != 0,
+-      .allow_newlines = (options & base::JSON_ALLOW_NEWLINES_IN_STRINGS) != 0,
+-      .allow_vert_tab = (options & base::JSON_ALLOW_VERT_TAB) != 0,
+-      .allow_x_escapes = (options & base::JSON_ALLOW_X_ESCAPES) != 0,
+-      .max_depth = max_depth,
+-  };
+-
+-  base::Value::List list;
+-  DecodeError error;
+-  bool ok =
+-      decode_json(base::StringViewToRustSlice(json), rust_options, list, error);
+-
+-  if (!ok) {
+-    return base::unexpected(base::JSONReader::Error{
+-        .message = std::string(error.message),
+-        .line = error.line,
+-        .column = error.column,
+-    });
+-  }
+-
+-  return std::move(list.back());
+-}
+-
+-}  // namespace
+-}  // namespace serde_json_lenient
++#include "base/json/json_parser.h"
+ 
+ namespace base {
+ 
+@@ -133,14 +26,8 @@ std::string JSONReader::Error::ToString(
+ std::optional<Value> JSONReader::Read(std::string_view json,
+                                       int options,
+                                       size_t max_depth) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-
+-  JSONReader::Result result =
+-      serde_json_lenient::DecodeJSONInRust(json, options, max_depth);
+-  if (!result.has_value()) {
+-    return std::nullopt;
+-  }
+-  return std::move(*result);
++  internal::JSONParser parser(options, max_depth);
++  return parser.Parse(json);
+ }
+ 
+ // static
+@@ -169,9 +56,17 @@ std::optional<Value::List> JSONReader::R
+ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+     std::string_view json,
+     int options) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-  return serde_json_lenient::DecodeJSONInRust(json, options,
+-                                              internal::kAbsoluteMaxDepth);
++  internal::JSONParser parser(options);
++  auto value = parser.Parse(json);
++  if (!value) {
++    Error error;
++    error.message = parser.GetErrorMessage();
++    error.line = parser.error_line();
++    error.column = parser.error_column();
++    return base::unexpected(std::move(error));
++  }
++
++  return std::move(*value);
+ }
+ 
+ }  // namespace base
+--- a/base/logging.cc
++++ b/base/logging.cc
+@@ -119,7 +119,7 @@ typedef FILE* FileHandle;
+ #include "base/fuchsia/scoped_fx_logger.h"
+ #endif
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL)
+ #include "base/logging/rust_logger.rs.h"
+ #endif
+ 
+@@ -531,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSe
+   }
+ #endif
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL)
+   // Connects Rust logging with the //base logging functionality.
+   internal::init_rust_log_crate();
+ #endif
+--- a/base/test/BUILD.gn
++++ b/base/test/BUILD.gn
+@@ -6,7 +6,6 @@ import("//build/compiled_action.gni")
+ import("//build/config/features.gni")
+ import("//build/config/nacl/config.gni")
+ import("//build/config/ui.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//build_overrides/build.gni")
+ import("//third_party/protobuf/proto_library.gni")
+ 
+@@ -36,16 +35,6 @@ static_library("test_config") {
+   ]
+ }
+ 
+-rust_static_library("test_rust_logger_consumer") {
+-  allow_unsafe = true  # Unsafe needed for FFI
+-  testonly = true
+-  deps = [ "//third_party/rust/log/v0_4:lib" ]
+-  sources = [ "logging/test_rust_logger_consumer.rs" ]
+-
+-  crate_root = "logging/test_rust_logger_consumer.rs"
+-
+-  cxx_bindings = [ "logging/test_rust_logger_consumer.rs" ]
+-}
+ 
+ static_library("test_support") {
+   testonly = true
+@@ -190,7 +179,6 @@ static_library("test_support") {
+ 
+   public_deps = [
+     ":test_config",
+-    ":test_rust_logger_consumer",
+     "//base",
+     "//base:base_static",
+     "//base:i18n",
+--- a/components/user_data_importer/utility/BUILD.gn
++++ b/components/user_data_importer/utility/BUILD.gn
+@@ -3,7 +3,6 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/zip.gni")
+-import("//build/rust/rust_static_library.gni")
+ 
+ source_set("safari_data_importer") {
+   sources = [
+@@ -14,7 +13,6 @@ source_set("safari_data_importer") {
+   ]
+ 
+   deps = [
+-    ":zip_ffi_glue",
+     "//base",
+     "//components/password_manager/core/browser/import:importer",
+     "//components/password_manager/core/browser/ui",
+@@ -22,19 +20,6 @@ source_set("safari_data_importer") {
+   ]
+ }
+ 
+-rust_static_library("zip_ffi_glue") {
+-  allow_unsafe = true
+-  crate_root = "zip_ffi_glue.rs"
+-  sources = [ "zip_ffi_glue.rs" ]
+-  cxx_bindings = [ "zip_ffi_glue.rs" ]
+-  visibility = [ ":safari_data_importer" ]
+-  deps = [
+-    "//third_party/rust/anyhow/v1:lib",
+-    "//third_party/rust/serde/v1:lib",
+-    "//third_party/rust/serde_json_lenient/v0_2:lib",
+-    "//third_party/rust/zip/v4:lib",
+-  ]
+-}
+ 
+ copy("test_archive_files") {
+   sources = [
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -71,7 +71,6 @@ if (use_blink || (is_ios && build_with_i
+     ]
+     if (enable_constraints) {
+       defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
+-      deps += [ "//third_party/rust/llguidance/v0_7:lib" ]
+     }
+     if (use_blink) {
+       deps += [ "//gpu/config" ]
+--- a/services/on_device_model/ml/chrome_ml.cc
++++ b/services/on_device_model/ml/chrome_ml.cc
+@@ -24,7 +24,6 @@
+ #include "third_party/dawn/include/dawn/dawn_proc.h"
+ #include "third_party/dawn/include/dawn/native/DawnNative.h"
+ #include "third_party/dawn/include/dawn/webgpu_cpp.h"
+-#include "third_party/rust/chromium_crates_io/vendor/llguidance-v0_7/llguidance.h"
+ 
+ #if !BUILDFLAG(IS_IOS)
+ #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -311,7 +311,6 @@ source_set("common") {
+     "//services/metrics/public/mojom:mojom",
+     "//services/network/public/cpp:cpp",
+     "//services/network/public/mojom:mojom_permissions_policy",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base:base",
+--- a/third_party/blink/common/chrome_debug_urls.cc
++++ b/third_party/blink/common/chrome_debug_urls.cc
+@@ -12,7 +12,6 @@
+ #include "base/threading/platform_thread.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/common/crash_helpers.h"
+-#include "third_party/blink/common/rust_crash/src/lib.rs.h"
+ #include "url/gurl.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -118,7 +117,7 @@ NOINLINE void MaybeTriggerAsanError(cons
+     // Ensure that ASAN works even in Rust code.
+     LOG(ERROR) << "Intentionally causing ASAN heap overflow in Rust"
+                << " because user navigated to " << url.spec();
+-    crash_in_rust_with_overflow();
++    //crash_in_rust_with_overflow();
+   }
+ }
+ #endif  // ADDRESS_SANITIZER
+@@ -138,7 +137,7 @@ void HandleChromeDebugURL(const GURL& ur
+   } else if (url == kChromeUICrashRustURL) {
+     // Cause a typical crash in Rust code, so we can test that call stack
+     // collection and symbol mangling work across the language boundary.
+-    crash_in_rust();
++    //crash_in_rust();
+   } else if (url == kChromeUIDumpURL) {
+     // This URL will only correctly create a crash dump file if content is
+     // hosted in a process that has correctly called
+--- a/third_party/breakpad/BUILD.gn
++++ b/third_party/breakpad/BUILD.gn
+@@ -494,12 +494,7 @@ if (is_mac) {
+       # For breakpad/src/common/stabs_reader.h.
+       defines = [ "HAVE_MACH_O_NLIST_H" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-    }
++     }
+     test("breakpad_unittests") {
+       sources = [ "breakpad/src/common/module_unittest.cc" ]
+       deps = [
+@@ -742,12 +737,6 @@ if (is_linux || is_chromeos || is_androi
+ 
+       include_dirs = [ "breakpad/src" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-
+       libs = [ "z" ]
+     }
+   } else if (current_toolchain == default_toolchain) {
