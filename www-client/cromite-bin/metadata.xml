@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">uazo/cromite</remote-id>
+		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
+	</upstream>
+	<longdescription>
+		Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!
+	</longdescription>
+</pkgmetadata>
