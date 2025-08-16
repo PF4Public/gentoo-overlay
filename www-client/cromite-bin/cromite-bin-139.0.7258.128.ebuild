@@ -20,44 +20,51 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-
 CDEPEND="
 	x11-libs/libX11
 	x11-libs/libXcomposite
-	x11-libs/libXcursor
 	x11-libs/libXdamage
 	x11-libs/libXext
 	x11-libs/libXfixes
-	>=x11-libs/libXi-1.6.0
+	x11-libs/libXi
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	x11-libs/libXtst
 	x11-libs/libxcb
-	media-libs/libva
-	>=net-print/cups-1.3.11
-	dev-libs/expat
-	dev-libs/glib:2
-	>=dev-libs/libxml2-2.9.4-r3[icu]
-	dev-libs/nspr
-	>=dev-libs/nss-3.26
-	>=media-libs/alsa-lib-1.0.19
-	media-libs/fontconfig
-	media-libs/freetype
-	media-libs/libjpeg-turbo
-	media-libs/libpng
-	sys-apps/dbus
-	sys-apps/pciutils
-	virtual/udev
+	x11-libs/libdrm
+	x11-libs/libxkbcommon
 	x11-libs/cairo
 	x11-libs/pango
-	media-libs/flac
-	>=media-libs/libwebp-0.4.0
-	sys-libs/zlib[minizip]
-	>=media-libs/libavif-1.2.0
+	x11-libs/pixman
+	media-libs/fontconfig
+	media-libs/freetype
+	media-libs/libpng
+	media-libs/harfbuzz
+	media-libs/mesa
+	dev-libs/fribidi
+	dev-libs/glib:2
+	sys-apps/dbus
+	virtual/udev
+	media-libs/alsa-lib
+	dev-libs/nspr
+	dev-libs/nss
+	net-print/cups
+	net-libs/gnutls
 	app-accessibility/at-spi2-core
-	x11-libs/gtk+:3[X]
-	media-libs/lcms
-	dev-libs/libxslt"
+	dev-libs/atk
+	dev-libs/expat
+	sys-libs/zlib
+	app-arch/bzip2
+	app-arch/brotli
+	dev-libs/libffi
+	dev-libs/libpcre2
+	dev-libs/nettle
+	dev-libs/gmp
+	sys-libs/libcap
+	net-dns/libidn2
+	dev-libs/libunistring
+	dev-libs/libtasn1
+	media-gfx/graphite2
+	x11-libs/gtk+:3[X]"
 
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
