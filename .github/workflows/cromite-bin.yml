@@ -1,0 +1,56 @@
+name: cromite-bin
+on:
+  push:
+    paths:
+    - 'www-client/cromite-bin/*.ebuild'
+  pull_request:
+    paths:
+    - 'www-client/cromite-bin/*.ebuild'
+
+jobs:
+  ebuild:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - ""
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+
+      - name: Prepare cache dir
+        id: prepare
+        run: |
+          echo "workspace=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Calculate the hash of changed files
+        id: hash
+        run: |
+          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Cache distfiles
+        id: cache-distfiles
+        uses: actions/cache@v4
+        with:
+          path: "${{ steps.prepare.outputs.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.hash.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ${{ matrix.use }}
