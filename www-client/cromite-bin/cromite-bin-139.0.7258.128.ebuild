@@ -65,7 +65,7 @@ CDEPEND="
 	dev-libs/libunistring
 	dev-libs/libtasn1
 	media-gfx/graphite2
-	x11-libs/gtk+:3[X]"
+"
 
 RDEPEND="${CDEPEND}
 	x11-misc/xdg-utils
