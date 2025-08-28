@@ -61,7 +61,46 @@
    }
  
    if (is_win) {
-@@ -734,13 +701,7 @@ skia_source_set("skia_core_and_effects")
+@@ -493,7 +460,6 @@ component("skia") {
+   all_dependent_configs = [ ":skia_config" ]
+ 
+   deps += [
+-    ":rust_png_ffi",
+     ":skcms",
+     ":skia_opts",
+     ":skia_switches",
+@@ -639,30 +605,6 @@ component("skia_switches") {
+   deps = [ "//base" ]
+ }
+ 
+-rust_static_library("rust_png_ffi") {
+-  visibility = [ ":*" ]
+-  allow_unsafe = true  # For FFI
+-  crate_root = skia_codec_rust_png_ffi_crate_root
+-  sources = skia_codec_rust_png_ffi_rs_srcs
+-  cxx_bindings = skia_codec_rust_png_ffi_cxx_bridge_srcs
+-  public_deps = [ ":rust_png_ffi_cpp" ]
+-  deps = [ "//third_party/rust/png/v0_18:lib" ]
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+-
+-source_set("rust_png_ffi_cpp") {
+-  visibility = [ ":*" ]
+-  public = skia_codec_rust_png_ffi_cpp_hdrs
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+ 
+ # Template for things that are logically part of :skia, but need to be split out
+ # so custom compile flags can be applied.
+@@ -734,13 +676,7 @@ skia_source_set("skia_core_and_effects")
      # skia_core_and_effects rather than the other way around.
      public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
    }
