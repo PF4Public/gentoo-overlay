@@ -68,7 +68,7 @@ CROMITE_COMMIT_ID="5e93dd38611f62a7713f6cf1afb2a290ceeee11d"
 # declare -A CHROMIUM_COMMITS=(
 # 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
 # 	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="." 
+# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 # )
 
 UGC_PV="${PV/_p/-}"
@@ -1570,6 +1570,7 @@ src_configure() {
 	myconf_gn+=" enable_constraints=false"
 	myconf_gn+=" rtc_rusty_base64=false"
 	myconf_gn+=" v8_enable_temporal_support=false"
+	myconf_gn+=" media_use_symphonia=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
