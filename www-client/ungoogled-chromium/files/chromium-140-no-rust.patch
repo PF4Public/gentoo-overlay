@@ -1524,6 +1524,24 @@
      "//base",
      "//base:base_static",
      "//base:i18n",
+--- a/components/user_data_importer/content/BUILD.gn
++++ b/components/user_data_importer/content/BUILD.gn
+@@ -25,7 +25,6 @@ source_set("content") {
+     "//components/user_data_importer/mojom",
+     "//components/user_data_importer/utility",
+     "//components/user_data_importer/utility:bookmarks",
+-    "//components/user_data_importer/utility:zip_ffi_glue",
+     "//content/public/browser",
+     "//content/public/child",
+     "//net",
+@@ -68,7 +67,6 @@ source_set("unit_tests") {
+     "//components/strings:components_strings_grit",
+     "//components/user_data_importer/common",
+     "//components/user_data_importer/mojom",
+-    "//components/user_data_importer/utility:zip_ffi_glue",
+     "//content/test:test_support",
+     "//testing/gtest",
+   ]
 --- a/components/user_data_importer/utility/BUILD.gn
 +++ b/components/user_data_importer/utility/BUILD.gn
 @@ -3,7 +3,6 @@
