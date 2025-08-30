@@ -1524,6 +1524,17 @@
      "//base",
      "//base:base_static",
      "//base:i18n",
+--- a/build/rust/gni_impl/rust_target.gni
++++ b/build/rust/gni_impl/rust_target.gni
+@@ -38,7 +38,7 @@ if (enable_rust_cxx) {
+ # be provided.
+ 
+ template("rust_target") {
+-  assert(enable_rust)
++  #assert(enable_rust)
+   _target_name = target_name
+ 
+   # NOTE: TargetName=>CrateName mangling algorithm should be updated
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -3588,8 +3588,6 @@ static_library("browser") {
