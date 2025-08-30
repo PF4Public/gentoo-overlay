@@ -1573,6 +1573,36 @@
        "//chrome/browser/ui:browser_list",
        "//chrome/browser/ui:browser_list_impl",
        "//chrome/browser/ui/commerce",
+--- a/chrome/utility/BUILD.gn
++++ b/chrome/utility/BUILD.gn
+@@ -52,8 +52,6 @@ static_library("utility") {
+     "//components/services/unzip:lib",
+     "//components/strings",
+     "//components/url_formatter",
+-    "//components/user_data_importer/content",
+-    "//components/user_data_importer/mojom",
+     "//components/webapps/services/web_app_origin_association:lib",
+     "//content/public/child",
+     "//content/public/common",
+@@ -141,9 +139,6 @@ static_library("utility") {
+       "//chrome/common:mojo_bindings",
+       "//chrome/common/importer:interfaces",
+       "//components/autofill/core/common",
+-      "//components/user_data_importer/common",
+-      "//components/user_data_importer/content",
+-      "//components/user_data_importer/utility:bookmarks",
+       "//services/proxy_resolver:lib",
+       "//services/screen_ai",
+     ]
+@@ -292,8 +287,6 @@ if (!is_android) {
+       "//chrome/common/importer",
+       "//chrome/common/importer:test_support",
+       "//components/favicon_base",
+-      "//components/user_data_importer/common",
+-      "//components/user_data_importer/utility:safari_data_importer",
+       "//content/test:test_support",
+       "//sql",
+       "//testing/gmock",
 --- a/components/BUILD.gn
 +++ b/components/BUILD.gn
 @@ -383,7 +383,6 @@ test("components_unittests") {
