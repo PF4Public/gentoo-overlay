@@ -1573,6 +1573,32 @@
        "//chrome/browser/ui:browser_list",
        "//chrome/browser/ui:browser_list_impl",
        "//chrome/browser/ui/commerce",
+--- a/components/BUILD.gn
++++ b/components/BUILD.gn
+@@ -383,7 +383,6 @@ test("components_unittests") {
+     "//components/url_formatter/spoof_checks/top_domains:unit_tests",
+     "//components/url_matcher:unit_tests",
+     "//components/url_pattern_index:unit_tests",
+-    "//components/user_data_importer/utility:unit_tests",
+     "//components/variations:unit_tests",
+     "//components/variations/field_trial_config:unit_tests",
+     "//components/variations/service:unit_tests",
+@@ -622,7 +621,6 @@ test("components_unittests") {
+       "//components/site_isolation:unit_tests",
+       "//components/spellcheck/browser:unit_tests",
+       "//components/spellcheck/renderer:unit_tests",
+-      "//components/user_data_importer/content:unit_tests",
+     ]
+ 
+     if (!is_fuchsia) {  #!iOS and!Fuchsia
+@@ -937,7 +935,6 @@ test("components_unittests") {
+       "//components/signin/public/identity_manager/objc:unit_tests",
+       "//components/translate/ios/browser:unit_tests",
+       "//components/ukm/ios:unit_tests",
+-      "//components/user_data_importer/utility:unit_tests",
+       "//components/webauthn/ios:unit_tests",
+     ]
+   }
 --- a/services/on_device_model/ml/BUILD.gn
 +++ b/services/on_device_model/ml/BUILD.gn
 @@ -73,7 +73,6 @@ if (use_blink || (is_ios && build_with_i
