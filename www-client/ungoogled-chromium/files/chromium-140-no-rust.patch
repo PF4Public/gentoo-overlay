@@ -1629,6 +1629,16 @@
        "//components/webauthn/ios:unit_tests",
      ]
    }
+--- a/components/user_data_importer/utility/BUILD.gn
++++ b/components/user_data_importer/utility/BUILD.gn
+@@ -44,7 +44,6 @@ source_set("safari_data_importer") {
+   deps = [
+     ":bookmarks",
+     ":utility",
+-    ":zip_ffi_glue",
+     "//base",
+     "//components/bookmarks/browser",
+     "//components/history/core/browser",
 --- a/services/on_device_model/ml/BUILD.gn
 +++ b/services/on_device_model/ml/BUILD.gn
 @@ -73,7 +73,6 @@ if (use_blink || (is_ios && build_with_i
