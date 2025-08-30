@@ -63,12 +63,12 @@ UGC_COMMIT_ID="a11f5a9f6158777a208ee8142693e6f4f7309a93"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="5e93dd38611f62a7713f6cf1afb2a290ceeee11d"
+CROMITE_COMMIT_ID="bd40fa13415ffd7c7517d6c7949cc47e5ba0b641"
 
 # declare -A CHROMIUM_COMMITS=(
 # 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
 # 	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="." 
+# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 # )
 
 UGC_PV="${PV/_p/-}"
@@ -522,10 +522,11 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
-		"${FILESDIR}/chromium-139-crabby.patch"
+		"${FILESDIR}/chromium-140-crabby.patch"
 		"${FILESDIR}/chromium-140-no-rust.patch"
 		"${FILESDIR}/chromium-140-fontations.patch"
 		"${FILESDIR}/chromium-140-gcc.patch"
+		"${FILESDIR}/chromium-140-ml_number.patch"
 	)
 
 	#shopt -s globstar nullglob
@@ -565,6 +566,7 @@ src_prepare() {
 
 	ewarn
 	ewarn "Fontations Rust font stack is disabled"
+	ewarn "Profile importer is disabled"
 	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
 
@@ -1352,7 +1354,6 @@ src_configure() {
 
 	# Disable rust for now; it's only used for testing and we don't need the additional bdep
 	myconf_gn+=" enable_rust=false"
-	myconf_gn+=" enable_rust_png=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=$(usex debug true false)"

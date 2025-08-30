@@ -1,0 +1,12 @@
+--- a/services/webnn/public/cpp/ml_number.cc
++++ b/services/webnn/public/cpp/ml_number.cc
+@@ -33,7 +33,7 @@
+ 
+ // static
+ MLNumber MLNumber::FromFloat64(double number) {
+-  return isnan(number) ? MLNumber(0.0) : MLNumber(number);
++  return std::isnan(number) ? MLNumber(0.0) : MLNumber(number);
+ }
+ 
+ // static
+

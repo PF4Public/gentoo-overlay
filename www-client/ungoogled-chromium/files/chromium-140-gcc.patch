@@ -86,6 +86,17 @@
  }
  
  // Helper function to check if entry is present in local database (local-side
+--- a/components/autofill/core/browser/geo/generate_country_native_names.cc
++++ b/components/autofill/core/browser/geo/generate_country_native_names.cc
+@@ -84,7 +84,7 @@ void WriteCountryNativeNamesInlFile(
+       "namespace {\n\n"
+       "constexpr auto kCountryNativeNames = "
+       "base::MakeFixedFlatMap<std::u16string_view, "
+-      "std::string>({\n";
++      "const char*>({\n";
+ 
+   for (const auto& [native_name, country_code] : country_native_names) {
+     inl_file_content += "    {u\"" + base::UTF16ToUTF8(native_name) + "\", \"" +
 --- a/components/compose/core/browser/config.cc
 +++ b/components/compose/core/browser/config.cc
 @@ -46,11 +46,11 @@ std::vector<std::string> GetFieldTrialPa

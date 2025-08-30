@@ -1,14 +1,16 @@
 --- a/skia/BUILD.gn
 +++ b/skia/BUILD.gn
-@@ -8,7 +8,6 @@ import("//build/config/features.gni")
+@@ -6,9 +6,7 @@ import("//build/buildflag_header.gni")
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/features.gni")
  import("//build/config/freetype/freetype.gni")
- import("//build/config/rust.gni")
+-import("//build/config/rust.gni")
  import("//build/config/sanitizers/sanitizers.gni")
 -import("//build/rust/rust_static_library.gni")
  import("//gpu/vulkan/features.gni")
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
-@@ -33,27 +32,6 @@ buildflag_header("buildflags") {
+@@ -33,27 +31,6 @@ buildflag_header("buildflags") {
    ]
  }
  
@@ -36,7 +38,7 @@
  
  # External-facing config for dependent code.
  config("skia_config") {
-@@ -180,9 +158,6 @@ config("skia_library_config") {
+@@ -180,9 +157,6 @@ config("skia_library_config") {
      "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
    ]
  
@@ -46,7 +48,32 @@
    if (use_blink && !use_system_freetype) {
      defines += [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION_IS_BUILD_VERSION" ]
    }
-@@ -430,14 +405,6 @@ component("skia") {
+@@ -347,10 +321,8 @@ component("skia") {
+   public += skia_utils_chromium
+   public += skia_discardable_memory_chromium
+   public += skia_codec_public
+-  public += skia_codec_rust_png_public
+   public += skia_encode_public
+   public += skia_encode_png_public
+-  public += skia_encode_rust_png_public
+   public += skia_encode_webp_public
+ 
+   # The imported Skia gni source paths are made absolute by gn.
+@@ -361,13 +333,11 @@ component("skia") {
+   sources += skia_codec_shared
+   sources += skia_codec_png_base
+   sources += skia_codec_libpng_srcs
+-  sources += skia_codec_rust_png
+   sources += skia_utils_private
+   sources += skia_xps_sources
+   sources += skia_encode_srcs
+   sources += skia_encode_png_base
+   sources += skia_encode_libpng_srcs
+-  sources += skia_encode_rust_png_srcs
+   sources += skia_encode_webp_srcs
+ 
+   sources += [
+@@ -430,14 +400,6 @@ component("skia") {
        public += skia_ports_fontmgr_empty_public
      }
      sources += skia_ports_typeface_proxy_sources
@@ -61,7 +88,7 @@
    }
  
    if (is_win) {
-@@ -493,7 +460,6 @@ component("skia") {
+@@ -493,7 +455,6 @@ component("skia") {
    all_dependent_configs = [ ":skia_config" ]
  
    deps += [
@@ -69,7 +96,7 @@
      ":skcms",
      ":skia_opts",
      ":skia_switches",
-@@ -639,30 +605,6 @@ component("skia_switches") {
+@@ -639,30 +600,6 @@ component("skia_switches") {
    deps = [ "//base" ]
  }
  
@@ -100,7 +127,7 @@
  
  # Template for things that are logically part of :skia, but need to be split out
  # so custom compile flags can be applied.
-@@ -734,13 +676,7 @@ skia_source_set("skia_core_and_effects")
+@@ -734,13 +671,7 @@ skia_source_set("skia_core_and_effects")
      # skia_core_and_effects rather than the other way around.
      public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
    }
@@ -124,10 +151,32 @@
 -  return fci ? SkFontMgr_New_FCI(std::move(fci),
 -                                 SkFontScanner_Make_Fontations())
 -             : nullptr;
-+  return fci ? SkFontMgr_New_FCI(std::move(fci)) : nullptr;
++  return fci ? SkFontMgr_New_FCI(std::move(fci),SkFontScanner_Make_FreeType()) : nullptr;
  #elif BUILDFLAG(IS_FUCHSIA)
    fuchsia::fonts::ProviderSyncPtr provider;
    base::ComponentContextForProcess()->svc()->Connect(provider.NewRequest());
+--- a/skia/rusty_png_feature.cc
++++ b/skia/rusty_png_feature.cc
+@@ -39,9 +39,6 @@ BASE_FEATURE(kRustyPngFeature, "RustyPng
+ bool EncodePng(SkWStream* dst,
+                const SkPixmap& src,
+                const SkPngEncoder::Options& options) {
+-  if (IsRustyPngEnabled()) {
+-    return SkPngRustEncoder::Encode(dst, src, ConvertToRustOptions(options));
+-  }
+ 
+   return SkPngEncoder::Encode(dst, src, options);
+ }
+@@ -50,9 +47,6 @@ std::unique_ptr<SkEncoder> MakePngEncode
+     SkWStream* dst,
+     const SkPixmap& src,
+     const SkPngEncoder::Options& options) {
+-  if (IsRustyPngEnabled()) {
+-    return SkPngRustEncoder::Make(dst, src, ConvertToRustOptions(options));
+-  }
+ 
+   return SkPngEncoder::Make(dst, src, options);
+ }
 --- a/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
 +++ b/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
 @@ -27,7 +27,7 @@ sk_sp<SkTypeface> SkTypeface_Factory::Fr
@@ -245,3 +294,28 @@
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
        MakeTypefaceFallback,
  #endif
+--- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
++++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
+@@ -38,8 +38,6 @@ component("image_decoders") {
+     "png/png_image_decoder.h",
+     "png/png_image_reader.cc",
+     "png/png_image_reader.h",
+-    "png/skia_png_rust_image_decoder.cc",
+-    "png/skia_png_rust_image_decoder.h",
+     "rw_buffer.cc",
+     "rw_buffer.h",
+     "segment_reader.cc",
+--- a/third_party/blink/renderer/platform/image-decoders/png/png_decoder_factory.cc
++++ b/third_party/blink/renderer/platform/image-decoders/png/png_decoder_factory.cc
+@@ -16,11 +16,6 @@ std::unique_ptr<ImageDecoder> CreatePngI
+     ColorBehavior color_behavior,
+     wtf_size_t max_decoded_bytes,
+     wtf_size_t offset) {
+-  if (skia::IsRustyPngEnabled()) {
+-    return std::make_unique<SkiaPngRustImageDecoder>(
+-        alpha_option, color_behavior, max_decoded_bytes, offset,
+-        high_bit_depth_decoding_option);
+-  }
+ 
+   return std::make_unique<PNGImageDecoder>(
+       alpha_option, high_bit_depth_decoding_option, color_behavior,
