@@ -292,7 +292,7 @@ BDEPEND="
 		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
 		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
-	cfi? ( llvm-core/clang-runtime[sanitize] )
+	cfi? ( llvm-runtimes/clang-runtime[sanitize] )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then

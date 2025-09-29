@@ -57,7 +57,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="f4bff597601cf36b87f2bcaa3e6b7fd770a6e781"
+# UGC_COMMIT_ID="f4bff597601cf36b87f2bcaa3e6b7fd770a6e781"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -293,7 +293,7 @@ BDEPEND="
 		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
 		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
-	cfi? ( llvm-core/clang-runtime[sanitize] )
+	cfi? ( llvm-runtimes/clang-runtime[sanitize] )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
