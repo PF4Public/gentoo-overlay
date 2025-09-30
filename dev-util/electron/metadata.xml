@@ -51,6 +51,6 @@
 		<flag name="system-woff2">Use the system <pkg>media-libs/woff2</pkg> instead of the bundled one</flag>
 		<flag name="system-zstd">Use the system <pkg>app-arch/zstd</pkg> instead of the bundled one</flag>
 		<flag name="thinlto">Build with ThinLTO support. LTO (Link Time Optimization) achieves better runtime performance through whole-program analysis and cross-module optimization (highly recommended).</flag>
-		<flag name="ungoogled">Apply ungoogled-chromium modifications to chromium sources (electron sources are untouched be it better or worse). Not yet thoroughly tested! Might break electron apps or electron itself!</flag>
+		<flag name="ungoogled">Apply ungoogled-chromium modifications to chromium sources (electron sources are not modified be it better or worse). Might break electron apps or electron itself!</flag>
 	</use>
 </pkgmetadata>

@@ -1,0 +1,320 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -859,11 +859,6 @@ group("all_rust") {
+     "//third_party/cloud_authenticator/processor",
+   ]
+ 
+-  # TODO(https://crbug.com/405379314): This fails to build on some iOS ASAN
+-  # builders.
+-  if (!is_ios || !is_asan) {
+-    deps += [ "//testing/rust_gtest_interop:rust_gtest_interop_unittests" ]
+-  }
+ 
+   if (enable_rust_mojo) {
+     deps += [
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -326,6 +326,8 @@ component("base") {
+     "hash/legacy_hash.cc",
+     "hash/legacy_hash.h",
+     "json/json_common.h",
++    "json/json_parser.cc",
++    "json/json_parser.h",
+     "json/json_reader.cc",
+     "json/json_reader.h",
+     "json/json_string_value_serializer.cc",
+@@ -1060,10 +1062,6 @@ component("base") {
+   # Used by metrics/crc32
+   deps += [ "//third_party/zlib" ]
+ 
+-  deps += [
+-    ":rust_logger",
+-    "//third_party/rust/serde_json_lenient/v0_2/wrapper",
+-  ]
+ 
+   # `raw_ptr` cannot be made a component due to CRT symbol issues.
+   # Its gateway to being a component is through `//base`, so we have
+@@ -1098,14 +1096,6 @@ component("base") {
+     "//third_party/abseil-cpp:absl",
+   ]
+ 
+-  sources += [
+-    "containers/span_rust.h",
+-    "strings/string_view_rust.h",
+-  ]
+-
+-  # Base provides conversions between CXX types and base types (e.g.
+-  # std::string_view).
+-  public_deps += [ "//build/rust:cxx_cppdeps" ]
+ 
+   # Needed for <atomic> if using newer C++ library than sysroot, except if
+   # building inside the cros_sdk environment - use host_toolchain as a
+@@ -1568,8 +1558,6 @@ component("base") {
+     "files/scoped_temp_file.h",
+     "json/json_file_value_serializer.cc",
+     "json/json_file_value_serializer.h",
+-    "logging/rust_log_integration.cc",
+-    "logging/rust_log_integration.h",
+     "memory/discardable_memory.cc",
+     "memory/discardable_memory.h",
+     "memory/discardable_memory_allocator.cc",
+@@ -3727,11 +3715,6 @@ test("base_unittests") {
+     sources += [ "location_unittest.cc" ]
+   }
+ 
+-  sources += [
+-    "containers/span_rust_unittest.cc",
+-    "strings/string_piece_rust_unittest.cc",
+-  ]
+-
+   if (use_safe_libcxx || use_safe_libstdcxx) {
+     sources += [ "libcpp_hardening_test.cc" ]
+   }
+@@ -3784,8 +3767,6 @@ test("base_unittests") {
+     deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
+   }
+ 
+-  deps += [ "//build/rust:cxx_cppdeps" ]
+-
+   data_deps = [
+     "//base/test:immediate_crash_test_helper",
+     "//base/test:test_child_process",
+--- a/base/json/json_reader.cc
++++ b/base/json/json_reader.cc
+@@ -12,115 +12,8 @@
+ #include "base/strings/strcat.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "build/build_config.h"
+-#include "base/strings/string_view_rust.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/functions.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/lib.rs.h"
+-
+-namespace {
+-const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
+-}  // namespace
+-
+-// This namespace defines FFI-friendly functions that are be called from Rust in
+-// //third_party/rust/serde_json_lenient/v0_2/wrapper/.
+-namespace serde_json_lenient {
+-
+-base::Value::List& list_append_list(base::Value::List& ctx) {
+-  ctx.Append(base::Value::List());
+-  return ctx.back().GetList();
+-}
+-
+-base::Value::Dict& list_append_dict(base::Value::List& ctx) {
+-  ctx.Append(base::Value::Dict());
+-  return ctx.back().GetDict();
+-}
+-
+-void list_append_none(base::Value::List& ctx) {
+-  ctx.Append(base::Value());
+-}
+ 
+-void list_append_bool(base::Value::List& ctx, bool val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_i32(base::Value::List& ctx, int32_t val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_f64(base::Value::List& ctx, double val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_str(base::Value::List& ctx, rust::Str val) {
+-  ctx.Append(std::string(val));
+-}
+-
+-base::Value::List& dict_set_list(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::List());
+-  return value->GetList();
+-}
+-
+-base::Value::Dict& dict_set_dict(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::Dict());
+-  return value->GetDict();
+-}
+-
+-void dict_set_none(base::Value::Dict& ctx, rust::Str key) {
+-  ctx.Set(base::RustStrToStringView(key), base::Value());
+-}
+-
+-void dict_set_bool(base::Value::Dict& ctx, rust::Str key, bool val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_i32(base::Value::Dict& ctx, rust::Str key, int32_t val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_f64(base::Value::Dict& ctx, rust::Str key, double val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_str(base::Value::Dict& ctx, rust::Str key, rust::Str val) {
+-  ctx.Set(base::RustStrToStringView(key), std::string(val));
+-}
+-
+-namespace {
+-
+-base::JSONReader::Result DecodeJSONInRust(std::string_view json,
+-                                          int options,
+-                                          size_t max_depth) {
+-  const JsonOptions rust_options = {
+-      .allow_trailing_commas =
+-          (options & base::JSON_ALLOW_TRAILING_COMMAS) != 0,
+-      .replace_invalid_characters =
+-          (options & base::JSON_REPLACE_INVALID_CHARACTERS) != 0,
+-      .allow_comments = (options & base::JSON_ALLOW_COMMENTS) != 0,
+-      .allow_newlines = (options & base::JSON_ALLOW_NEWLINES_IN_STRINGS) != 0,
+-      .allow_vert_tab = (options & base::JSON_ALLOW_VERT_TAB) != 0,
+-      .allow_x_escapes = (options & base::JSON_ALLOW_X_ESCAPES) != 0,
+-      .max_depth = max_depth,
+-  };
+-
+-  base::Value::List list;
+-  DecodeError error;
+-  bool ok =
+-      decode_json(base::StringViewToRustSlice(json), rust_options, list, error);
+-
+-  if (!ok) {
+-    return base::unexpected(base::JSONReader::Error{
+-        .message = std::string(error.message),
+-        .line = error.line,
+-        .column = error.column,
+-    });
+-  }
+-
+-  return std::move(list.back());
+-}
+-
+-}  // namespace
+-}  // namespace serde_json_lenient
++#include "base/json/json_parser.h"
+ 
+ namespace base {
+ 
+@@ -133,14 +26,8 @@ std::string JSONReader::Error::ToString(
+ std::optional<Value> JSONReader::Read(std::string_view json,
+                                       int options,
+                                       size_t max_depth) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-
+-  JSONReader::Result result =
+-      serde_json_lenient::DecodeJSONInRust(json, options, max_depth);
+-  if (!result.has_value()) {
+-    return std::nullopt;
+-  }
+-  return std::move(*result);
++  internal::JSONParser parser(options, max_depth);
++  return parser.Parse(json);
+ }
+ 
+ // static
+@@ -169,9 +56,17 @@ std::optional<Value::List> JSONReader::R
+ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+     std::string_view json,
+     int options) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-  return serde_json_lenient::DecodeJSONInRust(json, options,
+-                                              internal::kAbsoluteMaxDepth);
++  internal::JSONParser parser(options);
++  auto value = parser.Parse(json);
++  if (!value) {
++    Error error;
++    error.message = parser.GetErrorMessage();
++    error.line = parser.error_line();
++    error.column = parser.error_column();
++    return base::unexpected(std::move(error));
++  }
++
++  return std::move(*value);
+ }
+ 
+ }  // namespace base
+--- a/base/logging.cc
++++ b/base/logging.cc
+@@ -33,7 +33,6 @@
+ #include "base/debug/task_trace.h"
+ #include "base/functional/callback.h"
+ #include "base/immediate_crash.h"
+-#include "base/logging/rust_logger.rs.h"
+ #include "base/no_destructor.h"
+ #include "base/path_service.h"
+ #include "base/pending_task.h"
+@@ -506,7 +505,7 @@ bool BaseInitLoggingImpl(const LoggingSe
+ #endif
+ 
+   // Connects Rust logging with the //base logging functionality.
+-  internal::init_rust_log_crate();
++  //internal::init_rust_log_crate();
+ 
+   // Ignore file options unless logging to file is set.
+   if ((g_logging_destination & LOG_TO_FILE) == 0) {
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -73,7 +73,6 @@ if (use_blink || (is_ios && build_with_i
+     ]
+     if (enable_constraints) {
+       defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
+-      deps += [ "//third_party/rust/llguidance/v1:lib" ]
+     }
+     if (use_blink) {
+       deps += [ "//gpu/config" ]
+--- a/services/on_device_model/ml/chrome_ml.cc
++++ b/services/on_device_model/ml/chrome_ml.cc
+@@ -24,7 +24,6 @@
+ #include "third_party/dawn/include/dawn/dawn_proc.h"
+ #include "third_party/dawn/include/dawn/native/DawnNative.h"
+ #include "third_party/dawn/include/dawn/webgpu_cpp.h"
+-#include "third_party/rust/chromium_crates_io/vendor/llguidance-v1/llguidance.h"
+ 
+ #if !BUILDFLAG(IS_IOS)
+ #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/chrome_debug_urls.cc
++++ b/third_party/blink/common/chrome_debug_urls.cc
+@@ -12,7 +12,6 @@
+ #include "base/threading/platform_thread.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/common/crash_helpers.h"
+-#include "third_party/blink/common/rust_crash/src/lib.rs.h"
+ #include "url/gurl.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -118,7 +117,7 @@ NOINLINE void MaybeTriggerAsanError(cons
+     // Ensure that ASAN works even in Rust code.
+     LOG(ERROR) << "Intentionally causing ASAN heap overflow in Rust"
+                << " because user navigated to " << url.spec();
+-    crash_in_rust_with_overflow();
++    //crash_in_rust_with_overflow();
+   }
+ }
+ #endif  // ADDRESS_SANITIZER
+@@ -138,7 +137,7 @@ void HandleChromeDebugURL(const GURL& ur
+   } else if (url == kChromeUICrashRustURL) {
+     // Cause a typical crash in Rust code, so we can test that call stack
+     // collection and symbol mangling work across the language boundary.
+-    crash_in_rust();
++    //crash_in_rust();
+   } else if (url == kChromeUIDumpURL) {
+     // This URL will only correctly create a crash dump file if content is
+     // hosted in a process that has correctly called
+--- a/third_party/breakpad/BUILD.gn
++++ b/third_party/breakpad/BUILD.gn
+@@ -746,12 +746,6 @@ if (is_linux || is_chromeos || is_androi
+ 
+       include_dirs = [ "breakpad/src" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-
+       libs = [ "z" ]
+     }
+   } else if (current_toolchain == default_toolchain) {
