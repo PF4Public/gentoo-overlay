@@ -1571,7 +1571,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-140-fontations.patch"
 		"${FILESDIR}/chromium-140-gcc.patch"
 		"${FILESDIR}/chromium-140-ml_number.patch"
-		"${FILESDIR}/fix-pdf-r1.patch"
 	)
 
 	#shopt -s globstar nullglob
