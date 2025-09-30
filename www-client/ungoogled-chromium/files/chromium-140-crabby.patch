@@ -1,6 +1,6 @@
 --- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
 +++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
-@@ -80,11 +80,10 @@ component("image_decoders") {
+@@ -78,11 +78,10 @@ component("image_decoders") {
  
    if (enable_av1_decoder) {
      sources += [
@@ -15,7 +15,7 @@
    }
  }
  
-@@ -124,7 +123,7 @@ source_set("unit_tests") {
+@@ -122,7 +121,7 @@ source_set("unit_tests") {
    }
  
    if (enable_av1_decoder) {

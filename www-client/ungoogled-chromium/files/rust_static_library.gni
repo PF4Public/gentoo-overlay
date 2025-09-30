@@ -1,0 +1,60 @@
+template("rust_static_library") {
+    if (defined(invoker.deps)) {
+        deps_ = invoker.deps
+        deps_ = []
+    }
+    if (defined(invoker.public_deps)) {
+        public_deps_ = invoker.public_deps
+        public_deps_ = []
+    }
+    if (defined(invoker.visibility)) {
+        visibility_ = invoker.visibility
+        visibility_ = []
+    }
+    if (defined(invoker.sources)) {
+        sources_ = invoker.sources
+        sources_ = []
+    }
+    if (defined(invoker.crate_root)) {
+        crate_root_ = invoker.crate_root
+        crate_root_ = []
+    }
+    if (defined(invoker.crate_name)) {
+        crate_name_ = invoker.crate_name
+        crate_name_ = []
+    }
+    if (defined(invoker.allow_unsafe)) {
+        allow_unsafe_ = invoker.allow_unsafe
+        allow_unsafe_ = []
+    }
+    if (defined(invoker.cxx_bindings)) {
+        cxx_bindings_ = invoker.cxx_bindings
+        cxx_bindings_ = []
+    }
+    if (defined(invoker.no_chromium_prelude)) {
+        no_chromium_prelude_ = invoker.no_chromium_prelude
+        no_chromium_prelude_ = []
+    }
+    if (defined(invoker.no_allocator_crate)) {
+        no_allocator_crate_ = invoker.no_allocator_crate
+        no_allocator_crate_ = []
+    }
+    if (defined(invoker.bindgen_deps)) {
+        bindgen_deps_ = invoker.bindgen_deps
+        bindgen_deps_ = []
+    }
+    if (defined(invoker.rustflags)) {
+        rustflags_ = invoker.rustflags
+        rustflags_ = []
+    }
+    if (defined(invoker.testonly)) {
+        testonly_ = invoker.testonly
+        testonly_ = []
+    }
+    if (defined(invoker.features)) {
+        features_ = invoker.features
+        features_ = []
+    }
+    group(target_name) {
+    }
+}

@@ -38,9 +38,9 @@
  
  # External-facing config for dependent code.
  config("skia_config") {
-@@ -180,9 +157,6 @@ config("skia_library_config") {
-     "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
-   ]
+@@ -184,9 +161,6 @@ config("skia_library_config") {
+     defines += [ "SK_CODEC_DECODES_ICO" ]
+   }
  
 -  if (use_blink) {
 -    defines += [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
@@ -48,7 +48,7 @@
    if (use_blink && !use_system_freetype) {
      defines += [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION_IS_BUILD_VERSION" ]
    }
-@@ -347,10 +321,8 @@ component("skia") {
+@@ -351,10 +325,8 @@ component("skia") {
    public += skia_utils_chromium
    public += skia_discardable_memory_chromium
    public += skia_codec_public
@@ -59,7 +59,7 @@
    public += skia_encode_webp_public
  
    # The imported Skia gni source paths are made absolute by gn.
-@@ -361,13 +333,11 @@ component("skia") {
+@@ -365,13 +337,11 @@ component("skia") {
    sources += skia_codec_shared
    sources += skia_codec_png_base
    sources += skia_codec_libpng_srcs
@@ -73,7 +73,7 @@
    sources += skia_encode_webp_srcs
  
    sources += [
-@@ -430,14 +400,6 @@ component("skia") {
+@@ -434,14 +404,6 @@ component("skia") {
        public += skia_ports_fontmgr_empty_public
      }
      sources += skia_ports_typeface_proxy_sources
@@ -88,7 +88,7 @@
    }
  
    if (is_win) {
-@@ -493,7 +455,6 @@ component("skia") {
+@@ -497,7 +459,6 @@ component("skia") {
    all_dependent_configs = [ ":skia_config" ]
  
    deps += [
@@ -96,7 +96,7 @@
      ":skcms",
      ":skia_opts",
      ":skia_switches",
-@@ -639,30 +600,6 @@ component("skia_switches") {
+@@ -643,30 +604,6 @@ component("skia_switches") {
    deps = [ "//base" ]
  }
  
@@ -127,7 +127,7 @@
  
  # Template for things that are logically part of :skia, but need to be split out
  # so custom compile flags can be applied.
-@@ -734,13 +671,7 @@ skia_source_set("skia_core_and_effects")
+@@ -738,13 +675,7 @@ skia_source_set("skia_core_and_effects")
      # skia_core_and_effects rather than the other way around.
      public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
    }

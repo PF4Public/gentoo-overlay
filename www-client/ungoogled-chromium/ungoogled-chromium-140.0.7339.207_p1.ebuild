@@ -750,6 +750,9 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
+	cp -fy "${FILESDIR}/rust_static_library.gni" build/rust || die
+	cp -fy "${FILESDIR}/json_parser.*" base/json || die
+
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"ungoogled-chromium";+;h};${x;/./{x;q0};x;q1}' \
 			chrome/common/chrome_paths_linux.cc || die
@@ -1570,6 +1573,7 @@ src_configure() {
 	myconf_gn+=" enable_video_effects=false"
 	myconf_gn+=" enable_constraints=false"
 	myconf_gn+=" rtc_rusty_base64=false"
+	myconf_gn+=" enable_rust_mojo=false"
 	myconf_gn+=" v8_enable_temporal_support=false"
 	myconf_gn+=" media_use_symphonia=false"
 
