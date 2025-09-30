@@ -750,8 +750,8 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
-	cp -fy "${FILESDIR}/rust_static_library.gni" build/rust || die
-	cp -fy "${FILESDIR}/json_parser.*" base/json || die
+	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
+	cp -f "${FILESDIR}/json_parser.*" base/json || die
 
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"ungoogled-chromium";+;h};${x;/./{x;q0};x;q1}' \
