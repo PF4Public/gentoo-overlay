@@ -2032,9 +2032,10 @@ git_wrapper () {
 
 filter_wrapper () {
 	einfo "Applying ${i##*/}"
+	#? fuzz factor of 3 is OK?
 	if [ ! -z "${NODIE}" ]; then
-		filterdiff -p1 "${@:2}" < "$1" | patch -p1
+		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1
 	else
-		filterdiff -p1 "${@:2}" < "$1" | patch -p1 || die
+		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1 || die
 	fi
 }
