@@ -57,13 +57,13 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="fe55edf603d5d9b2bb5dddbe76c666bcf230207c"
+# UGC_COMMIT_ID="fe55edf603d5d9b2bb5dddbe76c666bcf230207c"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="97edd08128c2e060b8d78c8eb93c52aba931499f"
+CROMITE_COMMIT_ID="b2824377c30847f42e00c6ace66d91fa516b5f51"
 
 # declare -A CHROMIUM_COMMITS=(
 # 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
