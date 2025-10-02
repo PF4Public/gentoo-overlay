@@ -1555,7 +1555,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
-		"${FILESDIR}/chromium-123-qrcode.patch"
+		"${FILESDIR}/chromium-141-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
 		"${FILESDIR}/chromium-140-gtk-fix-prefers-color-scheme-query.patch"
