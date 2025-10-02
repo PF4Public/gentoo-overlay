@@ -1,0 +1,64 @@
+--- a/shell/browser/browser_process_impl.h
++++ b/shell/browser/browser_process_impl.h
+@@ -75,7 +75,6 @@
+   DownloadRequestLimiter* download_request_limiter() override;
+   BackgroundModeManager* background_mode_manager() override;
+   StatusTray* status_tray() override;
+-  safe_browsing::SafeBrowsingService* safe_browsing_service() override;
+   subresource_filter::RulesetService* subresource_filter_ruleset_service()
+       override;
+   federated_learning::FlocSortingLshClustersService*
+--- a/shell/browser/browser_process_impl.cc
++++ b/shell/browser/browser_process_impl.cc
+@@ -247,11 +247,6 @@
+   return nullptr;
+ }
+ 
+-safe_browsing::SafeBrowsingService*
+-BrowserProcessImpl::safe_browsing_service() {
+-  return nullptr;
+-}
+-
+ subresource_filter::RulesetService*
+ BrowserProcessImpl::subresource_filter_ruleset_service() {
+   return nullptr;
+--- a/shell/browser/ui/file_dialog.h
++++ b/shell/browser/ui/file_dialog.h
+@@ -5,6 +5,7 @@
+ #ifndef ELECTRON_SHELL_BROWSER_UI_FILE_DIALOG_H_
+ #define ELECTRON_SHELL_BROWSER_UI_FILE_DIALOG_H_
+ 
++#include <cstdint>
+ #include <optional>
+ #include <string>
+ #include <utility>
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -1424,7 +1424,7 @@
+     ":licenses",
+   ]
+   if (is_linux) {
+-    if (is_official_build) {
++    if (!is_official_build) {
+       data_deps += [
+         ":strip_chrome_crashpad_handler",
+         ":strip_chrome_sandbox",
+@@ -1481,7 +1481,7 @@
+ 
+ dist_zip("electron_mksnapshot_zip") {
+   data_deps = mksnapshot_deps
+-  if (is_linux && is_official_build) {
++  if (!is_linux && is_official_build) {
+     data_deps += [
+       ":strip_libEGL_shlib",
+       ":strip_libGLESv2_shlib",
+@@ -1616,7 +1616,7 @@
+   public_deps = [ ":tar_node_headers" ]
+ }
+ 
+-if (is_linux && is_official_build) {
++if (!is_linux && is_official_build) {
+   strip_binary("strip_electron_binary") {
+     binary_input = "$root_out_dir/$electron_project_name"
+     symbol_output = "$root_out_dir/debug/$electron_project_name.debug"
+
