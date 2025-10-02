@@ -55,6 +55,8 @@ template("rust_static_library") {
         features_ = invoker.features
         features_ = []
     }
-    group(target_name) {
-    }
+    group(target_name) {}
+}
+set_defaults("rust_static_library") {
+  configs = default_compiler_configs
 }

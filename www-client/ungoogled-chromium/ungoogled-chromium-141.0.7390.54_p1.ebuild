@@ -522,7 +522,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
-		"${FILESDIR}/chromium-140-crabby.patch"
+		"${FILESDIR}/chromium-141-crabby.patch"
 		"${FILESDIR}/chromium-141-no-rust.patch"
 		"${FILESDIR}/chromium-141-fontations.patch"
 		"${FILESDIR}/chromium-141-gcc.patch"
@@ -752,6 +752,8 @@ src_prepare() {
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
 	cp -f "${FILESDIR}/json_parser.cc" base/json || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
+	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
+	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
 
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"ungoogled-chromium";+;h};${x;/./{x;q0};x;q1}' \
