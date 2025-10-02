@@ -613,7 +613,7 @@ src_prepare() {
 
 	if use convert-dict ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
+			"${FILESDIR}/chromium-ucf-dict-utility-r2.patch"
 		)
 	fi
 
