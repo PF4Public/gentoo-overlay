@@ -1,0 +1,12 @@
+--- a/chrome/browser/renderer_preferences_util.cc	2025-10-02 10:02:51.275119654 +0200
++++ b/chrome/browser/renderer_preferences_util.cc	2025-10-02 10:03:20.725461352 +0200
+@@ -127,7 +127,8 @@
+ 
+ #if BUILDFLAG(IS_LINUX)
+   if (auto* linux_ui_theme = ui::LinuxUiTheme::GetForProfile(profile)) {
+-    if (ThemeServiceFactory::GetForProfile(profile)->UsingSystemTheme()) {
++    if (ThemeServiceFactory::GetForProfile(profile) &&
++        ThemeServiceFactory::GetForProfile(profile)->UsingSystemTheme()) {
+       linux_ui_theme->GetFocusRingColor(&prefs->focus_ring_color);
+       linux_ui_theme->GetActiveSelectionBgColor(
+           &prefs->active_selection_bg_color);

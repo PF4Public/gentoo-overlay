@@ -1,0 +1,322 @@
+--- a/skia/BUILD.gn
++++ b/skia/BUILD.gn
+@@ -6,9 +6,7 @@ import("//build/buildflag_header.gni")
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/features.gni")
+ import("//build/config/freetype/freetype.gni")
+-import("//build/config/rust.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+-import("//build/rust/rust_static_library.gni")
+ import("//gpu/vulkan/features.gni")
+ import("//testing/libfuzzer/fuzzer_test.gni")
+ import("//testing/test.gni")
+@@ -32,28 +32,6 @@ buildflag_header("buildflags") {
+   ]
+ }
+ 
+-source_set("path_bridge") {
+-  sources = skia_fontations_path_bridge_sources
+-}
+-
+-rust_static_library("bridge_rust_side") {
+-  allow_unsafe = true
+-  crate_root = skia_fontations_bridge_root
+-  sources = skia_ports_fontations_bridge_rust_side_sources
+-  cxx_bindings = [ skia_fontations_bridge_root ]
+-  deps = [
+-    ":path_bridge",
+-    "//third_party/rust/font_types/v0_9:lib",
+-    "//third_party/rust/read_fonts/v0_32:lib",
+-    "//third_party/rust/skrifa/v0_34:lib",
+-  ]
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+-
+ # External-facing config for dependent code.
+ config("skia_config") {
+   defines = [
+@@ -184,9 +161,6 @@ config("skia_library_config") {
+     defines += [ "SK_CODEC_DECODES_ICO" ]
+   }
+ 
+-  if (use_blink) {
+-    defines += [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
+-  }
+   if (use_blink && !use_system_freetype) {
+     defines += [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION_IS_BUILD_VERSION" ]
+   }
+@@ -351,10 +325,8 @@ component("skia") {
+   public += skia_utils_chromium
+   public += skia_discardable_memory_chromium
+   public += skia_codec_public
+-  public += skia_codec_rust_png_public
+   public += skia_encode_public
+   public += skia_encode_png_public
+-  public += skia_encode_rust_png_public
+   public += skia_encode_webp_public
+ 
+   # The imported Skia gni source paths are made absolute by gn.
+@@ -365,13 +337,11 @@ component("skia") {
+   sources += skia_codec_shared
+   sources += skia_codec_png_base
+   sources += skia_codec_libpng_srcs
+-  sources += skia_codec_rust_png
+   sources += skia_utils_private
+   sources += skia_xps_sources
+   sources += skia_encode_srcs
+   sources += skia_encode_png_base
+   sources += skia_encode_libpng_srcs
+-  sources += skia_encode_rust_png_srcs
+   sources += skia_encode_webp_srcs
+ 
+   sources += [
+@@ -434,14 +404,6 @@ component("skia") {
+       public += skia_ports_fontmgr_empty_public
+     }
+     sources += skia_ports_typeface_proxy_sources
+-    sources += skia_ports_typeface_fontations_sources
+-    sources += skia_ports_fontmgr_fontations_sources
+-
+-    # Fontations Rust/C++ bridge interfaces.
+-    deps += [
+-      ":bridge_rust_side",
+-      ":path_bridge",
+-    ]
+   }
+ 
+   if (is_win) {
+@@ -497,7 +459,6 @@ component("skia") {
+   all_dependent_configs = [ ":skia_config" ]
+ 
+   deps += [
+-    ":rust_png_ffi",
+     ":skcms",
+     ":skia_opts",
+     ":skia_switches",
+@@ -643,30 +604,6 @@ component("skia_switches") {
+   deps = [ "//base" ]
+ }
+ 
+-rust_static_library("rust_png_ffi") {
+-  visibility = [ ":*" ]
+-  allow_unsafe = true  # For FFI
+-  crate_root = skia_codec_rust_png_ffi_crate_root
+-  sources = skia_codec_rust_png_ffi_rs_srcs
+-  cxx_bindings = skia_codec_rust_png_ffi_cxx_bridge_srcs
+-  public_deps = [ ":rust_png_ffi_cpp" ]
+-  deps = [ "//third_party/rust/png/v0_18:lib" ]
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+-
+-source_set("rust_png_ffi_cpp") {
+-  visibility = [ ":*" ]
+-  public = skia_codec_rust_png_ffi_cpp_hdrs
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+-  configs += [
+-    ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+-  ]
+-}
+ 
+ # Template for things that are logically part of :skia, but need to be split out
+ # so custom compile flags can be applied.
+@@ -738,13 +675,7 @@ skia_source_set("skia_core_and_effects")
+     # skia_core_and_effects rather than the other way around.
+     public_deps = [ "//third_party/dawn/include/dawn:cpp_headers" ]
+   }
+-  if (use_blink) {
+-    # Fontations Rust/C++ bridge interfaces, needed by SkTypeface.
+-    deps += [
+-      ":bridge_rust_side",
+-      ":path_bridge",
+-    ]
+-  }
++
+   visibility = [ ":skia" ]
+ }
+ 
+--- a/skia/ext/font_utils.cc
++++ b/skia/ext/font_utils.cc
+@@ -66,9 +66,7 @@ static sk_sp<SkFontMgr> fontmgr_factory(
+   return SkFontMgr_New_CoreText(nullptr);
+ #elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+   sk_sp<SkFontConfigInterface> fci(SkFontConfigInterface::RefGlobal());
+-  return fci ? SkFontMgr_New_FCI(std::move(fci),
+-                                 SkFontScanner_Make_Fontations())
+-             : nullptr;
++  return fci ? SkFontMgr_New_FCI(std::move(fci),SkFontScanner_Make_FreeType()) : nullptr;
+ #elif BUILDFLAG(IS_FUCHSIA)
+   fuchsia::fonts::ProviderSyncPtr provider;
+   base::ComponentContextForProcess()->svc()->Connect(provider.NewRequest());
+--- a/skia/rusty_png_feature.cc
++++ b/skia/rusty_png_feature.cc
+@@ -39,9 +39,6 @@ BASE_FEATURE(kRustyPngFeature, "RustyPng
+ bool EncodePng(SkWStream* dst,
+                const SkPixmap& src,
+                const SkPngEncoder::Options& options) {
+-  if (IsRustyPngEnabled()) {
+-    return SkPngRustEncoder::Encode(dst, src, ConvertToRustOptions(options));
+-  }
+ 
+   return SkPngEncoder::Encode(dst, src, options);
+ }
+@@ -50,9 +47,6 @@ std::unique_ptr<SkEncoder> MakePngEncode
+     SkWStream* dst,
+     const SkPixmap& src,
+     const SkPngEncoder::Options& options) {
+-  if (IsRustyPngEnabled()) {
+-    return SkPngRustEncoder::Make(dst, src, ConvertToRustOptions(options));
+-  }
+ 
+   return SkPngEncoder::Make(dst, src, options);
+ }
+--- a/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
++++ b/third_party/blink/renderer/platform/fonts/skia/sktypeface_factory.cc
+@@ -27,7 +27,7 @@ sk_sp<SkTypeface> SkTypeface_Factory::Fr
+   SkFontConfigInterface::FontIdentity font_identity;
+   font_identity.fID = config_id;
+   font_identity.fTTCIndex = ttc_index;
+-  return fci->makeTypeface(font_identity, SkFontMgr_New_Fontations_Empty());
++  return fci->makeTypeface(font_identity, skia::DefaultFontMgr());
+ #else
+   NOTREACHED();
+ #endif
+@@ -39,8 +39,7 @@ sk_sp<SkTypeface> SkTypeface_Factory::Fr
+     int ttc_index) {
+ #if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA) && \
+     !BUILDFLAG(IS_APPLE)
+-  return SkFontMgr_New_Fontations_Empty()->makeFromFile(filename.c_str(),
+-                                                        ttc_index);
++  return skia::DefaultFontMgr()->makeFromFile(filename.c_str(), ttc_index);
+ #else
+   NOTREACHED();
+ #endif
+--- a/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
++++ b/third_party/blink/renderer/platform/fonts/web_font_typeface_factory.cc
+@@ -11,7 +11,6 @@
+ #include "third_party/blink/renderer/platform/fonts/font_cache.h"
+ #include "third_party/blink/renderer/platform/fonts/opentype/font_format_check.h"
+ #include "third_party/skia/include/core/SkTypeface.h"
+-#include "third_party/skia/include/ports/SkTypeface_fontations.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+ #include "third_party/blink/renderer/platform/fonts/win/dwrite_font_format_support.h"
+@@ -37,11 +36,7 @@ bool IsWin() {
+ }
+ 
+ bool IsFreeTypeSystemRasterizer() {
+-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE)
+   return true;
+-#else
+-  return false;
+-#endif
+ }
+ 
+ sk_sp<SkTypeface> MakeTypefaceDefaultFontMgr(sk_sp<SkData> data) {
+@@ -49,13 +44,7 @@ sk_sp<SkTypeface> MakeTypefaceDefaultFon
+   return FontCache::Get().FontManager()->makeFromData(data, 0);
+ #endif
+ 
+-#if BUILDFLAG(IS_APPLE)
+   return skia::DefaultFontMgr()->makeFromData(data, 0);
+-#endif
+-
+-#if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE))
+-  return SkTypeface_Make_Fontations(data, SkFontArguments());
+-#endif
+ }
+ 
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+@@ -64,10 +53,6 @@ sk_sp<SkTypeface> MakeTypefaceFallback(s
+ }
+ #endif
+ 
+-sk_sp<SkTypeface> MakeTypefaceFontations(sk_sp<SkData> data) {
+-  return SkTypeface_Make_Fontations(data, SkFontArguments());
+-}
+-
+ sk_sp<SkTypeface> MakeVariationsTypeface(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+@@ -87,9 +72,6 @@ sk_sp<SkTypeface> MakeSbixTypeface(
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+   // If we're on a OS with FreeType as backend, or on Windows, where we used to
+   // use FreeType for SBIX, switch to Fontations for SBIX.
+-  if (IsFreeTypeSystemRasterizer() || IsWin()) {
+-    return instantiator.make_fontations(data);
+-  }
+ 
+   // Remaining case, on Mac, CoreText can handle creating SBIX fonts.
+   return instantiator.make_system(data);
+@@ -98,29 +80,21 @@ sk_sp<SkTypeface> MakeSbixTypeface(
+ sk_sp<SkTypeface> MakeColrV0Typeface(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-  if (IsWin()) {
+     // On Windows Skia's DirectWrite
+     // backend handles COLRv0.
+     return instantiator.make_system(data);
+-  }
+-  return instantiator.make_fontations(data);
+ }
+ 
+ sk_sp<SkTypeface> MakeColrV0VariationsTypeface(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-#if BUILDFLAG(IS_WIN)
+-  if (DWriteVersionSupportsVariations()) {
+     return instantiator.make_system(data);
+-  }
+-#endif
+-  return instantiator.make_fontations(data);
+ }
+ 
+ sk_sp<SkTypeface> MakeFontationsFallbackPreferred(
+     sk_sp<SkData> data,
+     const WebFontTypefaceFactory::FontInstantiator& instantiator) {
+-  return instantiator.make_fontations(data);
++  return instantiator.make_system(data);
+ }
+ 
+ }  // namespace
+@@ -130,7 +104,6 @@ bool WebFontTypefaceFactory::CreateTypef
+   const FontFormatCheck format_check(data);
+   const FontInstantiator instantiator = {
+       MakeTypefaceDefaultFontMgr,
+-      MakeTypefaceFontations,
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+       MakeTypefaceFallback,
+ #endif
+--- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
++++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
+@@ -38,8 +38,6 @@ component("image_decoders") {
+     "png/png_image_decoder.h",
+     "png/png_image_reader.cc",
+     "png/png_image_reader.h",
+-    "png/skia_png_rust_image_decoder.cc",
+-    "png/skia_png_rust_image_decoder.h",
+     "rw_buffer.cc",
+     "rw_buffer.h",
+     "segment_reader.cc",
+--- a/third_party/blink/renderer/platform/image-decoders/png/png_decoder_factory.cc
++++ b/third_party/blink/renderer/platform/image-decoders/png/png_decoder_factory.cc
+@@ -16,11 +16,6 @@ std::unique_ptr<ImageDecoder> CreatePngI
+     ColorBehavior color_behavior,
+     wtf_size_t max_decoded_bytes,
+     wtf_size_t offset) {
+-  if (skia::IsRustyPngEnabled()) {
+-    return std::make_unique<SkiaPngRustImageDecoder>(
+-        alpha_option, color_behavior, max_decoded_bytes, offset,
+-        high_bit_depth_decoding_option);
+-  }
+ 
+   return std::make_unique<PNGImageDecoder>(
+       alpha_option, high_bit_depth_decoding_option, color_behavior,
