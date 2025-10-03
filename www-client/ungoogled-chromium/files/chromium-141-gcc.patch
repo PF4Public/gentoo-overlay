@@ -20,7 +20,7 @@
    std::ranges::sort(data, comp);
 --- a/base/synchronization/lock_impl_posix.cc
 +++ b/base/synchronization/lock_impl_posix.cc
-@@ -21,6 +21,7 @@
+@@ -22,6 +22,7 @@
  #include "base/android/background_thread_pool_field_trial.h"
  #endif
  
@@ -28,7 +28,7 @@
  // On Android, `pthread_mutexattr_setprotocol()` is only defined in bionic
  // starting with API level 28. Make it a weak import, so that we can compile.
  extern "C" {
-@@ -28,6 +29,7 @@ int __attribute__((weak)) pthread_mutexa
+@@ -29,6 +30,7 @@ int __attribute__((weak)) pthread_mutexa
      pthread_mutexattr_t* _Nonnull __attr,
      int __protocol);
  }
@@ -38,7 +38,7 @@
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -2022,6 +2022,14 @@ config("default_warnings") {
+@@ -2016,6 +2016,14 @@ config("default_warnings") {
    ldflags = []
    configs = []
  
@@ -55,7 +55,7 @@
        arflags = [ "/WX" ]
 --- a/cc/tiles/gpu_image_decode_cache.cc
 +++ b/cc/tiles/gpu_image_decode_cache.cc
-@@ -1134,7 +1134,7 @@ GpuImageDecodeCache::ImageData::ImageDat
+@@ -1123,7 +1123,7 @@ GpuImageDecodeCache::ImageData::ImageDat
      last_use = base::TimeTicks::Now();
    }
    if (speculative_decode) {
@@ -64,6 +64,50 @@
      speculative_decode_usage_stats_->speculative_decode_mip_level =
          upload_scale_mip_level;
      TRACE_EVENT_INSTANT2(TRACE_DISABLED_BY_DEFAULT("loading"),
+--- a/chrome/browser/ai/ai_language_model.cc
++++ b/chrome/browser/ai/ai_language_model.cc
+@@ -506,7 +506,7 @@ AILanguageModel::GetSupportedLanguageBas
+   const base::FeatureParam<std::string> kAIPromptAPILanguagesEnabled{
+       &blink::features::kAIPromptAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_rewriter.cc
++++ b/chrome/browser/ai/ai_rewriter.cc
+@@ -116,7 +116,7 @@ base::flat_set<std::string_view> AIRewri
+   const base::FeatureParam<std::string> kAIRewriterAPILanguagesEnabled{
+       &blink::features::kAIWriterAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_summarizer.cc
++++ b/chrome/browser/ai/ai_summarizer.cc
+@@ -112,7 +112,7 @@ base::flat_set<std::string_view> AISumma
+   const base::FeatureParam<std::string> kAISummarizationAPILanguagesEnabled{
+       &blink::features::kAISummarizationAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexprauto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_writer.cc
++++ b/chrome/browser/ai/ai_writer.cc
+@@ -108,7 +108,7 @@ base::flat_set<std::string_view> AIWrite
+   const base::FeatureParam<std::string> kAIWriterAPILanguagesEnabled{
+       &blink::features::kAIWriterAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
 --- a/chrome/browser/ui/views/frame/contents_web_view.h
 +++ b/chrome/browser/ui/views/frame/contents_web_view.h
 @@ -14,6 +14,8 @@
@@ -115,18 +159,18 @@
  
 --- a/components/viz/service/display/surface_aggregator.cc
 +++ b/components/viz/service/display/surface_aggregator.cc
-@@ -2162,7 +2162,7 @@ AggregatedFrame SurfaceAggregator::Aggre
+@@ -2161,7 +2161,7 @@ AggregatedFrame SurfaceAggregator::Aggre
    root_surface_id_ = surface_id;
  
    // Start recording new stats for this aggregation.
 -  stats_.emplace();
 +  stats_.emplace(AggregateStatistics{});
  
-   base::ElapsedTimer prewalk_timer;
    ResolvedFrameData* resolved_frame = GetResolvedFrame(surface_id);
+ 
 --- a/content/browser/webid/accounts_fetcher.cc
 +++ b/content/browser/webid/accounts_fetcher.cc
-@@ -423,7 +423,7 @@ void AccountsFetcher::OnFetchDataForIdpSucceeded(
+@@ -423,7 +423,7 @@ void AccountsFetcher::OnFetchDataForIdpS
    idp_info->client_matches_top_frame_origin =
        client_metadata.client_matches_top_frame_origin;
    for (auto& account : accounts) {
@@ -137,7 +181,7 @@
    federated_auth_request_impl_->OnFetchDataForIdpSucceeded(std::move(accounts),
 --- a/content/browser/webid/request_service.cc
 +++ b/content/browser/webid/request_service.cc
-@@ -1068,7 +1068,7 @@ void FederatedAuthRequestImpl::MaybeShow
+@@ -1065,7 +1065,7 @@ void RequestService::MaybeShowAccountsDi
        accounts_ = {auto_reauthn_account};
        idp_data_for_display_ = {auto_reauthn_idp};
        new_accounts_.clear();
@@ -148,7 +192,7 @@
  
 --- a/content/public/browser/content_browser_client.cc
 +++ b/content/public/browser/content_browser_client.cc
-@@ -92,6 +92,7 @@
+@@ -93,6 +93,7 @@
  #include "ui/shell_dialogs/select_file_policy.h"
  #include "url/gurl.h"
  #include "url/origin.h"
@@ -205,7 +249,7 @@
  
 --- a/mojo/public/cpp/bindings/lib/multiplex_router.cc
 +++ b/mojo/public/cpp/bindings/lib/multiplex_router.cc
-@@ -893,7 +893,7 @@ bool MultiplexRouter::ExclusiveSyncWaitF
+@@ -937,7 +937,7 @@ bool MultiplexRouter::ExclusiveSyncWaitF
    DCHECK(!exclusive_sync_wait_);
  
    scoped_refptr<MultiplexRouter> keep_alive(this);
@@ -258,7 +302,7 @@
  
 --- a/third_party/angle/src/libANGLE/renderer/vulkan/vk_cache_utils.h
 +++ b/third_party/angle/src/libANGLE/renderer/vulkan/vk_cache_utils.h
-@@ -3053,7 +3053,7 @@ class UpdateDescriptorSetsBuilder final
+@@ -3057,7 +3057,7 @@ class UpdateDescriptorSetsBuilder final
              mCurrentVector = mDescriptorInfos.begin();
              mTotalSize     = 0;
          }
@@ -344,7 +388,7 @@
      auto string_buffer_piece = base::span(string_buffer).first(keep_count);
 --- a/third_party/blink/renderer/platform/graphics/canvas_resource.h
 +++ b/third_party/blink/renderer/platform/graphics/canvas_resource.h
-@@ -29,6 +29,7 @@
+@@ -30,6 +30,7 @@
  #include "third_party/skia/include/core/SkRefCnt.h"
  #include "ui/gfx/buffer_types.h"
  #include "ui/gfx/geometry/size.h"

@@ -619,7 +619,7 @@ src_prepare() {
 
 	if use system-ffmpeg; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-139-opus.patch"
+			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
