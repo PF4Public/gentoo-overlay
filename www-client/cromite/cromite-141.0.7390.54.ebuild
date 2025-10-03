@@ -59,11 +59,11 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-# 	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
+	["02e8e8253b1dbb622f0db7faddafc5bbb11036e1"]="." #142+
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+)
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
@@ -587,7 +587,7 @@ src_prepare() {
 
 	if use system-ffmpeg; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-139-opus.patch"
+			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
@@ -654,6 +654,8 @@ src_prepare() {
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
+	cp -f "${FILESDIR}/font_format_check.cc" third_party/blink/renderer/platform/fonts/opentype || die
+	cp -f "${FILESDIR}/font_format_check.h" third_party/blink/renderer/platform/fonts/opentype || die
 
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"cromite";+;h};${x;/./{x;q0};x;q1}' \
@@ -826,7 +828,6 @@ src_prepare() {
 		third_party/federated_compute/src/fcp/confidentialcompute
 		third_party/federated_compute/src/fcp/protos/confidentialcompute
 		third_party/federated_compute/src/fcp/protos/federatedcompute
-		third_party/ffmpeg
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
