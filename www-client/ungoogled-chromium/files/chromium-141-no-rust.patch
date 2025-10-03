@@ -14,7 +14,7 @@
      deps += [
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -326,6 +326,8 @@ component("base") {
+@@ -323,6 +323,8 @@ component("base") {
      "hash/legacy_hash.cc",
      "hash/legacy_hash.h",
      "json/json_common.h",
@@ -23,7 +23,7 @@
      "json/json_reader.cc",
      "json/json_reader.h",
      "json/json_string_value_serializer.cc",
-@@ -1060,10 +1062,6 @@ component("base") {
+@@ -1063,10 +1065,6 @@ component("base") {
    # Used by metrics/crc32
    deps += [ "//third_party/zlib" ]
  
@@ -34,7 +34,7 @@
  
    # `raw_ptr` cannot be made a component due to CRT symbol issues.
    # Its gateway to being a component is through `//base`, so we have
-@@ -1098,14 +1096,6 @@ component("base") {
+@@ -1101,14 +1099,6 @@ component("base") {
      "//third_party/abseil-cpp:absl",
    ]
  
@@ -49,7 +49,7 @@
  
    # Needed for <atomic> if using newer C++ library than sysroot, except if
    # building inside the cros_sdk environment - use host_toolchain as a
-@@ -1568,8 +1558,6 @@ component("base") {
+@@ -1565,8 +1555,6 @@ component("base") {
      "files/scoped_temp_file.h",
      "json/json_file_value_serializer.cc",
      "json/json_file_value_serializer.h",
@@ -58,7 +58,7 @@
      "memory/discardable_memory.cc",
      "memory/discardable_memory.h",
      "memory/discardable_memory_allocator.cc",
-@@ -3719,11 +3719,6 @@ test("base_unittests") {
+@@ -3731,11 +3719,6 @@ test("base_unittests") {
      sources += [ "location_unittest.cc" ]
    }
  
@@ -70,7 +70,7 @@
    fuzztests = [ "JSONReaderTest.CanParseAnythingWithoutCrashing" ]
  
    defines = []
-@@ -3784,8 +3767,6 @@ test("base_unittests") {
+@@ -3780,8 +3763,6 @@ test("base_unittests") {
      deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
    }
  
@@ -257,7 +257,7 @@
    if ((g_logging_destination & LOG_TO_FILE) == 0) {
 --- a/services/on_device_model/ml/BUILD.gn
 +++ b/services/on_device_model/ml/BUILD.gn
-@@ -73,7 +73,6 @@ if (use_blink || (is_ios && build_with_i
+@@ -74,7 +74,6 @@ if (use_blink || (is_ios && build_with_i
      ]
      if (enable_constraints) {
        defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
@@ -275,6 +275,16 @@
  
  #if !BUILDFLAG(IS_IOS)
  #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -314,7 +314,6 @@ source_set("common") {
+     "//services/metrics/public/mojom",
+     "//services/network/public/cpp",
+     "//services/network/public/mojom:mojom_permissions_policy",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base",
 --- a/third_party/blink/common/chrome_debug_urls.cc
 +++ b/third_party/blink/common/chrome_debug_urls.cc
 @@ -12,7 +12,6 @@
