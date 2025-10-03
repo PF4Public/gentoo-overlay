@@ -65,11 +65,11 @@ REQUIRED_USE="
 
 CROMITE_COMMIT_ID="b2824377c30847f42e00c6ace66d91fa516b5f51"
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-# 	# ["33af9dc7d2801995990d1bb36ef1d98e3f80ca18"]="." #133+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-# )
+declare -A CHROMIUM_COMMITS=(
+	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
+	["02e8e8253b1dbb622f0db7faddafc5bbb11036e1"]="." #142+
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -989,7 +989,6 @@ src_prepare() {
 		third_party/federated_compute/src/fcp/confidentialcompute
 		third_party/federated_compute/src/fcp/protos/confidentialcompute
 		third_party/federated_compute/src/fcp/protos/federatedcompute
-		third_party/ffmpeg
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
