@@ -93,7 +93,7 @@
        &blink::features::kAISummarizationAPI, "langs", /*default=*/"en,es,ja"};
    // TODO(crbug.com/394841624): Get supported languages from the model config.
 -  auto kSupportedBaseLanguages =
-+  constexprauto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
        base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
    return AIUtils::RestrictSupportedLanguagesForFeature(
        base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
