@@ -1508,11 +1508,11 @@ src_prepare() {
 		# sed -i 's/std::get_if/absl::get_if/' shell/browser/electron_browser_context.cc || die
 		sed -i 's/constexpr CodeAndShiftedChar/CodeAndShiftedChar/' shell/common/keyboard_util.cc || die
 
-		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
-		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
+		# sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
+		# sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
-		sed -i 's/Path(__file__).resolve()/Path(__file__).absolute()/' script/node/generate_node_headers.py || die
-		sed -i 's/os.path.join(node_root_dir, file)/os.path.abspath(os.path.join(node_root_dir, file))/' script/node/generate_node_headers.py || die
+		# sed -i 's/Path(__file__).resolve()/Path(__file__).absolute()/' script/node/generate_node_headers.py || die
+		# sed -i 's/os.path.join(node_root_dir, file)/os.path.abspath(os.path.join(node_root_dir, file))/' script/node/generate_node_headers.py || die
 
 		# #? Funny, huh?
 		# sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
@@ -1541,7 +1541,7 @@ src_prepare() {
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
-		eapply "${FILESDIR}/misc-fixes.patch" || die 
+		eapply "${FILESDIR}/misc-fixes.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1675,8 +1675,8 @@ src_prepare() {
 
 	default
 
-	ln -s "${WORKDIR}/${P}" electron || die
-	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
+	mv "${WORKDIR}/${P}" electron || die
+	mv "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
 	# if [[ ${LLVM_SLOT} == "19" ]]; then
 	# 	# Upstream now hard depend on a feature that was added in LLVM 20.1, but we don't want to stabilise that yet.
@@ -2145,6 +2145,11 @@ src_prepare() {
 		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
 		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ukey2
+	)
+	use ungoogled && keeplibs+=(
+		third_party/ungoogled
+	)
+	keeplibs+=(
 		third_party/utf
 		third_party/vulkan
 		third_party/wayland

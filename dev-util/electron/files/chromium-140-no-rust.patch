@@ -275,6 +275,16 @@
  
  #if !BUILDFLAG(IS_IOS)
  #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -314,7 +314,6 @@ source_set("common") {
+     "//services/metrics/public/mojom",
+     "//services/network/public/cpp",
+     "//services/network/public/mojom:mojom_permissions_policy",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base",
 --- a/third_party/blink/common/chrome_debug_urls.cc
 +++ b/third_party/blink/common/chrome_debug_urls.cc
 @@ -12,7 +12,6 @@
@@ -318,3 +328,15 @@
        libs = [ "z" ]
      }
    } else if (current_toolchain == default_toolchain) {
+--- a/ui/gfx/codec/png_codec.cc
++++ b/ui/gfx/codec/png_codec.cc
+@@ -38,9 +38,6 @@ namespace {
+ 
+ std::unique_ptr<SkCodec> CreatePngDecoder(std::unique_ptr<SkStream> stream,
+                                           SkCodec::Result* result) {
+-  if (skia::IsRustyPngEnabled()) {
+-    return SkPngRustDecoder::Decode(std::move(stream), result);
+-  }
+ 
+   return SkPngDecoder::Decode(std::move(stream), result);
+ }
