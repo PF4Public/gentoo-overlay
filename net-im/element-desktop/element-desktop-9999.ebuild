@@ -201,7 +201,7 @@ src_compile() {
 		rm -r ${distdir}/node_modules || die
 		rm -r ${distdir}/lib || die
 
-		cp -r res/img ${distdir} || die
+		cp -r build ${distdir} || die
 	# fi
 
 	#cp -r /usr/share/element-web webapp
@@ -228,12 +228,14 @@ src_install() {
 	doexe dist/linux-unpacked/resources/element-desktop
 	dosym "/usr/$(get_libdir)/element-desktop/element-desktop" /usr/bin/element-desktop
 
-	# Install icons
-	local branding size
-	for size in 16 24 48 64 96 128 256 512 ; do
-		newicon -s ${size} "build/icons/${size}x${size}.png" \
-			element-desktop.png
-	done
+	# # Install icons
+	# local branding size
+	# for size in 16 24 48 64 96 128 256 512 ; do
+	# 	newicon -s ${size} "build/icons/${size}x${size}.png" \
+	# 		element-desktop.png
+	# done
+
+	newicon build/icon.png element-desktop.png
 
 	make_desktop_entry "/usr/bin/element-desktop" Element \
 		"element-desktop" "Network;Chat"
