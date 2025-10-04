@@ -1244,7 +1244,7 @@ src_compile() {
 		rm -r ${distdir}/node_modules || die
 		rm -r ${distdir}/lib || die
 
-		cp -r res/img ${distdir} || die
+		cp -r build ${distdir} || die
 	# fi
 
 	#cp -r /usr/share/element-web webapp
