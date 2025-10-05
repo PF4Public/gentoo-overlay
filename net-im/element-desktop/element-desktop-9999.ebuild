@@ -16,7 +16,7 @@ SRC_URI=""
 REPO="https://github.com/vector-im/element-desktop"
 ELECTRON_SLOT_DEFAULT="38"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-27 electron-28 electron-29 electron-30 electron-31 electron-32 electron-33 electron-34 electron-35 electron-36 electron-37 native-modules"
+IUSE="electron-36 electron-37 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -47,30 +47,12 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-	electron-27? ( dev-util/electron:27 )
-	electron-28? ( dev-util/electron:28 )
-	electron-29? ( dev-util/electron:29 )
-	electron-30? ( dev-util/electron:30 )
-	electron-31? ( dev-util/electron:31 )
-	electron-32? ( dev-util/electron:32 )
-	electron-33? ( dev-util/electron:33 )
-	electron-34? ( dev-util/electron:34 )
-	electron-35? ( dev-util/electron:35 )
 	electron-36? ( dev-util/electron:36 )
 	electron-37? ( dev-util/electron:37 )
-	!electron-27? (
-	!electron-28? (
-	!electron-29? (
-	!electron-30? (
-	!electron-31? (
-	!electron-32? (
-	!electron-33? (
-	!electron-34? (
-	!electron-35? (
 	!electron-36? (
 	!electron-37? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) ) )
+	) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -95,25 +77,7 @@ python_check_deps() {
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	if use electron-27; then
-		export ELECTRON_SLOT=27
-	elif use electron-28; then
-		export ELECTRON_SLOT=28
-	elif use electron-29; then
-		export ELECTRON_SLOT=29
-	elif use electron-30; then
-		export ELECTRON_SLOT=30
-	elif use electron-31; then
-		export ELECTRON_SLOT=31
-	elif use electron-32; then
-		export ELECTRON_SLOT=32
-	elif use electron-33; then
-		export ELECTRON_SLOT=33
-	elif use electron-34; then
-		export ELECTRON_SLOT=34
-	elif use electron-35; then
-		export ELECTRON_SLOT=35
-	elif use electron-36; then
+	if use electron-36; then
 		export ELECTRON_SLOT=36
 	elif use electron-37; then
 		export ELECTRON_SLOT=37
