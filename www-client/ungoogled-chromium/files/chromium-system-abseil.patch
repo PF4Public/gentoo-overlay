@@ -1,16 +1,15 @@
 diff '--color=auto' -Naur a/build/linux/unbundle/absl_algorithm.gn b/build/linux/unbundle/absl_algorithm.gn
---- a/build/linux/unbundle/absl_algorithm.gn    2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_algorithm.gn    2025-06-14 13:37:41.184071477 +0700
-@@ -20,3 +20,5 @@
+--- a/build/linux/unbundle/absl_algorithm.gn
++++ b/build/linux/unbundle/absl_algorithm.gn
+@@ -20,3 +20,5 @@ source_set("algorithm_test") {
  }
  source_set("container_test") {
  }
 +source_set("algorithm") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_base.gn b/build/linux/unbundle/absl_base.gn
---- a/build/linux/unbundle/absl_base.gn 2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_base.gn 2025-06-14 14:01:02.844114253 +0700
-@@ -103,3 +103,25 @@
+--- a/build/linux/unbundle/absl_base.gn
++++ b/build/linux/unbundle/absl_base.gn
+@@ -103,3 +103,25 @@ source_set("nullability_test") {
  }
  source_set("prefetch_test") {
  }
@@ -36,10 +35,9 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_base.gn b/build/linux/unbu
 +}
 +source_set("endian") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_container.gn b/build/linux/unbundle/absl_container.gn
---- a/build/linux/unbundle/absl_container.gn    2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_container.gn    2025-06-14 13:46:36.300087808 +0700
-@@ -129,3 +129,11 @@
+--- a/build/linux/unbundle/absl_container.gn
++++ b/build/linux/unbundle/absl_container.gn
+@@ -129,3 +129,13 @@ source_set("raw_hash_set_test") {
  }
  source_set("sample_element_size_test") {
  }
@@ -51,10 +49,11 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_container.gn b/build/linux
 +}
 +source_set("raw_hash_set_resize_impl_test") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_debugging.gn b/build/linux/unbundle/absl_debugging.gn
---- a/build/linux/unbundle/absl_debugging.gn    2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_debugging.gn    2025-06-14 13:47:25.622089313 +0700
-@@ -50,3 +50,9 @@
++source_set("hashtablez_sampler") {
++}
+--- a/build/linux/unbundle/absl_debugging.gn
++++ b/build/linux/unbundle/absl_debugging.gn
+@@ -50,3 +50,9 @@ source_set("demangle_rust_test") {
  }
  source_set("stacktrace_test") {
  }
@@ -64,10 +63,9 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_debugging.gn b/build/linux
 +}
 +source_set("utf8_for_code_point_test") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_log.gn b/build/linux/unbundle/absl_log.gn
---- a/build/linux/unbundle/absl_log.gn  2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_log.gn  2025-06-14 13:51:41.028097107 +0700
-@@ -138,3 +138,11 @@
+--- a/build/linux/unbundle/absl_log.gn
++++ b/build/linux/unbundle/absl_log.gn
+@@ -138,3 +138,11 @@ source_set("stripping_test") {
  }
  source_set("vlog_is_on_test") {
  }
@@ -79,19 +77,17 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_log.gn b/build/linux/unbun
 +}
 +source_set("log_sink_registry") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_log_internal.gn b/build/linux/unbundle/absl_log_internal.gn
---- a/build/linux/unbundle/absl_log_internal.gn 2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_log_internal.gn 2025-06-14 14:00:50.974113890 +0700
-@@ -2,3 +2,5 @@
+--- a/build/linux/unbundle/absl_log_internal.gn
++++ b/build/linux/unbundle/absl_log_internal.gn
+@@ -2,3 +2,5 @@ source_set("fnmatch_test") {
  }
  source_set("stderr_log_sink_test") {
  }
 +source_set("structured_proto_test") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_random.gn b/build/linux/unbundle/absl_random.gn
---- a/build/linux/unbundle/absl_random.gn       2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_random.gn       2025-06-14 13:38:02.352072123 +0700
-@@ -62,3 +62,7 @@
+--- a/build/linux/unbundle/absl_random.gn
++++ b/build/linux/unbundle/absl_random.gn
+@@ -62,3 +62,7 @@ group("distributions_test") {
  }
  group("mock_distributions_test") {
  }
@@ -99,10 +95,9 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_random.gn b/build/linux/un
 +}
 +source_set("mocking_bit_gen") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_strings.gn b/build/linux/unbundle/absl_strings.gn
---- a/build/linux/unbundle/absl_strings.gn      2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_strings.gn      2025-06-14 14:18:00.168145299 +0700
-@@ -44,6 +44,8 @@
+--- a/build/linux/unbundle/absl_strings.gn
++++ b/build/linux/unbundle/absl_strings.gn
+@@ -44,6 +44,8 @@ shim_headers("strings_shim") {
      "string_view.h",
      "strip.h",
      "substitute.h",
@@ -111,7 +106,7 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_strings.gn b/build/linux/u
    ]
  }
  
-@@ -136,3 +138,11 @@
+@@ -136,3 +138,11 @@ source_set("str_replace_test") {
  }
  source_set("string_view_test") {
  }
@@ -123,10 +118,9 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_strings.gn b/build/linux/u
 +}
 +source_set("str_cat_test") {
 +}
-diff '--color=auto' -Naur a/build/linux/unbundle/absl_synchronization.gn b/build/linux/unbundle/absl_synchronization.gn
---- a/build/linux/unbundle/absl_synchronization.gn      2025-06-14 13:18:16.732035941 +0700
-+++ b/build/linux/unbundle/absl_synchronization.gn      2025-06-14 13:57:06.570107042 +0700
-@@ -25,3 +25,11 @@
+--- a/build/linux/unbundle/absl_synchronization.gn
++++ b/build/linux/unbundle/absl_synchronization.gn
+@@ -25,3 +25,11 @@ source_set("kernel_timeout_internal_test
  }
  source_set("waiter_test") {
  }
@@ -138,4 +132,3 @@ diff '--color=auto' -Naur a/build/linux/unbundle/absl_synchronization.gn b/build
 +}
 +source_set("per_thread_sem_test") {
 +}
-
