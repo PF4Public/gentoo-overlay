@@ -18,7 +18,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-27 electron-28 electron-29 electron-31 electron-32 electron-33 electron-34 electron-30 electron-35 electron-36 electron-38 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-36 electron-38 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -51,28 +51,12 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	electron-27? ( dev-util/electron:27 )
-	electron-28? ( dev-util/electron:28 )
-	electron-29? ( dev-util/electron:29 )
-	electron-31? ( dev-util/electron:31 )
-	electron-32? ( dev-util/electron:32 )
-	electron-33? ( dev-util/electron:33 )
-	electron-30? ( dev-util/electron:30 )
-	electron-35? ( dev-util/electron:35 )
 	electron-36? ( dev-util/electron:36 )
 	electron-38? ( dev-util/electron:38 )
-	!electron-27? (
-	!electron-28? (
-	!electron-29? (
-	!electron-31? (
-	!electron-32? (
-	!electron-33? (
-	!electron-30? (
-	!electron-35? (
 	!electron-36? (
 	!electron-38? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) )
+	) )
 "
 
 #TODO: oniguruma?
@@ -106,23 +90,7 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	if use electron-27; then
-		export ELECTRON_SLOT=27
-	elif use electron-28; then
-		export ELECTRON_SLOT=28
-	elif use electron-29; then
-		export ELECTRON_SLOT=29
-	elif use electron-31; then
-		export ELECTRON_SLOT=31
-	elif use electron-32; then
-		export ELECTRON_SLOT=32
-	elif use electron-33; then
-		export ELECTRON_SLOT=33
-	elif use electron-30; then
-		export ELECTRON_SLOT=30
-	elif use electron-35; then
-		export ELECTRON_SLOT=35
-	elif use electron-36; then
+	if use electron-36; then
 		export ELECTRON_SLOT=36
 	elif use electron-38; then
 		export ELECTRON_SLOT=38
@@ -275,12 +243,12 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	#TODO: temp fix
-	if use electron-32 || use electron-33 || use electron-35 || use electron-36 || use electron-38; then
+	# #TODO: temp fix
+	# if use electron-32 || use electron-33 || use electron-35 || use electron-36 || use electron-38; then
 		# CPPFLAGS="${CPPFLAGS} -std=c++20";
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
 		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	fi
+	# fi
 
 	# if use build-online; then
 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
