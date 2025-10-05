@@ -1475,11 +1475,11 @@ src_prepare() {
 		# sed -i 's/std::get_if/absl::get_if/' shell/browser/electron_browser_context.cc || die
 		sed -i 's/constexpr CodeAndShiftedChar/CodeAndShiftedChar/' shell/common/keyboard_util.cc || die
 
-		sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
-		sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
+		# sed -i 's/NODE_DIR = os.path.join/NODE_DIR = os.path.abspath(os.path.join/' script/generate-config-gypi.py || die
+		# sed -i "s/'electron_node')/'electron_node'))/" script/generate-config-gypi.py || die
 
-		sed -i 's/Path(__file__).resolve()/Path(__file__).absolute()/' script/node/generate_node_headers.py || die
-		sed -i 's/os.path.join(node_root_dir, file)/os.path.abspath(os.path.join(node_root_dir, file))/' script/node/generate_node_headers.py || die
+		# sed -i 's/Path(__file__).resolve()/Path(__file__).absolute()/' script/node/generate_node_headers.py || die
+		# sed -i 's/os.path.join(node_root_dir, file)/os.path.abspath(os.path.join(node_root_dir, file))/' script/node/generate_node_headers.py || die
 
 		# #? Funny, huh?
 		# sed -i "s/module.exports.getElectronVersion = () => {/module.exports.getElectronVersion = () => {return '${PV}';/" \
@@ -1642,8 +1642,8 @@ src_prepare() {
 
 	default
 
-	ln -s "${WORKDIR}/${P}" electron || die
-	ln -s "${WORKDIR}/${NODE_P}" third_party/electron_node || die
+	mv "${WORKDIR}/${P}" electron || die
+	mv "${WORKDIR}/${NODE_P}" third_party/electron_node || die
 
 	# if [[ ${LLVM_SLOT} == "19" ]]; then
 	# 	# Upstream now hard depend on a feature that was added in LLVM 20.1, but we don't want to stabilise that yet.
@@ -1952,6 +1952,7 @@ src_prepare() {
 		third_party/dom_distiller_js
 		third_party/dragonbox
 		third_party/eigen3
+		third_party/electron_node
 		third_party/emoji-segmenter
 		third_party/farmhash
 		third_party/fast_float
@@ -2815,7 +2816,7 @@ src_install() {
 	fi
 
 	insinto "${CHROMIUM_HOME}/node_modules"
-	doins -r "${WORKDIR}/${NODE_P}/deps/npm"
+	doins -r "${CHROMIUM_HOME}/third_party/electron_node/deps/npm"
 	fperms -R 755 "${CHROMIUM_HOME}/node_modules/npm/bin/"
 
 	exeinto "${CHROMIUM_HOME}/node_modules/npm/bin/"
