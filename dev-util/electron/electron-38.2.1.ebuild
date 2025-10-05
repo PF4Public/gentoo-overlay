@@ -1986,6 +1986,7 @@ src_prepare() {
 		third_party/dom_distiller_js
 		third_party/dragonbox
 		third_party/eigen3
+		third_party/electron_node
 		third_party/emoji-segmenter
 		third_party/farmhash
 		third_party/fast_float
