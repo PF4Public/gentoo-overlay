@@ -10,24 +10,7 @@
 	</upstream>
 	<use>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
-		<flag name="electron-19">Build against electron-19 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-20">Build against electron-20 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-21">Build against electron-21 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-22">Build against electron-22 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-23">Build against electron-23 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-24">Build against electron-24 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-25">Build against electron-25 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-26">Build against electron-26 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-28">Build against electron-28 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-29">Build against electron-29 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-30">Build against electron-30 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-31">Build against electron-31 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-32">Build against electron-32 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-33">Build against electron-33 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-34">Build against electron-34 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-35">Build against electron-35 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-36">Build against electron-36 instead of the default one. Use at your own risk!</flag>
-		<flag name="electron-37">Build against electron-37 instead of the default one. Use at your own risk!</flag>
 		<flag name="electron-38">Build against electron-38 instead of the default one. Use at your own risk!</flag>
 	</use>
 </pkgmetadata>

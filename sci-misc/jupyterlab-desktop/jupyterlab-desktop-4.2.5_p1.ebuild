@@ -664,9 +664,9 @@ SRC_URI="
 "
 
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
-ELECTRON_SLOT_DEFAULT="27"
+ELECTRON_SLOT_DEFAULT="37"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-28 electron-29 electron-30 electron-31 electron-32 electron-33 electron-34 electron-35 electron-36 electron-37 electron-38"
+IUSE="electron-36 electron-38"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -693,30 +693,12 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE=""
 
 COMMON_DEPEND="
-	electron-28? ( dev-util/electron:28 )
-	electron-29? ( dev-util/electron:29 )
-	electron-30? ( dev-util/electron:30 )
-	electron-31? ( dev-util/electron:31 )
-	electron-32? ( dev-util/electron:32 )
-	electron-33? ( dev-util/electron:33 )
-	electron-34? ( dev-util/electron:34 )
-	electron-35? ( dev-util/electron:35 )
 	electron-36? ( dev-util/electron:36 )
-	electron-37? ( dev-util/electron:37 )
 	electron-38? ( dev-util/electron:38 )
-	!electron-28? (
-	!electron-29? (
-	!electron-30? (
-	!electron-31? (
-	!electron-32? (
-	!electron-33? (
-	!electron-34? (
-	!electron-35? (
 	!electron-36? (
-	!electron-37? (
 	!electron-38? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) ) ) ) ) ) ) ) ) )
+	) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -731,26 +713,8 @@ BDEPEND="
 "
 
 src_unpack() {
-	if use electron-28; then
-		export ELECTRON_SLOT=28
-	elif use electron-29; then
-		export ELECTRON_SLOT=29
-	elif use electron-30; then
-		export ELECTRON_SLOT=30
-	elif use electron-31; then
-		export ELECTRON_SLOT=31
-	elif use electron-32; then
-		export ELECTRON_SLOT=32
-	elif use electron-33; then
-		export ELECTRON_SLOT=33
-	elif use electron-34; then
-		export ELECTRON_SLOT=34
-	elif use electron-35; then
-		export ELECTRON_SLOT=35
-	elif use electron-36; then
+	if use electron-36; then
 		export ELECTRON_SLOT=36
-	elif use electron-37; then
-		export ELECTRON_SLOT=37
 	elif use electron-38; then
 		export ELECTRON_SLOT=38
 	else
@@ -776,10 +740,10 @@ src_prepare() {
 	einfo "Using system python by default"
 	sed -i 's$getBundledPythonPath();$"/usr/bin/python";getBundledPythonPath();$' src/main/registry.ts || die
 
-	if use electron-28 || use electron-29 || use electron-30 || use electron-31 || use electron-32 || use electron-33 || use electron-34 || use electron-35 || use electron-36 || use electron-37 || use electron-38; then
+	# if use electron-36 || use electron-37 || use electron-38; then
 		einfo "Disabling development mode"
 		sed -i 's$isDevMode(): boolean {$isDevMode(): boolean {return false;$' src/main/utils.ts || die
-	fi
+	# fi
 }
 
 src_configure() {
