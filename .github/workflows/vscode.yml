@@ -82,10 +82,6 @@ jobs:
         include:
           - use: 'reh reh-web'
             experimental: true
-          - use: '-temp-fix electron-34'
-            experimental: true
-          - use: '-temp-fix electron-35'
-            experimental: true
           - use: '-temp-fix electron-36'
             experimental: true
           - use: '-temp-fix electron-37'

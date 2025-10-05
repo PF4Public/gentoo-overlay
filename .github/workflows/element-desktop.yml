@@ -82,10 +82,6 @@ jobs:
           - 'build-online'
           - 'build-online native-modules'
         include:
-          - use: 'electron-34'
-            experimental: true
-          - use: 'electron-35'
-            experimental: true
           - use: 'electron-36'
             experimental: true
           - use: 'electron-37'
