@@ -43,7 +43,7 @@ CDEPEND="
 	>=net-print/cups-1.3.11
 	dev-libs/expat
 	dev-libs/glib:2
-	>=dev-libs/libxml2-2.9.4-r3[icu]
+	|| ( dev-libs/libxml2-compat:2/2 dev-libs/libxml2:2/2 )
 	dev-libs/nspr
 	>=dev-libs/nss-3.26
 	>=media-libs/alsa-lib-1.0.19
