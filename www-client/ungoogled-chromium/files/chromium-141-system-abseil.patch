@@ -164,3 +164,13 @@
 +}
 +source_set("per_thread_sem_test") {
 +}
+--- a/third_party/protobuf/src/google/protobuf/repeated_field.h
++++ b/third_party/protobuf/src/google/protobuf/repeated_field.h
+@@ -33,6 +33,7 @@
+ #include <utility>
+ 
+ #include "absl/base/attributes.h"
++#include "absl/base/dynamic_annotations.h"
+ #include "absl/base/optimization.h"
+ #include "absl/log/absl_check.h"
+ #include "absl/meta/type_traits.h"
