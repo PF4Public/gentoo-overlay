@@ -1,0 +1,166 @@
+--- a/build/linux/unbundle/absl_algorithm.gn
++++ b/build/linux/unbundle/absl_algorithm.gn
+@@ -20,3 +20,5 @@ source_set("algorithm_test") {
+ }
+ source_set("container_test") {
+ }
++source_set("algorithm") {
++}
+--- a/build/linux/unbundle/absl_base.gn
++++ b/build/linux/unbundle/absl_base.gn
+@@ -103,3 +103,25 @@ source_set("nullability_test") {
+ }
+ source_set("prefetch_test") {
+ }
++source_set("dynamic_annotations") {
++}
++source_set("fast_type_id") {
++}
++source_set("log_severity") {
++}
++source_set("raw_logging_internal") {
++}
++source_set("attributes_test") {
++}
++source_set("iterator_traits_test") {
++}
++source_set("nullability_default_nonnull_test") {
++}
++source_set("poison_test") {
++}
++source_set("tracing_internal_strong_test") {
++}
++source_set("tracing_internal_weak_test") {
++}
++source_set("endian") {
++}
+--- a/build/linux/unbundle/absl_container.gn
++++ b/build/linux/unbundle/absl_container.gn
+@@ -129,3 +129,13 @@ source_set("raw_hash_set_test") {
+ }
+ source_set("sample_element_size_test") {
+ }
++source_set("layout") {
++}
++source_set("node_hash_map_test") {
++}
++source_set("node_hash_set_test") {
++}
++source_set("raw_hash_set_resize_impl_test") {
++}
++source_set("hashtablez_sampler") {
++}
+--- a/build/linux/unbundle/absl_debugging.gn
++++ b/build/linux/unbundle/absl_debugging.gn
+@@ -50,3 +50,9 @@ source_set("demangle_rust_test") {
+ }
+ source_set("stacktrace_test") {
+ }
++source_set("bounded_utf8_length_sequence_test") {
++}
++source_set("decode_rust_punycode_test") {
++}
++source_set("utf8_for_code_point_test") {
++}
+--- a/build/linux/unbundle/absl_flags.gn
++++ b/build/linux/unbundle/absl_flags.gn
+@@ -89,3 +89,5 @@ source_set("usage") {
+ 
+ source_set("flag_test") {
+ }
++source_set("marshalling") {
++}
+--- a/build/linux/unbundle/absl_functional.gn
++++ b/build/linux/unbundle/absl_functional.gn
+@@ -46,8 +46,19 @@ source_set("function_ref") {
+   public_configs = [ ":system_absl_function_ref" ]
+ }
+ 
++pkg_config("system_absl_overload") {
++  packages = [ "absl_overload" ]
++}
++
++shim_headers("overload_shim") {
++  root_path = "."
++  prefix = "absl/functional/"
++  headers = [ "overload.h" ]
++}
++
+ source_set("overload") {
+-  # Dummy — unavailable with abseil 202308 and chromium 122 does not use it
++  deps = [ ":overload_shim" ]
++  public_configs = [ ":system_absl_overload" ]
+ }
+ 
+ source_set("any_invocable_test") {
+--- a/build/linux/unbundle/absl_log.gn
++++ b/build/linux/unbundle/absl_log.gn
+@@ -138,3 +138,11 @@ source_set("stripping_test") {
+ }
+ source_set("vlog_is_on_test") {
+ }
++source_set("absl_vlog_is_on") {
++}
++source_set("log_entry") {
++}
++source_set("log_sink") {
++}
++source_set("log_sink_registry") {
++}
+--- a/build/linux/unbundle/absl_log_internal.gn
++++ b/build/linux/unbundle/absl_log_internal.gn
+@@ -2,3 +2,5 @@ source_set("fnmatch_test") {
+ }
+ source_set("stderr_log_sink_test") {
+ }
++source_set("structured_proto_test") {
++}
+--- a/build/linux/unbundle/absl_random.gn
++++ b/build/linux/unbundle/absl_random.gn
+@@ -62,3 +62,7 @@ group("distributions_test") {
+ }
+ group("mock_distributions_test") {
+ }
++source_set("seed_gen_exception") {
++}
++source_set("mocking_bit_gen") {
++}
+--- a/build/linux/unbundle/absl_strings.gn
++++ b/build/linux/unbundle/absl_strings.gn
+@@ -44,6 +44,8 @@ shim_headers("strings_shim") {
+     "string_view.h",
+     "strip.h",
+     "substitute.h",
++    "has_absl_stringify.h",
++    "has_ostream_operator.h",
+   ]
+ }
+ 
+@@ -136,3 +138,13 @@ source_set("str_replace_test") {
+ }
+ source_set("string_view_test") {
+ }
++source_set("charset") {
++}
++source_set("cord_test") {
++}
++source_set("cordz_handle_test") {
++}
++source_set("cordz_sample_token_test") {
++}
++source_set("str_cat_test") {
++}
+--- a/build/linux/unbundle/absl_synchronization.gn
++++ b/build/linux/unbundle/absl_synchronization.gn
+@@ -25,3 +25,11 @@ source_set("kernel_timeout_internal_test
+ }
+ source_set("waiter_test") {
+ }
++source_set("barrier_test") {
++}
++source_set("graphcycles_test") {
++}
++source_set("mutex_test") {
++}
++source_set("per_thread_sem_test") {
++}
