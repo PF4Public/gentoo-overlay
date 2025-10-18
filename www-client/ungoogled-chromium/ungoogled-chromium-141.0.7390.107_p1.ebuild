@@ -764,6 +764,9 @@ src_prepare() {
 
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil.patch"
+		#TODO: not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
+		#TODO: not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die

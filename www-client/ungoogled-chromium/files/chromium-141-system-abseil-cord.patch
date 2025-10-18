@@ -1,0 +1,11 @@
+--- a/third_party/tflite_support/src/tensorflow_lite_support/cc/common.cc
++++ b/third_party/tflite_support/src/tensorflow_lite_support/cc/common.cc
+@@ -27,7 +27,7 @@ absl::Status CreateStatusWithPayload(abs
+   // NOTE: Ignores `message` if the canonical code is ok.
+   absl::Status status = absl::Status(canonical_code, message);
+   // NOTE: Does nothing if the canonical code is ok.
+-  status.SetPayload(kTfLiteSupportPayload, absl::Cord(absl::StrCat(tfls_code)));
++  //status.SetPayload(kTfLiteSupportPayload, absl::Cord(absl::StrCat(tfls_code)));
+   return status;
+ }
+ 
