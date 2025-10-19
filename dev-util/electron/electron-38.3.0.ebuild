@@ -2856,7 +2856,7 @@ src_install() {
 	fi
 
 	insinto "${CHROMIUM_HOME}/node_modules"
-	doins -r "${CHROMIUM_HOME}/third_party/electron_node/deps/npm"
+	doins -r "third_party/electron_node/deps/npm"
 	fperms -R 755 "${CHROMIUM_HOME}/node_modules/npm/bin/"
 
 	exeinto "${CHROMIUM_HOME}/node_modules/npm/bin/"
