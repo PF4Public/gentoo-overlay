@@ -720,6 +720,9 @@ src_prepare() {
 		sed -i '/chrome\/common\/webui_url_constants.cc/Q' \
 			"${UGC_WD}/patches/extra/ungoogled-chromium/first-run-page.patch" || die
 
+		#! normalise paths in py
+		sed -i 's$os.path.dirname(include_file)$os.path.abspath(os.path.dirname(include_file))$' \
+			build/bromite/gyp/cpp_bromite_include.py || die
 	fi
 
 	# if [[ ${LLVM_SLOT} == "19" ]]; then
