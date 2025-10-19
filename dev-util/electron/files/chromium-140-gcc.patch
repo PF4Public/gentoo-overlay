@@ -113,6 +113,16 @@
  
  }  // namespace
  
+--- a/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
++++ b/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
+@@ -6,6 +6,7 @@
+ #define COMPONENTS_POLICY_CORE_COMMON_CLOUD_REALTIME_REPORTING_JOB_CONFIGURATION_H_
+ 
+ #include <memory>
++#include <set>
+ #include <string>
+ 
+ #include "base/feature_list.h"
 --- a/components/viz/service/display/surface_aggregator.cc
 +++ b/components/viz/service/display/surface_aggregator.cc
 @@ -2162,7 +2162,7 @@ AggregatedFrame SurfaceAggregator::Aggre
