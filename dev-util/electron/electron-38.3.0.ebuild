@@ -1570,7 +1570,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-140-crabby.patch"
 		"${FILESDIR}/chromium-140-no-rust.patch"
 		"${FILESDIR}/chromium-140-fontations.patch"
-		"${FILESDIR}/chromium-140-gcc.patch"
+		"${FILESDIR}/chromium-141-gcc.patch"
 		"${FILESDIR}/chromium-140-ml_number.patch"
 	)
 
