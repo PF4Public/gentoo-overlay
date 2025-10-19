@@ -702,6 +702,10 @@ src_prepare() {
 		# eend $? || die
 	done
 
+	#! normalise paths in py
+	sed -i 's$os.path.dirname(include_file)$os.path.abspath(os.path.dirname(include_file))$' \
+		build/bromite/gyp/cpp_bromite_include.py || die
+
 	if ! use libcxx ; then
 		eapply "${FILESDIR}/cromite-libstdc++.patch"
 	fi
