@@ -895,7 +895,6 @@ src_prepare() {
 	)
 	keeplibs+=(
 		net/third_party/mozilla_security_manager
-		net/third_party/nss
 		net/third_party/quic
 		net/third_party/uri_template
 		third_party/abseil-cpp/absl/base
