@@ -65,11 +65,11 @@ UGC_COMMIT_ID="98f9cedd97e7cccb52315abc65803f72a0919b73"
 
 CROMITE_COMMIT_ID="7f5b8c4989665ee2c18d537d679dad3cab65ccae"
 
-# declare -A CHROMIUM_COMMITS=(
+declare -A CHROMIUM_COMMITS=(
 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-	# ["02e8e8253b1dbb622f0db7faddafc5bbb11036e1"]="." #142+
+	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-# )
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -508,20 +508,15 @@ src_prepare() {
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
 		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
-		"${FILESDIR}/chromium-142-system-harfbuzz.patch"
-		"${FILESDIR}/chromium-142-iwyu-field-form-data.patch"
-		"${FILESDIR}/chromium-142-cssstylesheet.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-141-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
-		"${FILESDIR}/chromium-140-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/restore-x86-r2.patch"
+		"${FILESDIR}/restore-x86-r3.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
 		"${FILESDIR}/chromium-141-fix-for-kde.patch"
 		"${FILESDIR}/chromium-134-stdatomic.patch"
-		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-141-crabby.patch"
 		"${FILESDIR}/chromium-142-no-rust.patch"
