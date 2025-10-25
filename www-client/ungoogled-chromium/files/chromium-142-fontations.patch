@@ -68,7 +68,7 @@
 +                                const SkPngEncoder::Options& options) {
    SkDynamicMemoryWStream stream;
 -  if (!SkPngRustEncoder::Encode(&stream, src, options)) {
-+  if (!skia::EncodePng(&stream, src, options)) {
++  if (!SkPngEncoder::Encode(&stream, src, options)) {
      return nullptr;
    }
    return stream.detachAsData();
@@ -460,11 +460,21 @@
 +    options.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
 +  }
 +
-+  if (!skia::EncodePng(&dst, src, options)) {
++  if (!SkPngEncoder::Encode(&dst, src, options)) {
      return std::nullopt;
    }
  
-@@ -223,7 +228,7 @@ std::optional<std::vector<uint8_t>> Enco
+@@ -206,7 +211,8 @@ std::optional<std::vector<uint8_t>> Enco
+     const SkPixmap& src,
+     bool discard_transparency,
+     const std::vector<PNGCodec::Comment>& comments,
+-    SkPngRustEncoder::CompressionLevel compression_level) {
++    int zlib_level,
++    bool disable_filters) {
+   if (discard_transparency) {
+     SkImageInfo opaque_info = src.info().makeAlphaType(kOpaque_SkAlphaType);
+     SkBitmap copy;
+@@ -223,7 +229,7 @@ std::optional<std::vector<uint8_t>> Enco
          src.readPixels(opaque_info.makeAlphaType(kUnpremul_SkAlphaType),
                         opaque_pixmap.writable_addr(), opaque_pixmap.rowBytes());
      DCHECK(success);
@@ -473,7 +483,7 @@
    }
  
    // If the image's pixels are all opaque, encode the PNG as opaque, regardless
-@@ -231,23 +236,24 @@ std::optional<std::vector<uint8_t>> Enco
+@@ -231,23 +237,24 @@ std::optional<std::vector<uint8_t>> Enco
    if (src.info().alphaType() != kOpaque_SkAlphaType && src.computeIsOpaque()) {
      SkPixmap opaque_pixmap{src.info().makeAlphaType(kOpaque_SkAlphaType),
                             src.addr(), src.rowBytes()};
@@ -505,12 +515,12 @@
  }
  
  }  // namespace
-@@ -278,21 +284,21 @@ std::optional<std::vector<uint8_t>> PNGC
+@@ -278,21 +285,21 @@ std::optional<std::vector<uint8_t>> PNGC
        SkImageInfo::Make(size.width(), size.height(), colorType, alphaType);
    SkPixmap src(info, input, row_byte_width);
    return EncodeSkPixmap(src, discard_transparency, comments,
 -                        SkPngRustEncoder::CompressionLevel::kMedium);
-+                        DEFAULT_ZLIB_COMPRESSION, /*disable_filters=*/false);
++                        6, /*disable_filters=*/false);
  }
  
  std::optional<std::vector<uint8_t>> PNGCodec::EncodeBGRASkBitmap(
@@ -518,7 +528,7 @@
      bool discard_transparency) {
 -  return EncodeSkBitmap(input, discard_transparency,
 -                        SkPngRustEncoder::CompressionLevel::kMedium);
-+  return EncodeSkBitmap(input, discard_transparency, DEFAULT_ZLIB_COMPRESSION,
++  return EncodeSkBitmap(input, discard_transparency, 6,
 +                        /*disable_filters=*/false);
  }
  
@@ -527,7 +537,7 @@
      bool discard_transparency) {
 -  return EncodeSkBitmap(input, discard_transparency,
 -                        SkPngRustEncoder::CompressionLevel::kLow);
-+  return EncodeSkBitmap(input, discard_transparency, Z_BEST_SPEED,
++  return EncodeSkBitmap(input, discard_transparency, 1,
 +                        /*disable_filters=*/true);
  }
  
