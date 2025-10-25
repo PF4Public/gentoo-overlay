@@ -1,0 +1,566 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -844,11 +844,6 @@ group("all_rust") {
+     "//third_party/cloud_authenticator/processor",
+   ]
+ 
+-  # TODO(https://crbug.com/405379314): This fails to build on some iOS ASAN
+-  # builders.
+-  if (!is_ios || !is_asan) {
+-    deps += [ "//testing/rust_gtest_interop:rust_gtest_interop_unittests" ]
+-  }
+ 
+   if (enable_rust_mojo) {
+     deps += [
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -325,6 +325,8 @@ component("base") {
+     "hash/legacy_hash.cc",
+     "hash/legacy_hash.h",
+     "json/json_common.h",
++    "json/json_parser.cc",
++    "json/json_parser.h",
+     "json/json_reader.cc",
+     "json/json_reader.h",
+     "json/json_string_value_serializer.cc",
+@@ -1065,10 +1067,6 @@ component("base") {
+   # Used by metrics/crc32
+   deps += [ "//third_party/zlib" ]
+ 
+-  deps += [
+-    ":rust_logger",
+-    "//third_party/rust/serde_json_lenient/v0_2/wrapper",
+-  ]
+ 
+   # `raw_ptr` cannot be made a component due to CRT symbol issues.
+   # Its gateway to being a component is through `//base`, so we have
+@@ -1103,14 +1101,6 @@ component("base") {
+     "//third_party/abseil-cpp:absl",
+   ]
+ 
+-  sources += [
+-    "containers/span_rust.h",
+-    "strings/string_view_rust.h",
+-  ]
+-
+-  # Base provides conversions between CXX types and base types (e.g.
+-  # std::string_view).
+-  public_deps += [ "//build/rust:cxx_cppdeps" ]
+ 
+   # Needed for <atomic> if using newer C++ library than sysroot, except if
+   # building inside the cros_sdk environment - use host_toolchain as a
+@@ -1564,8 +1554,6 @@ component("base") {
+     "files/scoped_temp_file.h",
+     "json/json_file_value_serializer.cc",
+     "json/json_file_value_serializer.h",
+-    "logging/rust_log_integration.cc",
+-    "logging/rust_log_integration.h",
+     "memory/discardable_memory.cc",
+     "memory/discardable_memory.h",
+     "memory/discardable_memory_allocator.cc",
+@@ -3733,11 +3721,6 @@ test("base_unittests") {
+     sources += [ "location_unittest.cc" ]
+   }
+ 
+-  sources += [
+-    "containers/span_rust_unittest.cc",
+-    "strings/string_piece_rust_unittest.cc",
+-  ]
+-
+   fuzztests = [ "JSONReaderTest.CanParseAnythingWithoutCrashing" ]
+ 
+   defines = []
+@@ -3782,8 +3765,6 @@ test("base_unittests") {
+     deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
+   }
+ 
+-  deps += [ "//build/rust:cxx_cppdeps" ]
+-
+   data_deps = [
+     "//base/test:immediate_crash_test_helper",
+     "//base/test:test_child_process",
+--- a/base/json/json_reader.cc
++++ b/base/json/json_reader.cc
+@@ -12,115 +12,8 @@
+ #include "base/strings/strcat.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "build/build_config.h"
+-#include "base/strings/string_view_rust.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/functions.h"
+-#include "third_party/rust/serde_json_lenient/v0_2/wrapper/lib.rs.h"
+-
+-namespace {
+-const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
+-}  // namespace
+-
+-// This namespace defines FFI-friendly functions that are be called from Rust in
+-// //third_party/rust/serde_json_lenient/v0_2/wrapper/.
+-namespace serde_json_lenient {
+-
+-base::Value::List& list_append_list(base::Value::List& ctx) {
+-  ctx.Append(base::Value::List());
+-  return ctx.back().GetList();
+-}
+-
+-base::Value::Dict& list_append_dict(base::Value::List& ctx) {
+-  ctx.Append(base::Value::Dict());
+-  return ctx.back().GetDict();
+-}
+-
+-void list_append_none(base::Value::List& ctx) {
+-  ctx.Append(base::Value());
+-}
+ 
+-void list_append_bool(base::Value::List& ctx, bool val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_i32(base::Value::List& ctx, int32_t val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_f64(base::Value::List& ctx, double val) {
+-  ctx.Append(val);
+-}
+-
+-void list_append_str(base::Value::List& ctx, rust::Str val) {
+-  ctx.Append(std::string(val));
+-}
+-
+-base::Value::List& dict_set_list(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::List());
+-  return value->GetList();
+-}
+-
+-base::Value::Dict& dict_set_dict(base::Value::Dict& ctx, rust::Str key) {
+-  base::Value* value =
+-      ctx.Set(base::RustStrToStringView(key), base::Value::Dict());
+-  return value->GetDict();
+-}
+-
+-void dict_set_none(base::Value::Dict& ctx, rust::Str key) {
+-  ctx.Set(base::RustStrToStringView(key), base::Value());
+-}
+-
+-void dict_set_bool(base::Value::Dict& ctx, rust::Str key, bool val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_i32(base::Value::Dict& ctx, rust::Str key, int32_t val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_f64(base::Value::Dict& ctx, rust::Str key, double val) {
+-  ctx.Set(base::RustStrToStringView(key), val);
+-}
+-
+-void dict_set_str(base::Value::Dict& ctx, rust::Str key, rust::Str val) {
+-  ctx.Set(base::RustStrToStringView(key), std::string(val));
+-}
+-
+-namespace {
+-
+-base::JSONReader::Result DecodeJSONInRust(std::string_view json,
+-                                          int options,
+-                                          size_t max_depth) {
+-  const JsonOptions rust_options = {
+-      .allow_trailing_commas =
+-          (options & base::JSON_ALLOW_TRAILING_COMMAS) != 0,
+-      .replace_invalid_characters =
+-          (options & base::JSON_REPLACE_INVALID_CHARACTERS) != 0,
+-      .allow_comments = (options & base::JSON_ALLOW_COMMENTS) != 0,
+-      .allow_newlines = (options & base::JSON_ALLOW_NEWLINES_IN_STRINGS) != 0,
+-      .allow_vert_tab = (options & base::JSON_ALLOW_VERT_TAB) != 0,
+-      .allow_x_escapes = (options & base::JSON_ALLOW_X_ESCAPES) != 0,
+-      .max_depth = max_depth,
+-  };
+-
+-  base::Value::List list;
+-  DecodeError error;
+-  bool ok =
+-      decode_json(base::StringViewToRustSlice(json), rust_options, list, error);
+-
+-  if (!ok) {
+-    return base::unexpected(base::JSONReader::Error{
+-        .message = std::string(error.message),
+-        .line = error.line,
+-        .column = error.column,
+-    });
+-  }
+-
+-  return std::move(list.back());
+-}
+-
+-}  // namespace
+-}  // namespace serde_json_lenient
++#include "base/json/json_parser.h"
+ 
+ namespace base {
+ 
+@@ -133,14 +26,8 @@ std::string JSONReader::Error::ToString(
+ std::optional<Value> JSONReader::Read(std::string_view json,
+                                       int options,
+                                       size_t max_depth) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-
+-  JSONReader::Result result =
+-      serde_json_lenient::DecodeJSONInRust(json, options, max_depth);
+-  if (!result.has_value()) {
+-    return std::nullopt;
+-  }
+-  return std::move(*result);
++  internal::JSONParser parser(options, max_depth);
++  return parser.Parse(json);
+ }
+ 
+ // static
+@@ -169,9 +56,17 @@ std::optional<Value::List> JSONReader::R
+ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+     std::string_view json,
+     int options) {
+-  SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
+-  return serde_json_lenient::DecodeJSONInRust(json, options,
+-                                              internal::kAbsoluteMaxDepth);
++  internal::JSONParser parser(options);
++  auto value = parser.Parse(json);
++  if (!value) {
++    Error error;
++    error.message = parser.GetErrorMessage();
++    error.line = parser.error_line();
++    error.column = parser.error_column();
++    return base::unexpected(std::move(error));
++  }
++
++  return std::move(*value);
+ }
+ 
+ }  // namespace base
+--- a/base/logging.cc
++++ b/base/logging.cc
+@@ -33,7 +33,6 @@
+ #include "base/debug/task_trace.h"
+ #include "base/functional/callback.h"
+ #include "base/immediate_crash.h"
+-#include "base/logging/rust_logger.rs.h"
+ #include "base/no_destructor.h"
+ #include "base/path_service.h"
+ #include "base/pending_task.h"
+@@ -506,7 +505,7 @@ bool BaseInitLoggingImpl(const LoggingSe
+ #endif
+ 
+   // Connects Rust logging with the //base logging functionality.
+-  internal::init_rust_log_crate();
++  //internal::init_rust_log_crate();
+ 
+   // Ignore file options unless logging to file is set.
+   if ((g_logging_destination & LOG_TO_FILE) == 0) {
+--- a/components/user_data_importer/content/stable_portability_data_importer.cc
++++ b/components/user_data_importer/content/stable_portability_data_importer.cc
+@@ -16,73 +16,11 @@
+ #include "components/strings/grit/components_strings.h"
+ #include "components/user_data_importer/utility/bookmark_util.h"
+ #include "components/user_data_importer/utility/history_callback_from_rust.h"
+-#include "components/user_data_importer/utility/parsing_ffi/lib.rs.h"
+ #include "content/public/browser/browser_thread.h"
+ #include "ui/base/l10n/l10n_util.h"
+ 
+ namespace user_data_importer {
+ 
+-namespace {
+-
+-std::string_view RustStringToStringView(const rust::String& rust_string) {
+-  return std::string_view(rust_string.data(), rust_string.length());
+-}
+-
+-std::u16string RustStringToUTF16(const rust::String& rust_string) {
+-  return base::UTF8ToUTF16(RustStringToStringView(rust_string));
+-}
+-
+-std::optional<history::URLRow> ConvertToURLRow(
+-    const user_data_importer::StablePortabilityHistoryEntry& history_entry) {
+-  GURL gurl(RustStringToStringView(history_entry.url));
+-  if (!gurl.is_valid()) {
+-    return std::nullopt;
+-  }
+-
+-  history::URLRow url_row(gurl);
+-  url_row.set_title(RustStringToUTF16(history_entry.title));
+-  url_row.set_visit_count(history_entry.visit_count);
+-
+-  url_row.set_last_visit(
+-      base::Time::UnixEpoch() +
+-      base::Microseconds(history_entry.visit_time_unix_epoch_usec));
+-  url_row.set_typed_count(history_entry.typed_count);
+-
+-  return url_row;
+-}
+-
+-}  // namespace
+-
+-StablePortabilityDataImporter::RustHistoryCallbackForStablePortabilityFormat::
+-    RustHistoryCallbackForStablePortabilityFormat(
+-        TransferHistoryCallback transfer_history_callback,
+-        user_data_importer::StablePortabilityDataImporter::ImportCallback
+-            done_callback)
+-    : transfer_history_callback_(std::move(transfer_history_callback)),
+-      done_callback_(std::move(done_callback)) {}
+-
+-StablePortabilityDataImporter::RustHistoryCallbackForStablePortabilityFormat::
+-    ~RustHistoryCallbackForStablePortabilityFormat() = default;
+-
+-void StablePortabilityDataImporter::
+-    RustHistoryCallbackForStablePortabilityFormat::ImportHistoryEntries(
+-        std::unique_ptr<std::vector<StablePortabilityHistoryEntry>>
+-            history_entries,
+-        bool completed) {
+-  parsed_history_entries_count_ += history_entries->size();
+-  transfer_history_callback_.Run(std::move(*history_entries));
+-
+-  if (completed && done_callback_) {
+-    std::move(done_callback_).Run(parsed_history_entries_count_);
+-  }
+-}
+-
+-void StablePortabilityDataImporter::
+-    RustHistoryCallbackForStablePortabilityFormat::Fail() {
+-  if (done_callback_) {
+-    std::move(done_callback_).Run(-1);
+-  }
+-}
+ 
+ StablePortabilityDataImporter::BackgroundWorker::BackgroundWorker(
+     std::unique_ptr<ContentBookmarkParser> bookmark_parser)
+@@ -96,16 +34,6 @@ void StablePortabilityDataImporter::Back
+   bookmark_parser_->Parse(std::move(file), std::move(bookmarks_callback));
+ }
+ 
+-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+-void StablePortabilityDataImporter::BackgroundWorker::ParseHistory(
+-    base::File file,
+-    std::unique_ptr<RustHistoryCallbackForStablePortabilityFormat> callback,
+-    size_t import_batch_size) {
+-  int owned_raw_fd = file.TakePlatformFile();
+-  user_data_importer::parse_stable_portability_history(
+-      owned_raw_fd, std::move(callback), import_batch_size);
+-}
+-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+ 
+ StablePortabilityDataImporter::StablePortabilityDataImporter(
+     history::HistoryService* history_service,
+@@ -210,51 +138,15 @@ void StablePortabilityDataImporter::Impo
+     return;
+   }
+ 
+-  auto transfer_history_entries_callback = base::BindPostTask(
+-      origin_sequence_task_runner_,
+-      base::BindRepeating(
+-          &StablePortabilityDataImporter::TransferHistoryEntries,
+-          weak_factory_.GetWeakPtr()));
+-
+   auto done_callback =
+       base::BindOnce(&StablePortabilityDataImporter::OnHistoryImportCompleted,
+                      weak_factory_.GetWeakPtr(), std::move(history_callback));
+   auto done_callback_on_thread = base::BindPostTask(
+       origin_sequence_task_runner_, std::move(done_callback));
+ 
+-  auto rust_history_callback =
+-      std::make_unique<RustHistoryCallbackForStablePortabilityFormat>(
+-          std::move(transfer_history_entries_callback),
+-          std::move(done_callback_on_thread));
+-
+-  background_worker_.AsyncCall(&BackgroundWorker::ParseHistory)
+-      .WithArgs(std::move(file), std::move(rust_history_callback),
+-                import_batch_size);
+ }
+ #endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+ 
+-void StablePortabilityDataImporter::TransferHistoryEntries(
+-    std::vector<StablePortabilityHistoryEntry> history_entries) {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  CHECK(history_service_);
+-
+-  history::URLRows url_rows;
+-  url_rows.reserve(history_entries.size());
+-  for (const auto& history_entry : history_entries) {
+-    std::optional<history::URLRow> opt_row = ConvertToURLRow(history_entry);
+-    if (opt_row) {
+-      url_rows.push_back(std::move(opt_row.value()));
+-    }
+-  }
+-
+-  if (!url_rows.empty()) {
+-    history_service_->AddPagesWithDetails(
+-        url_rows, history::SOURCE_OS_MIGRATION_IMPORTED);
+-    imported_history_entries_count_ += url_rows.size();
+-  }
+-}
+-
+ void StablePortabilityDataImporter::OnHistoryImportCompleted(
+     ImportCallback history_callback,
+     int parsed_history_entries_count) {
+--- a/components/user_data_importer/content/stable_portability_data_importer.h
++++ b/components/user_data_importer/content/stable_portability_data_importer.h
+@@ -30,7 +30,6 @@ class ReadingListModel;
+ 
+ namespace user_data_importer {
+ 
+-struct StablePortabilityHistoryEntry;
+ 
+ // Main model-layer object for extracting the data exported by browsers in the
+ // stable portability data format. The data is received through a system API in
+@@ -78,35 +77,6 @@ class StablePortabilityDataImporter {
+  private:
+   // Object used to allow Rust History import pipeline to communicate results
+   // back to this importer.
+-  class RustHistoryCallbackForStablePortabilityFormat final
+-      : public user_data_importer::HistoryCallbackFromRust<
+-            StablePortabilityHistoryEntry> {
+-   public:
+-    using TransferHistoryCallback = base::RepeatingCallback<void(
+-        std::vector<StablePortabilityHistoryEntry>)>;
+-
+-    explicit RustHistoryCallbackForStablePortabilityFormat(
+-        TransferHistoryCallback transfer_history_callback,
+-        user_data_importer::StablePortabilityDataImporter::ImportCallback
+-            done_callback);
+-
+-    ~RustHistoryCallbackForStablePortabilityFormat() override;
+-
+-    // Called from Rust when a batch of history entries has been parsed.
+-    void ImportHistoryEntries(
+-        std::unique_ptr<std::vector<
+-            user_data_importer::StablePortabilityHistoryEntry>> history_entries,
+-        bool completed) override;
+-
+-    // Calls `done_callback_` with 0 to signal that parsing has failed.
+-    void Fail() override;
+-
+-   private:
+-    TransferHistoryCallback transfer_history_callback_;
+-    user_data_importer::StablePortabilityDataImporter::ImportCallback
+-        done_callback_;
+-    size_t parsed_history_entries_count_ = 0;
+-  };
+ 
+   // Encapsulates work which must occur in the background thread.
+   class BackgroundWorker {
+@@ -120,12 +90,6 @@ class StablePortabilityDataImporter {
+         user_data_importer::BookmarkParser::BookmarkParsingCallback
+             bookmarks_callback);
+ 
+-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+-    void ParseHistory(
+-        base::File file,
+-        std::unique_ptr<RustHistoryCallbackForStablePortabilityFormat> callback,
+-        size_t import_batch_size);
+-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+ 
+    private:
+     std::unique_ptr<ContentBookmarkParser> bookmark_parser_;
+@@ -133,10 +97,6 @@ class StablePortabilityDataImporter {
+ 
+   friend class StablePortabilityDataImporterTest;
+ 
+-  // Transfers the history entries to the importer. This is used by the Rust
+-  // History import pipeline to communicate results back to this importer.
+-  void TransferHistoryEntries(
+-      std::vector<StablePortabilityHistoryEntry> history_entries);
+ 
+   // Logs metrics related to history importing and invokes `history_callback`
+   // with the number of history entries imported. A negative
+--- a/components/user_data_importer/mojom/BUILD.gn
++++ b/components/user_data_importer/mojom/BUILD.gn
+@@ -39,7 +39,6 @@ mojom("mojom") {
+       traits_sources = [ "bookmark_html_parser_traits.cc" ]
+       traits_public_deps = [
+         "//components/favicon_base",
+-        "//components/user_data_importer/utility:safari_data_importer",
+       ]
+     },
+   ]
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -74,7 +74,6 @@ if (use_blink || (is_ios && build_with_i
+     ]
+     if (enable_constraints) {
+       defines += [ "ENABLE_ON_DEVICE_CONSTRAINTS" ]
+-      deps += [ "//third_party/rust/llguidance/v1:lib" ]
+     }
+     if (use_blink) {
+       deps += [ "//gpu/config" ]
+--- a/services/on_device_model/ml/chrome_ml.cc
++++ b/services/on_device_model/ml/chrome_ml.cc
+@@ -24,7 +24,6 @@
+ #include "third_party/dawn/include/dawn/dawn_proc.h"
+ #include "third_party/dawn/include/dawn/native/DawnNative.h"
+ #include "third_party/dawn/include/dawn/webgpu_cpp.h"
+-#include "third_party/rust/chromium_crates_io/vendor/llguidance-v1/llguidance.h"
+ 
+ #if !BUILDFLAG(IS_IOS)
+ #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/blink/common/BUILD.gn
++++ b/third_party/blink/common/BUILD.gn
+@@ -314,7 +314,6 @@ source_set("common") {
+     "//services/metrics/public/mojom",
+     "//services/network/public/cpp",
+     "//services/network/public/mojom:mojom_permissions_policy",
+-    "//third_party/blink/common/rust_crash",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/re2",
+     "//ui/base",
+--- a/third_party/blink/common/chrome_debug_urls.cc
++++ b/third_party/blink/common/chrome_debug_urls.cc
+@@ -12,7 +12,6 @@
+ #include "base/threading/platform_thread.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/common/crash_helpers.h"
+-#include "third_party/blink/common/rust_crash/src/lib.rs.h"
+ #include "url/gurl.h"
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -118,7 +117,7 @@ NOINLINE void MaybeTriggerAsanError(cons
+     // Ensure that ASAN works even in Rust code.
+     LOG(ERROR) << "Intentionally causing ASAN heap overflow in Rust"
+                << " because user navigated to " << url.spec();
+-    crash_in_rust_with_overflow();
++    //crash_in_rust_with_overflow();
+   }
+ }
+ #endif  // ADDRESS_SANITIZER
+@@ -138,7 +137,7 @@ void HandleChromeDebugURL(const GURL& ur
+   } else if (url == kChromeUICrashRustURL) {
+     // Cause a typical crash in Rust code, so we can test that call stack
+     // collection and symbol mangling work across the language boundary.
+-    crash_in_rust();
++    //crash_in_rust();
+   } else if (url == kChromeUIDumpURL) {
+     // This URL will only correctly create a crash dump file if content is
+     // hosted in a process that has correctly called
+--- a/third_party/breakpad/BUILD.gn
++++ b/third_party/breakpad/BUILD.gn
+@@ -746,12 +746,6 @@ if (is_linux || is_chromeos || is_androi
+ 
+       include_dirs = [ "breakpad/src" ]
+ 
+-      # Rust demangle support.
+-      deps = [ "//third_party/rust/rustc_demangle_capi/v0_1:lib" ]
+-      defines += [ "HAVE_RUSTC_DEMANGLE" ]
+-      include_dirs += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include" ]
+-      sources += [ "//third_party/rust/chromium_crates_io/vendor/rustc-demangle-capi-v0_1/include/rustc_demangle.h" ]
+-
+       libs = [ "z" ]
+     }
+   } else if (current_toolchain == default_toolchain) {
+--- a/ui/gfx/codec/png_codec.cc
++++ b/ui/gfx/codec/png_codec.cc
+@@ -34,7 +34,7 @@ namespace {
+ 
+ std::unique_ptr<SkCodec> CreatePngDecoder(std::unique_ptr<SkStream> stream,
+                                           SkCodec::Result* result) {
+-  return SkPngRustDecoder::Decode(std::move(stream), result);
++  return SkPngDecoder::Decode(std::move(stream), result);
+ }
+ 
+ struct PreparationOutput {

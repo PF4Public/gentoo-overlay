@@ -524,9 +524,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-141-crabby.patch"
-		"${FILESDIR}/chromium-141-no-rust.patch"
-		"${FILESDIR}/chromium-141-fontations.patch"
-		"${FILESDIR}/chromium-141-gcc.patch"
+		"${FILESDIR}/chromium-142-no-rust.patch"
+		"${FILESDIR}/chromium-142-fontations.patch"
+		"${FILESDIR}/chromium-142-gcc.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
@@ -614,7 +614,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r5.patch"
+			"${FILESDIR}/disable-bluez-r6.patch"
 		)
 	fi
 
