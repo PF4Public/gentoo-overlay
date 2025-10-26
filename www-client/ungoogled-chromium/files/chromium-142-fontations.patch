@@ -335,6 +335,26 @@
      return Vector<uint8_t>();
    }
  
+--- a/third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc
++++ b/third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc
+@@ -5,7 +5,7 @@
+ #include "third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.h"
+ 
+ #include "third_party/blink/renderer/platform/wtf/text/atomic_string.h"
+-#include "third_party/skia/include/codec/SkPngRustDecoder.h"
++#include "third_party/skia/include/codec/SkPngDecoder.h"
+ #include "third_party/skia/include/core/SkStream.h"
+ 
+ namespace blink {
+@@ -25,7 +25,7 @@ std::unique_ptr<SkCodec> PngImageDecoder
+     std::unique_ptr<SkStream> stream,
+     SkCodec::Result* result) {
+   std::unique_ptr<SkCodec> codec =
+-      SkPngRustDecoder::Decode(std::move(stream), result);
++      SkPngDecoder::Decode(std::move(stream), result);
+   return codec;
+ }
+ 
 --- a/third_party/blink/renderer/platform/image-encoders/image_encoder.cc
 +++ b/third_party/blink/renderer/platform/image-encoders/image_encoder.cc
 @@ -27,10 +27,9 @@ bool ImageEncoder::Encode(Vector<unsigne
@@ -346,7 +366,7 @@
    VectorWStream dst_stream(dst);
 -  SkPngRustEncoder::Options options = {.fCompressionLevel = compression_level};
 -  return SkPngRustEncoder::Encode(&dst_stream, src, options);
-+  return skia::EncodePng(&dst_stream, src, options);
++  return SkPngEncoder::Encode(&dst_stream, src, options);
  }
  
  bool ImageEncoder::Encode(Vector<unsigned char>* dst,
@@ -372,7 +392,7 @@
 -  SkPngRustEncoder::Options options = {.fCompressionLevel = compression_level};
    image_encoder->encoder_ =
 -      SkPngRustEncoder::Make(&image_encoder->dst_, src, options);
-+      skia::MakePngEncoder(&image_encoder->dst_, src, options);
++      SkPngEncoder::Make(&image_encoder->dst_, src, options);
    if (!image_encoder->encoder_) {
      return nullptr;
    }

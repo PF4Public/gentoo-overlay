@@ -172,6 +172,20 @@
 +}
 +source_set("per_thread_sem_test") {
 +}
+--- a/components/proto_extras/proto_extras_lib.h
++++ b/components/proto_extras/proto_extras_lib.h
+@@ -12,10 +12,8 @@
+ #include "base/numerics/safe_conversions.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "base/values.h"
++#include "third_party/abseil-cpp/absl/strings/cord.h"
+ 
+-namespace absl {
+-class Cord;
+-}  // namespace absl
+ 
+ namespace google::protobuf {
+ class MessageLite;
 --- a/third_party/protobuf/src/google/protobuf/repeated_field.h
 +++ b/third_party/protobuf/src/google/protobuf/repeated_field.h
 @@ -33,6 +33,7 @@
