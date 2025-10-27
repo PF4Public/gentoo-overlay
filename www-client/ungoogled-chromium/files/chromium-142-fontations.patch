@@ -1,3 +1,54 @@
+--- a/chrome/browser/ui/webui/side_panel/read_anything/read_anything_screenshotter.cc
++++ b/chrome/browser/ui/webui/side_panel/read_anything/read_anything_screenshotter.cc
+@@ -19,7 +19,7 @@
+ #include "mojo/public/cpp/base/proto_wrapper.h"
+ #include "third_party/skia/include/core/SkImage.h"
+ #include "third_party/skia/include/core/SkStream.h"
+-#include "third_party/skia/include/encode/SkPngRustEncoder.h"
++#include "third_party/skia/include/encode/SkPngEncoder.h"
+ #include "ui/gfx/geometry/rect.h"
+ 
+ constexpr size_t kMaxScreenshotFileSize = 50 * 1000L * 1000L;  // 50 MB.
+@@ -73,7 +73,7 @@ void WriteBitmapToPng(const SkBitmap& bi
+     return;
+   }
+   bool success_encode =
+-      SkPngRustEncoder::Encode(&out_file, cropped_pixmap, /*options=*/{});
++      SkPngEncoder::Encode(&out_file, cropped_pixmap, /*options=*/{});
+   if (success_encode) {
+     VLOG(2) << "Wrote debug file: " << screenshot_filepath;
+   } else {
+--- a/components/paint_preview/common/serial_utils.cc
++++ b/components/paint_preview/common/serial_utils.cc
+@@ -15,7 +15,7 @@
+ #include "third_party/skia/include/codec/SkCodec.h"
+ #include "third_party/skia/include/codec/SkGifDecoder.h"
+ #include "third_party/skia/include/codec/SkJpegDecoder.h"
+-#include "third_party/skia/include/codec/SkPngRustDecoder.h"
++#include "third_party/skia/include/codec/SkPngDecoder.h"
+ #include "third_party/skia/include/codec/SkWebpDecoder.h"
+ #include "third_party/skia/include/core/SkCanvas.h"
+ #include "third_party/skia/include/core/SkData.h"
+@@ -135,7 +135,7 @@ static bool is_supported_codec(sk_sp<SkD
+   CHECK(data);
+   return SkBmpDecoder::IsBmp(data->data(), data->size()) ||
+          SkGifDecoder::IsGif(data->data(), data->size()) ||
+-         SkPngRustDecoder::IsPng(data->data(), data->size()) ||
++         SkPngDecoder::IsPng(data->data(), data->size()) ||
+          SkJpegDecoder::IsJpeg(data->data(), data->size()) ||
+          SkWebpDecoder::IsWebp(data->data(), data->size());
+ }
+@@ -203,8 +203,8 @@ sk_sp<SkImage> DeserializeImage(const vo
+         codec->getInfo().makeAlphaType(kPremul_SkAlphaType);
+     return std::get<0>(codec->getImage(targetInfo));
+   };
+-  if (SkPngRustDecoder::IsPng(bytes, length)) {
+-    return get_image(SkPngRustDecoder::Decode(
++  if (SkPngDecoder::IsPng(bytes, length)) {
++    return get_image(SkPngDecoder::Decode(
+         std::make_unique<SkMemoryStream>(std::move(data)), nullptr));
+   }
+   if (SkBmpDecoder::IsBmp(bytes, length)) {
 --- a/skia/BUILD.gn
 +++ b/skia/BUILD.gn
 @@ -188,9 +188,6 @@ config("skia_library_config") {
