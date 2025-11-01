@@ -553,14 +553,3 @@
        libs = [ "z" ]
      }
    } else if (current_toolchain == default_toolchain) {
---- a/ui/gfx/codec/png_codec.cc
-+++ b/ui/gfx/codec/png_codec.cc
-@@ -34,7 +34,7 @@ namespace {
- 
- std::unique_ptr<SkCodec> CreatePngDecoder(std::unique_ptr<SkStream> stream,
-                                           SkCodec::Result* result) {
--  return SkPngRustDecoder::Decode(std::move(stream), result);
-+  return SkPngDecoder::Decode(std::move(stream), result);
- }
- 
- struct PreparationOutput {

@@ -97,7 +97,7 @@
      deps += [
 --- a/skia/ext/codec_utils.cc
 +++ b/skia/ext/codec_utils.cc
-@@ -8,30 +8,29 @@
+@@ -8,30 +8,36 @@
  #include "base/check.h"
  #include "skia/ext/skia_utils_base.h"
  #include "third_party/skia/include/codec/SkCodec.h"
@@ -129,13 +129,20 @@
 -    GrDirectContext* context,
 -    const SkImage* src,
 -    SkPngRustEncoder::CompressionLevel compression_level) {
++}  // namespace
++
++sk_sp<SkData> EncodePngAsSkData(const SkPixmap& src) {
++  const SkPngEncoder::Options kDefaultOptions = {};
++  return EncodePngAsSkData(src, kDefaultOptions);
++}
++
 +sk_sp<SkData> EncodePngAsSkData(GrDirectContext* context,
 +                                const SkImage* src,
 +                                int zlib_compression_level) {
    if (!src) {
      return nullptr;
    }
-@@ -47,27 +46,30 @@ sk_sp<SkData> EncodePngAsSkData(
+@@ -47,27 +53,16 @@ sk_sp<SkData> EncodePngAsSkData(
    // `peekPixels` should always succeed for raster images.
    CHECK(success);
  
@@ -145,35 +152,30 @@
    return EncodePngAsSkData(pixmap, options);
  }
  
- }  // namespace
- 
- sk_sp<SkData> EncodePngAsSkData(const SkPixmap& src) {
+-}  // namespace
+-
+-sk_sp<SkData> EncodePngAsSkData(const SkPixmap& src) {
 -  const SkPngRustEncoder::Options kDefaultOptions = {};
-+  const SkPngEncoder::Options kDefaultOptions = {};
-   return EncodePngAsSkData(src, kDefaultOptions);
- }
- 
+-  return EncodePngAsSkData(src, kDefaultOptions);
+-}
+-
  sk_sp<SkData> EncodePngAsSkData(GrDirectContext* context, const SkImage* src) {
 -  return EncodePngAsSkData(context, src,
 -                           SkPngRustEncoder::CompressionLevel::kMedium);
+-}
 +  // This is the default level in
 +  // `third_party/skia/include/encode/SkPngEncoder.h`.
 +  const int kDefaultZlibCompressionLevel = 6;
-+
+ 
+-sk_sp<SkData> FastEncodePngAsSkData(GrDirectContext* context,
+-                                    const SkImage* src) {
+-  return EncodePngAsSkData(context, src,
+-                           SkPngRustEncoder::CompressionLevel::kLow);
 +  return EncodePngAsSkData(context, src, kDefaultZlibCompressionLevel);
  }
  
- sk_sp<SkData> FastEncodePngAsSkData(GrDirectContext* context,
-                                     const SkImage* src) {
--  return EncodePngAsSkData(context, src,
--                           SkPngRustEncoder::CompressionLevel::kLow);
-+  const int lowZlibCompressionLevel = 1;
-+
-+  return EncodePngAsSkData(context, src, lowZlibCompressionLevel);
- }
- 
  std::string EncodePngAsDataUri(const SkPixmap& src) {
-@@ -80,7 +82,7 @@ std::string EncodePngAsDataUri(const SkP
+@@ -80,7 +75,8 @@ std::string EncodePngAsDataUri(const SkP
  }
  
  void EnsurePNGDecoderRegistered() {
@@ -182,6 +184,26 @@
  }
  
  }  // namespace skia
++
+--- a/skia/ext/codec_utils.h
++++ b/skia/ext/codec_utils.h
+@@ -19,8 +19,9 @@ namespace skia {
+ SK_API sk_sp<SkData> EncodePngAsSkData(const SkPixmap& src);
+ SK_API sk_sp<SkData> EncodePngAsSkData(GrDirectContext* context,
+                                        const SkImage* src);
+-SK_API sk_sp<SkData> FastEncodePngAsSkData(GrDirectContext* context,
+-                                           const SkImage* src);
++SK_API sk_sp<SkData> EncodePngAsSkData(GrDirectContext* context,
++                                       const SkImage* src,
++                                       int zlib_compression_level);
+ SK_API std::string EncodePngAsDataUri(const SkPixmap& src);
+ 
+ // This is not thread safe and should only be called via startup
+@@ -29,3 +30,4 @@ SK_API void EnsurePNGDecoderRegistered()
+ }  // namespace skia
+ 
+ #endif  // SKIA_EXT_CODEC_UTILS_H_
++
 --- a/skia/ext/font_utils.cc
 +++ b/skia/ext/font_utils.cc
 @@ -66,9 +66,7 @@ static sk_sp<SkFontMgr> fontmgr_factory(
@@ -347,7 +369,25 @@
  #include "third_party/skia/include/core/SkAlphaType.h"
  #include "third_party/skia/include/core/SkData.h"
  #include "third_party/skia/include/core/SkImage.h"
-@@ -328,13 +328,12 @@ sk_sp<SkImage> CanvasHibernationHandler:
+@@ -238,11 +238,12 @@ void CanvasHibernationHandler::Encode(
+       break;
+     case CompressionAlgorithm::kZstd: {
+ #if BUILDFLAG(HAS_ZSTD_COMPRESSION)
+-      // Do minimal PNG compression and then pass the result to ZSTD. This won't
+-      // produce a valid PNG, but it doesn't matter, as we don't write it to
+-      // disk, and restore it ourselves.
+-      sk_sp<SkData> encoded_uncompressed =
+-          skia::FastEncodePngAsSkData(nullptr, params->image.get());
++      // When the compression level is set to 0, no compression is done. Then we
++      // can pass the result to ZSTD. This won't produce a valid PNG, but it
++      // doesn't matter, as we don't write it to disk, and restore it ourselves.
++      constexpr int kZLibCompressionLevel = 0;
++      sk_sp<SkData> encoded_uncompressed = skia::EncodePngAsSkData(
++          nullptr, params->image.get(), kZLibCompressionLevel);
+ 
+       TRACE_EVENT_BEGIN2("blink", "ZstdCompression", "original_size", 0, "size",
+                          0);
+@@ -328,13 +329,12 @@ sk_sp<SkImage> CanvasHibernationHandler:
      }
    }
  
@@ -502,6 +542,15 @@
  #include "ui/gfx/codec/vector_wstream.h"
  #include "ui/gfx/geometry/size.h"
  
+@@ -34,7 +34,7 @@ namespace {
+ 
+ std::unique_ptr<SkCodec> CreatePngDecoder(std::unique_ptr<SkStream> stream,
+                                           SkCodec::Result* result) {
+-  return SkPngRustDecoder::Decode(std::move(stream), result);
++  return SkPngDecoder::Decode(std::move(stream), result);
+ }
+ 
+ struct PreparationOutput {
 @@ -170,7 +170,7 @@ SkBitmap PNGCodec::Decode(base::span<con
  
  namespace {

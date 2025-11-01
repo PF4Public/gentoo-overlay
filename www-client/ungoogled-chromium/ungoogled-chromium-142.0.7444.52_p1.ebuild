@@ -768,6 +768,8 @@ src_prepare() {
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
+	cp -f "${FILESDIR}/png_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/png || die
+	cp -f "${FILESDIR}/png_image_decoder.h" third_party/blink/renderer/platform/image-decoders/png || die
 	cp -f "${FILESDIR}/font_format_check.cc" third_party/blink/renderer/platform/fonts/opentype || die
 	cp -f "${FILESDIR}/font_format_check.h" third_party/blink/renderer/platform/fonts/opentype || die
 
