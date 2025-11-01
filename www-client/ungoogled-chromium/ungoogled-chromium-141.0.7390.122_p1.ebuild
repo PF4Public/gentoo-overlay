@@ -618,6 +618,12 @@ src_prepare() {
 		)
 	fi
 
+	if ! use libcxx ; then
+		PATCHES+=(
+			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
+		)
+	fi
+
 	if use system-ffmpeg; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"

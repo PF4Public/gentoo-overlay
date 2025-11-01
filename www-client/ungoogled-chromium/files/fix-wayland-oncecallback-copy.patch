@@ -1,0 +1,53 @@
+--- a/ui/ozone/platform/wayland/host/wayland_wp_color_manager.h
++++ b/ui/ozone/platform/wayland/host/wayland_wp_color_manager.h
+@@ -106,7 +106,7 @@
+
+   // Callbacks for image descriptions that are being created.
+   base::flat_map<ImageDescription,
+-                 std::vector<WaylandWpImageDescription::CreationCallback>>
++                 std::unique_ptr<std::vector<WaylandWpImageDescription::CreationCallback>>>
+       pending_callbacks_;
+
+   // Holds the image description objects while their creation is pending.
+--- a/ui/ozone/platform/wayland/host/wayland_wp_color_manager.cc
++++ b/ui/ozone/platform/wayland/host/wayland_wp_color_manager.cc
+@@ -162,15 +162,22 @@
+     return;
+   }
+
+-  pending_callbacks_[key].push_back(std::move(callback));
++  auto& callback_vec = pending_callbacks_[key];
++  if (!callback_vec) {
++    callback_vec = std::make_unique<std::vector<WaylandWpImageDescription::CreationCallback>>();
++  }
++  callback_vec->push_back(std::move(callback));
+   // Return early if there's already a pending creation for this key.
+-  if (pending_callbacks_[key].size() > 1) {
++  if (callback_vec->size() > 1) {
+     return;
+   }
+
+   auto cleanup = [&]() {
+-    for (auto& cb : pending_callbacks_[key]) {
+-      std::move(cb).Run(nullptr);
++    auto& callbacks = pending_callbacks_[key];
++    if (callbacks) {
++      for (auto& cb : *callbacks) {
++        std::move(cb).Run(nullptr);
++      }
+     }
+     pending_callbacks_.erase(key);
+   };
+@@ -225,8 +232,10 @@
+
+   auto callback_it = pending_callbacks_.find(key);
+   CHECK(callback_it != pending_callbacks_.end());
+-  for (auto& cb : callback_it->second) {
+-    std::move(cb).Run(image_description);
++  if (callback_it->second) {
++    for (auto& cb : *callback_it->second) {
++      std::move(cb).Run(image_description);
++    }
+   }
+   pending_callbacks_.erase(callback_it);
+ }
