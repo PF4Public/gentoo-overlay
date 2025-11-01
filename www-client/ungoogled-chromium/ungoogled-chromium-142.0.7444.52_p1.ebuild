@@ -63,7 +63,7 @@ UGC_COMMIT_ID="98f9cedd97e7cccb52315abc65803f72a0919b73"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="409ac177ee6dd9051fb1f455622b7ab87f3262fa"
+CROMITE_COMMIT_ID="8f68189b3b33eaccd1bff868f1c7347ab7077afc"
 
 declare -A CHROMIUM_COMMITS=(
 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
@@ -627,7 +627,7 @@ src_prepare() {
 			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
 		)
 	fi
-	
+
 	if use system-ffmpeg; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"
