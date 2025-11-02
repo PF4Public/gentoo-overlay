@@ -789,10 +789,10 @@ bool PNGImageReader::ParseFrameInfo(const png_byte* data) {
 namespace blink {
 PngImageDecoder::PngImageDecoder(
     AlphaOption alpha_option,
-    HighBitDepthDecodingOption high_bit_depth_decoding_option,
     ColorBehavior color_behavior,
     wtf_size_t max_decoded_bytes,
-    wtf_size_t offset)
+    wtf_size_t offset,
+    HighBitDepthDecodingOption high_bit_depth_decoding_option)
     : ImageDecoder(alpha_option,
                    high_bit_depth_decoding_option,
                    color_behavior,

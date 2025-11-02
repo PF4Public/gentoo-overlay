@@ -181,10 +181,12 @@ namespace blink {
 class PLATFORM_EXPORT PngImageDecoder final : public ImageDecoder {
  public:
   PngImageDecoder(AlphaOption,
-                  HighBitDepthDecodingOption,
                   ColorBehavior,
                   wtf_size_t max_decoded_bytes,
-                  wtf_size_t offset = 0);
+                  wtf_size_t offset = 0,
+                   HighBitDepthDecodingOption high_bit_depth_decoding_option =
+                           HighBitDepthDecodingOption::kDefaultBitDepth);
+  static constexpr wtf_size_t kNoReadingOffset = 0;
   PngImageDecoder(const PngImageDecoder&) = delete;
   PngImageDecoder& operator=(const PngImageDecoder&) = delete;
   ~PngImageDecoder() override;
