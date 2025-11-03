@@ -1,0 +1,488 @@
+--- a/base/containers/fixed_flat_set.h
++++ b/base/containers/fixed_flat_set.h
+@@ -88,7 +88,7 @@ using fixed_flat_set = base::flat_set<Ke
+ //   constexpr auto kSet = base::MakeFixedFlatSet<std::string_view>(
+ //       base::sorted_unique, {"bar", "baz", "foo", "qux"});
+ template <class Key, size_t N, class Compare = std::less<>>
+-consteval fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
++constexpr fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
+     sorted_unique_t,
+     std::common_type_t<Key> (&&data)[N],
+     const Compare& comp = Compare()) {
+@@ -117,7 +117,7 @@ consteval fixed_flat_set<Key, N, Compare
+ // Note: Wrapping `Key` in `std::common_type_t` below requires callers to
+ // explicitly specify `Key`, which is desired here.
+ template <class Key, class Compare = std::less<>, size_t N>
+-consteval fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
++constexpr fixed_flat_set<Key, N, Compare> MakeFixedFlatSet(
+     std::common_type_t<Key> (&&data)[N],
+     const Compare& comp = Compare()) {
+   std::ranges::sort(data, comp);
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -2056,6 +2056,14 @@ config("default_warnings") {
+   ldflags = []
+   configs = []
+ 
++  if (!is_clang) {
++    # Disable warnings that are known to fail 'gcc' build.
++    cflags_cc += [ "-Wno-changes-meaning" ]
++
++    # Reduce g++ memory usage at the cost of less verbose error messages.
++    cflags_cc += [ "-ftrack-macro-expansion=0" ]
++  }
++
+   if (is_win) {
+     if (fatal_linker_warnings) {
+       arflags = [ "/WX" ]
+--- a/cc/tiles/gpu_image_decode_cache.cc
++++ b/cc/tiles/gpu_image_decode_cache.cc
+@@ -961,7 +961,7 @@ GpuImageDecodeCache::ImageData::ImageDat
+     last_use = base::TimeTicks::Now();
+   }
+   if (speculative_decode) {
+-    speculative_decode_usage_stats_.emplace();
++    speculative_decode_usage_stats_.emplace(SpeculativeDecodeUsageStats{});
+     speculative_decode_usage_stats_->speculative_decode_mip_level =
+         upload_scale_mip_level;
+     TRACE_EVENT_INSTANT2(TRACE_DISABLED_BY_DEFAULT("loading"),
+--- a/chrome/browser/ai/ai_language_model.cc
++++ b/chrome/browser/ai/ai_language_model.cc
+@@ -506,7 +506,7 @@ AILanguageModel::GetSupportedLanguageBas
+   const base::FeatureParam<std::string> kAIPromptAPILanguagesEnabled{
+       &blink::features::kAIPromptAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_rewriter.cc
++++ b/chrome/browser/ai/ai_rewriter.cc
+@@ -116,7 +116,7 @@ base::flat_set<std::string_view> AIRewri
+   const base::FeatureParam<std::string> kAIRewriterAPILanguagesEnabled{
+       &blink::features::kAIWriterAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_summarizer.cc
++++ b/chrome/browser/ai/ai_summarizer.cc
+@@ -112,7 +112,7 @@ base::flat_set<std::string_view> AISumma
+   const base::FeatureParam<std::string> kAISummarizationAPILanguagesEnabled{
+       &blink::features::kAISummarizationAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ai/ai_writer.cc
++++ b/chrome/browser/ai/ai_writer.cc
+@@ -108,7 +108,7 @@ base::flat_set<std::string_view> AIWrite
+   const base::FeatureParam<std::string> kAIWriterAPILanguagesEnabled{
+       &blink::features::kAIWriterAPI, "langs", /*default=*/"en,es,ja"};
+   // TODO(crbug.com/394841624): Get supported languages from the model config.
+-  auto kSupportedBaseLanguages =
++  constexpr auto kSupportedBaseLanguages =
+       base::MakeFixedFlatSet<std::string_view>({"en", "ja", "es"});
+   return AIUtils::RestrictSupportedLanguagesForFeature(
+       base::MakeFlatSet<std::string_view>(kSupportedBaseLanguages),
+--- a/chrome/browser/ui/views/frame/contents_web_view.h
++++ b/chrome/browser/ui/views/frame/contents_web_view.h
+@@ -14,6 +14,8 @@
+ #include "ui/base/metadata/metadata_header_macros.h"
+ #include "ui/gfx/geometry/rounded_corners_f.h"
+ #include "ui/views/controls/webview/webview.h"
++#include "chrome/browser/ui/views/status_bubble_views.h"
++#include "chrome/browser/ui/views/frame/web_contents_close_handler.h"
+ 
+ class StatusBubbleViews;
+ class WebContentsCloseHandler;
+--- a/chrome/browser/ui/webui/history/browsing_history_handler.cc
++++ b/chrome/browser/ui/webui/history/browsing_history_handler.cc
+@@ -163,7 +163,7 @@ std::pair<std::string, std::string> SetH
+     title_to_set.resize(kShortTitleLength);
+   }
+ 
+-  return std::make_tuple(entry.url.spec(), base::UTF16ToUTF8(title_to_set));
++  return std::make_pair(entry.url.spec(), base::UTF16ToUTF8(title_to_set));
+ }
+ 
+ // Helper function to check if entry is present in local database (local-side
+--- a/components/autofill/core/browser/geo/generate_country_native_names.cc
++++ b/components/autofill/core/browser/geo/generate_country_native_names.cc
+@@ -84,7 +84,7 @@ void WriteCountryNativeNamesInlFile(
+       "namespace {\n\n"
+       "constexpr auto kCountryNativeNames = "
+       "base::MakeFixedFlatMap<std::u16string_view, "
+-      "std::string>({\n";
++      "const char*>({\n";
+ 
+   for (const auto& [native_name, country_code] : country_native_names) {
+     inl_file_content += "    {u\"" + base::UTF16ToUTF8(native_name) + "\", \"" +
+--- a/components/compose/core/browser/config.cc
++++ b/components/compose/core/browser/config.cc
+@@ -46,11 +46,11 @@ std::vector<std::string> GetFieldTrialPa
+ }
+ 
+ constexpr auto DEFAULT_COMPOSE_ENABLED_COUNTRIES =
+-    base::MakeFixedFlatSet<std::string>({"bd", "ca", "gh", "in", "ke", "my",
++    base::MakeFixedFlatSet<std::string_view>({"bd", "ca", "gh", "in", "ke", "my",
+                                          "ng", "ph", "pk", "sg", "tz", "ug",
+                                          "us", "zm", "zw"});
+ constexpr auto DEFAULT_PROACTIVE_NUDGE_ENABLED_COUNTRIES =
+-    base::MakeFixedFlatSet<std::string>({"us"});
++    base::MakeFixedFlatSet<std::string_view>({"us"});
+ 
+ }  // namespace
+ 
+--- a/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
++++ b/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
+@@ -6,6 +6,7 @@
+ #define COMPONENTS_POLICY_CORE_COMMON_CLOUD_REALTIME_REPORTING_JOB_CONFIGURATION_H_
+ 
+ #include <memory>
++#include <set>
+ #include <string>
+ 
+ #include "base/feature_list.h"
+--- a/components/viz/service/display/surface_aggregator.cc
++++ b/components/viz/service/display/surface_aggregator.cc
+@@ -2161,7 +2161,7 @@ AggregatedFrame SurfaceAggregator::Aggre
+   root_surface_id_ = surface_id;
+ 
+   // Start recording new stats for this aggregation.
+-  stats_.emplace();
++  stats_.emplace(AggregateStatistics{});
+ 
+   ResolvedFrameData* resolved_frame = GetResolvedFrame(surface_id);
+ 
+--- a/content/browser/webid/accounts_fetcher.cc
++++ b/content/browser/webid/accounts_fetcher.cc
+@@ -456,7 +456,7 @@ void AccountsFetcher::OnFetchDataForIdpS
+   idp_info->client_is_third_party_to_top_frame_origin =
+       client_metadata.client_is_third_party_to_top_frame_origin;
+   for (auto& account : accounts) {
+-    account->identity_provider = idp_info->data;
++    account->identity_provider = idp_info->data.get();
+   }
+ 
+   federated_auth_request_impl_->OnFetchDataForIdpSucceeded(std::move(accounts),
+--- a/content/browser/webid/request_service.cc
++++ b/content/browser/webid/request_service.cc
+@@ -1067,7 +1067,7 @@ void RequestService::MaybeShowAccountsDi
+       accounts_ = {auto_reauthn_account};
+       idp_data_for_display_ = {auto_reauthn_idp};
+       new_accounts_.clear();
+-      accounts_[0]->identity_provider = idp_data_for_display_[0];
++      accounts_[0]->identity_provider = idp_data_for_display_[0].get();
+     }
+   }
+ 
+--- a/content/public/browser/content_browser_client.cc
++++ b/content/public/browser/content_browser_client.cc
+@@ -94,6 +94,7 @@
+ #include "ui/shell_dialogs/select_file_policy.h"
+ #include "url/gurl.h"
+ #include "url/origin.h"
++#include "content/public/browser/web_ui_controller.h"
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ #include "content/public/browser/tts_environment_android.h"
+--- a/device/fido/cable/cable_discovery_data.cc
++++ b/device/fido/cable/cable_discovery_data.cc
+@@ -114,8 +114,8 @@ Pairing::~Pairing() = default;
+ std::optional<std::unique_ptr<Pairing>> Pairing::Parse(
+     const cbor::Value& cbor,
+     tunnelserver::KnownDomainID domain,
+-    base::span<const uint8_t, kQRSeedSize> local_identity_seed,
+-    base::span<const uint8_t, 32> handshake_hash) {
++    std::span<const uint8_t, kQRSeedSize> local_identity_seed,
++    std::span<const uint8_t, 32> handshake_hash) {
+   if (!cbor.is_map()) {
+     return std::nullopt;
+   }
+--- a/device/fido/cable/cable_discovery_data.h
++++ b/device/fido/cable/cable_discovery_data.h
+@@ -141,8 +141,8 @@ struct COMPONENT_EXPORT(DEVICE_FIDO) Pai
+   static std::optional<std::unique_ptr<Pairing>> Parse(
+       const cbor::Value& cbor,
+       tunnelserver::KnownDomainID domain,
+-      base::span<const uint8_t, kQRSeedSize> local_identity_seed,
+-      base::span<const uint8_t, 32> handshake_hash);
++      std::span<const uint8_t, kQRSeedSize> local_identity_seed,
++      std::span<const uint8_t, 32> handshake_hash);
+ 
+   static bool CompareByMostRecentFirst(const std::unique_ptr<Pairing>&,
+                                        const std::unique_ptr<Pairing>&);
+--- a/extensions/browser/api/extensions_api_client.cc
++++ b/extensions/browser/api/extensions_api_client.cc
+@@ -6,6 +6,18 @@
+ 
+ #include "build/build_config.h"
+ #include "extensions/browser/api/messaging/native_message_host.h"
++#include "extensions/browser/guest_view/app_view/app_view_guest_delegate.h"
++#include "extensions/browser/guest_view/extension_options/extension_options_guest_delegate.h"
++#include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
++#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h"
++#include "extensions/browser/guest_view/web_view/web_view_guest_delegate.h"
++#include "extensions/browser/guest_view/web_view/web_view_permission_helper_delegate.h"
++#include "extensions/browser/api/declarative_content/content_rules_registry.h"
++#include "extensions/browser/api/device_permissions_prompt.h"
++#include "extensions/browser/api/virtual_keyboard_private/virtual_keyboard_delegate.h"
++#include "extensions/browser/supervised_user_extensions_delegate.h"
++#include "extensions/browser/api/system_display/display_info_provider.h"
++#include "extensions/browser/api/messaging/native_message_port_dispatcher.h"
+ 
+ namespace extensions {
+ 
+--- a/mojo/public/cpp/bindings/lib/multiplex_router.cc
++++ b/mojo/public/cpp/bindings/lib/multiplex_router.cc
+@@ -937,7 +937,7 @@ bool MultiplexRouter::ExclusiveSyncWaitF
+   DCHECK(!exclusive_sync_wait_);
+ 
+   scoped_refptr<MultiplexRouter> keep_alive(this);
+-  exclusive_sync_wait_.emplace();
++  exclusive_sync_wait_.emplace(ExclusiveSyncWaitInfo{});
+   exclusive_sync_wait_->interface_id = interface_id;
+   exclusive_sync_wait_->request_id = request_id;
+   while (!exclusive_sync_wait_->finished) {
+--- a/sql/sandboxed_vfs.h
++++ b/sql/sandboxed_vfs.h
+@@ -5,6 +5,7 @@
+ #ifndef SQL_SANDBOXED_VFS_H_
+ #define SQL_SANDBOXED_VFS_H_
+ 
++#include <cstring>
+ #include <memory>
+ #include <optional>
+ 
+--- a/third_party/angle/src/libANGLE/renderer/vulkan/vk_cache_utils.h
++++ b/third_party/angle/src/libANGLE/renderer/vulkan/vk_cache_utils.h
+@@ -3058,7 +3058,7 @@ class UpdateDescriptorSetsBuilder final
+             mCurrentVector = mDescriptorInfos.begin();
+             mTotalSize     = 0;
+         }
+-        T *allocate(uint32_t count);
++        __attribute__((__used__)) T *allocate(uint32_t count);
+ 
+         bool empty() const { return mTotalSize == 0; }
+ 
+--- a/third_party/blink/common/interest_group/auction_config_mojom_traits.cc
++++ b/third_party/blink/common/interest_group/auction_config_mojom_traits.cc
+@@ -227,8 +227,6 @@ bool StructTraits<blink::mojom::AuctionA
+       !data.ReadAllBuyersPrioritySignals(&out->all_buyers_priority_signals) ||
+       !data.ReadAuctionReportBuyerKeys(&out->auction_report_buyer_keys) ||
+       !data.ReadAuctionReportBuyers(&out->auction_report_buyers) ||
+-      !data.ReadAuctionReportBuyerDebugModeConfig(
+-          &out->auction_report_buyer_debug_mode_config) ||
+       !data.ReadRequiredSellerCapabilities(
+           &out->required_seller_capabilities) ||
+       !data.ReadRequestedSize(&out->requested_size) ||
+--- a/third_party/blink/renderer/core/layout/inline/line_breaker.cc
++++ b/third_party/blink/renderer/core/layout/inline/line_breaker.cc
+@@ -2742,7 +2742,7 @@ bool LineBreaker::ComputeTrailingCollaps
+       if (!trailing_collapsible_space_.has_value() ||
+           trailing_collapsible_space_->item_results != results ||
+           trailing_collapsible_space_->item_result_index != index) {
+-        trailing_collapsible_space_.emplace();
++        trailing_collapsible_space_.emplace(TrailingCollapsibleSpace{});
+         trailing_collapsible_space_->item_results = results;
+         trailing_collapsible_space_->item_result_index = index;
+         if (item_result.EndOffset() - 1 > item_result.StartOffset()) {
+--- a/third_party/blink/renderer/core/layout/physical_box_fragment.h
++++ b/third_party/blink/renderer/core/layout/physical_box_fragment.h
+@@ -170,7 +170,7 @@ class CORE_EXPORT PhysicalBoxFragment fi
+            !Style().ShouldIgnoreOverflowPropertyForInlineBlockBaseline();
+   }
+ 
+-  const GapGeometry* GetGapGeometry() const {
++  const blink::GapGeometry* GetGapGeometry() const {
+     return rare_data_ ? rare_data_->gap_geometry_.Get() : nullptr;
+   }
+ 
+--- a/third_party/blink/renderer/core/offscreencanvas/offscreen_canvas.h
++++ b/third_party/blink/renderer/core/offscreencanvas/offscreen_canvas.h
+@@ -25,6 +25,7 @@
+ #include "third_party/blink/renderer/platform/heap/prefinalizer.h"
+ #include "third_party/blink/renderer/platform/text/layout_locale.h"
+ #include "ui/gfx/geometry/size.h"
++#include "third_party/blink/renderer/platform/text/layout_locale.h"
+ 
+ namespace blink {
+ 
+--- a/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
++++ b/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
+@@ -607,7 +607,7 @@ class CORE_EXPORT PaintLayerScrollableAr
+       mojom::blink::ScrollBehavior scroll_behavior) override {
+     if (!should_restore_scroll)
+       return;
+-    pending_view_state_.emplace();
++    pending_view_state_.emplace(PendingViewState{});
+     pending_view_state_->state = view_state;
+     pending_view_state_->scroll_behavior = scroll_behavior;
+   }
+--- a/third_party/blink/renderer/modules/xr/xr_webgl_swap_chain.h
++++ b/third_party/blink/renderer/modules/xr/xr_webgl_swap_chain.h
+@@ -11,6 +11,7 @@
+ #include "third_party/blink/renderer/platform/graphics/static_bitmap_image.h"
+ #include "third_party/blink/renderer/platform/heap/garbage_collected.h"
+ #include "third_party/blink/renderer/platform/heap/member.h"
++#include "third_party/blink/renderer/platform/graphics/static_bitmap_image.h"
+ 
+ namespace blink {
+ 
+--- a/third_party/blink/renderer/platform/fonts/string_truncator.cc
++++ b/third_party/blink/renderer/platform/fonts/string_truncator.cc
+@@ -123,7 +123,7 @@ static String TruncateString(const Strin
+   if (string.length() > STRING_BUFFER_SIZE) {
+     keep_count = STRING_BUFFER_SIZE - 1;  // need 1 character for the ellipsis
+     truncated_string =
+-        CenterTruncateToBuffer(string, keep_count, string_buffer);
++        CenterTruncateToBuffer(string, keep_count, base::span(string_buffer));
+   } else {
+     keep_count = string.length();
+     auto string_buffer_piece = base::span(string_buffer).first(keep_count);
+--- a/third_party/blink/renderer/platform/graphics/canvas_resource.h
++++ b/third_party/blink/renderer/platform/graphics/canvas_resource.h
+@@ -31,6 +31,7 @@
+ #include "third_party/skia/include/core/SkRefCnt.h"
+ #include "ui/gfx/buffer_types.h"
+ #include "ui/gfx/geometry/size.h"
++#include "third_party/blink/renderer/platform/graphics/static_bitmap_image.h"
+ 
+ class SkSurface;
+ 
+--- a/third_party/blink/renderer/platform/graphics/filters/fe_color_matrix.cc
++++ b/third_party/blink/renderer/platform/graphics/filters/fe_color_matrix.cc
+@@ -123,7 +123,7 @@ static sk_sp<cc::ColorFilter> CreateColo
+       break;
+     case FECOLORMATRIX_TYPE_MATRIX: {
+       if (values.size() == kColorMatrixSize) {
+-        base::span(matrix).copy_from(values);
++        base::span(std::span(matrix)).copy_from(values);
+       }
+       break;
+     }
+--- a/third_party/blink/renderer/platform/wtf/text/string_concatenate.h
++++ b/third_party/blink/renderer/platform/wtf/text/string_concatenate.h
+@@ -45,7 +45,7 @@ class StringTypeAdapter<char> {
+   DISALLOW_NEW();
+ 
+  public:
+-  explicit StringTypeAdapter<char>(char buffer) : buffer_(buffer) {}
++  explicit StringTypeAdapter(char buffer) : buffer_(buffer) {}
+ 
+   size_t length() const { return 1; }
+   bool Is8Bit() const { return true; }
+@@ -64,7 +64,7 @@ class StringTypeAdapter<char> {
+ template <>
+ class StringTypeAdapter<LChar> : public StringTypeAdapter<char> {
+  public:
+-  explicit StringTypeAdapter<LChar>(LChar buffer)
++  explicit StringTypeAdapter(LChar buffer)
+       : StringTypeAdapter<char>(buffer) {}
+ };
+ 
+@@ -73,7 +73,7 @@ class StringTypeAdapter<UChar> {
+   DISALLOW_NEW();
+ 
+  public:
+-  explicit StringTypeAdapter<UChar>(UChar buffer) : buffer_(buffer) {}
++  explicit StringTypeAdapter(UChar buffer) : buffer_(buffer) {}
+ 
+   size_t length() const { return 1; }
+   bool Is8Bit() const { return buffer_ <= 0xff; }
+@@ -96,7 +96,7 @@ class WTF_EXPORT StringTypeAdapter<const
+   DISALLOW_NEW();
+ 
+  public:
+-  explicit StringTypeAdapter<const char*>(const char* buffer)
++  explicit StringTypeAdapter(const char* buffer)
+       : buffer_(base::as_byte_span(std::string_view(buffer))) {}
+ 
+   size_t length() const { return buffer_.size(); }
+@@ -113,7 +113,7 @@ template <>
+ class WTF_EXPORT StringTypeAdapter<const LChar*>
+     : StringTypeAdapter<const char*> {
+  public:
+-  explicit StringTypeAdapter<const LChar*>(const LChar* buffer)
++  explicit StringTypeAdapter(const LChar* buffer)
+       : StringTypeAdapter<const char*>(reinterpret_cast<const char*>(buffer)) {}
+ };
+ 
+@@ -121,7 +121,7 @@ template <>
+ class WTF_EXPORT StringTypeAdapter<char*>
+     : public StringTypeAdapter<const char*> {
+  public:
+-  explicit StringTypeAdapter<char*>(char* buffer)
++  explicit StringTypeAdapter(char* buffer)
+       : StringTypeAdapter<const char*>(buffer) {}
+ };
+ 
+@@ -129,7 +129,7 @@ template <>
+ class WTF_EXPORT StringTypeAdapter<LChar*>
+     : public StringTypeAdapter<const LChar*> {
+  public:
+-  explicit StringTypeAdapter<LChar*>(LChar* buffer)
++  explicit StringTypeAdapter(LChar* buffer)
+       : StringTypeAdapter<const LChar*>(buffer) {}
+ };
+ 
+--- a/third_party/blink/renderer/platform/wtf/text/string_view.h
++++ b/third_party/blink/renderer/platform/wtf/text/string_view.h
+@@ -16,6 +16,7 @@
+ #include "third_party/blink/renderer/platform/wtf/forward.h"
+ #include "third_party/blink/renderer/platform/wtf/get_ptr.h"
+ #include "third_party/blink/renderer/platform/wtf/text/string_impl.h"
++#include "third_party/blink/renderer/platform/wtf/text/code_point_iterator.h"
+ 
+ #if DCHECK_IS_ON()
+ #include "base/memory/scoped_refptr.h"
+--- a/third_party/pdfium/xfa/fde/cfde_texteditengine.cpp
++++ b/third_party/pdfium/xfa/fde/cfde_texteditengine.cpp
+@@ -19,6 +19,7 @@
+ #include "xfa/fde/cfde_textout.h"
+ #include "xfa/fde/cfde_wordbreak_data.h"
+ #include "xfa/fgas/font/cfgas_gefont.h"
++#include "core/fxcrt/fx_string.h"
+ 
+ namespace pdfium {
+ 
+@@ -880,8 +881,8 @@ WideString CFDE_TextEditEngine::Delete(s
+   length = std::min(length, text_length_ - start_idx);
+   AdjustGap(start_idx + length, 0);
+ 
+-  WideString ret(
+-      WideStringView(pdfium::span(content_).subspan(start_idx, length)));
++  WideString ret;
++  ret = WideStringView(pdfium::span(content_).subspan(start_idx, length));
+ 
+   if (add_operation == RecordOperation::kInsertRecord) {
+     AddOperationRecord(std::make_unique<DeleteOperation>(this, start_idx, ret));
+--- a/third_party/webrtc/call/rtp_config.cc
++++ b/third_party/webrtc/call/rtp_config.cc
+@@ -258,7 +258,7 @@ RtpStreamConfig RtpConfig::GetStreamConf
+   stream_config.raw_payload = raw_payload;
+   if (!rtx.ssrcs.empty()) {
+     RTC_DCHECK_EQ(ssrcs.size(), rtx.ssrcs.size());
+-    auto& stream_config_rtx = stream_config.rtx.emplace();
++    auto& stream_config_rtx = stream_config.rtx.emplace(RtpStreamConfig::Rtx{});
+     stream_config_rtx.ssrc = rtx.ssrcs[index];
+     stream_config_rtx.payload_type = rtx.payload_type;
+   }
+--- a/ui/accessibility/platform/ax_platform_node_id.h
++++ b/ui/accessibility/platform/ax_platform_node_id.h
+@@ -57,7 +57,7 @@ class AXPlatformNodeId
+ 
+ namespace std {
+ template <>
+-struct std::hash<ui::AXPlatformNodeId>
+-    : std::hash<base::StrongAlias<class ui::AXPlatformNodeIdTag, int32_t>> {};
++struct hash<ui::AXPlatformNodeId>
++    : hash<base::StrongAlias<class ui::AXPlatformNodeIdTag, int32_t>> {};
+ }  // namespace std
+ #endif  // UI_ACCESSIBILITY_PLATFORM_AX_PLATFORM_NODE_ID_H_
