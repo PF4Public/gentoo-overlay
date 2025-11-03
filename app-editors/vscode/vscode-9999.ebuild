@@ -18,7 +18,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-36 electron-38 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-36 electron-38 electron-39 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -53,10 +53,12 @@ COMMON_DEPEND="
 	sys-apps/ripgrep
 	electron-36? ( dev-util/electron:36 )
 	electron-38? ( dev-util/electron:38 )
+	electron-39? ( dev-util/electron:39 )
 	!electron-36? (
 	!electron-38? (
+	!electron-39? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) )
+	) ) )
 "
 
 #TODO: oniguruma?
@@ -94,6 +96,8 @@ src_unpack() {
 		export ELECTRON_SLOT=36
 	elif use electron-38; then
 		export ELECTRON_SLOT=38
+	elif use electron-39; then
+		export ELECTRON_SLOT=39
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
