@@ -1144,13 +1144,14 @@ src_unpack() {
 }
 
 src_compile() {
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	# OLD_PATH=$PATH
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	PATH="${S}/node_modules/.bin:$PATH";
 	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	# export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	# export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	yarn config set disable-self-update-check true || die
 	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
@@ -1221,7 +1222,7 @@ src_compile() {
 	#node node_modules/.bin/asar p webapp webapp.asar
 	#node node_modules/.bin/asar l webapp.asar
 
-	export PATH=${OLD_PATH}
+	# export PATH=${OLD_PATH}
 }
 
 src_install() {
