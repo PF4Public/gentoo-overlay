@@ -1651,7 +1651,7 @@ src_prepare() {
 
 	if ! use libcxx ; then
 		PATCHES+=(
-			"${FILESDIR}/fix-wayland-oncecallback-copy.patch" 
+			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
 		)
 	fi
 
