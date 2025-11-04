@@ -1,9 +1,9 @@
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -518,7 +518,7 @@
-         "//third_party/breakpad:minidump_stackwalk($host_system_allocator_toolchain)",
+@@ -580,7 +580,7 @@
        ]
      }
+ 
 -    if (is_linux) {
 +    if (!is_linux) {
        deps += [

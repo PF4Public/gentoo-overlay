@@ -1558,7 +1558,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-142-fontations.patch"
 		"${FILESDIR}/chromium-142-gcc.patch"
 		"${FILESDIR}/chromium-142-dawn-commit.patch"
-		"${FILESDIR}/misc-fixes-chr.patch"
+		"${FILESDIR}/misc-fixes-chr.patch" 
 	)
 
 	# https://issues.chromium.org/issues/442698344
