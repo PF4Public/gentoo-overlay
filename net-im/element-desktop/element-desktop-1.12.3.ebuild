@@ -1102,6 +1102,7 @@ src_compile() {
 	PATH="${S}/node_modules/.bin:$PATH";
 	export PATH
 	einfo "$PATH"
+	rustc -V
 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
