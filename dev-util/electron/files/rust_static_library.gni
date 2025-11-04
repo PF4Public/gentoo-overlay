@@ -55,6 +55,10 @@ template("rust_static_library") {
         features_ = invoker.features
         features_ = []
     }
+    if (defined(invoker.configs)) {
+        configs_ = invoker.configs
+        configs_ = []
+    }
     group(target_name) {
     }
 }
