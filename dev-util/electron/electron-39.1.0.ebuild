@@ -1532,7 +1532,7 @@ src_prepare() {
 			sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
-		eapply "${FILESDIR}/misc-fixes-r1.patch" || die
+		eapply "${FILESDIR}/misc-fixes.patch" || die
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -1558,6 +1558,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-142-fontations.patch"
 		"${FILESDIR}/chromium-142-gcc.patch"
 		"${FILESDIR}/chromium-142-dawn-commit.patch"
+		"${FILESDIR}/misc-fixes-chr.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344

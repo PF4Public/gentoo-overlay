@@ -1,0 +1,11 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -518,7 +518,7 @@
+         "//third_party/breakpad:minidump_stackwalk($host_system_allocator_toolchain)",
+       ]
+     }
+-    if (is_linux) {
++    if (!is_linux) {
+       deps += [
+         "//skia:filter_fuzz_stub",
+         "//skia:image_operations_bench",
