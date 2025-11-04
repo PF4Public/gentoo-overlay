@@ -1,11 +1,13 @@
---- a/BUILD.gn
-+++ b/BUILD.gn
-@@ -580,7 +580,7 @@
-       ]
-     }
+--- a/skia/BUILD.gn
++++ b/skia/BUILD.gn
+@@ -49,10 +49,8 @@
+     "//third_party/rust/read_fonts/v0_35:lib",
+     "//third_party/rust/skrifa/v0_37:lib",
+   ]
+-  configs -= [ "//build/config/compiler:chromium_code" ]
+   configs += [
+     ":skia_config",
+-    "//build/config/compiler:no_chromium_code",
+   ]
+ }
  
--    if (is_linux) {
-+    if (!is_linux) {
-       deps += [
-         "//skia:filter_fuzz_stub",
-         "//skia:image_operations_bench",
