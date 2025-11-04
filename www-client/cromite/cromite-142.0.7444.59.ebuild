@@ -1447,6 +1447,7 @@ src_configure() {
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
+	myconf_gn+=" build_tflite_with_xnnpack=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
