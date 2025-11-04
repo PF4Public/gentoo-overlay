@@ -1,13 +1,15 @@
 --- a/skia/BUILD.gn
 +++ b/skia/BUILD.gn
-@@ -49,10 +49,8 @@
+@@ -48,11 +48,6 @@
+     "//third_party/rust/font_types/v0_10:lib",
      "//third_party/rust/read_fonts/v0_35:lib",
      "//third_party/rust/skrifa/v0_37:lib",
-   ]
+-  ]
 -  configs -= [ "//build/config/compiler:chromium_code" ]
-   configs += [
-     ":skia_config",
+-  configs += [
+-    ":skia_config",
 -    "//build/config/compiler:no_chromium_code",
    ]
  }
  
+
