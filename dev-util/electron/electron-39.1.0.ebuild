@@ -2178,7 +2178,7 @@ src_prepare() {
 		third_party/ukey2
 	)
 	use ungoogled && keeplibs+=(
-		third_party/ungoogled
+		third_party/ungoogled-chromium
 	)
 	keeplibs+=(
 		third_party/utf

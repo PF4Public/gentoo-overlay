@@ -43,3 +43,72 @@
  
  source_set("safety_util") {
    sources = [
+--- a/services/on_device_model/ml/BUILD.gn
++++ b/services/on_device_model/ml/BUILD.gn
+@@ -66,7 +66,6 @@ if (use_blink || (is_ios && build_with_i
+       "//components/optimization_guide/core:features",
+       "//components/translate/core/language_detection",
+       "//services/on_device_model:backend_interfaces",
+-      "//services/on_device_model/safety:safety_util",
+       "//third_party/abseil-cpp:absl",
+       "//third_party/angle:includes",
+       "//third_party/dawn/src/dawn:proc",
+@@ -79,9 +78,6 @@ if (use_blink || (is_ios && build_with_i
+     if (use_blink) {
+       deps += [ "//gpu/config" ]
+     }
+-    if (!is_fuchsia) {
+-      deps += [ "//services/on_device_model/safety:bert_safety_model" ]
+-    }
+     if (is_win || is_mac || is_linux) {
+       deps += [ "//third_party/xnnpack" ]
+     }
+--- a/services/on_device_model/ml/ts_model.cc
++++ b/services/on_device_model/ml/ts_model.cc
+@@ -25,9 +25,6 @@
+ #include "services/on_device_model/public/mojom/on_device_model_service.mojom.h"
+ #include "services/on_device_model/safety/safety_util.h"
+ 
+-#if !BUILDFLAG(IS_FUCHSIA)
+-#include "services/on_device_model/safety/bert_safety_model.h"
+-#endif
+ 
+ namespace ml {
+ 
+@@ -166,13 +163,7 @@ mojom::SafetyInfoPtr TsModel::ClassifyTe
+ 
+ mojom::LanguageDetectionResultPtr TsModel::DetectLanguage(
+     std::string_view text) {
+-  if (!language_detector_) {
+     return nullptr;
+-  }
+-  language_detection::Prediction prediction = on_device_model::PredictLanguage(
+-      language_detector_->tflite_model(), text);
+-  return mojom::LanguageDetectionResult::New(prediction.language,
+-                                             prediction.score);
+ }
+ 
+ TsHolder::TsHolder(raw_ref<const ChromeML> chrome_ml) : chrome_ml_(chrome_ml) {}
+@@ -196,11 +187,6 @@ void TsHolder::Reset(mojom::TextSafetyMo
+     if (impl) {
+       model_.Add(std::move(impl), std::move(model));
+     }
+-  } else {
+-    auto impl = on_device_model::BertSafetyModel::Create(std::move(params));
+-    if (impl) {
+-      model_.Add(std::move(impl), std::move(model));
+-    }
+   }
+ #else
+   CHECK(!params->safety_assets || params->safety_assets->which() ==
+--- a/services/on_device_model/on_device_model.gni
++++ b/services/on_device_model/on_device_model.gni
+@@ -14,7 +14,7 @@ declare_args() {
+ declare_args() {
+   # The on device model service is only enabled on a subset of platforms.
+   # Exclude it on other platforms due to binary size.
+-  use_on_device_model_service = is_win || is_mac || is_linux || is_ios || is_cbx
++  use_on_device_model_service = false
+ }
+ 
+ declare_args() {
