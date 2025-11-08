@@ -68,7 +68,7 @@ CROMITE_COMMIT_ID="851be9370b90564ca9522f0531d661ca276f73b9"
 declare -A CHROMIUM_COMMITS=(
 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
 	["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
-	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="." 
 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
 )
 

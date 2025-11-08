@@ -669,10 +669,10 @@
    defines += [
      "SK_CODEC_DECODES_PNG",
 -    "SK_CODEC_DECODES_PNG_WITH_LIBPNG",
-+    "SK_CODEC_DECODES_PNG_WITH_LIBPNG", /* change-protection */
++    "SK_CODEC_DECODES_PNG_WITH_LIBPNG", # change-protection
      "SK_CODEC_ENCODES_PNG",
 -    "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
-+    "SK_CODEC_ENCODES_PNG_WITH_LIBPNG", /* change-protection */
++    "SK_CODEC_ENCODES_PNG_WITH_LIBPNG", # change-protection
  
      # https://crbug.com/443057959
      #"SK_DISABLE_LEGACY_INIT_DECODERS",
