@@ -62,7 +62,6 @@ REQUIRED_USE="
 declare -A CHROMIUM_COMMITS=(
 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
 	["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
-	["3aa53820e2f04df3efc8b81168c32e1a61dd8c5d"]="." #143+
 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
 )
