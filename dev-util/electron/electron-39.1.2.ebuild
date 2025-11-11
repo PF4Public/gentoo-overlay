@@ -1600,6 +1600,8 @@ src_prepare() {
 		if use cpu_flags_ppc_vsx3 ; then
 			PATCHES+=( "${patchset_dir}/${isa_3_patch}" )
 		fi
+		# Raptor's SwiftShader patch only covers LLVM 16; this patch covers LLVM 10.
+		PATCHES+=( "${FILESDIR}/ppc64le/fix-swiftshader-compile.patch" )
 	fi
 
 	ewarn
