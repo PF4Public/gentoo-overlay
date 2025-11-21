@@ -1988,11 +1988,13 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	# --ignore-scripts
 
 	pushd "packages/shared-components" > /dev/null || die
 		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+		# --ignore-scripts
 	popd > /dev/null || die
 }
 
