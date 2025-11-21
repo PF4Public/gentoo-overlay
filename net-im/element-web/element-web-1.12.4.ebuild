@@ -1989,6 +1989,11 @@ src_configure() {
 
 	einfo "Installing node_modules"
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
+
+	pushd "packages/shared-components" > /dev/null || die
+		einfo "Installing node_modules in Shared Components"
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-scripts || die
+	popd > /dev/null || die
 }
 
 src_compile() {
