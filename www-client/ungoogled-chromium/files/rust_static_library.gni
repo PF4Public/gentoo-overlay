@@ -55,6 +55,10 @@ template("rust_static_library") {
         features_ = invoker.features
         features_ = []
     }
+    if (defined(invoker.edition)) {
+        edition_ = invoker.edition
+        edition_ = []
+    }
     group(target_name) {}
 }
 set_defaults("rust_static_library") {
