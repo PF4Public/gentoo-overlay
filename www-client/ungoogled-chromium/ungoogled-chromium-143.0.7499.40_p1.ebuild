@@ -287,6 +287,7 @@ BDEPEND="
 	>=dev-util/gperf-3.2
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector]
+	sys-apps/hwdata
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
@@ -521,8 +522,8 @@ src_prepare() {
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-141-crabby.patch"
 		"${FILESDIR}/chromium-142-no-rust.patch"
-		"${FILESDIR}/chromium-142-fontations.patch"
-		"${FILESDIR}/chromium-142-gcc.patch"
+		"${FILESDIR}/chromium-143-fontations.patch"
+		"${FILESDIR}/chromium-143-gcc.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
@@ -777,7 +778,7 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-142-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-143-system-abseil.patch"
 		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
 		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
@@ -877,6 +878,10 @@ src_prepare() {
 	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 	eend $? || die
 
+	# Use the system copy of hwdata's usb.ids; upstream is woefully out of date (2015!)
+	sed 's|//third_party/usb_ids/usb.ids|/usr/share/hwdata/usb.ids|g' \
+		-i services/device/public/cpp/usb/BUILD.gn || die "Failed to set system usb.ids path"
+
 	# remove_bundled_libraries.py walks the source tree and looks for paths containing the substring 'third_party'
 	# whitelist matches use the right-most matching path component, so we need to whitelist from that point down.
 	local keeplibs=(
@@ -968,6 +973,7 @@ src_prepare() {
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
 		third_party/dawn/third_party/khronos
+		third_party/dawn/third_party/webgpu-headers
 		third_party/depot_tools
 		third_party/devscripts
 		third_party/devtools-frontend
@@ -1804,7 +1810,7 @@ src_configure() {
 	einfo "Configuring Chromium ..."
 	set -- gn gen --args="${myconf_gn} ${EXTRA_GN}" out/Release
 	echo "$@"
-	"$@" || die
+	"$@" || die "Failed to configure Chromium"
 
 	# The "if" below should not be executed unless testing
 	if [ ! -z "${NODIE}" ]; then
