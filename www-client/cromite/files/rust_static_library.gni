@@ -56,7 +56,7 @@ template("rust_static_library") {
         features_ = []
     }
     if (defined(invoker.edition)) {
-        edition = invoker.edition
+        edition_ = invoker.edition
         edition_ = []
     }
     group(target_name) {}
