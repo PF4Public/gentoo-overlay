@@ -477,6 +477,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
+		"${FILESDIR}/chromium-143-revert-libpng-testiness.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
 		"${FILESDIR}/chromium-141-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
@@ -488,7 +489,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-141-crabby.patch"
-		"${FILESDIR}/chromium-143-no-rust.patch" 
+		"${FILESDIR}/chromium-143-no-rust.patch"
 		"${FILESDIR}/chromium-143-fontations.patch"
 		"${FILESDIR}/chromium-143-gcc.patch"
 	)
