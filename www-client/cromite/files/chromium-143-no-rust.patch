@@ -573,3 +573,12 @@
    ]
  
    if (is_android) {
+@@ -25,7 +24,6 @@
+   deps = [
+     "c/system",
+     "cpp/bindings",
+-    "rust:mojo_rust_system_api",
+   ]
+ }
+ 
+
