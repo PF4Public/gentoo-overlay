@@ -59,6 +59,10 @@ template("rust_static_library") {
         edition_ = invoker.edition
         edition_ = []
     }
+    if (defined(invoker.is_gtest_unittests)) {
+        is_gtest_unittests_ = invoker.is_gtest_unittests
+        is_gtest_unittests_ = []
+    }
     group(target_name) {}
 }
 set_defaults("rust_static_library") {
