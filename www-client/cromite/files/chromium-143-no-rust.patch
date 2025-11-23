@@ -563,3 +563,13 @@
        libs = [ "z" ]
      }
    } else if (current_toolchain == default_toolchain) {
+--- a/mojo/public/BUILD.gn
++++ b/mojo/public/BUILD.gn
+@@ -10,7 +10,6 @@
+     "cpp/bindings",
+     "cpp/test:test_mojom",
+     "interfaces/bindings/tests:test_interfaces",
+-    "rust:all",
+   ]
+ 
+   if (is_android) {
