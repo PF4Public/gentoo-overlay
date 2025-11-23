@@ -18,7 +18,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="629b075d0d0ea1d8f609173b452fc7f4cac1a5e4"
+CROMITE_COMMIT_ID="b1cdb6763ef37ea452408c2fb4850c856a28a382"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
@@ -27,7 +27,7 @@ DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; t
 HOMEPAGE="https://github.com/uazo/cromite"
 LITE_TARBALL=1
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
-PATCH_V="${PV%%\.*}-1"
+PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz
 	https://github.com/uazo/${PN}/archive/${CROMITE_COMMIT_ID}.tar.gz -> ${PN}-${CROMITE_COMMIT_ID}.tar.gz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
@@ -40,8 +40,8 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp  libjxl +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
+#KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt5 qt6 screencast selinux thinlto vaapi wayland widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -59,14 +59,12 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-#CHROMIUM_COMMITS=(
-#	b85c9c11c561d4b45a7d3083a4e63e65f9ffeff3 #138+
-#	4a007f6c1a2f601a88262255c802e5b20edfd2a7 #138+
-#	4c736420952f355f18bdc4f4ea2d16e4514fa034 #138+
-#	2a82a46692e9ec825138a8cdecc758e29449f67d #138+
-#	48b64da89b3ecb7ccb576a334b19b3066dd2b793 #138+
-#)
-
+# declare -A CHROMIUM_COMMITS=(
+# 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
+# 	["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
+# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+# 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
+# )
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
@@ -76,34 +74,37 @@ if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 fi
 
 if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-	for i in "${CHROMIUM_COMMITS[@]}"; do
-	# for i in "${!CHROMIUM_COMMITS[@]}"; do
-		# if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
-		# #TODO: is it safe to use this mirror?
-		# SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
-		# SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
-		# SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
-		# SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
-		# SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
-		# SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
-		# "
-		# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
-		# SRC_URI+="https://github.com/google/ruy/commit/${i/-}.patch?full_index=true -> ruy-${i/-}.patch
-		# "
-		# else
+	# for i in "${CHROMIUM_COMMITS[@]}"; do
+	for i in "${!CHROMIUM_COMMITS[@]}"; do
+		if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+		#TODO: is it safe to use this mirror?
+		SRC_URI+="https://github.com/webrtc-mirror/webrtc/commit/${i/-}.patch?full_index=true -> webrtc-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+		SRC_URI+="https://github.com/google/angle/commit/${i/-}.patch?full_index=true -> angle-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+		SRC_URI+="https://github.com/google/quiche/commit/${i/-}.patch?full_index=true -> quiche-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+		SRC_URI+="https://github.com/google/dawn/commit/${i/-}.patch?full_index=true -> dawn-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ perfetto ]]; then
+		SRC_URI+="https://github.com/google/perfetto/commit/${i/-}.patch?full_index=true -> perfetto-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+		SRC_URI+="https://github.com/google/ink/commit/${i/-}.patch?full_index=true -> ink-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+		SRC_URI+="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/commit/${i/-}.patch?full_index=true -> vulkan-utility-libraries-${i/-}.patch
+		"
+		elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+		SRC_URI+="https://github.com/google/ruy/commit/${i/-}.patch?full_index=true -> ruy-${i/-}.patch
+		"
+		else
 		SRC_URI+="https://github.com/chromium/chromium/commit/${i/-}.patch?full_index=true -> chromium-${i/-}.patch
 		"
-		# fi
+		fi
 	done
 fi
 
@@ -134,7 +135,6 @@ COMMON_SNAPSHOT_DEPEND="
 	system-woff2? ( media-libs/woff2 )
 	system-snappy? ( app-arch/snappy )
 	system-jsoncpp? ( dev-libs/jsoncpp )
-	system-libjxl? ( media-libs/libjxl )
 	system-openjpeg? ( media-libs/openjpeg:2= )
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
@@ -264,6 +264,7 @@ BDEPEND="
 	>=dev-util/gperf-3.2
 	dev-vcs/git
 	>=net-libs/nodejs-7.6.0[inspector]
+	sys-apps/hwdata
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
@@ -352,14 +353,10 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	ewarn
-	ewarn "jxl is temporarily disabled in chromite, see:"
-	ewarn "https://github.com/uazo/cromite/issues/1365"
-	ewarn
 	pre_build_checks
 
 	if use headless; then
-		local headless_unused_flags=("cups" "kerberos" "pulseaudio" "qt5" "qt6" "vaapi" "wayland")
+		local headless_unused_flags=("cups" "kerberos" "pulseaudio" "qt6" "vaapi" "wayland")
 		for myiuse in ${headless_unused_flags[@]}; do
 			use ${myiuse} && ewarn "Ignoring USE=${myiuse}, USE=headless is set."
 		done
@@ -408,6 +405,60 @@ src_unpack() {
 	fi
 }
 
+remove_compiler_builtins() {
+	# We can't use the bundled compiler builtins with the system toolchain
+	# We used to `grep` then `sed`, but it was indirect. Combining the two into a single
+	# `awk` command is more efficient and lets us document the logic more clearly.
+
+	local pattern='    configs += [ "//build/config/clang:compiler_builtins" ]'
+	local target='build/config/compiler/BUILD.gn'
+
+	# Create a secure temporary file to store the output.
+	local tmpfile
+	tmpfile=$(mktemp) || die "Failed to create temporary file."
+
+	if awk -v pat="${pattern}" '
+	BEGIN {
+		match_found = 0
+	}
+
+	# If the delete countdown is active, decrement it and skip to the next line.
+	d > 0 { d--; next }
+
+	# If the current line matches the pattern...
+	$0 == pat {
+		match_found = 1   # ...set our flag to true.
+		d = 2             # Set delete counter for this line and the next two.
+		prev = ""         # Clear the buffered previous line so it is not printed.
+		next
+	}
+
+	# For any other line, print the buffered previous line.
+	NR > 1 { print prev }
+
+	# Buffer the current line to be printed on the next cycle.
+	{ prev = $0 }
+
+	END {
+		# Print the last line if it was not part of a deleted block.
+		if (d == 0) { print prev }
+
+		# If the pattern was never found, exit with a failure code.
+		if (match_found == 0) {
+		exit 1
+		}
+	}
+	' "${target}" > "${tmpfile}"; then
+		# AWK SUCCEEDED (exit code 0): The pattern was found and edited.
+		# This is to avoid gawk's `-i inplace` option which users complain about.
+		mv "${tmpfile}" "${target}"
+	else
+		# AWK FAILED (exit code 1): The pattern was not found.
+		rm -f "${tmpfile}"
+		die "Awk patch failed: Pattern not found in ${target}."
+	fi
+}
+
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
@@ -424,31 +475,30 @@ src_prepare() {
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
-		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
 		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
-		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
-		"${FILESDIR}/chromium-137-openh264-include-path.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
-		"${FILESDIR}/chromium-123-qrcode.patch"
+		"${FILESDIR}/chromium-141-qrcode.patch"
 		"${FILESDIR}/perfetto-system-zlib.patch"
 		"${FILESDIR}/chromium-127-cargo_crate.patch"
-		"${FILESDIR}/chromium-128-gtk-fix-prefers-color-scheme-query.patch"
 		"${FILESDIR}/chromium-128-cfi-split-lto-unit.patch"
-		"${FILESDIR}/chromium-132-no-link-builtins.patch"
-		"${FILESDIR}/restore-x86-r2.patch"
-		"${FILESDIR}/chromium-132-optional-lens.patch"
+		"${FILESDIR}/restore-x86-r3.patch"
 		"${FILESDIR}/chromium-133-webrtc-fixes.patch"
-		"${FILESDIR}/chromium-137-fix-for-kde.patch"
-		"${FILESDIR}/chromium-138-fontations.patch"
-		"${FILESDIR}/chromium-138-no-rust.patch"
-		"${FILESDIR}/chromium-138-crabby.patch"
-		"${FILESDIR}/chromium-138-gcc.patch"
+		"${FILESDIR}/chromium-141-fix-for-kde.patch"
 		"${FILESDIR}/chromium-134-stdatomic.patch"
-		"${FILESDIR}/chromium-137-constexpr.patch"
 		"${FILESDIR}/font-gc-asan.patch"
+		"${FILESDIR}/chromium-141-crabby.patch"
+		"${FILESDIR}/chromium-142-no-rust.patch"
+		"${FILESDIR}/chromium-143-fontations.patch"
+		"${FILESDIR}/chromium-143-gcc.patch"
 	)
+
+	# https://issues.chromium.org/issues/442698344
+	# Unreleased fontconfig changed magic numbers and google have rolled to this version
+	if has_version "<=media-libs/fontconfig-2.17.1"; then
+		PATCHES+=( "${FILESDIR}/chromium-142-work-with-old-fontconfig.patch" )
+	fi
 
 	#shopt -s globstar nullglob
 	## 130: moved the PPC64 patches into the chromium-patches repo
@@ -461,6 +511,8 @@ src_prepare() {
 	#		fi
 	#done
 	#shopt -u globstar nullglob
+
+	remove_compiler_builtins
 
 	# Strictly speaking this doesn't need to be gated (no bundled toolchain for ppc64); it keeps the logic together
 	if use ppc64; then
@@ -485,30 +537,33 @@ src_prepare() {
 
 	ewarn
 	ewarn "Fontations Rust font stack is disabled"
+	ewarn "Profile importer is disabled"
 	ewarn "Using media-libs/libavif instead of CrabbyAvif"
 	ewarn
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
-		for i in "${CHROMIUM_COMMITS[@]}"; do
-		# for i in "${!CHROMIUM_COMMITS[@]}"; do
-			# if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
-			# 	patch_prefix="webrtc"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
-			# 	patch_prefix="angle"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
-			# 	patch_prefix="quiche"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
-			# 	patch_prefix="dawn"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
-			# 	patch_prefix="ink"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
-			# 	patch_prefix="vulkan-utility-libraries"
-			# elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
-			# 	patch_prefix="ruy"
-			# else
+		# for i in "${CHROMIUM_COMMITS[@]}"; do
+		for i in "${!CHROMIUM_COMMITS[@]}"; do
+			if [[ ${CHROMIUM_COMMITS[$i]} =~ webrtc ]]; then
+				patch_prefix="webrtc"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ angle ]]; then
+				patch_prefix="angle"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ quiche ]]; then
+				patch_prefix="quiche"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ dawn ]]; then
+				patch_prefix="dawn"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ perfetto ]]; then
+				patch_prefix="perfetto"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ink ]]; then
+				patch_prefix="ink"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ vulkan-utility-libraries ]]; then
+				patch_prefix="vulkan-utility-libraries"
+			elif [[ ${CHROMIUM_COMMITS[$i]} =~ ruy ]]; then
+				patch_prefix="ruy"
+			else
 				patch_prefix="chromium"
-			# fi
-			# pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
+			fi
+			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
@@ -518,25 +573,31 @@ src_prepare() {
 				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
 					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
-			# popd > /dev/null || die
+			popd > /dev/null || die
 		done
 	fi
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r4.patch"
+			"${FILESDIR}/disable-bluez-r6.patch"
 		)
 	fi
 
 	if use convert-dict ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-ucf-dict-utility-r1.patch"
+			"${FILESDIR}/chromium-ucf-dict-utility-r2.patch"
+		)
+	fi
+
+	if ! use libcxx ; then
+		PATCHES+=(
+			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
 		)
 	fi
 
 	if use system-ffmpeg; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-135-opus.patch"
+			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
@@ -598,14 +659,26 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
+	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
+	cp -f "${FILESDIR}/json_parser.cc" base/json || die
+	cp -f "${FILESDIR}/json_parser.h" base/json || die
+	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
+	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
+	cp -f "${FILESDIR}/png_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/png || die
+	cp -f "${FILESDIR}/png_image_decoder.h" third_party/blink/renderer/platform/image-decoders/png || die
+	cp -f "${FILESDIR}/font_format_check.cc" third_party/blink/renderer/platform/fonts/opentype || die
+	cp -f "${FILESDIR}/font_format_check.h" third_party/blink/renderer/platform/fonts/opentype || die
+
 	if use override-data-dir; then
 		sed -i '/"chromium";/{s++"cromite";+;h};${x;/./{x;q0};x;q1}' \
 			chrome/common/chrome_paths_linux.cc || die
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-system-abseil.patch"
-		eapply_wrapper "${FILESDIR}/chromium-138-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-143-system-abseil.patch"
+		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
+		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
 		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 			third_party/abseil-cpp/absl/base/options.h || die
@@ -641,6 +714,10 @@ src_prepare() {
 		# eend $? || die
 	done
 
+	#! normalise paths in py
+	sed -i 's$os.path.dirname(include_file)$os.path.abspath(os.path.dirname(include_file))$' \
+		build/bromite/gyp/cpp_bromite_include.py || die
+
 	if ! use libcxx ; then
 		eapply "${FILESDIR}/cromite-libstdc++.patch"
 	fi
@@ -659,10 +736,8 @@ src_prepare() {
 		base/third_party/xdg_user_dirs
 		buildtools/third_party/libc++
 		buildtools/third_party/libc++abi
-		chrome/third_party/mozilla_security_manager
 		cromite_flags/third_party
 		net/third_party/mozilla_security_manager
-		net/third_party/nss
 		net/third_party/quic
 		net/third_party/uri_template
 		third_party/abseil-cpp/absl/base
@@ -732,6 +807,7 @@ src_prepare() {
 		third_party/dawn
 		third_party/dawn/third_party/gn/webgpu-cts
 		third_party/dawn/third_party/khronos
+		third_party/dawn/third_party/webgpu-headers
 		third_party/depot_tools
 		third_party/devscripts
 		third_party/devtools-frontend
@@ -753,8 +829,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/parsel-js
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
-		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/mitt
-		third_party/devtools-frontend/src/front_end/third_party/puppeteer/third_party/rxjs
+		third_party/devtools-frontend/src/front_end/third_party/source-map-scopes-codec
 		third_party/devtools-frontend/src/front_end/third_party/third-party-web
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
@@ -767,6 +842,11 @@ src_prepare() {
 		third_party/farmhash
 		third_party/fast_float
 		third_party/fdlibm
+		third_party/federated_compute/chromium/fcp/confidentialcompute
+		third_party/federated_compute/src/fcp/base
+		third_party/federated_compute/src/fcp/confidentialcompute
+		third_party/federated_compute/src/fcp/protos/confidentialcompute
+		third_party/federated_compute/src/fcp/protos/federatedcompute
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
@@ -806,11 +886,7 @@ src_prepare() {
 		third_party/libdrm
 		third_party/libgav1
 		third_party/libjingle
-	)
-	use system-libjxl || keeplibs+=(
-		third_party/libjxl
-	)
-	keeplibs+=(
+		third_party/libpfm4
 		third_party/libphonenumber
 		third_party/libsecret
 		third_party/libsrtp
@@ -844,14 +920,16 @@ src_prepare() {
 		third_party/mako
 		third_party/markupsafe
 		third_party/material_color_utilities
-		third_party/mesa
 		third_party/metrics_proto
 		third_party/minigbm
+		third_party/ml_dtypes
 		third_party/modp_b64
 		third_party/nasm
 		third_party/nearby
 		third_party/neon_2_sse
 		third_party/node
+		third_party/oak/chromium/proto
+		third_party/oak/chromium/proto/attestation
 		third_party/omnibox_proto
 		third_party/one_euro_filter
 		third_party/openscreen
@@ -884,6 +962,7 @@ src_prepare() {
 		third_party/pyjson5
 		third_party/pyyaml
 		third_party/rapidhash
+		third_party/readability
 		third_party/rnnoise
 		third_party/ruy
 		third_party/s2cellid
@@ -922,13 +1001,13 @@ src_prepare() {
 		third_party/tflite/src/third_party/xla/third_party/tsl
 		third_party/tflite/src/third_party/xla/xla/tsl/framework
 		third_party/tflite/src/third_party/xla/xla/tsl/lib/random
+		third_party/tflite/src/third_party/xla/xla/tsl/platform
 		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
 		third_party/tflite/src/third_party/xla/xla/tsl/util
 		third_party/ukey2
 		third_party/unrar
 		third_party/utf
 		third_party/vulkan
-		third_party/wasm_tts_engine
 		third_party/wayland
 		third_party/webdriver
 		third_party/webgpu-cts
@@ -952,11 +1031,11 @@ src_prepare() {
 		third_party/zlib/google
 		third_party/zxcvbn-cpp
 		url/third_party/mozilla
-		v8/third_party/siphash
-		v8/third_party/utf8-decoder
 		v8/third_party/glibc
 		v8/third_party/inspector_protocol
 		v8/third_party/rapidhash-v8
+		v8/third_party/siphash
+		v8/third_party/utf8-decoder
 		v8/third_party/v8
 		v8/third_party/valgrind
 
@@ -1100,7 +1179,7 @@ src_configure() {
 	fi
 
 	if tc-is-clang; then
-		myconf_gn+=" is_clang=true clang_use_chrome_plugins=false"
+		myconf_gn+=" is_clang=true clang_use_chrome_plugins=false use_clang_modules=false"
 	else
 		myconf_gn+=" is_clang=false"
 	fi
@@ -1146,7 +1225,6 @@ src_configure() {
 
 	# Disable rust for now; it's only used for testing and we don't need the additional bdep
 	myconf_gn+=" enable_rust=false"
-	myconf_gn+=" enable_rust_png=false"
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
 	myconf_gn+=" is_debug=$(usex debug true false)"
@@ -1171,9 +1249,6 @@ src_configure() {
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
 	myconf_gn+=" is_component_build=false"
-
-	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
-	myconf_gn+=" enable_nacl=false"
 
 	local gn_system_libraries=(
 		flac
@@ -1249,9 +1324,6 @@ src_configure() {
 	fi
 	if use system-libvpx; then
 		gn_system_libraries+=( libvpx )
-	fi
-	if use system-libjxl; then
-		gn_system_libraries+=( libjxl )
 	fi
 	use system-openh264 && gn_system_libraries+=(
 		openh264
@@ -1369,12 +1441,13 @@ src_configure() {
 	myconf_gn+=" enable_video_effects=false"
 	myconf_gn+=" enable_constraints=false"
 	myconf_gn+=" rtc_rusty_base64=false"
+	myconf_gn+=" enable_rust_mojo=false"
 	myconf_gn+=" v8_enable_temporal_support=false"
+	myconf_gn+=" media_use_symphonia=false"
 
 	# Cromite flags
 	myconf_gn+=" use_v8_context_snapshot=false"
-	#TODO disabled temporarily
-	myconf_gn+=" enable_jxl_decoder=false"
+	myconf_gn+=" build_tflite_with_xnnpack=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
@@ -1523,7 +1596,7 @@ src_configure() {
 				cbuild_libdir=${cbuild_libdir/% }
 			fi
 			myconf_gn+=" use_qt6=true"
-				myconf_gn+=" moc_qt6_path=\"${EPREFIX}/usr/${cbuild_libdir}/qt6/libexec\""
+			myconf_gn+=" moc_qt6_path=\"${EPREFIX}/usr/${cbuild_libdir}/qt6/libexec\""
 		else
 			myconf_gn+=" use_qt6=false"
 		fi
@@ -1578,7 +1651,7 @@ src_configure() {
 	einfo "Configuring Cromite ..."
 	set -- gn gen --args="${myconf_gn} ${EXTRA_GN}" out/Release
 	echo "$@"
-	"$@" || die
+	"$@" || die "Failed to configure Cromite"
 
 	# The "if" below should not be executed unless testing
 	if [ ! -z "${NODIE}" ]; then
