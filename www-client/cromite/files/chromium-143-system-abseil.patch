@@ -103,6 +103,16 @@
  }
  
  source_set("any_invocable_test") {
+--- a/build/linux/unbundle/absl_hash.gn
++++ b/build/linux/unbundle/absl_hash.gn
+@@ -20,5 +20,7 @@ source_set("hash_instantiated_test") {
+ }
+ source_set("hash_test") {
+ }
++source_set("hash_testing") {
++}
+ source_set("low_level_hash_test") {
+ }
 --- a/build/linux/unbundle/absl_log.gn
 +++ b/build/linux/unbundle/absl_log.gn
 @@ -138,3 +138,11 @@ source_set("stripping_test") {
