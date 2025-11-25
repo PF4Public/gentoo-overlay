@@ -8,7 +8,7 @@
 +}
 --- a/build/linux/unbundle/absl_base.gn
 +++ b/build/linux/unbundle/absl_base.gn
-@@ -103,3 +103,33 @@ source_set("nullability_test") {
+@@ -103,3 +103,35 @@ source_set("nullability_test") {
  }
  source_set("prefetch_test") {
  }
@@ -41,6 +41,8 @@
 +source_set("sysinfo_test") {
 +}
 +source_set("thread_identity_test") {
++}
++source_set("casts_test") {
 +}
 --- a/build/linux/unbundle/absl_container.gn
 +++ b/build/linux/unbundle/absl_container.gn
@@ -144,7 +146,7 @@
    ]
  }
  
-@@ -136,3 +138,13 @@ source_set("str_replace_test") {
+@@ -136,3 +138,15 @@ source_set("str_replace_test") {
  }
  source_set("string_view_test") {
  }
@@ -157,6 +159,8 @@
 +source_set("cordz_sample_token_test") {
 +}
 +source_set("str_cat_test") {
++}
++source_set("resize_and_overwrite_test") {
 +}
 --- a/build/linux/unbundle/absl_synchronization.gn
 +++ b/build/linux/unbundle/absl_synchronization.gn

@@ -1606,7 +1606,6 @@ src_configure() {
 	myconf_gn+=" enable_video_effects=false"
 	myconf_gn+=" enable_constraints=false"
 	myconf_gn+=" rtc_rusty_base64=false"
-	myconf_gn+=" enable_rust_mojo=false"
 	myconf_gn+=" v8_enable_temporal_support=false"
 	myconf_gn+=" media_use_symphonia=false"
 
