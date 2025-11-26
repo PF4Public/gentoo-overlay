@@ -125,10 +125,11 @@
      const SkImage* src,
 -    SkPngRustEncoder::CompressionLevel compression_level) {
 -  const SkPngRustEncoder::Options options = {.fCompressionLevel =
-+    int zlib_compression_level compression_level) {
-+  const SkPngEncoder::Options options = {.fZLibLevel =
-                                                  compression_level};
+-                                                 compression_level};
 -  return SkPngRustEncoder::Encode(context, src, options);
++    int zlib_compression_level) {
++  const SkPngEncoder::Options options = {.fZLibLevel =
++                                                 zlib_compression_level};
 +  return SkPngEncoder::Encode(context, src, options);
  }
  
@@ -155,7 +156,7 @@
  }
  
  std::string EncodePngAsDataUri(const SkPixmap& src) {
-@@ -52,7 +50,8 @@ std::string EncodePngAsDataUri(const SkP
+@@ -52,7 +50,7 @@ std::string EncodePngAsDataUri(const SkP
  }
  
  void EnsurePNGDecoderRegistered() {
@@ -164,24 +165,6 @@
  }
  
  }  // namespace skia
-+
---- a/skia/ext/codec_utils.h
-+++ b/skia/ext/codec_utils.h
-@@ -21,6 +21,9 @@ SK_API sk_sp<SkData> EncodePngAsSkData(G
-                                        const SkImage* src);
- SK_API sk_sp<SkData> FastEncodePngAsSkData(GrDirectContext* context,
-                                            const SkImage* src);
-+SK_API sk_sp<SkData> EncodePngAsSkData(GrDirectContext* context,
-+                                       const SkImage* src,
-+                                       int zlib_compression_level);
- SK_API std::string EncodePngAsDataUri(const SkPixmap& src);
- 
- // This is not thread safe and should only be called via startup
-@@ -29,3 +32,4 @@ SK_API void EnsurePNGDecoderRegistered()
- }  // namespace skia
- 
- #endif  // SKIA_EXT_CODEC_UTILS_H_
-+
 --- a/skia/ext/font_utils.cc
 +++ b/skia/ext/font_utils.cc
 @@ -66,9 +66,7 @@ static sk_sp<SkFontMgr> fontmgr_factory(

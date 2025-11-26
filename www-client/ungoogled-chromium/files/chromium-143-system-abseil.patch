@@ -200,6 +200,34 @@
  
  namespace google::protobuf {
  class MessageLite;
+--- a/third_party/abseil-cpp/absl/base/casts.h
++++ b/third_party/abseil-cpp/absl/base/casts.h
+@@ -94,7 +94,7 @@ constexpr std::enable_if_t<
+     !type_traits_internal::IsView<std::enable_if_t<
+         !std::is_reference_v<To>, std::remove_cv_t<To>>>::value,
+     To>
+-implicit_cast(absl::type_identity_t<To> to) {
++implicit_cast(std::type_identity_t<To> to) {
+   return to;
+ }
+ template <typename To>
+@@ -102,13 +102,13 @@ constexpr std::enable_if_t<
+     type_traits_internal::IsView<std::enable_if_t<!std::is_reference_v<To>,
+                                                   std::remove_cv_t<To>>>::value,
+     To>
+-implicit_cast(absl::type_identity_t<To> to ABSL_ATTRIBUTE_LIFETIME_BOUND) {
++implicit_cast(std::type_identity_t<To> to ABSL_ATTRIBUTE_LIFETIME_BOUND) {
+   return to;
+ }
+ template <typename To>
+ constexpr std::enable_if_t<std::is_reference_v<To>, To> implicit_cast(
+-    absl::type_identity_t<To> to ABSL_ATTRIBUTE_LIFETIME_BOUND) {
+-  return std::forward<absl::type_identity_t<To>>(to);
++    std::type_identity_t<To> to ABSL_ATTRIBUTE_LIFETIME_BOUND) {
++  return std::forward<std::type_identity_t<To>>(to);
+ }
+ 
+ // bit_cast()
 --- a/third_party/protobuf/src/google/protobuf/repeated_field.h
 +++ b/third_party/protobuf/src/google/protobuf/repeated_field.h
 @@ -33,6 +33,7 @@
