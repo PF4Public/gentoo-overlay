@@ -139,6 +139,50 @@
  
  }  // namespace
  
+--- a/components/one_time_tokens/core/browser/one_time_token_service.h
++++ b/components/one_time_tokens/core/browser/one_time_token_service.h
+@@ -6,6 +6,7 @@
+ #define COMPONENTS_ONE_TIME_TOKENS_CORE_BROWSER_ONE_TIME_TOKEN_SERVICE_H_
+ 
+ #include <optional>
++#include <variant>
+ 
+ #include "base/functional/callback.h"
+ #include "components/one_time_tokens/core/browser/one_time_token.h"
+--- a/components/page_content_annotations/core/page_content_cache.h
++++ b/components/page_content_annotations/core/page_content_cache.h
+@@ -5,6 +5,7 @@
+ #ifndef COMPONENTS_PAGE_CONTENT_ANNOTATIONS_CORE_PAGE_CONTENT_CACHE_H_
+ #define COMPONENTS_PAGE_CONTENT_ANNOTATIONS_CORE_PAGE_CONTENT_CACHE_H_
+ 
++#include <set>
+ #include "base/files/file_path.h"
+ #include "base/functional/callback.h"
+ #include "base/memory/weak_ptr.h"
+--- a/components/page_content_annotations/core/page_content_cache_handler.h
++++ b/components/page_content_annotations/core/page_content_cache_handler.h
+@@ -9,6 +9,7 @@
+ 
+ #include <memory>
+ #include <optional>
++#include <set>
+ 
+ #include "base/scoped_observation.h"
+ #include "components/optimization_guide/proto/features/common_quality_data.pb.h"
+--- a/components/persistent_cache/sqlite/sqlite_backend_impl.cc
++++ b/components/persistent_cache/sqlite/sqlite_backend_impl.cc
+@@ -190,8 +190,9 @@ std::optional<BackendParams> SqliteBacke
+ std::optional<BackendParams> SqliteBackendImpl::ExportParams(bool read_write) {
+   BackendParams result;
+   result.type = BackendType::kSqlite;
+-  std::tie(result.db_file, result.journal_file) =
+-      vfs_file_set_.DuplicateFiles(read_write);
++  auto files = vfs_file_set_.DuplicateFiles(read_write);
++  result.db_file      = std::move(files[0]);
++  result.journal_file = std::move(files[1]);
+   if (!result.db_file.IsValid() || !result.journal_file.IsValid()) {
+     return std::nullopt;
+   }
 --- a/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
 +++ b/components/policy/core/common/cloud/realtime_reporting_job_configuration.h
 @@ -6,6 +6,7 @@
@@ -250,6 +294,35 @@
    exclusive_sync_wait_->interface_id = interface_id;
    exclusive_sync_wait_->request_id = request_id;
    while (!exclusive_sync_wait_->finished) {
+--- a/net/cookies/cookie_util.cc
++++ b/net/cookies/cookie_util.cc
+@@ -841,7 +841,7 @@ bool IsCookiePartitionedValid(const GURL
+ 
+ void ParseRequestCookieLine(std::string_view header_value,
+                             ParsedRequestCookies* parsed_cookies) {
+-  std::string::const_iterator i = header_value.begin();
++  std::string_view::const_iterator i = header_value.begin();
+   while (i != header_value.end()) {
+     // Here we are at the beginning of a cookie.
+ 
+@@ -850,7 +850,7 @@ void ParseRequestCookieLine(std::string_
+     if (i == header_value.end()) return;
+ 
+     // Find cookie name.
+-    std::string::const_iterator cookie_name_beginning = i;
++    std::string_view::const_iterator cookie_name_beginning = i;
+     while (i != header_value.end() && *i != '=') ++i;
+     auto cookie_name = std::string_view(cookie_name_beginning, i);
+ 
+@@ -859,7 +859,7 @@ void ParseRequestCookieLine(std::string_
+     // Cookies may have no value, in this case '=' may or may not be there.
+     if (i != header_value.end() && i + 1 != header_value.end()) {
+       ++i;  // Skip '='.
+-      std::string::const_iterator cookie_value_beginning = i;
++      std::string_view::const_iterator cookie_value_beginning = i;
+       if (*i == '"') {
+         ++i;  // Skip '"'.
+         while (i != header_value.end() && *i != '"') ++i;
 --- a/sql/sandboxed_vfs.h
 +++ b/sql/sandboxed_vfs.h
 @@ -5,6 +5,7 @@
@@ -282,6 +355,30 @@
        !data.ReadRequiredSellerCapabilities(
            &out->required_seller_capabilities) ||
        !data.ReadRequestedSize(&out->requested_size) ||
+--- a/third_party/blink/renderer/core/html/parser/html_construction_site.cc
++++ b/third_party/blink/renderer/core/html/parser/html_construction_site.cc
+@@ -1602,11 +1602,16 @@ void HTMLConstructionSite::PreprocessIns
+       child_element->TagQName().NamespaceURI(),
+       child_element->TagQName().LocalName());
+ 
+-  auto result = std::find_if(
+-      candidates->begin(), candidates->end(), [&](Element* candidate) {
+-        return candidate->FastGetAttribute(html_names::kContentnameAttr) ==
+-               content_name;
+-      });
++  auto* collection = candidates;  // the HTMLCollection
++  auto result = collection->end(); // default: not found
++
++  for (auto it = collection->begin(); it != collection->end(); ++it) {
++      Element* candidate = *it;
++      if (candidate->FastGetAttribute(html_names::kContentnameAttr) == content_name) {
++          result = it;  // found
++          break;
++      }
++  }
+ 
+   if (result.AtEnd()) {
+     return;
 --- a/third_party/blink/renderer/core/layout/inline/line_breaker.cc
 +++ b/third_party/blink/renderer/core/layout/inline/line_breaker.cc
 @@ -2657,7 +2657,7 @@ bool LineBreaker::ComputeTrailingCollaps
@@ -463,6 +560,17 @@
  
    if (add_operation == RecordOperation::kInsertRecord) {
      AddOperationRecord(std::make_unique<DeleteOperation>(this, start_idx, ret));
+--- a/third_party/re2/src/re2/re2.h
++++ b/third_party/re2/src/re2/re2.h
+@@ -220,7 +220,7 @@
+ 
+ #include "absl/base/call_once.h"
+ #include "absl/strings/string_view.h"
+-#include "re2/stringpiece.h"
++#include "stringpiece.h"
+ 
+ #if defined(__APPLE__)
+ #include <TargetConditionals.h>
 --- a/third_party/webrtc/call/rtp_config.cc
 +++ b/third_party/webrtc/call/rtp_config.cc
 @@ -258,7 +258,7 @@ RtpStreamConfig RtpConfig::GetStreamConf

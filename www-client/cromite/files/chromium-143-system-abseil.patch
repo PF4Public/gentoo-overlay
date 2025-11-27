@@ -200,6 +200,37 @@
  
  namespace google::protobuf {
  class MessageLite;
+--- a/net/base/url_search_params_view.cc
++++ b/net/base/url_search_params_view.cc
+@@ -80,17 +80,25 @@ void UrlSearchParamsView::Sort() {
+   // actual order itself, it doesn't matter.
+   std::ranges::stable_sort(params_, std::less<>(), &KeyValue::unescaped_key);
+ }
+-
++template <typename T, size_t N, typename A, typename Predicate>
++constexpr typename absl::InlinedVector<T, N, A>::size_type erase_if(
++    absl::InlinedVector<T, N, A>& v, Predicate pred) {
++  const auto it = std::remove_if(v.begin(), v.end(), std::move(pred));
++  const auto removed = static_cast<typename absl::InlinedVector<T, N, A>::size_type>(
++      std::distance(it, v.end()));
++  v.erase(it, v.end());
++  return removed;
++}
+ void UrlSearchParamsView::DeleteAllWithNames(
+     const base::flat_set<std::string>& names) {
+-  absl::erase_if(params_, [&names](const KeyValue& key_value) {
++  erase_if(params_, [&names](const KeyValue& key_value) {
+     return names.contains(key_value.unescaped_key);
+   });
+ }
+ 
+ void UrlSearchParamsView::DeleteAllExceptWithNames(
+     const base::flat_set<std::string>& names) {
+-  absl::erase_if(params_, [&names](const KeyValue& key_value) {
++  erase_if(params_, [&names](const KeyValue& key_value) {
+     return !names.contains(key_value.unescaped_key);
+   });
+ }
 --- a/third_party/abseil-cpp/absl/base/casts.h
 +++ b/third_party/abseil-cpp/absl/base/casts.h
 @@ -94,7 +94,7 @@ constexpr std::enable_if_t<
@@ -238,6 +269,25 @@
  #include "absl/base/optimization.h"
  #include "absl/log/absl_check.h"
  #include "absl/meta/type_traits.h"
+--- a/third_party/tflite/src/tensorflow/lite/experimental/acceleration/mini_benchmark/mini_benchmark.cc
++++ b/third_party/tflite/src/tensorflow/lite/experimental/acceleration/mini_benchmark/mini_benchmark.cc
+@@ -57,14 +57,14 @@ std::unique_ptr<MiniBenchmark> CreateMin
+ 
+ void MinibenchmarkImplementationRegistry::RegisterImpl(
+     const std::string& name, CreatorFunction creator_function) {
+-  absl::MutexLock lock(mutex_);
++  absl::MutexLock lock(&mutex_);
+   factories_[name] = creator_function;
+ }
+ 
+ std::unique_ptr<MiniBenchmark> MinibenchmarkImplementationRegistry::CreateImpl(
+     const std::string& name, const MinibenchmarkSettings& settings,
+     const std::string& model_namespace, const std::string& model_id) {
+-  absl::MutexLock lock(mutex_);
++  absl::MutexLock lock(&mutex_);
+   auto it = factories_.find(name);
+   return (it != factories_.end())
+              ? it->second(settings, model_namespace, model_id)
 --- a/v8/src/base/platform/mutex.cc
 +++ b/v8/src/base/platform/mutex.cc
 @@ -60,17 +60,17 @@ Mutex::Mutex() {
