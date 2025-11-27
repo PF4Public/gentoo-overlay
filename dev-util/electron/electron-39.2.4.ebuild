@@ -2708,6 +2708,8 @@ src_configure() {
 		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
 		export YARN_CACHE_FOLDER=${DISTDIR}
 		export YARN_ENABLE_OFFLINE_MODE=1
+		yarn config set --home enableTelemetry 0 || die
+		yarn config set --home cacheFolder ${DISTDIR} || die
 		yarn install || die
 
 		# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
