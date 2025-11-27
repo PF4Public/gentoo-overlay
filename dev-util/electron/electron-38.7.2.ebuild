@@ -2659,8 +2659,11 @@ src_configure() {
 	pushd electron > /dev/null || die
 		# yarn config set disable-self-update-check true || die
 		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
-		yarn config set cacheFolder "${DISTDIR}" || die
-		yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+		# yarn config set cacheFolder "${DISTDIR}" || die
+		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+		export YARN_CACHE_FOLDER=${DISTDIR}
+		export YARN_ENABLE_OFFLINE_MODE=1
+		yarn install || die
 
 		# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
 		# find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
