@@ -82,7 +82,9 @@ QA_WX_LOAD="opt/vmware/lib/vmware/tools-upgraders/vmware-tools-upgrader-32 opt/v
 # adding "opt/vmware/lib/vmware/lib/libvmware-gksu.so/libvmware-gksu.so" to QA_WX_LOAD doesn't work
 
 pkg_nofetch() {
-	einfo "${MY_PN}-Full-${MY_PV}-${PV_BUILD}.x86_64.bundle should be downloaded manually"
+	einfo "Please download"
+	einfo "  - ${MY_PN}-Full-${MY_PV}-${PV_BUILD}.x86_64.bundle"
+	einfo "manually and place it in your DISTDIR directory."
 }
 
 src_unpack() {
