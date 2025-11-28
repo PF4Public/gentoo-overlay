@@ -1901,8 +1901,19 @@ src_prepare() {
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
 		eapply "${FILESDIR}/misc-fixes.patch" || die
-		
-		yarn pack
+
+		ebegin "Installing node_modules"
+		# yarn config set disable-self-update-check true || die
+		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		# yarn config set cacheFolder "${DISTDIR}" || die
+		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+		# export YARN_CACHE_FOLDER=${DISTDIR}
+		# export YARN_ENABLE_OFFLINE_MODE=1
+		yarn config set --home enableTelemetry 0
+		# yarn config set --home cacheFolder ${DISTDIR}
+		yarn install
+		eend $? || die
+
 	popd > /dev/null || die
 
 	local PATCHES=(
@@ -2701,25 +2712,6 @@ src_prepare() {
 src_configure() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
-
-	ebegin "Installing node_modules"
-	pushd electron > /dev/null || die
-		# yarn config set disable-self-update-check true || die
-		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
-		# yarn config set cacheFolder "${DISTDIR}" || die
-		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
-		export YARN_CACHE_FOLDER=${DISTDIR}
-		export YARN_ENABLE_OFFLINE_MODE=1
-		yarn config set --home enableTelemetry 0 || die
-		yarn config set --home cacheFolder ${DISTDIR} || die
-		yarn install || die
-
-		# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
-		# find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
-		# # For webpack >= 5.61.0
-		# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
-	popd > /dev/null || die
-	eend $? || die
 
 	local myconf_gn=""
 
