@@ -1785,6 +1785,24 @@ src_unpack() {
 	if use ppc64; then
 		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
+
+	pushd "${WORKDIR}/${P}" > /dev/null || die
+
+		#!v No control over what happens here
+		ebegin "Installing node_modules"
+		# yarn config set disable-self-update-check true || die
+		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		# yarn config set cacheFolder "${DISTDIR}" || die
+		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+		# export YARN_CACHE_FOLDER=${DISTDIR}
+		# export YARN_ENABLE_OFFLINE_MODE=1
+		yarn config set --home enableTelemetry 0
+		# yarn config set --home cacheFolder ${DISTDIR}
+		yarn install
+		eend $? || die
+		#!^ No control over what happens here
+
+	popd > /dev/null || die
 }
 
 remove_compiler_builtins() {
@@ -1901,19 +1919,6 @@ src_prepare() {
 			sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		fi
 		eapply "${FILESDIR}/misc-fixes.patch" || die
-
-		ebegin "Installing node_modules"
-		# yarn config set disable-self-update-check true || die
-		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
-		# yarn config set cacheFolder "${DISTDIR}" || die
-		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
-		# export YARN_CACHE_FOLDER=${DISTDIR}
-		# export YARN_ENABLE_OFFLINE_MODE=1
-		yarn config set --home enableTelemetry 0
-		# yarn config set --home cacheFolder ${DISTDIR}
-		yarn install
-		eend $? || die
-
 	popd > /dev/null || die
 
 	local PATCHES=(
