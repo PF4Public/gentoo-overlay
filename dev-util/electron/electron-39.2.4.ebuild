@@ -1483,6 +1483,7 @@ RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )
 	mirror
+	network-sandbox
 "
 REQUIRED_USE="
 	thinlto? ( clang )
@@ -1743,6 +1744,11 @@ pkg_pretend() {
 		ewarn "Chromium ${CHROMIUM_VERSION} will be used instead of the required one"
 		ewarn
 	fi
+
+	ewarn
+	ewarn "network-sandbox is disabled because of yarn"
+	ewarn "Please do not file a bug unless you have a better solution"
+	ewarn
 }
 
 pkg_setup() {
@@ -1785,24 +1791,6 @@ src_unpack() {
 	if use ppc64; then
 		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
-
-	pushd "${WORKDIR}/${P}" > /dev/null || die
-
-		#!v No control over what happens here
-		ebegin "Installing node_modules"
-		# yarn config set disable-self-update-check true || die
-		# yarn config set yarn-offline-mirror "${DISTDIR}" || die
-		# yarn config set cacheFolder "${DISTDIR}" || die
-		# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
-		# export YARN_CACHE_FOLDER=${DISTDIR}
-		# export YARN_ENABLE_OFFLINE_MODE=1
-		yarn config set --home enableTelemetry 0
-		# yarn config set --home cacheFolder ${DISTDIR}
-		yarn install
-		eend $? || die
-		#!^ No control over what happens here
-
-	popd > /dev/null || die
 }
 
 remove_compiler_builtins() {
@@ -2717,6 +2705,21 @@ src_prepare() {
 src_configure() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
+
+	pushd electron > /dev/null || die
+	#!v No control over what happens here
+	einfo "Installing node_modules"
+	# yarn config set disable-self-update-check true || die
+	# yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	# yarn config set cacheFolder "${DISTDIR}" || die
+	# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+	# export YARN_CACHE_FOLDER=${DISTDIR}
+	# export YARN_ENABLE_OFFLINE_MODE=1
+	yarn config set --home enableTelemetry 0 || die
+	# yarn config set --home cacheFolder ${DISTDIR}
+	yarn install || die
+	#!^ No control over what happens here
+	popd > /dev/null || die
 
 	local myconf_gn=""
 
