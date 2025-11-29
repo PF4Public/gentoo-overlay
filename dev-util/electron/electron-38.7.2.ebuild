@@ -1489,11 +1489,11 @@ src_configure() {
 	myconf_gn+=" enable_print_preview=true"
 
 	# Ungoogled flags
-	myconf_gn+=" build_with_tflite_lib=false"
 	myconf_gn+=" enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 	myconf_gn+=" enable_remoting=false"
 	myconf_gn+=" enable_reporting=false"
 	if use ungoogled; then
+	myconf_gn+=" build_with_tflite_lib=false"
 	myconf_gn+=" enable_mdns=false"
 	myconf_gn+=" enable_service_discovery=false"
 	fi
