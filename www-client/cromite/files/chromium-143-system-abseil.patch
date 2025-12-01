@@ -260,6 +260,89 @@
      for (const bssl::UniquePtr<EVP_AEAD_CTX>& ctx : state_->ctxs) {
        size_t bytes_written;
        if (EVP_AEAD_CTX_open(
+--- a/net/third_party/quiche/src/quiche/quic/core/crypto/quic_crypto_server_config.cc
++++ b/net/third_party/quiche/src/quiche/quic/core/crypto/quic_crypto_server_config.cc
+@@ -441,7 +441,7 @@ std::unique_ptr<CryptoHandshakeMessage>
+   }
+ 
+   {
+-    absl::WriterMutexLock locked(configs_lock_);
++    absl::WriterMutexLock locked(&configs_lock_);
+     if (configs_.find(config->id) != configs_.end()) {
+       QUIC_LOG(WARNING) << "Failed to add config because another with the same "
+                            "server config id already exists: "
+@@ -504,7 +504,7 @@ bool QuicCryptoServerConfig::SetConfigs(
+ 
+   QUIC_LOG(INFO) << "Updating configs:";
+ 
+-  absl::WriterMutexLock locked(configs_lock_);
++  absl::WriterMutexLock locked(&configs_lock_);
+   ConfigMap new_configs;
+ 
+   for (const quiche::QuicheReferenceCountedPointer<Config>& config :
+@@ -555,7 +555,7 @@ void QuicCryptoServerConfig::SetSourceAd
+ }
+ 
+ std::vector<std::string> QuicCryptoServerConfig::GetConfigIds() const {
+-  absl::ReaderMutexLock locked(configs_lock_);
++  absl::ReaderMutexLock locked(&configs_lock_);
+   std::vector<std::string> scids;
+   for (auto it = configs_.begin(); it != configs_.end(); ++it) {
+     scids.push_back(it->first);
+@@ -1126,21 +1126,21 @@ bool QuicCryptoServerConfig::GetCurrentC
+     const QuicWallTime& now, absl::string_view requested_scid,
+     quiche::QuicheReferenceCountedPointer<Config> old_primary_config,
+     Configs* configs) const {
+-  absl::ReaderMutexLock locked(configs_lock_);
++  absl::ReaderMutexLock locked(&configs_lock_);
+ 
+   if (!primary_config_) {
+     return false;
+   }
+ 
+   if (IsNextConfigReady(now)) {
+-    configs_lock_.unlock_shared();
+-    configs_lock_.lock();
++    configs_lock_.ReaderUnlock();
++    configs_lock_.WriterLock();
+     SelectNewPrimaryConfig(now);
+     QUICHE_DCHECK(primary_config_.get());
+     QUICHE_DCHECK_EQ(configs_.find(primary_config_->id)->second.get(),
+                      primary_config_.get());
+-    configs_lock_.unlock();
+-    configs_lock_.lock_shared();
++    configs_lock_.WriterUnlock();
++    configs_lock_.ReaderLock();
+   }
+ 
+   if (old_primary_config != nullptr) {
+@@ -1362,7 +1362,7 @@ void QuicCryptoServerConfig::BuildServer
+   std::string serialized;
+   std::string source_address_token;
+   {
+-    absl::ReaderMutexLock locked(configs_lock_);
++    absl::ReaderMutexLock locked(&configs_lock_);
+     serialized = primary_config_->serialized;
+     source_address_token = NewSourceAddressToken(
+         *primary_config_->source_address_token_boxer,
+@@ -1720,7 +1720,7 @@ void QuicCryptoServerConfig::set_enable_
+ 
+ void QuicCryptoServerConfig::AcquirePrimaryConfigChangedCb(
+     std::unique_ptr<PrimaryConfigChangedCallback> cb) {
+-  absl::WriterMutexLock locked(configs_lock_);
++  absl::WriterMutexLock locked(&configs_lock_);
+   primary_config_changed_cb_ = std::move(cb);
+ }
+ 
+@@ -1761,7 +1761,7 @@ std::string QuicCryptoServerConfig::NewS
+ }
+ 
+ int QuicCryptoServerConfig::NumberOfConfigs() const {
+-  absl::ReaderMutexLock locked(configs_lock_);
++  absl::ReaderMutexLock locked(&configs_lock_);
+   return configs_.size();
+ }
+ 
 --- a/third_party/abseil-cpp/absl/base/casts.h
 +++ b/third_party/abseil-cpp/absl/base/casts.h
 @@ -94,7 +94,7 @@ constexpr std::enable_if_t<
