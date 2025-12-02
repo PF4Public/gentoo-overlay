@@ -2280,8 +2280,10 @@ src_configure() {
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
 
-	einfo "Allowing any nodejs version"
+	#TODO until node>=22.18 stabilised
+	einfo "Allowing any nodejs version and type stripping"
 	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/yarn.lock" || die
 
 	if ! use build-online
 	then
@@ -2290,12 +2292,12 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node --experimental-strip-types /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	# --ignore-scripts
 
 	pushd "packages/shared-components" > /dev/null || die
 		einfo "Installing node_modules in Shared Components"
-		node --experimental-strip-types /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
 		# --ignore-scripts
 	popd > /dev/null || die
 }
