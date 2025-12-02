@@ -2232,7 +2232,7 @@ DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/yarn
-	>=net-libs/nodejs-22.18
+	net-libs/nodejs
 "
 
 #TODO: Jitsi
@@ -2280,8 +2280,8 @@ src_configure() {
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
 
-	# einfo "Allowing any nodejs version"
-	# sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	einfo "Allowing any nodejs version"
+	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
 
 	if ! use build-online
 	then
@@ -2290,12 +2290,12 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	node --experimental-strip-types /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	# --ignore-scripts
 
 	pushd "packages/shared-components" > /dev/null || die
 		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
+		node --experimental-strip-types /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
 		# --ignore-scripts
 	popd > /dev/null || die
 }
