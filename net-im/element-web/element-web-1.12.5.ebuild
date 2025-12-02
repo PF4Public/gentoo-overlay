@@ -2287,12 +2287,12 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-engines || die
 	# --ignore-scripts
 
 	pushd "packages/shared-components" > /dev/null || die
 		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-engines || die
 		# --ignore-scripts
 	popd > /dev/null || die
 }
