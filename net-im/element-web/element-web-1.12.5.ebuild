@@ -2284,6 +2284,7 @@ src_configure() {
 	einfo "Allowing any nodejs version and type stripping"
 	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
 	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/package.json" || die
+	sed -i 's$node scripts/gatherTranslationKeys.ts$node --experimental-strip-types scripts/gatherTranslationKeys.ts$' "${WORKDIR}/${P}/packages/shared-components/package.json" || die
 
 	if ! use build-online
 	then
