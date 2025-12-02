@@ -2296,11 +2296,11 @@ src_configure() {
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	# --ignore-scripts
 
-	pushd "packages/shared-components" > /dev/null || die
-		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
-		# --ignore-scripts
-	popd > /dev/null || die
+	# pushd "packages/shared-components" > /dev/null || die
+	# 	einfo "Installing node_modules in Shared Components"
+	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
+	# 	# --ignore-scripts
+	# popd > /dev/null || die
 }
 
 src_compile() {
