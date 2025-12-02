@@ -2283,7 +2283,7 @@ src_configure() {
 	#TODO until node>=22.18 stabilised
 	einfo "Allowing any nodejs version and type stripping"
 	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
-	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/yarn.lock" || die
+	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/package.json" || die
 
 	if ! use build-online
 	then
