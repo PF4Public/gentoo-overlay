@@ -43,7 +43,7 @@ DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/yarn
-	>=net-libs/nodejs-22.18
+	net-libs/nodejs
 "
 
 #TODO: Jitsi
@@ -91,8 +91,12 @@ src_configure() {
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
 
-	# einfo "Allowing any nodejs version"
-	# sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	#TODO until node>=22.18 stabilised
+	einfo "Allowing any nodejs version and type stripping"
+	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/package.json" || die
+	sed -i 's$node module_system/scripts/install.ts$node --experimental-strip-types module_system/scripts/install.ts$' "${WORKDIR}/${P}/package.json" || die
+	sed -i 's$node scripts/gatherTranslationKeys.ts$node --experimental-strip-types scripts/gatherTranslationKeys.ts$' "${WORKDIR}/${P}/packages/shared-components/package.json" || die
 
 	if ! use build-online
 	then
@@ -104,11 +108,11 @@ src_configure() {
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	# --ignore-scripts
 
-	pushd "packages/shared-components" > /dev/null || die
-		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
-		# --ignore-scripts
-	popd > /dev/null || die
+	# pushd "packages/shared-components" > /dev/null || die
+	# 	einfo "Installing node_modules in Shared Components"
+	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
+	# 	# --ignore-scripts
+	# popd > /dev/null || die
 }
 
 src_compile() {
