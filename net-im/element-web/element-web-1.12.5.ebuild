@@ -2279,6 +2279,9 @@ src_configure() {
 	# einfo "Removing Jitsi"
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
+	
+	einfo "Allowing any nodejs version"
+	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
 
 	if ! use build-online
 	then
