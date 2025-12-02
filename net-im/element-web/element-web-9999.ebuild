@@ -91,6 +91,9 @@ src_configure() {
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
 
+	einfo "Allowing any nodejs version"
+	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+
 	if ! use build-online
 	then
 		ONLINE_OFFLINE="--offline --frozen-lockfile"
@@ -98,12 +101,12 @@ src_configure() {
 	fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-engines || die
+	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 	# --ignore-scripts
 
 	pushd "packages/shared-components" > /dev/null || die
 		einfo "Installing node_modules in Shared Components"
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress --ignore-engines || die
+		node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
 		# --ignore-scripts
 	popd > /dev/null || die
 }
