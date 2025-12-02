@@ -43,7 +43,7 @@ DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/yarn
-	net-libs/nodejs
+	>=net-libs/nodejs-22.18
 "
 
 #TODO: Jitsi
@@ -91,8 +91,8 @@ src_configure() {
 	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
 	# 	package.json || die
 
-	einfo "Allowing any nodejs version"
-	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	# einfo "Allowing any nodejs version"
+	# sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
 
 	if ! use build-online
 	then
