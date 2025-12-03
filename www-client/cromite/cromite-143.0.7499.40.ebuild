@@ -610,6 +610,12 @@ src_prepare() {
 		)
 	fi
 
+	if ! use system-png; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-143-revert-revert-libpng-testiness.patch"
+		)
+	fi
+
 	if use system-libvpx; then
 		PATCHES+=(
 			"${FILESDIR}/chromium-system-libvpx.patch"
