@@ -14,8 +14,8 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 inherit check-reqs chromium-2 desktop flag-o-matic llvm ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
-CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="142.0.7444.177"
+CHROMIUM_VERSION_WARNING="true"
+CHROMIUM_VERSION="142.0.7444.175"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="22.21.1"
 NODE_P="node-v${NODE_VERSION}"
