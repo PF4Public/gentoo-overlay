@@ -122,81 +122,81 @@ src_prepare() {
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Add PPC target to package build scripts"
-	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die
+	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die 
 
 	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/ripgrep"/d' package.ts on || die
-	sed -i '/telemetry-extractor"/d' package.ts on || die
-	sed -i '/git-blame-ignore/d' build/npm/postinstall.ts || die
+	sed -i '/ripgrep"/d' package.json || die
+	sed -i '/telemetry-extractor"/d' package.json || die
+	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
 
 	# einfo "Allowing any nodejs version"
-	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.ts  || die
+	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
 	# rm -r extensions/npm
-	# sed -i '/extensions\/npm/d' build/npm/dirs.ts  || die
+	# sed -i '/extensions\/npm/d' build/npm/dirs.js || die
 
 	#TODO: applicationinsights
-	# sed -i '/applicationinsights/d' package.ts on || die
-	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.ts  || die
+	# sed -i '/applicationinsights/d' package.json || die
+	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
 
-	# sed -i '/"electron"/d' package.ts on || die
-	# sed -i '/vscode-ripgrep/d' remote/package.ts on || die
-	# sed -i '/"playwright"/d' package.ts on || die
-	sed -i '/test-web"/d' package.ts on || die
+	# sed -i '/"electron"/d' package.json || die
+	# sed -i '/vscode-ripgrep/d' remote/package.json || die
+	# sed -i '/"playwright"/d' package.json || die
+	sed -i '/test-web"/d' package.json || die
 
-	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.ts on || die
+	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
-	einfo "Editing postinstall.ts "
-	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.ts  || die
-	sed -i '/git config pull/d' build/npm/postinstall.ts  || die
+	einfo "Editing postinstall.js"
+	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
+	sed -i '/git config pull/d' build/npm/postinstall.js || die
 
-	einfo "Editing dirs.ts "
+	einfo "Editing dirs.js"
 	if ! ( use reh || use reh-web ); then
-		sed -i '/remote/d' build/npm/dirs.ts  || die
+		sed -i '/remote/d' build/npm/dirs.js || die
 	fi
-	sed -i '/test\/automation/d' build/npm/dirs.ts  || die
-	sed -i '/test\/integration\/browser/d' build/npm/dirs.ts  || die
-	sed -i '/test\/smoke/d' build/npm/dirs.ts  || die
-	sed -i '/test\/monaco/d' build/npm/dirs.ts  || die
-	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.ts  || die
+	sed -i '/test\/automation/d' build/npm/dirs.js || die
+	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
+	sed -i '/test\/smoke/d' build/npm/dirs.js || die
+	sed -i '/test\/monaco/d' build/npm/dirs.js || die
+	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.js || die
 
-	# einfo "Editing build/gulpfile.extensions.ts "
-	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.ts  || die
+	# einfo "Editing build/gulpfile.extensions.js"
+	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
 
-	einfo "Editing build/gulpfile.vscode.ts "
-	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts  || die
-	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts  || die
-	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts  || die
+	einfo "Editing build/gulpfile.vscode.js"
+	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
+	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
+	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
 
-	einfo "Editing build/gulpfile.vscode.linux.ts "
-	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts  || die
-	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts  || die
-	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts  || die
+	einfo "Editing build/gulpfile.vscode.linux.js"
+	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.js || die
 
-	einfo "Editing product.ts on"
+	einfo "Editing product.json"
 
-	mv product.ts on product.ts on.bak || die
-	sed -i '1d' product.ts on.bak || die
+	mv product.json product.json.bak || die
+	sed -i '1d' product.json.bak || die
 
-	cat "${FILESDIR}/heading.ts on" > product.ts on
+	cat "${FILESDIR}/heading.json" > product.json
 
 	if use openvsx; then
-		cat "${FILESDIR}/openvsx.ts on" >> product.ts on
+		cat "${FILESDIR}/openvsx.json" >> product.json
 	else
-		cat "${FILESDIR}/marketplace.ts on" >> product.ts on
+		cat "${FILESDIR}/marketplace.json" >> product.json
 	fi
 
 	if use badge-providers; then
-		cat "${FILESDIR}/badge_prov.ts on" >> product.ts on
+		cat "${FILESDIR}/badge_prov.json" >> product.json
 	fi
 
 	if use api-proposals; then
-		cat "${FILESDIR}/api-proposals.ts on" >> product.ts on
+		cat "${FILESDIR}/api-proposals.json" >> product.json
 	fi
 
-	cat product.ts on.bak >> product.ts on
+	cat product.json.bak >> product.json
 
 	einfo "Disabling telemetry by default"
 	perl -0777 -pi -e "s/'default': true,\n\s*'restricted': true,/'default': false,'restricted': true,/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
@@ -244,18 +244,18 @@ src_configure() {
 	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
 	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
 	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
-	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.ts on || die;
+	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
 	# #TODO: temp fix
 	# if use electron-32 || use electron-33 || use electron-35 || use electron-36 || use electron-38; then
 		# CPPFLAGS="${CPPFLAGS} -std=c++20";
 		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.ts on || die;
+		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
 	# fi
 
 	# if use build-online; then
-	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.ts on || die;
+	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
 	# else
 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
 	# fi
@@ -295,7 +295,7 @@ src_configure() {
 	# Workaround md4 see https://github.com/webpack/webpack/issues/14560
 	find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
 	# For webpack >= 5.61.0
-	sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.ts  || die
+	sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 
 	export PATH=${OLD_PATH}
 
@@ -303,23 +303,23 @@ src_configure() {
 	pushd "node_modules/@vscode" > /dev/null || die
 		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
 		mv package ripgrep
-		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.ts  || die
-		sed -i '/"postinstall"/d' ripgrep/package.ts on || die
+		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
+		sed -i '/"postinstall"/d' ripgrep/package.json || die
 	popd > /dev/null || die
 	eend $? || die
-	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.ts on || die
+	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
 
-	einfo "Editing build/lib/getVersion.ts "
+	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
-		build/lib/getVersion.ts  || die
+		build/lib/getVersion.js || die
 
 	#TODO Although this allows the build to continue, it renders vscode unusable
 	#TODO Does it really? Investigate later
 	# einfo "Fixing l10n-dev"
-	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.ts  || die
+	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
 }
 
 src_compile() {
@@ -344,27 +344,27 @@ src_compile() {
 	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 
 	if use temp-fix; then
-	node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-linux-${VSCODE_ARCH}-min || die
+	node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-linux-${VSCODE_ARCH}-min || die
+	/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
 		if use temp-fix; then
-		node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-reh-linux-${VSCODE_ARCH}-min || die
+		node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-reh-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 	if use reh-web; then
 		if use temp-fix; then
-		node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.ts  vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 
@@ -379,10 +379,10 @@ src_install() {
 	export PATH
 
 	if use temp-fix; then
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.ts  vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.ts  vscode-linux-${VSCODE_ARCH}-prepare-deb || die
+	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
 	fi
 	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
 
@@ -394,7 +394,7 @@ src_install() {
 
 	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
 	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
-	CLI=\"\${VSCODE_PATH}/out/cli.ts \"
+	CLI=\"\${VSCODE_PATH}/out/cli.js\"
 	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
 	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
@@ -405,7 +405,7 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.ts on
+	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
 	#TODO why no asar?
 	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
@@ -453,7 +453,7 @@ pkg_postinst() {
 
 	# elog
 	# elog "Normally vscode ships some builtin extensions, but they are omitted here"
-	# elog "Consult product.ts on for a list if you want to install them manually"
+	# elog "Consult product.json for a list if you want to install them manually"
 	# elog "ms-vscode.references-view is one of them, for example"
 	# elog
 
