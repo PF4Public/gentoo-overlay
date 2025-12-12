@@ -122,24 +122,24 @@ src_prepare() {
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Add PPC target to package build scripts"
-	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die 
+	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
-	sed -i '/git-blame-ignore/d' build/npm/postinstall.js || die
+	sed -i '/git-blame-ignore/d' build/npm/postinstall.ts || die
 
 	# einfo "Allowing any nodejs version"
-	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.js || die
+	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.ts || die
 
 	# ewarn "Removing extensions/npm, see #203"
 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
 	# rm -r extensions/npm
-	# sed -i '/extensions\/npm/d' build/npm/dirs.js || die
+	# sed -i '/extensions\/npm/d' build/npm/dirs.ts || die
 
 	#TODO: applicationinsights
 	# sed -i '/applicationinsights/d' package.json || die
-	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.js || die
+	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.ts || die
 
 	# sed -i '/"electron"/d' package.json || die
 	# sed -i '/vscode-ripgrep/d' remote/package.json || die
@@ -149,31 +149,31 @@ src_prepare() {
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing postinstall.js"
-	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.js || die
-	sed -i '/git config pull/d' build/npm/postinstall.js || die
+	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.ts || die
+	sed -i '/git config pull/d' build/npm/postinstall.ts || die
 
 	einfo "Editing dirs.js"
 	if ! ( use reh || use reh-web ); then
-		sed -i '/remote/d' build/npm/dirs.js || die
+		sed -i '/remote/d' build/npm/dirs.ts || die
 	fi
-	sed -i '/test\/automation/d' build/npm/dirs.js || die
-	sed -i '/test\/integration\/browser/d' build/npm/dirs.js || die
-	sed -i '/test\/smoke/d' build/npm/dirs.js || die
-	sed -i '/test\/monaco/d' build/npm/dirs.js || die
-	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.js || die
+	sed -i '/test\/automation/d' build/npm/dirs.ts || die
+	sed -i '/test\/integration\/browser/d' build/npm/dirs.ts || die
+	sed -i '/test\/smoke/d' build/npm/dirs.ts || die
+	sed -i '/test\/monaco/d' build/npm/dirs.ts || die
+	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.ts || die
 
 	# einfo "Editing build/gulpfile.extensions.js"
-	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.js || die
+	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.ts || die
 
 	einfo "Editing build/gulpfile.vscode.js"
-	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.js || die
-	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.js || die
-	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.js || die
+	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts || die
+	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
+	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
-	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.js || die
-	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.js || die
-	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.js || die
+	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
+	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
+	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
 	einfo "Editing product.json"
 
@@ -314,7 +314,7 @@ src_configure() {
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
-		build/lib/getVersion.js || die
+		build/lib/getVersion.ts || die
 
 	#TODO Although this allows the build to continue, it renders vscode unusable
 	#TODO Does it really? Investigate later
