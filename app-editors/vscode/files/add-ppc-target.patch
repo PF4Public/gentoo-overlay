@@ -1,4 +1,3 @@
-diff -ruN vscode-9999.orig/build/gulpfile.vscode.js vscode-9999/build/gulpfile.vscode.js
 --- a/build/gulpfile.vscode.ts	2022-02-19 11:45:42.751433707 +0100
 +++ b/build/gulpfile.vscode.ts	2022-02-19 11:46:24.338088284 +0100
 @@ -354,6 +354,7 @@
@@ -9,28 +8,25 @@ diff -ruN vscode-9999.orig/build/gulpfile.vscode.js vscode-9999/build/gulpfile.v
  ];
  BUILD_TARGETS.forEach(buildTarget => {
  	const dashed = (str) => (str ? `-${str}` : ``);
-diff -ruN vscode-9999.orig/build/gulpfile.vscode.linux.js vscode-9999/build/gulpfile.vscode.linux.js
 --- a/build/gulpfile.vscode.linux.ts	2022-02-19 11:45:53.324763965 +0100
 +++ b/build/gulpfile.vscode.linux.ts	2022-02-19 11:48:09.361391093 +0100
-@@ -23,7 +23,7 @@
- const linuxPackageRevision = Math.floor(new Date().getTime() / 1000);
- 
- function getDebPackageArch(arch) {
--	return { x64: 'amd64', armhf: 'armhf', arm64: 'arm64' }[arch];
-+	return { x64: 'amd64', armhf: 'armhf', arm64: 'arm64', ppc64: 'ppc64el' }[arch];
+@@ -30,6 +30,7 @@
+ 		case 'x64': return 'amd64';
+ 		case 'armhf': return 'armhf';
+ 		case 'arm64': return 'arm64';
++		case 'ppc64': return 'ppc64el';
+ 		default: throw new Error(`Unknown arch: ${arch}`);
+ 	}
  }
- 
- function prepareDebPackage(arch) {
-@@ -117,7 +117,7 @@
+@@ -140,6 +141,7 @@
+ 		case 'x64': return 'x86_64';
+ 		case 'armhf': return 'armv7hl';
+ 		case 'arm64': return 'aarch64';
++		case 'ppc64': return 'ppc64el';
+ 		default: throw new Error(`Unknown arch: ${arch}`);
+ 	}
  }
- 
- function getRpmPackageArch(arch) {
--	return { x64: 'x86_64', armhf: 'armv7hl', arm64: 'aarch64' }[arch];
-+	return { x64: 'x86_64', armhf: 'armv7hl', arm64: 'aarch64', ppc64: 'ppc64le' }[arch];
- }
- 
- function prepareRpmPackage(arch) {
-@@ -257,6 +257,7 @@
+@@ -284,6 +286,7 @@
  	{ arch: 'x64' },
  	{ arch: 'armhf' },
  	{ arch: 'arm64' },

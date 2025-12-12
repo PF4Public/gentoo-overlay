@@ -122,7 +122,7 @@ src_prepare() {
 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
 
 	einfo "Add PPC target to package build scripts"
-	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die
+	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die 
 
 	einfo "Removing vscode-ripgrep and other dependencies"
 	sed -i '/ripgrep"/d' package.json || die
