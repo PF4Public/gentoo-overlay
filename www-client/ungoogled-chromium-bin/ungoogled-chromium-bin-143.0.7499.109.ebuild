@@ -111,6 +111,8 @@ src_install() {
 	local CHROMIUM_HOME="/opt/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
 	doexe ./usr/$(get_libdir)/chromium-browser/chrome
+	#* https://github.com/ungoogled-software/ungoogled-chromium/pull/3563
+	doexe ./usr/$(get_libdir)/chromium-browser/chrome_crashpad_handler
 
 	if use convert-dict; then
 		newexe "./usr/$(get_libdir)/chromium-browser/update-dicts.sh" update-dicts.sh
