@@ -9,6 +9,7 @@
 		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
 	</upstream>
 	<longdescription>
-		Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!
+		Cromite is a Chromium fork based on Bromite with built-in support
+		for ad blocking and an eye for privacy.
 	</longdescription>
 </pkgmetadata>
