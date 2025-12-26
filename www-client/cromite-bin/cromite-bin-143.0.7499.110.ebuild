@@ -1,12 +1,12 @@
-# Copyright 2009-2025 Gentoo Authors
+# Copyright 2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
-	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
-	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
-	vi zh-CN zh-HK zh-TW zu"
+CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil
+	fr gu he hi hr hu id it ja kn ko lt lv ml mr ms
+	nb nl pl pt-BR pt-PT ro ru sk sl sr sv sw ta te th tr uk ur
+	vi zh-CN zh-TW"
 
 inherit chromium-2 desktop xdg
 
