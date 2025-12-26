@@ -11,7 +11,8 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil
 inherit chromium-2 desktop xdg
 
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements"
-HOMEPAGE="https://github.com/uazo/cromite"
+HOMEPAGE="https://github.com/uazo/cromite
+https://www.cromite.org/"
 
 CROMITE_COMMIT_ID="8e844cf64f8159a72f158eb33e2f09b19f7d115a"
 
