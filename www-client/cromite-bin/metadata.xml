@@ -8,4 +8,8 @@
 		<remote-id type="github">uazo/cromite</remote-id>
 		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
 	</upstream>
+	<longdescription>
+		Cromite is a Chromium fork based on Bromite with built-in support
+		for ad blocking and an eye for privacy.
+	</longdescription>
 </pkgmetadata>
