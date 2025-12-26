@@ -8,7 +8,4 @@
 		<remote-id type="github">uazo/cromite</remote-id>
 		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
 	</upstream>
-	<longdescription>
-		Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!
-	</longdescription>
 </pkgmetadata>
