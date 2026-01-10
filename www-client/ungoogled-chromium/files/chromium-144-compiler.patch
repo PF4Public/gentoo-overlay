@@ -6,7 +6,7 @@ Subject: [PATCH] update compiler patch for 142
 Signed-off-by: Matt Jolly <kangie@gentoo.org>
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -337,9 +337,6 @@ config("compiler") {
+@@ -357,9 +357,6 @@ config("compiler") {
  
    configs += [
      # See the definitions below.
@@ -16,7 +16,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
      ":compiler_codegen",
      ":compiler_deterministic",
      ":clang_warning_suppression",
-@@ -1642,43 +1639,6 @@ config("compiler_deterministic") {
+@@ -1659,43 +1656,6 @@ config("compiler_deterministic") {
      }
    }
  
@@ -60,7 +60,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    # Tells the compiler not to use absolute paths when passing the default
    # paths to the tools it invokes. We don't want this because we don't
    # really need it and it can mess up the RBE cache entries.
-@@ -1705,88 +1665,6 @@ config("compiler_deterministic") {
+@@ -1728,88 +1688,6 @@ config("compiler_deterministic") {
    }
  }
  
@@ -149,7 +149,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
  # Controls the usage of a warning suppression mapping (WSM) file to suppress
  # warnings based on the path of the file they come from. It's controlled by the
  # `clang_warning_suppression_file` gn argument , which points to a text file
-@@ -1830,18 +1708,6 @@ config("sanitize_c_array_bounds") {
+@@ -1853,18 +1731,6 @@ config("sanitize_c_array_bounds") {
    }
  }
  
@@ -168,7 +168,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
  config("compiler_arm_fpu") {
    if (current_cpu == "arm" && !is_ios) {
      cflags = [ "-mfpu=$arm_fpu" ]
-@@ -2286,11 +2152,7 @@ config("chromium_code") {
+@@ -2330,11 +2196,7 @@ config("chromium_code") {
        defines = [ "_HAS_NODISCARD" ]
      }
    } else {
@@ -181,14 +181,14 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
  
      # In Chromium code, we define __STDC_foo_MACROS in order to get the
      # C99 macros on Mac and Linux.
-@@ -2299,24 +2161,6 @@ config("chromium_code") {
+@@ -2343,23 +2205,6 @@ config("chromium_code") {
        "__STDC_FORMAT_MACROS",
      ]
  
 -    if (!is_debug && !using_sanitizer && current_cpu != "s390x" &&
--        current_cpu != "s390" && current_cpu != "ppc64" &&
--        current_cpu != "mips" && current_cpu != "mips64" &&
--        current_cpu != "riscv64" && current_cpu != "loong64") {
+-        current_cpu != "ppc64" && current_cpu != "mips" &&
+-        current_cpu != "mips64" && current_cpu != "riscv64" &&
+-        current_cpu != "loong64") {
 -      # Non-chromium code is not guaranteed to compile cleanly with
 -      # _FORTIFY_SOURCE. Also, fortified build may fail when optimizations are
 -      # disabled, so only do that for Release build.
@@ -202,11 +202,10 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
 -      }
 -      defines += [ "_FORTIFY_SOURCE=" + fortify_level ]
 -    }
--
+ 
      if (is_apple) {
        cflags_objc = [ "-Wimplicit-retain-self" ]
-       cflags_objcc = [ "-Wimplicit-retain-self" ]
-@@ -2732,7 +2576,8 @@ config("default_stack_frames") {
+@@ -2784,7 +2629,8 @@ config("default_stack_frames") {
  # [0]: https://pinpoint-dot-chromeperf.appspot.com/job/147634a8be0000
  # [1]: https://pinpoint-dot-chromeperf.appspot.com/job/132bc772be0000
  # [2]: https://crrev.com/c/5447532
@@ -216,7 +215,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    if (is_win) {
      # clang-cl's /O2 corresponds to clang's -O3, and really want -O2 for
      # consistency with the other platforms.
-@@ -2781,7 +2626,8 @@ config("optimize") {
+@@ -2833,7 +2679,8 @@ config("optimize") {
  }
  
  # Turn off optimizations.
@@ -226,7 +225,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    if (is_win) {
      cflags = [
        "/Od",  # Disable optimization.
-@@ -2816,7 +2662,8 @@ config("no_optimize") {
+@@ -2868,7 +2715,8 @@ config("no_optimize") {
  # Turns up the optimization level. Used to explicitly enable -O2 instead of
  # -Os for select targets on platforms that use optimize_for_size. No-op
  # elsewhere.
@@ -236,7 +235,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    ldflags = common_optimize_on_ldflags
    if (is_win) {
      # Favor speed over size, /O2 must be before the common flags.
-@@ -2837,7 +2684,8 @@ config("optimize_max") {
+@@ -2889,7 +2737,8 @@ config("optimize_max") {
  #
  # TODO(crbug.com/41259697) - rework how all of these configs are related
  # so that we don't need this disclaimer.
@@ -246,7 +245,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    ldflags = common_optimize_on_ldflags
    if (is_win) {
      # Favor speed over size, /O2 must be before the common flags.
-@@ -2854,7 +2702,8 @@ config("optimize_speed") {
+@@ -2906,7 +2755,8 @@ config("optimize_speed") {
    rustflags = [ "-Copt-level=3" ]
  }
  
@@ -256,7 +255,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    cflags = [ "-O1" ] + common_optimize_on_cflags
    rustflags = [ "-Copt-level=1" ]
    ldflags = common_optimize_on_ldflags
-@@ -2981,7 +2830,8 @@ config("win_pdbaltpath") {
+@@ -3033,7 +2883,8 @@ config("win_pdbaltpath") {
  }
  
  # Full symbols.
@@ -266,7 +265,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    rustflags = []
    configs = []
    if (is_win) {
-@@ -3137,7 +2987,8 @@ config("symbols") {
+@@ -3198,7 +3049,8 @@ config("symbols") {
  # Minimal symbols.
  # This config guarantees to hold symbol for stack trace which are shown to user
  # when crash happens in unittests running on buildbot.
@@ -276,7 +275,7 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    rustflags = []
    if (is_win) {
      # Functions, files, and line tables only.
-@@ -3213,7 +3064,8 @@ config("minimal_symbols") {
+@@ -3274,7 +3126,8 @@ config("minimal_symbols") {
  # This configuration contains function names only. That is, the compiler is
  # told to not generate debug information and the linker then just puts function
  # names in the final debug information.
@@ -286,6 +285,3 @@ Signed-off-by: Matt Jolly <kangie@gentoo.org>
    if (is_win) {
      ldflags = [ "/DEBUG" ]
  
--- 
-2.50.1
-
