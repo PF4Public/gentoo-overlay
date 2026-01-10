@@ -87,8 +87,9 @@ jobs:
           - -official
           - wayland
           - headless -X -wayland
-          - cromite
         include:
+          - use: cromite
+            experimental: true
           - use: -clang -libcxx
             experimental: true
           - use: clang libcxx
