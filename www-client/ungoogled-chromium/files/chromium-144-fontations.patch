@@ -112,6 +112,14 @@
  
      # Fontations Rust/C++ bridge interfaces.
      deps += [
+@@ -658,7 +652,6 @@ source_set("rust_common_ffi_cpp") {
+   public_deps = [
+     ":skia_core_and_effects",
+     ":skia_core_public_headers",
+-    "//build/rust:cxx_cppdeps",
+   ]
+   configs -= [ "//build/config/compiler:chromium_code" ]
+   configs += [
 --- a/skia/ext/codec_utils.cc
 +++ b/skia/ext/codec_utils.cc
 @@ -7,9 +7,9 @@
