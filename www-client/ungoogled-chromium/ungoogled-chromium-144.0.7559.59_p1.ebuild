@@ -292,7 +292,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	clang? (
-		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
+		pgo? ( >=llvm-core/clang-21 >=llvm-core/lld-21	)
 		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
 	cfi? ( llvm-runtimes/clang-runtime[sanitize] )
