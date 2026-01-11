@@ -523,7 +523,7 @@ src_prepare() {
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-141-crabby.patch"
 		"${FILESDIR}/chromium-144-no-rust.patch"
-		"${FILESDIR}/chromium-144-fontations.patch" 
+		"${FILESDIR}/chromium-144-fontations.patch"
 		"${FILESDIR}/chromium-144-gcc.patch"
 	)
 
@@ -1122,6 +1122,7 @@ src_prepare() {
 		third_party/pdfium/third_party/libtiff
 		third_party/perfetto
 		third_party/perfetto/protos/third_party/chromium
+		third_party/perfetto/protos/third_party/pprof
 		third_party/perfetto/protos/third_party/simpleperf
 		third_party/pffft
 		third_party/ply
