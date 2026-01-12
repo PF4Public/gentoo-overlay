@@ -18,6 +18,16 @@
      std::common_type_t<Key> (&&data)[N],
      const Compare& comp = Compare()) {
    std::ranges::sort(data, comp);
+--- a/base/debug/proc_maps_linux.h
++++ b/base/debug/proc_maps_linux.h
+@@ -9,6 +9,7 @@
+ 
+ #include <optional>
+ #include <string>
++#include <cstring>
+ #include <vector>
+ 
+ #include "base/base_export.h"
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
 @@ -1931,6 +1931,14 @@ config("default_warnings") {

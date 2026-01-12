@@ -46,7 +46,24 @@
 +}
 --- a/build/linux/unbundle/absl_container.gn
 +++ b/build/linux/unbundle/absl_container.gn
-@@ -129,3 +129,15 @@ source_set("raw_hash_set_test") {
+@@ -109,6 +109,16 @@ source_set("node_hash_set") {
+   public_configs = [ ":system_absl_node_hash_set" ]
+ }
+ 
++shim_headers("hash_container_defaults_shim") {
++  root_path = "."
++  prefix = "absl/container/"
++  headers = [ "hash_container_defaults.h" ]
++}
++
++source_set("hash_container_defaults") {
++  deps = [ ":hash_container_defaults_shim" ]
++}
++
+ source_set("common_policy_traits_test") {
+ }
+ source_set("fixed_array_test") {
+@@ -129,3 +139,13 @@ source_set("raw_hash_set_test") {
  }
  source_set("sample_element_size_test") {
  }
@@ -59,8 +76,6 @@
 +source_set("raw_hash_set_resize_impl_test") {
 +}
 +source_set("hashtablez_sampler") {
-+}
-+source_set("hash_container_defaults") {
 +}
 --- a/build/linux/unbundle/absl_debugging.gn
 +++ b/build/linux/unbundle/absl_debugging.gn
