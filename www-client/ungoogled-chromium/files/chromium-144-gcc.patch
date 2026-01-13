@@ -438,6 +438,23 @@
    } else {
      keep_count = string.length();
      auto string_buffer_piece = base::span(string_buffer).first(keep_count);
+--- a/third_party/blink/renderer/platform/forward_declared_member.h
++++ b/third_party/blink/renderer/platform/forward_declared_member.h
+@@ -64,12 +64,12 @@ class ForwardDeclaredMember {
+   // definition of T.
+ 
+   ForwardDeclaredMember() = default;
+-  explicit ForwardDeclaredMember(nullptr_t) : obj_(nullptr) {}
++  explicit ForwardDeclaredMember(std::nullptr_t) : obj_(nullptr) {}
+   ForwardDeclaredMember(const ForwardDeclaredMember&) = default;
+   ForwardDeclaredMember(ForwardDeclaredMember&&) = default;
+   ForwardDeclaredMember& operator=(const ForwardDeclaredMember&) = default;
+   ForwardDeclaredMember& operator=(ForwardDeclaredMember&&) = default;
+-  ForwardDeclaredMember& operator=(nullptr_t) {
++  ForwardDeclaredMember& operator=(std::nullptr_t) {
+     obj_ = nullptr;
+     return *this;
+   }
 --- a/third_party/blink/renderer/platform/graphics/canvas_resource.h
 +++ b/third_party/blink/renderer/platform/graphics/canvas_resource.h
 @@ -30,6 +30,7 @@
