@@ -15,7 +15,7 @@
    # `//ui/gfx:gfx_unittests__library__jni_registration__native_sources` or
    # `//ui/gfx:gfx_unittests__exec`).
    "//ui/gfx:*",
-+  "//third_party/pdfium:*",
++  "//third_party/pdfium/third_party:*",
  ]
  
  # Self-dependency (for internal targets defined in
