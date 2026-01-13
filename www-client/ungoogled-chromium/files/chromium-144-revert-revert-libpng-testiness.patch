@@ -1,0 +1,13 @@
+--- a/third_party/libpng/visibility.gni
++++ b/third_party/libpng/visibility.gni
+@@ -49,10 +49,7 @@ visibility += [
+   "//third_party/angle/third_party/glmark2:glmark2_common_gl",
+   "//third_party/angle/third_party/glmark2:glmark2_common_gles",
+   "//third_party/angle/util:angle_png_utils",
+-]
+ 
+-# Test/tool-only dependencies.
+-libpng_testonly_visibility = [
+   "//chrome/test:accessibility_live_site_tests",
+   "//chrome/test:captured_sites_interactive_tests",
+   "//chrome/test:interactive_ui_tests",
