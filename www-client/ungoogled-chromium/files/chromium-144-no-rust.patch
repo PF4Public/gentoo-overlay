@@ -566,6 +566,61 @@
      "//tools/v8_context_snapshot:buildflags",
      "//ui/base/cursor/mojom:cursor_type_blink",
      "//ui/base/dragdrop/mojom:mojom_blink",
+--- a/third_party/blink/renderer/core/dom/document.cc
++++ b/third_party/blink/renderer/core/dom/document.cc
+@@ -358,7 +358,6 @@
+ #include "third_party/blink/renderer/core/xml/document_xpath_evaluator.h"
+ #include "third_party/blink/renderer/core/xml/document_xslt.h"
+ #include "third_party/blink/renderer/core/xml/parser/xml_document_parser.h"
+-#include "third_party/blink/renderer/core/xml/parser/xml_document_parser_rs.h"
+ #include "third_party/blink/renderer/core/xml_names.h"
+ #include "third_party/blink/renderer/core/xmlns_names.h"
+ #include "third_party/blink/renderer/platform/bindings/dom_data_store.h"
+@@ -3638,11 +3637,7 @@ DocumentParser* Document::CreateParser()
+                                                     parser_sync_policy_);
+   }
+   // FIXME: this should probably pass the frame instead
+-  if (RuntimeEnabledFeatures::XMLParsingRustEnabled()) {
+-    return MakeGarbageCollected<XMLDocumentParserRs>(*this, View());
+-  } else {
+     return MakeGarbageCollected<XMLDocumentParser>(*this, View());
+-  }
+ }
+ 
+ bool Document::IsFrameSet() const {
+--- a/third_party/blink/renderer/core/dom/processing_instruction.cc
++++ b/third_party/blink/renderer/core/dom/processing_instruction.cc
+@@ -34,7 +34,6 @@
+ #include "third_party/blink/renderer/core/svg/graphics/svg_image.h"
+ #include "third_party/blink/renderer/core/xml/document_xslt.h"
+ #include "third_party/blink/renderer/core/xml/parser/xml_document_parser.h"  // for parseAttributes()
+-#include "third_party/blink/renderer/core/xml/parser/xml_document_parser_rs.h"  // for parseAttributesRust()
+ #include "third_party/blink/renderer/core/xml/xsl_style_sheet.h"
+ #include "third_party/blink/renderer/core/xml/xslt_processor.h"
+ #include "third_party/blink/renderer/platform/heap/garbage_collected.h"
+@@ -114,11 +113,7 @@ bool ProcessingInstruction::CheckStyleSh
+   // ### make sure this gets called when adding from javascript
+   bool attrs_ok;
+   HashMap<String, String> attrs;
+-  if (RuntimeEnabledFeatures::XMLParsingRustEnabled()) {
+-    attrs = ParseAttributesRust(data_, attrs_ok);
+-  } else {
+     attrs = ParseAttributes(data_, attrs_ok);
+-  }
+   if (!attrs_ok)
+     return false;
+   HashMap<String, String>::const_iterator i = attrs.find("type");
+--- a/third_party/blink/renderer/core/xml/build.gni
++++ b/third_party/blink/renderer/core/xml/build.gni
+@@ -17,8 +17,6 @@ blink_core_sources_xml = [
+   "parser/xhtml_subset.h",
+   "parser/xml_document_parser.cc",
+   "parser/xml_document_parser.h",
+-  "parser/xml_document_parser_rs.cc",
+-  "parser/xml_document_parser_rs.h",
+   "parser/xml_document_parser_scope.cc",
+   "parser/xml_document_parser_scope.h",
+   "parser/xml_errors.cc",
 --- a/third_party/breakpad/BUILD.gn
 +++ b/third_party/breakpad/BUILD.gn
 @@ -746,12 +746,6 @@ if (is_linux || is_chromeos || is_androi
