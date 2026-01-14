@@ -11,11 +11,12 @@
    "//chrome/test:accessibility_live_site_tests",
    "//chrome/test:captured_sites_interactive_tests",
    "//chrome/test:interactive_ui_tests",
-@@ -66,6 +63,7 @@ libpng_testonly_visibility = [
+@@ -66,6 +63,8 @@ libpng_testonly_visibility = [
    # `//ui/gfx:gfx_unittests__library__jni_registration__native_sources` or
    # `//ui/gfx:gfx_unittests__exec`).
    "//ui/gfx:*",
 +  "//third_party/pdfium/third_party:*",
++  "//third_party/blink/renderer/platform/image-decoders:*",
  ]
  
  # Self-dependency (for internal targets defined in
