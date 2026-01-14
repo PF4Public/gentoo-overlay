@@ -16,7 +16,7 @@
    # `//ui/gfx:gfx_unittests__exec`).
    "//ui/gfx:*",
 +  "//third_party/pdfium/third_party:*",
-+  "//third_party/blink/renderer/platform/image-decoders:*",
++  "//third_party/blink/renderer/*",
  ]
  
  # Self-dependency (for internal targets defined in
