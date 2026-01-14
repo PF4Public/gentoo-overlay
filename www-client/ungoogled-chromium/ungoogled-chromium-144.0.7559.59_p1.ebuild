@@ -1611,12 +1611,15 @@ src_configure() {
 	myconf_gn+=" enable_chromium_prelude=false"
 	myconf_gn+=" enable_updater=false"
 	myconf_gn+=" enable_update_notifications=false"
-	myconf_gn+=" enable_video_effects=false"
 	myconf_gn+=" enable_constraints=false"
 	myconf_gn+=" rtc_rusty_base64=false"
 	myconf_gn+=" v8_enable_temporal_support=false"
 	myconf_gn+=" media_use_symphonia=false"
 	myconf_gn+=" pdf_enable_rust_png=false"
+	myconf_gn+=" skia_use_libpng_encode=true"
+	myconf_gn+=" skia_use_libpng_decode=true"
+	myconf_gn+=" skia_use_rust_png_decode=false"
+	myconf_gn+=" skia_use_rust_png_encode=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"
