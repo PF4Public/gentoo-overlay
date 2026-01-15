@@ -661,7 +661,7 @@ src_prepare() {
 	sed -i '/^.*deps.*third_party\/jsoncpp.*$/{s++public_deps \+= [ "//third_party/jsoncpp" ]+;h};${x;/./{x;q0};x;q1}' \
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
-	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
+	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die 
 	cp -f "${FILESDIR}/json_parser.cc" base/json || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die

@@ -55,6 +55,14 @@ template("rust_static_library") {
         features_ = invoker.features
         features_ = []
     }
+    if (defined(invoker.edition)) {
+        edition_ = invoker.edition
+        edition_ = []
+    }
+    if (defined(invoker.is_gtest_unittests)) {
+        is_gtest_unittests_ = invoker.is_gtest_unittests
+        is_gtest_unittests_ = []
+    }
     group(target_name) {}
 }
 set_defaults("rust_static_library") {
