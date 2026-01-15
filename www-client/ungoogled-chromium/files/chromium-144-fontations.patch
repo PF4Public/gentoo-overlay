@@ -49,6 +49,23 @@
          std::make_unique<SkMemoryStream>(std::move(data)), nullptr));
    }
    if (SkBmpDecoder::IsBmp(bytes, length)) {
+--- a/content/child/font_data/font_data_manager.cc
++++ b/content/child/font_data/font_data_manager.cc
+@@ -225,14 +225,7 @@ sk_sp<SkTypeface> FontDataManager::onMak
+   // Chromium currently always sets ENABLE_FREETYPE, but nonetheless allow
+   // falling back to fontations if the param is set to freetype but freetype
+   // isn't enabled.
+-#if BUILDFLAG(ENABLE_FREETYPE)
+-  if (features::kFontDataServiceTypefaceType.Get() ==
+-      features::FontDataServiceTypefaceType::kFreetype) {
+     return custom_fnt_mgr_->makeFromStream(std::move(stream), args);
+-  }
+-#endif
+-
+-  return SkTypeface_Make_Fontations(std::move(stream), args);
+ }
+ 
+ sk_sp<SkTypeface> FontDataManager::onMakeFromFile(const char path[],
 --- a/skia/BUILD.gn
 +++ b/skia/BUILD.gn
 @@ -69,9 +69,9 @@ config("skia_config") {

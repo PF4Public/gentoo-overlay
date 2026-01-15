@@ -99,3 +99,33 @@ https://github.com/qvint/ungoogled-chromium-fedora/commit/a68fdd679566da5134d916
    printf("Writing %" PRFilePath " ...\n", out_path.value().c_str());
    FILE* out_file = base::OpenFile(out_path, "wb");
    if (!out_file) {
+--- a/components/spellcheck/common/spellcheck_common.cc
++++ b/components/spellcheck/common/spellcheck_common.cc
+@@ -18,8 +18,6 @@
+ 
+ namespace spellcheck {
+ 
+-namespace {
+-
+ struct LanguageRegion {
+   const char* language;         // The language.
+   const char* language_region;  // language & region, used by dictionaries.
+@@ -105,8 +103,6 @@ std::string GetSpellCheckLanguageRegion(
+   return std::string(input_language);
+ }
+ 
+-}  // namespace
+-
+ base::FilePath GetVersionedFileName(std::string_view input_language,
+                                     const base::FilePath& dict_dir) {
+   // The default dictionary version is 3-0. This version indicates that the bdic
+--- a/components/spellcheck/common/spellcheck_common.h
++++ b/components/spellcheck/common/spellcheck_common.h
+@@ -46,6 +46,7 @@ base::FilePath GetVersionedFileName(std:
+ // no single dictionary for English, so this function returns an empty string
+ // for "en".
+ std::string GetCorrespondingSpellCheckLanguage(std::string_view language);
++std::string GetSpellCheckLanguageRegion(std::string_view input_language);
+ 
+ // Get SpellChecker supported languages.
+ std::vector<std::string> SpellCheckLanguages();
