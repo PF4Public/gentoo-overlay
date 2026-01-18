@@ -82,6 +82,11 @@ python_check_deps() {
 }
 
 pkg_pretend() {
+	einfo
+	einfo "Should the build fail with JS/heap OOM errors"
+	einfo "try increasing vm.max_map_count"
+	einfo
+
 	if ! use build-online; then
 		ewarn
 		ewarn "Offline build is not implemented yet"
