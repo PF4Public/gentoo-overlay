@@ -469,7 +469,6 @@ src_prepare() {
 	fi
 
 	local PATCHES=(
-		"${FILESDIR}/00LIN-Build-fixes.patch"
 		"${T}/compiler.patch"
 		"${FILESDIR}/enable-extra-locales.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
