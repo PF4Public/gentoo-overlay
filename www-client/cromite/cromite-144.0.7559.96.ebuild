@@ -394,7 +394,7 @@ src_unpack() {
 	# tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}-gentoo.tar.xz" -C "${WORKDIR}" || die
 	tar ${XCLD} -xf "${DISTDIR}/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz" -C "${WORKDIR}" || die
 
-	unpack chromium-patches-${PATCH_V}.tar.bz2
+	# unpack chromium-patches-${PATCH_V}.tar.bz2
 	# Warned you!
 
 	unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
