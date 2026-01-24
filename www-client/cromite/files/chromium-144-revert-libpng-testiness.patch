@@ -1,0 +1,130 @@
+From e7f363e6010af2da97435d38ad33989f13ef996b Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Thu, 6 Nov 2025 23:25:32 +1000
+Subject: [PATCH] M143 revert libpng testiness
+
+This patch reverts 4f7637304eca894adf2e70078a55654a88224a30
+which breaks system-libpng usage by making libpng a testonly target.
+
+Really we just want to unbundle libpng at that point, though soon it
+will be replaced by something perhaps a little more oxidised.
+
+Probably we should just drop system-png at this point, but let's get
+a working build for now.
+
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+---
+ chrome/test/BUILD.gn               |  6 ++---
+ testing/libfuzzer/fuzzers/BUILD.gn |  2 +-
+ third_party/libpng/BUILD.gn        |  8 -------
+ third_party/libpng/visibility.gni  | 38 ++++++++++--------------------
+ tools/imagediff/BUILD.gn           |  4 +---
+ ui/gfx/BUILD.gn                    |  2 +-
+ 6 files changed, 18 insertions(+), 42 deletions(-)
+
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -11226,7 +11226,7 @@ if (!is_android) {
+         "//testing/gtest",
+         "//third_party/hunspell",
+         "//third_party/icu",
+-        "//third_party/libpng:libpng_for_testonly",
++        "//third_party/libpng",
+         "//ui/base:test_support",
+         "//ui/events:test_support",
+         "//ui/ozone",
+@@ -11601,7 +11601,7 @@ if (!is_android && !is_chromeos_device)
+       "//testing/gtest",
+       "//third_party/hunspell",
+       "//third_party/icu",
+-      "//third_party/libpng:libpng_for_testonly",
++      "//third_party/libpng",
+       "//ui/base:base_interactive_ui_tests",
+       "//ui/base:ozone_buildflags",
+       "//ui/base:test_support",
+@@ -12572,7 +12572,7 @@ if (!is_android) {
+       "//testing/gtest",
+       "//third_party/hunspell",
+       "//third_party/icu",
+-      "//third_party/libpng:libpng_for_testonly",
++      "//third_party/libpng",
+       "//ui/base:test_support",
+       "//ui/resources:ui_test_pak",
+       "//ui/views",
+--- a/testing/libfuzzer/fuzzers/BUILD.gn
++++ b/testing/libfuzzer/fuzzers/BUILD.gn
+@@ -103,7 +103,7 @@ fuzzer_test("libpng_progressive_read_fuz
+   sources = [ "libpng_read_fuzzer.cc" ]
+   deps = [
+     "//base",
+-    "//third_party/libpng:libpng_for_testonly",
++    "//third_party/libpng",
+   ]
+   dict = "dicts/png.dict"
+   seed_corpuses = libpng_seed_corpuses
+--- a/third_party/libpng/BUILD.gn
++++ b/third_party/libpng/BUILD.gn
+@@ -130,14 +130,6 @@ if (is_win) {
+   }
+ }
+ 
+-group("libpng_for_testonly") {
+-  testonly = true
+-  public_deps = [ ":libpng" ]
+-
+-  visibility = []
+-  visibility = libpng_testonly_visibility
+-}
+-
+ if (build_with_chromium) {
+   libpng_ossfuzz_seed_corpuses = [
+     "//components/test/data/viz",
+--- a/third_party/libpng/visibility.gni
++++ b/third_party/libpng/visibility.gni
+@@ -7,7 +7,7 @@
+ import("//build/config/gclient_args.gni")
+ 
+ # Chrome does not (and should not) depend on `libpng`.
+-visibility = []
++visibility = [ "//skia/*", "//third_party/freetype:*", "//third_party/libwebp:*", "//third_party/weston/*" ]
+ 
+ # Dependency edges that are used in projects outside of Chromium that pull in
+ # this directory (e.g. ones only needed in standalone PDFium builds).
+--- a/tools/imagediff/BUILD.gn
++++ b/tools/imagediff/BUILD.gn
+@@ -34,7 +34,6 @@ if (target_os == "win" && host_os != "wi
+ # If the current toolchain is the test host toolchain, build the tool.
+ if (current_toolchain == imagediff_toolchain) {
+   executable("imagediff") {
+-    testonly = true
+     output_name = "image_diff"  # Different than dir name for historical
+                                 # reasons.
+     sources = [
+@@ -48,7 +47,7 @@ if (current_toolchain == imagediff_toolc
+     deps = [
+       "//base",
+       "//build/win:default_exe_manifest",
+-      "//third_party/libpng:libpng_for_testonly",
++      "//third_party/libpng",
+       "//third_party/zlib",
+     ]
+   }
+@@ -61,7 +60,6 @@ if (current_toolchain == imagediff_toolc
+ } else if (current_toolchain == default_toolchain &&
+            default_toolchain != imagediff_toolchain) {
+   binary_symlink("imagediff") {
+-    testonly = true
+     binary_label = ":$target_name($imagediff_toolchain)"
+     binary_output_name = "image_diff"
+ 
+--- a/ui/gfx/BUILD.gn
++++ b/ui/gfx/BUILD.gn
+@@ -881,7 +881,7 @@ test("gfx_unittests") {
+     "//skia:skcms",
+     "//testing/gtest",
+     "//third_party/icu:icuuc",
+-    "//third_party/libpng:libpng_for_testonly",
++    "//third_party/libpng",
+     "//third_party/zlib",
+     "//ui/base",
+     "//ui/gfx/animation",
