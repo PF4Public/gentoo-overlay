@@ -1190,7 +1190,6 @@ src_prepare() {
 		third_party/webrtc/modules/third_party/fft
 		third_party/webrtc/modules/third_party/g711
 		third_party/webrtc/modules/third_party/g722
-		third_party/webrtc/rtc_base/third_party/sigslot
 		third_party/widevine
 	)
 	use system-woff2 || keeplibs+=(
