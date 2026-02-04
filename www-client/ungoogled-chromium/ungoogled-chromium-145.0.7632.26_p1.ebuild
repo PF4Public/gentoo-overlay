@@ -522,7 +522,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-145-crabby.patch"
-		"${FILESDIR}/chromium-145-no-rust.patch" 
+		"${FILESDIR}/chromium-145-no-rust.patch"
 		"${FILESDIR}/chromium-145-fontations.patch"
 		"${FILESDIR}/chromium-145-gcc.patch"
 	)

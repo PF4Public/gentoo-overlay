@@ -140,6 +140,16 @@
    ]
    configs -= [ "//build/config/compiler:chromium_code" ]
    configs += [
+@@ -714,9 +700,7 @@ source_set("rust_bmp_ffi_cpp") {
+   public_deps = [
+     ":rust_common_ffi_cpp",
+     ":skia_core_public_headers",
+-    "//build/rust:cxx_cppdeps",
+   ]
+-  deps = [ ":rust_bmp_ffi_cxx_generated_gen" ]
+   check_includes =
+       false  # Logically part of skia, but split out for build reasons
+   configs -= [ "//build/config/compiler:chromium_code" ]
 --- a/skia/ext/codec_utils.cc
 +++ b/skia/ext/codec_utils.cc
 @@ -7,9 +7,9 @@
