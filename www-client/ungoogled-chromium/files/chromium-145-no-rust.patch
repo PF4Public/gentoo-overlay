@@ -194,6 +194,41 @@
  
  namespace base {
  
+@@ -129,12 +25,8 @@ std::string JSONReader::Error::ToString(
+ std::optional<Value> JSONReader::Read(std::string_view json,
+                                       int options,
+                                       size_t max_depth) {
+-  JSONReader::Result result =
+-      serde_json_lenient::DecodeJSONInRust(json, options, max_depth);
+-  if (!result.has_value()) {
+-    return std::nullopt;
+-  }
+-  return std::move(*result);
++  internal::JSONParser parser(options, max_depth);
++  return parser.Parse(json);
+ }
+ 
+ // static
+@@ -163,8 +55,17 @@ std::optional<Value::List> JSONReader::R
+ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+     std::string_view json,
+     int options) {
+-  return serde_json_lenient::DecodeJSONInRust(json, options,
+-                                              internal::kAbsoluteMaxDepth);
++    internal::JSONParser parser(options);
++  auto value = parser.Parse(json);
++  if (!value) {
++    Error error;
++    error.message = parser.GetErrorMessage();
++    error.line = parser.error_line();
++    error.column = parser.error_column();
++    return base::unexpected(std::move(error));
++  }
++
++  return std::move(*value);
+ }
+ 
+ }  // namespace base
 --- a/base/logging.cc
 +++ b/base/logging.cc
 @@ -34,7 +34,6 @@
