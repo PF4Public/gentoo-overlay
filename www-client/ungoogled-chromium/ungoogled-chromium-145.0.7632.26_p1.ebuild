@@ -508,7 +508,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-cross-compile.patch"
 		"${FILESDIR}/chromium-109-system-openh264.patch"
 		"${FILESDIR}/chromium-109-system-zlib.patch"
-		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-145-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-138-nodejs-version-check.patch"
 		"${FILESDIR}/chromium-144-revert-libpng-testiness.patch"
 		"${FILESDIR}/chromium-125-cloud_authenticator.patch"
@@ -521,10 +521,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-141-fix-for-kde.patch"
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/font-gc-asan.patch"
-		"${FILESDIR}/chromium-141-crabby.patch"
-		"${FILESDIR}/chromium-144-no-rust.patch"
-		"${FILESDIR}/chromium-144-fontations.patch"
-		"${FILESDIR}/chromium-144-gcc.patch"
+		"${FILESDIR}/chromium-145-crabby.patch"
+		"${FILESDIR}/chromium-145-no-rust.patch"
+		"${FILESDIR}/chromium-145-fontations.patch"
+		"${FILESDIR}/chromium-145-gcc.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
