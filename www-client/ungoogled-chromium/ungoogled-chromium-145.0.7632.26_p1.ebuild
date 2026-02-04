@@ -785,7 +785,7 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-144-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-145-system-abseil.patch"
 		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
 		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
