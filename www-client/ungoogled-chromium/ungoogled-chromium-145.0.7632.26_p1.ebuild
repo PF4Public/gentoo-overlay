@@ -281,7 +281,7 @@ BDEPEND="
 	!headless? (
 		qt6? ( dev-qt/qtbase:6 )
 	)
-	>=dev-build/gn-0.2235
+	>=dev-build/gn-0.2289
 	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.2
