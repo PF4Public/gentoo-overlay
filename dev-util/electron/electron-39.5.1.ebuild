@@ -784,6 +784,7 @@ src_prepare() {
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
+		["electron/patches/skia"]="third_party/skia"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
