@@ -189,6 +189,16 @@
  #include <string>
  
  #include "base/feature_list.h"
+--- a/components/url_pattern_index/url_pattern_index.h
++++ b/components/url_pattern_index/url_pattern_index.h
+@@ -8,6 +8,7 @@
+ #include <stddef.h>
+ #include <stdint.h>
+ 
++#include <map>
+ #include <optional>
+ #include <string_view>
+ #include <vector>
 --- a/components/viz/service/display/surface_aggregator.cc
 +++ b/components/viz/service/display/surface_aggregator.cc
 @@ -2157,7 +2157,7 @@ AggregatedFrame SurfaceAggregator::Aggre

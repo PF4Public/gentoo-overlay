@@ -569,9 +569,16 @@
  #include "third_party/blink/renderer/core/xml_names.h"
  #include "third_party/blink/renderer/core/xmlns_names.h"
  #include "third_party/blink/renderer/platform/bindings/dom_data_store.h"
-@@ -3632,11 +3631,7 @@ DocumentParser* Document::CreateParser()
+@@ -3625,18 +3624,8 @@ DocumentParser* Document::CreateParser()
+                                                     parser_sync_policy_);
    }
  
+-  // Use the Rust XML parser for situations like XMLHttpRequests and
+-  // JS DOMParser, where no dom_window_ is available.
+-  if (!GetFrame() && RuntimeEnabledFeatures::XMLRustForNonXsltEnabled()) {
+-    return MakeGarbageCollected<XMLDocumentParserRs>(*this, View());
+-  }
+-
    // FIXME: this should probably pass the frame instead
 -  if (RuntimeEnabledFeatures::XMLParsingRustEnabled()) {
 -    return MakeGarbageCollected<XMLDocumentParserRs>(*this, View());
