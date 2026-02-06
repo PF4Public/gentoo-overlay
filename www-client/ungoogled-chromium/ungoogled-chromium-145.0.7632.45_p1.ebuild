@@ -37,7 +37,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="BSD cromite? ( GPL-3 )"
 SLOT="0"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt6 screencast selinux thinlto cromite vaapi wayland widevine cpu_flags_ppc_vsx3"
 RESTRICT="
@@ -63,7 +63,7 @@ UGC_COMMIT_ID="ae9fe23a5ff7593748a7a39e649c3b5e216d6ab4"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="0b42946b0d53d33abf1c5365822670fa36cac48e"
+CROMITE_COMMIT_ID="2d042e369b073dac4f93fe37968c92eadaf9493f"
 
 # declare -A CHROMIUM_COMMITS=(
 # 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
@@ -1620,6 +1620,7 @@ src_configure() {
 	myconf_gn+=" skia_use_libpng_decode=true"
 	myconf_gn+=" skia_use_rust_png_decode=false"
 	myconf_gn+=" skia_use_rust_png_encode=false"
+	myconf_gn+=" enable_jxl_decoder=false"
 
 	# Disable pseudolocales, only used for testing
 	myconf_gn+=" enable_pseudolocales=false"

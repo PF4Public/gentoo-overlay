@@ -274,6 +274,26 @@
      return !names.contains(key_value.unescaped_key);
    });
  }
+--- a/net/third_party/quiche/src/quiche/blind_sign_auth/cached_blind_sign_auth.cc
++++ b/net/third_party/quiche/src/quiche/blind_sign_auth/cached_blind_sign_auth.cc
+@@ -42,7 +42,7 @@ void CachedBlindSignAuth::GetTokens(std:
+ 
+   std::vector<BlindSignToken> output_tokens;
+   {
+-    absl::WriterMutexLock lock(mutex_);
++    absl::WriterMutexLock lock(&mutex_);
+ 
+     RemoveExpiredTokens();
+     // Try to fill the request from cache.
+@@ -83,7 +83,7 @@ void CachedBlindSignAuth::HandleGetToken
+   std::vector<BlindSignToken> output_tokens;
+   size_t cache_size;
+   {
+-    absl::WriterMutexLock lock(mutex_);
++    absl::WriterMutexLock lock(&mutex_);
+ 
+     // Add returned tokens to cache.
+     for (const BlindSignToken& token : *tokens) {
 --- a/net/third_party/quiche/src/quiche/quic/core/crypto/crypto_secret_boxer.cc
 +++ b/net/third_party/quiche/src/quiche/quic/core/crypto/crypto_secret_boxer.cc
 @@ -68,7 +68,7 @@ bool CryptoSecretBoxer::SetKeys(const st
