@@ -58,12 +58,12 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
-# 	["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-# 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-# )
+declare -A CHROMIUM_COMMITS=(
+	# ["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
+	# ["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
+)
 
 if [ ! -z "${CROMITE_PR_COMMITS[*]}" ]; then
 	for i in "${CROMITE_PR_COMMITS[@]}"; do
@@ -695,6 +695,7 @@ src_prepare() {
 		fi
 		if [ "$i" = "Add-support-to-jxl.patch" ] ||
 			[ "$i" = "Do-not-check-for-the-presence-of-use-remoteexec.patch" ] ||
+			[ "$i" = "Force-use-vpython3-for-all-scripts.patch" ] ||
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
