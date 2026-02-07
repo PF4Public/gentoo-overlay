@@ -65,12 +65,12 @@ UGC_COMMIT_ID="ae9fe23a5ff7593748a7a39e649c3b5e216d6ab4"
 
 CROMITE_COMMIT_ID="2d042e369b073dac4f93fe37968c92eadaf9493f"
 
-# declare -A CHROMIUM_COMMITS=(
-# 	["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
-# 	["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
-# 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
-# 	# ["e56b8ce0bafe9df578625be6973be95358b91785"]="third_party/perfetto"
-# )
+declare -A CHROMIUM_COMMITS=(
+	# ["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
+	# ["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
+	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
+)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
