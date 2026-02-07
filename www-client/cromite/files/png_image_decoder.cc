@@ -1016,10 +1016,9 @@ static inline std::unique_ptr<ColorProfile> ReadColorProfile(png_structp png,
 static inline void ReadHDRMetadata(
     png_structp png,
     png_infop info,
-    std::optional<gfx::HDRMetadata>* hdr_metadata) {
+    gfx::HDRMetadata* hdr_metadata) {
   std::optional<gfx::HdrMetadataCta861_3> clli;
   std::optional<gfx::HdrMetadataSmpteSt2086> mdcv;
-  std::optional<gfx::HdrMetadataAgtm> agtm;
   png_unknown_chunkp unknown_chunks;
   size_t num_unknown_chunks =
       png_get_unknown_chunks(png, info, &unknown_chunks);
@@ -1071,23 +1070,13 @@ static inline void ReadHDRMetadata(
                    min_luminance_times_10000 * 1e-4f);
       continue;
     }
-    if (strcmp(reinterpret_cast<const char*>(chunk.name), "agTm") == 0) {
-      agtm.emplace(SkData::MakeWithCopy(chunk.data, chunk.size));
-      continue;
-    }
   }
-  if (clli || mdcv || agtm) {
-    if (!hdr_metadata->has_value()) {
-      hdr_metadata->emplace();
-    }
+  if (clli || mdcv) {
     if (clli) {
-      (*hdr_metadata)->cta_861_3 = clli;
+      (*hdr_metadata).cta_861_3 = clli;
     }
     if (mdcv) {
-      (*hdr_metadata)->smpte_st_2086 = mdcv;
-    }
-    if (agtm) {
-      (*hdr_metadata)->agtm = agtm;
+      (*hdr_metadata).smpte_st_2086 = mdcv;
     }
   }
 }
@@ -1122,9 +1111,6 @@ bool PngImageDecoder::ImageIsHighBitDepth() {
          // TODO(crbug.com/874057): Implement support for 16-bit PNGs w/
          // ImageFrame::kBlendAtopPreviousFrame.
          repetition_count_ == kAnimationNone;
-}
-std::optional<gfx::HDRMetadata> PngImageDecoder::GetHDRMetadata() const {
-  return hdr_metadata_;
 }
 bool PngImageDecoder::SetSize(unsigned width, unsigned height) {
   DCHECK(!IsDecodedSizeAvailable());

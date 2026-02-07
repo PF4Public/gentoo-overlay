@@ -321,10 +321,6 @@ uint8_t AVIFImageDecoder::GetYUVBitDepth() const {
   return bit_depth_;
 }
 
-std::optional<gfx::HDRMetadata> AVIFImageDecoder::GetHDRMetadata() const {
-  return hdr_metadata_;
-}
-
 void AVIFImageDecoder::DecodeToYUV() {
   DCHECK(image_planes_);
   DCHECK(CanDecodeToYUV());
@@ -838,7 +834,7 @@ bool AVIFImageDecoder::UpdateDemuxer() {
 
   if (container->clli.maxCLL || container->clli.maxPALL) {
     hdr_metadata_ = gfx::HDRMetadata();
-    hdr_metadata_->cta_861_3 = gfx::HdrMetadataCta861_3(
+    hdr_metadata_.cta_861_3 = gfx::HdrMetadataCta861_3(
         container->clli.maxCLL, container->clli.maxPALL);
   }
 
