@@ -286,7 +286,7 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-util/gperf-3.2
 	dev-vcs/git
-	>=net-libs/nodejs-7.6.0[inspector]
+	>=net-libs/nodejs-24[inspector]
 	sys-apps/hwdata
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
@@ -1891,7 +1891,7 @@ src_compile() {
 		context = {
 		    "BUGTRACKERURL": "https://github.com/ungoogled-software/ungoogled-chromium/issues",
 		    "DEVELOPER_NAME": "The ungoogled-chromium Authors",
-		    "EXTRA_DESKTOP_ENTRIES": "",
+		    "extra_desktop_entries": "",
 		    "FULLDESC": "Google Chromium, sans integration with Google",
 		    "HELPURL": "https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq",
 		    "INSTALLDIR": "/usr/$(get_libdir)/chromium-browser",
@@ -1902,8 +1902,8 @@ src_compile() {
 		    "PROGNAME": "chrome",
 		    "PROJECT_LICENSE": "BSD, LGPL-2, LGPL-2.1, MPL-1.1, MPL-2.0, Apache-2.0, and others",
 		    "SHORTDESC": "Open-source foundation of many web browsers including Google Chrome",
-		    "URI_SCHEME": "x-scheme-handler/chromium",
-		    "USR_BIN_SYMLINK_NAME": "chromium-browser",
+		    "uri_scheme": "x-scheme-handler/chromium",
+		    "usr_bin_symlink_name": "chromium-browser",
 		}
 
 		# Generate Desktop file

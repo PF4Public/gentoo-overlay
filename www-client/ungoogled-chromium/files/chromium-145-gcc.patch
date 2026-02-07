@@ -111,6 +111,19 @@
  
  class StatusBubbleViews;
  class WebContentsCloseHandler;
+--- a/chrome/browser/ui/views/frame/vertical_tab_strip_region_view.cc
++++ b/chrome/browser/ui/views/frame/vertical_tab_strip_region_view.cc
+@@ -309,8 +309,8 @@ void VerticalTabStripRegionView::Animati
+   double width = kCollapsedWidth +
+                  (target_collapse_state_.uncollapsed_width - kCollapsedWidth) *
+                      resize_animation_.GetCurrentValue();
+-  ResizeToWidth((resize_animation_.IsShowing() ? std::floor<double>
+-                                               : std::ceil<double>)(width));
++  ResizeToWidth(resize_animation_.IsShowing() ? std::floor(width)
++                                               : std::ceil(width));
+ }
+ 
+ bool VerticalTabStripRegionView::IsPositionInWindowCaption(
 --- a/chrome/browser/ui/webui/history/browsing_history_handler.cc
 +++ b/chrome/browser/ui/webui/history/browsing_history_handler.cc
 @@ -170,7 +170,7 @@ std::pair<std::string, std::string> SetH

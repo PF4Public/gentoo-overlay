@@ -460,6 +460,26 @@
      "//third_party/libwebp",
      "//third_party/libyuv",
      "//ui/gfx/geometry:geometry_skia",
+--- a/third_party/blink/renderer/platform/image-decoders/bmp/bmp_rust_image_decoder.cc
++++ b/third_party/blink/renderer/platform/image-decoders/bmp/bmp_rust_image_decoder.cc
+@@ -5,7 +5,7 @@
+ #include "third_party/blink/renderer/platform/image-decoders/bmp/bmp_rust_image_decoder.h"
+ 
+ #include "third_party/blink/renderer/platform/wtf/text/atomic_string.h"
+-#include "third_party/skia/experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
++#include "third_party/skia/include/codec/SkBmpDecoder.h"
+ #include "third_party/skia/include/core/SkStream.h"
+ 
+ namespace blink {
+@@ -25,7 +25,7 @@ std::unique_ptr<SkCodec> BmpRustImageDec
+     std::unique_ptr<SkStream> stream,
+     SkCodec::Result* result) {
+   std::unique_ptr<SkCodec> codec =
+-      SkBmpRustDecoder::Decode(std::move(stream), result);
++      SkBmpDecoder::Decode(std::move(stream), result);
+   return codec;
+ }
+ 
 --- a/third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc
 +++ b/third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc
 @@ -5,7 +5,7 @@
