@@ -136,7 +136,7 @@ COMMON_X_DEPEND="
 "
 
 COMMON_SNAPSHOT_DEPEND="
-	system-icu? ( >=dev-libs/icu-73.0:= )
+	system-icu? ( <dev-libs/icu-78:= )
 	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20250512.0 )
 	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
