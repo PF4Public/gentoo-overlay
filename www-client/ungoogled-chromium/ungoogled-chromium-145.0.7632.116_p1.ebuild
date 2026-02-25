@@ -149,8 +149,8 @@ COMMON_X_DEPEND="
 	x11-libs/libxshmfence:=
 "
 
-	# system-icu? ( <dev-libs/icu-78:= )
 COMMON_SNAPSHOT_DEPEND="
+	system-icu? ( >=dev-libs/icu-78:= )
 	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20250512.0 )
 	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
@@ -624,6 +624,12 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
+		)
+	fi
+
+	if use system-icu; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-145-icu78.patch"
 		)
 	fi
 
