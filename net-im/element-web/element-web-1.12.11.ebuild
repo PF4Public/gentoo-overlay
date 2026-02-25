@@ -7,7 +7,7 @@ DESCRIPTION="A glossy Matrix collaboration client for the web"
 HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
-SRC_URI=\"\"
+SRC_URI=""
 REPO="https://github.com/vector-im/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
