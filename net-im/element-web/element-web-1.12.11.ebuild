@@ -103,6 +103,7 @@ src_configure() {
 		yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
 
+	npm install -g corepack
 	corepack enable
 	einfo "Installing node_modules"
 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
