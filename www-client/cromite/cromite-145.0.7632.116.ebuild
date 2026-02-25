@@ -39,7 +39,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 
 LICENSE="GPL-3"
 SLOT="0"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth cfi +clang convert-dict cups cpu_flags_arm_neon custom-cflags debug enable-driver gtk4 hangouts headless kerberos libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo +proprietary-codecs pulseaudio qt6 screencast selinux thinlto vaapi wayland widevine"
 RESTRICT="
@@ -1718,19 +1718,69 @@ src_compile() {
 
 	rm -f out/Release/locales/*.pak.info || die
 
-	# # Build manpage; bug #684550
-	# sed -e 's|@@PACKAGE@@|chromium-browser|g;
-	# 	s|@@MENUNAME@@|Chromium|g;' \
-	# 	chrome/app/resources/manpage.1.in > \
-	# 	out/Release/chromium-browser.1 || die
+	# Generate support files: #684550 #706786 #968958
+	# Use upstream's python installer script to generate support files
+	# This replaces fragile sed commands and handles @@include@@ directives.
+	# It'll also verify that all substitution markers have been resolved, meaning that
+	# future changes to templates that add new variables will be caught during the build.
+	cat > "${T}/generate_support_files.py" <<-EOF || die
+		import sys
+		from pathlib import Path
 
-	# Build desktop file; bug #706786
-	sed -e 's|@@MENUNAME@@|Cromite|g;
-		s|@@USR_BIN_SYMLINK_NAME@@|cromite-browser|g;
-		s|@@PACKAGE@@|cromite-browser|g;
-		s|\(^Exec=\)/usr/bin/|\1|g;' \
-		chrome/installer/linux/common/desktop.template > \
-		out/Release/cromite-browser-cromite.desktop || die
+		# Add upstream installer script to search path
+		sys.path.insert(0, str(Path.cwd() / "chrome/installer/linux/common"))
+		import installer
+
+		# Configure contexts strictly for file generation
+		# Common variables used across templates
+		context = {
+		    "BUGTRACKERURL": "https://github.com/uazo/cromite/issues",
+		    "DEVELOPER_NAME": "The Cromite Authors",
+		    "extra_desktop_entries": "",
+		    "FULLDESC": "Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!",
+		    "HELPURL": "https://github.com/uazo/cromite/blob/master/docs/FAQ.md",
+		    "INSTALLDIR": "/usr/$(get_libdir)/cromite",
+		    "MAINTMAIL": "@PF4Public",
+		    "MENUNAME": "Cromite",
+		    "PACKAGE": "cromite-browser",
+		    "PRODUCTURL": "https://github.com/uazo/cromite",
+		    "PROGNAME": "chrome",
+		    "PROJECT_LICENSE": "BSD, GPL-3, LGPL-2, LGPL-2.1, MPL-1.1, MPL-2.0, Apache-2.0, and others",
+		    "SHORTDESC": "Cromite a Bromite fork with ad blocking and privacy enhancements",
+		    "uri_scheme": "x-scheme-handler/chromium",
+		    "usr_bin_symlink_name": "cromite-browser",
+		}
+
+		# Generate Desktop file
+		installer.process_template(
+		    Path("chrome/installer/linux/common/desktop.template"),
+		    Path("out/Release/cromite-browser-cromite.desktop"),
+		    context
+		)
+
+		# Generate Manpage
+		installer.process_template(
+		    Path("chrome/app/resources/manpage.1.in"),
+		    Path("out/Release/cromite-browser.1"),
+		    context
+		)
+
+		# Generate AppData (AppStream)
+		installer.process_template(
+		    Path("chrome/installer/linux/common/appdata.xml.template"),
+		    Path("out/Release/cromite-browser.appdata.xml"),
+		    context
+		)
+
+		# Generate GNOME Default Apps entry
+		installer.process_template(
+		    Path("chrome/installer/linux/common/default-app.template"),
+		    Path("out/Release/cromite-browser.xml"),
+		    context
+		)
+	EOF
+
+	"${EPYTHON}" "${T}/generate_support_files.py" || die "Failed to generate support files"
 
 	# Build vk_swiftshader_icd.json; bug #827861
 	sed -e 's|${ICD_LIBRARY_PATH}|./libvk_swiftshader.so|g' \
@@ -1832,15 +1882,17 @@ src_install() {
 	# Install desktop entry
 	domenu out/Release/cromite-browser-cromite.desktop
 
-	#TODO
-	# # Install GNOME default application entry (bug #303100).
-	# insinto /usr/share/gnome-control-center/default-apps
-	# newins "${FILESDIR}"/chromium-browser.xml chromium-browser.xml
+	# Install GNOME default application entry (bug #303100).
+	insinto /usr/share/gnome-control-center/default-apps
+	doins out/Release/cromite-browser.xml
 
-	#TODO
-	# # Install manpage; bug #684550
-	# doman out/Release/chromium-browser.1
-	# dosym chromium-browser.1 /usr/share/man/man1/chromium.1
+	# Install AppStream metadata
+	insinto /usr/share/appdata
+	doins out/Release/cromite-browser.appdata.xml
+
+	# Install manpage; bug #684550
+	doman out/Release/cromite-browser.1
+	dosym cromite-browser.1 /usr/share/man/man1/cromite.1
 
 	readme.gentoo_create_doc
 }
