@@ -18,7 +18,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="27d49f75f1e22398b75dbc47202a49a2fe5a9ea1"
+CROMITE_COMMIT_ID="9b33511160e6d30427778dd782e915577dc9568f"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
@@ -126,7 +126,7 @@ COMMON_X_DEPEND="
 "
 
 COMMON_SNAPSHOT_DEPEND="
-	system-icu? ( <dev-libs/icu-78:= )
+	system-icu? ( >=dev-libs/icu-78:= )
 	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20250512.0 )
 	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
@@ -590,6 +590,12 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
+		)
+	fi
+
+	if use system-icu; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-145-icu78.patch"
 		)
 	fi
 
