@@ -683,7 +683,7 @@ else
 		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${CODE_COMMIT_ID}"
 	fi
-	IUSE+=" build-online"
+	IUSE+=" +build-online"
 fi
 
 SRC_URI+="${DOWNLOAD}"
