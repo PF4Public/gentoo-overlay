@@ -124,7 +124,7 @@ src_compile() {
 	sed -i '/playwright":/d' package.json || die
 
 	einfo "Installing node_modules"
-	pnpm install ${ONLINE_OFFLINE} --no-progress || die
+	pnpm install || die
 
 	node node_modules/.bin/tsc || die
 	node node_modules/.bin/tsx scripts/copy-res.ts || die
