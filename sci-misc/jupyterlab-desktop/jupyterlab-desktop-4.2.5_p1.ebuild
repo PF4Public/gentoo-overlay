@@ -713,7 +713,7 @@ DEPEND="${COMMON_DEPEND}
 "
 
 BDEPEND="
-	sys-apps/yarn
+	>=net-libs/nodejs-7.6.0[corepack]
 "
 
 src_unpack() {
