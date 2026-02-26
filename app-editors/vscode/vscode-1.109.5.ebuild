@@ -49,6 +49,7 @@ COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
 	>=x11-libs/libX11-1.6.9:=
 	>=x11-libs/libxkbfile-1.1.0:=
+	>=net-libs/nodejs-7.6.0[corepack]
 	virtual/krb5
 	sys-apps/ripgrep
 	electron-36? ( dev-util/electron:36 )
