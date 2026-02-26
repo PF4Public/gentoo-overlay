@@ -24,7 +24,7 @@ if [[ ${PV} = *9999* ]]; then
 	DOWNLOAD=""
 	IUSE+=" +build-online"
 else
-	IUSE+=" build-online"
+	IUSE+=" +build-online"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -67,8 +67,7 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	native-modules? ( || ( dev-lang/rust dev-lang/rust-bin )  )
-	net-libs/nodejs
-	sys-apps/yarn
+	net-libs/nodejs[corepack]
 "
 
 python_check_deps() {
@@ -100,39 +99,39 @@ src_unpack() {
 }
 
 src_compile() {
-	# OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	PATH="${S}/node_modules/.bin:$PATH";
-	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	# #! Until electron-builder >=22.11.5
-	# yarn config set ignore-engines true || die
+	# # OLD_PATH=$PATH
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	# PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	# PATH="${S}/node_modules/.bin:$PATH";
+	# export PATH
+	# export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	# export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+	# export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	# yarn config set disable-self-update-check true || die
+	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	# # #! Until electron-builder >=22.11.5
+	# # yarn config set ignore-engines true || die
 
-	sed -i 's/electron-builder install-app-deps/true/' package.json || die
+	# sed -i 's/electron-builder install-app-deps/true/' package.json || die
 
-	if ! use build-online; then
-		ONLINE_OFFLINE="--offline --frozen-lockfile"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	fi
+	# if ! use build-online; then
+	# 	ONLINE_OFFLINE="--offline --frozen-lockfile"
+	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	# fi
 
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' package.json || die
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	pnpm install ${ONLINE_OFFLINE} --no-progress || die
 
 	node node_modules/.bin/tsc || die
 	node node_modules/.bin/tsx scripts/copy-res.ts || die
 
 	if use native-modules
 	then
-		node /usr/bin/yarn run build:native || die
+		pnpm run build:native || die
 	fi
 
 	# # Electron-Builder doesn't support ppc64 due to using precompiled binaries
