@@ -19,7 +19,7 @@ if [[ ${PV} = *9999* ]]; then
 	DOWNLOAD=""
 	IUSE="+build-online"
 else
-	IUSE="build-online"
+	IUSE="+build-online"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -42,8 +42,7 @@ DEPEND="${COMMON_DEPEND}"
 
 BDEPEND="
 	${PYTHON_DEPS}
-	sys-apps/yarn
-	net-libs/nodejs
+	net-libs/nodejs[corepack]
 "
 
 #TODO: Jitsi
@@ -72,40 +71,40 @@ src_prepare() {
 }
 
 src_configure() {
-	export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/node || die
+	# export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
+	# yarn config set disable-self-update-check true || die
+	# yarn config set nodedir /usr/include/node || die
 
-	# Removing sentry dependency
-	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/package.json" || die
-	sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
-	sed -i '/process.env.SENTRY_DSN \&\&/,/}),/s/^/\/\//' "${WORKDIR}/${P}/webpack.config.js" || die
+	# # Removing sentry dependency
+	# sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/package.json" || die
+	# sed -i '/sentry\/webpack-plugin/d' "${WORKDIR}/${P}/webpack.config.js" || die
+	# sed -i '/process.env.SENTRY_DSN \&\&/,/}),/s/^/\/\//' "${WORKDIR}/${P}/webpack.config.js" || die
 
-	# Fixing pesky matrix-analytics-events
-	sed -i 's/"matrix-analytics-events@github.*$/matrix-analytics-events@0.0.1:/' "${WORKDIR}/${P}/yarn.lock" || die
-	sed -i 's/matrix-analytics-events "github:.*$/matrix-analytics-events "0.0.1"/' "${WORKDIR}/${P}/yarn.lock" || die
+	# # Fixing pesky matrix-analytics-events
+	# sed -i 's/"matrix-analytics-events@github.*$/matrix-analytics-events@0.0.1:/' "${WORKDIR}/${P}/yarn.lock" || die
+	# sed -i 's/matrix-analytics-events "github:.*$/matrix-analytics-events "0.0.1"/' "${WORKDIR}/${P}/yarn.lock" || die
 
-	#! 1. License of external_api.min.js in unclear
-	#! 1.a License seems to be also Apache-2.0
-	# einfo "Removing Jitsi"
-	# sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
-	# 	package.json || die
+	# #! 1. License of external_api.min.js in unclear
+	# #! 1.a License seems to be also Apache-2.0
+	# # einfo "Removing Jitsi"
+	# # sed -i '/"build:jitsi":.*$/{s++"build:jitsi": "echo",+;h};${x;/./{x;q0};x;q1}' \
+	# # 	package.json || die
 
-	#TODO until node>=22.18 stabilised
-	einfo "Allowing any nodejs version and type stripping"
-	sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
-	sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/package.json" || die
-	sed -i 's$node module_system/scripts/install.ts$node --experimental-strip-types module_system/scripts/install.ts$' "${WORKDIR}/${P}/package.json" || die
-	sed -i 's$node scripts/gatherTranslationKeys.ts$node --experimental-strip-types scripts/gatherTranslationKeys.ts$' "${WORKDIR}/${P}/packages/shared-components/package.json" || die
+	# #TODO until node>=22.18 stabilised
+	# einfo "Allowing any nodejs version and type stripping"
+	# sed -i '/"node":/d' "${WORKDIR}/${P}/package.json" || die
+	# sed -i 's$node scripts/copy-res.ts$node --experimental-strip-types scripts/copy-res.ts$' "${WORKDIR}/${P}/package.json" || die
+	# sed -i 's$node module_system/scripts/install.ts$node --experimental-strip-types module_system/scripts/install.ts$' "${WORKDIR}/${P}/package.json" || die
+	# sed -i 's$node scripts/gatherTranslationKeys.ts$node --experimental-strip-types scripts/gatherTranslationKeys.ts$' "${WORKDIR}/${P}/packages/shared-components/package.json" || die
 
-	if ! use build-online
-	then
-		ONLINE_OFFLINE="--offline --frozen-lockfile"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	fi
+	# if ! use build-online
+	# then
+	# 	ONLINE_OFFLINE="--offline --frozen-lockfile"
+	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	# fi
 
 	einfo "Installing node_modules"
-	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progress || die
+	pnpm install || die
 	# --ignore-scripts
 
 	# pushd "packages/shared-components" > /dev/null || die
@@ -116,7 +115,7 @@ src_configure() {
 }
 
 src_compile() {
-	node /usr/bin/yarn run build || die
+	pnpm run build || die
 }
 
 src_install() {
