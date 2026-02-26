@@ -151,12 +151,11 @@ src_compile() {
 		mkdir -p ${distdir}/node_modules || die
 		cp -r lib ${distdir} || die
 		# Copying yarn.lock allows freezing versions to the build versions
-		cp package.json yarn.lock ${distdir} || die
+		cp package.json ${distdir} || die
 		pushd ${distdir} &> /dev/null || die
-		node /usr/bin/yarn install ${ONLINE_OFFLINE} --production \
-			--no-progress --frozen-lockfile || die
+		pnpm install || die
 		popd &> /dev/null || die
-		rm ${distdir}/yarn.lock || die
+		# rm ${distdir}/yarn.lock || die
 		if use native-modules; then
 			cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
 		fi
