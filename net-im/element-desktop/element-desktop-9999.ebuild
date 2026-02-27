@@ -108,7 +108,7 @@ src_compile() {
 	# export PATH
 	# export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	# export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	# export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	# yarn config set disable-self-update-check true || die
 	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	# # #! Until electron-builder >=22.11.5
@@ -127,8 +127,9 @@ src_compile() {
 	einfo "Installing node_modules"
 	pnpm install || die
 
-	node node_modules/.bin/tsc || die
-	node node_modules/.bin/tsx scripts/copy-res.ts || die
+	# node node_modules/.bin/tsc || die
+	# node node_modules/.bin/tsx scripts/copy-res.ts || die
+	pnpm run build || die
 
 	if use native-modules
 	then
