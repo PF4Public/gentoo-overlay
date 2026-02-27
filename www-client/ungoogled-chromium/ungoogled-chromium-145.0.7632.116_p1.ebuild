@@ -66,8 +66,7 @@ REQUIRED_USE="
 CROMITE_COMMIT_ID="9b33511160e6d30427778dd782e915577dc9568f"
 
 declare -A CHROMIUM_COMMITS=(
-	# ["069d424e41f42c6f4a4551334eafc7cfaed6e880"]="." #143+
-	# ["bd9e1afdde061d4870cf69de39b04caac26960f2"]="." #143+
+	["3abf0048fc862a2db04031466be5f45a70c77a6d"]="." #147+
 	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
 	["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
 )
@@ -624,12 +623,6 @@ src_prepare() {
 	if ! use libcxx ; then
 		PATCHES+=(
 			"${FILESDIR}/fix-wayland-oncecallback-copy.patch"
-		)
-	fi
-
-	if use system-icu; then
-		PATCHES+=(
-			"${FILESDIR}/chromium-145-icu78.patch"
 		)
 	fi
 
