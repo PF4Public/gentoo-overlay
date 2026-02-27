@@ -257,7 +257,7 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-util/gperf-3.2
 	dev-vcs/git
-	>=net-libs/nodejs-7.6.0[inspector,npm]
+	>=net-libs/nodejs-7.6.0[inspector,corepack]
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
@@ -265,7 +265,6 @@ BDEPEND="
 		pgo? ( >llvm-core/clang-19.0.0_pre20240518 >llvm-core/lld-19.0.0_pre20240518	)
 		!pgo? ( llvm-core/clang llvm-core/lld )
 	)
-	sys-apps/yarn
 "
 
 S="${WORKDIR}/${CHROMIUM_P}"
