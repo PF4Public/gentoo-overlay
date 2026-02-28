@@ -254,7 +254,7 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-util/gperf-3.2
 	dev-vcs/git
-	>=net-libs/nodejs-7.6.0[inspector,corepack]
+	>=net-libs/nodejs-7.6.0[inspector,corepack,npm]
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
 	virtual/pkgconfig
