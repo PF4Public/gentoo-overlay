@@ -948,6 +948,7 @@ src_prepare() {
 		third_party/catapult/third_party/html5lib-1.1
 		third_party/catapult/third_party/polymer
 		third_party/catapult/third_party/six
+		third_party/catapult/third_party/typ
 		third_party/catapult/tracing/third_party/d3
 		third_party/catapult/tracing/third_party/gl-matrix
 		third_party/catapult/tracing/third_party/jpeg-js
@@ -1151,7 +1152,6 @@ src_prepare() {
 		third_party/six
 		third_party/skia
 		third_party/skia/include/third_party/vulkan
-		third_party/skia/third_party/vulkan
 		third_party/smhasher
 	)
 	use system-snappy || keeplibs+=(
