@@ -492,6 +492,16 @@
    ]
  }
  
+--- a/mojo/public/rust/sequences/BUILD.gn
++++ b/mojo/public/rust/sequences/BUILD.gn
+@@ -19,7 +19,6 @@ rust_static_library("sequences") {
+   cxx_bindings = [ "cxx.rs" ]
+ 
+   deps = [
+-    ":cxx_shim",
+     "//base",
+   ]
+ 
 --- a/services/on_device_model/ml/BUILD.gn
 +++ b/services/on_device_model/ml/BUILD.gn
 @@ -78,7 +78,6 @@ if (use_blink || (is_ios && build_with_i
