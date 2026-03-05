@@ -63,11 +63,11 @@ UGC_COMMIT_ID="8133c7fb93611ac4947c9ef5f0ce5f80d356c68b"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="9b33511160e6d30427778dd782e915577dc9568f"
+CROMITE_COMMIT_ID="8627614ac9539575e5d472a92e9534029d0c2b38"
 
 declare -A CHROMIUM_COMMITS=(
 	["3abf0048fc862a2db04031466be5f45a70c77a6d"]="." #147+
-	# ["-da443d7bd3777a5dd0587ecff1fbad1722b106b5"]="."
+	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
 	["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
 )
 
@@ -497,7 +497,7 @@ src_prepare() {
 	python_setup
 
 	# cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
-	cp -f ${FILESDIR}/chromium-144-compiler.patch "${T}/compiler.patch"
+	cp -f ${FILESDIR}/chromium-146-compiler.patch "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -521,9 +521,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-145-crabby.patch"
-		"${FILESDIR}/chromium-145-no-rust.patch"
 		"${FILESDIR}/chromium-145-fontations.patch"
-		"${FILESDIR}/chromium-145-gcc.patch"
+		"${FILESDIR}/chromium-146-gcc.patch"
+		"${FILESDIR}/chromium-146-no-rust.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
@@ -610,7 +610,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r6.patch"
+			"${FILESDIR}/disable-bluez-r7.patch"
 		)
 	fi
 
