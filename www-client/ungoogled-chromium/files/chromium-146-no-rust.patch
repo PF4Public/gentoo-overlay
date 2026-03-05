@@ -494,13 +494,14 @@
  
 --- a/mojo/public/rust/sequences/BUILD.gn
 +++ b/mojo/public/rust/sequences/BUILD.gn
-@@ -19,7 +19,6 @@ rust_static_library("sequences") {
-   cxx_bindings = [ "cxx.rs" ]
- 
-   deps = [
--    ":cxx_shim",
+@@ -23,8 +23,6 @@ rust_static_library("sequences") {
      "//base",
    ]
+ 
+-  allow_circular_includes_from = [ ":cxx_shim" ]
+-
+   visibility = [ "../*" ]
+ }
  
 --- a/services/on_device_model/ml/BUILD.gn
 +++ b/services/on_device_model/ml/BUILD.gn
