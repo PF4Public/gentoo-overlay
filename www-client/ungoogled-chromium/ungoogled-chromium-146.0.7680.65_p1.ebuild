@@ -785,9 +785,9 @@ src_prepare() {
 
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
-		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
-		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
-			third_party/abseil-cpp/absl/base/options.h || die
+		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
+		# sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
+		# 	third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
 	#* Applying UGC PRs here
@@ -909,7 +909,6 @@ src_prepare() {
 		net/third_party/mozilla_security_manager
 		net/third_party/quic
 		net/third_party/uri_template
-		third_party/abseil-cpp/absl/base
 	)
 	use system-abseil-cpp || keeplibs+=(
 		third_party/abseil-cpp
