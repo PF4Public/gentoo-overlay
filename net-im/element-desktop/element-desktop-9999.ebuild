@@ -114,7 +114,7 @@ src_compile() {
 	# # #! Until electron-builder >=22.11.5
 	# # yarn config set ignore-engines true || die
 
-	# sed -i 's/electron-builder install-app-deps/true/' package.json || die
+	sed -i 's/electron-builder install-app-deps/true/' package.json || die
 
 	# if ! use build-online; then
 	# 	ONLINE_OFFLINE="--offline --frozen-lockfile"
