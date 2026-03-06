@@ -409,14 +409,15 @@ src_install() {
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
 
 	insinto "${VSCODE_HOME}"
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	#TODO why no asar?
-	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources/app/*
+	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
+	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
+	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
+	# doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
+	# #TODO why no asar?
+	# # doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
+	# # doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
+	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
