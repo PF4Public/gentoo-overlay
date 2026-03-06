@@ -150,7 +150,7 @@ COMMON_X_DEPEND="
 
 COMMON_SNAPSHOT_DEPEND="
 	system-icu? ( >=dev-libs/icu-78:= )
-	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20250512.0 )
+	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20260107.0 )
 	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
 	system-double-conversion? ( dev-libs/double-conversion )
@@ -769,7 +769,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
-	cp -f "${FILESDIR}/json_parser.cc" base/json || die
+	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
@@ -785,12 +785,12 @@ src_prepare() {
 
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
-		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
-		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
-		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
-		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
-		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
-			third_party/abseil-cpp/absl/base/options.h || die
+		# #! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+		# eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
+		# #! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
+		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
+		# sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
+		# 	third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
 	#* Applying UGC PRs here
