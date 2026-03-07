@@ -541,6 +541,16 @@
  
  #if !BUILDFLAG(IS_IOS)
  #include "gpu/config/gpu_info_collector.h"
+--- a/third_party/abseil-cpp/absl/base/BUILD.gn
++++ b/third_party/abseil-cpp/absl/base/BUILD.gn
+@@ -63,6 +63,7 @@ absl_source_set("raw_logging_internal")
+   visibility = [
+     "//third_party/abseil-cpp:absl_component_deps",
+     "//third_party/abseil-cpp/absl/*",
++    "//base:base",
+   ]
+ }
+ 
 --- a/third_party/blink/common/BUILD.gn
 +++ b/third_party/blink/common/BUILD.gn
 @@ -314,7 +314,6 @@ source_set("common") {

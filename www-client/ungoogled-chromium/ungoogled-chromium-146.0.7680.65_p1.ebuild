@@ -523,7 +523,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-145-crabby.patch"
 		"${FILESDIR}/chromium-145-fontations.patch"
 		"${FILESDIR}/chromium-146-gcc.patch"
-		"${FILESDIR}/chromium-146-no-rust.patch"
+		"${FILESDIR}/chromium-146-no-rust.patch" 
 	)
 
 	# https://issues.chromium.org/issues/442698344
