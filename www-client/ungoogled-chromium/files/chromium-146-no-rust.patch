@@ -34,7 +34,15 @@
  
    if (use_asan_backup_ref_ptr) {
      # Used by raw_ptr_service.cc to override {malloc,free,ignore_free} hooks.
-@@ -1148,14 +1146,6 @@ component("base") {
+@@ -1138,6 +1136,7 @@ component("base") {
+     "//base/third_party/icu",
+     "//build:chromecast_buildflags",
+     "//third_party/abseil-cpp:absl",
++    "//third_party/abseil-cpp/absl/base:raw_logging_internal",
+   ]
+ 
+   if (use_asan_backup_ref_ptr) {
+@@ -1148,14 +1147,6 @@ component("base") {
      }
    }
  
@@ -49,7 +57,7 @@
  
    # Needed for <atomic> if using newer C++ library than sysroot, except if
    # building inside the cros_sdk environment - use host_toolchain as a
-@@ -1614,8 +1604,6 @@ component("base") {
+@@ -1614,8 +1605,6 @@ component("base") {
      "files/scoped_temp_file.h",
      "json/json_file_value_serializer.cc",
      "json/json_file_value_serializer.h",
@@ -58,7 +66,7 @@
      "memory/discardable_memory.cc",
      "memory/discardable_memory.h",
      "memory/discardable_memory_allocator.cc",
-@@ -3854,11 +3842,6 @@ test("base_unittests") {
+@@ -3854,11 +3843,6 @@ test("base_unittests") {
      sources += [ "immediate_crash_unittest.cc" ]
    }
  
@@ -70,7 +78,7 @@
    fuzztests = [ "JSONReaderTest.CanParseAnythingWithoutCrashing" ]
  
    defines = []
-@@ -3905,8 +3888,6 @@ test("base_unittests") {
+@@ -3905,8 +3889,6 @@ test("base_unittests") {
      deps += [ "allocator/partition_allocator/src/partition_alloc:unittests" ]
    }
  
