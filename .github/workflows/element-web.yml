@@ -15,8 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - '-build-online'
           - 'build-online'
+        include:
+          - use: '-build-online'
+            experimental: true
 
     steps:
       - name: Check out the repo

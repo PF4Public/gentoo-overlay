@@ -78,8 +78,9 @@ jobs:
           - 'api-proposals badge-providers'
           - 'openvsx'
           - 'substitute-urls'
-          # - 'build-online'
         include:
+          - use: '-build-online'
+            experimental: true
           - use: 'reh reh-web'
             experimental: true
           - use: '-temp-fix electron-36'
