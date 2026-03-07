@@ -255,6 +255,21 @@
  #include <memory>
  #include <string>
  
+--- a/content/browser/private_aggregation/private_aggregation_pending_contributions.h
++++ b/content/browser/private_aggregation/private_aggregation_pending_contributions.h
+@@ -51,7 +51,11 @@ class CONTENT_EXPORT PrivateAggregationP
+             contribution)
+         : ContributionMergeKey(*contribution) {}
+ 
+-    auto operator<=>(const ContributionMergeKey& a) const = default;
++    bool operator<(const ContributionMergeKey& a) const {
++	  return ((bucket < a.bucket)&&(filtering_id < a.filtering_id)); }
++
++    bool operator==(const ContributionMergeKey& a) const {
++	  return ((bucket == a.bucket)&&(filtering_id == a.filtering_id)) ; }
+ 
+     absl::uint128 bucket;
+     uint64_t filtering_id;
 --- a/content/browser/webid/accounts_fetcher.cc
 +++ b/content/browser/webid/accounts_fetcher.cc
 @@ -467,7 +467,7 @@ void AccountsFetcher::OnFetchDataForIdpS
