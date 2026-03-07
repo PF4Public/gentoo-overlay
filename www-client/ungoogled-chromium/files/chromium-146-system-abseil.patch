@@ -256,3 +256,26 @@
 +source_set("simulated_clock_test") {
 +}
 +
+--- a/components/proto_extras/proto_extras_lib.h
++++ b/components/proto_extras/proto_extras_lib.h
+@@ -14,10 +14,6 @@
+ #include "base/strings/stringprintf.h"
+ #include "base/values.h"
+ 
+-namespace absl {
+-class Cord;
+-}  // namespace absl
+-
+ namespace google::protobuf {
+ class MessageLite;
+ }  // namespace google::protobuf
+--- a/third_party/tflite_support/BUILD.gn
++++ b/third_party/tflite_support/BUILD.gn
+@@ -150,6 +150,7 @@ static_library("tflite_support") {
+     "//third_party/tflite:tflite_proto",
+     "//third_party/tflite:tflite_public_headers",
+     "//third_party/zlib:minizip",
++    "//third_party/abseil-cpp/absl/strings:cord",
+   ]
+ 
+   public_deps = [

@@ -541,6 +541,16 @@
  
  #if !BUILDFLAG(IS_IOS)
  #include "gpu/config/gpu_info_collector.h"
+--- a/services/on_device_model/ml/constraint_factory.cc
++++ b/services/on_device_model/ml/constraint_factory.cc
+@@ -10,7 +10,6 @@
+ #include "base/trace_event/trace_event.h"
+ #include "services/on_device_model/ml/chrome_ml.h"
+ #include "services/on_device_model/public/mojom/on_device_model.mojom.h"
+-#include "third_party/rust/chromium_crates_io/vendor/llguidance-v1/llguidance.h"
+ 
+ namespace ml {
+ 
 --- a/third_party/abseil-cpp/absl/base/BUILD.gn
 +++ b/third_party/abseil-cpp/absl/base/BUILD.gn
 @@ -63,6 +63,7 @@ absl_source_set("raw_logging_internal")
