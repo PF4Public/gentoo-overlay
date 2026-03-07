@@ -662,7 +662,7 @@
    HashMap<String, String>::const_iterator i = attrs.find("type");
 --- a/third_party/blink/renderer/core/xml/build.gni
 +++ b/third_party/blink/renderer/core/xml/build.gni
-@@ -17,8 +17,6 @@ blink_core_sources_xml = [
+@@ -17,15 +17,11 @@ blink_core_sources_xml = [
    "parser/xhtml_subset.h",
    "parser/xml_document_parser.cc",
    "parser/xml_document_parser.h",
@@ -671,6 +671,13 @@
    "parser/xml_document_parser_scope.cc",
    "parser/xml_document_parser_scope.h",
    "parser/xml_errors.cc",
+   "parser/xml_errors.h",
+   "parser/xml_parser_input.h",
+-  "parser/xml_ffi_callbacks.cc",
+-  "parser/xml_ffi_callbacks.h",
+   "xml_serializer.cc",
+   "xml_serializer.h",
+   "xpath_evaluator.cc",
 --- a/third_party/breakpad/BUILD.gn
 +++ b/third_party/breakpad/BUILD.gn
 @@ -746,12 +746,6 @@ if (is_linux || is_chromeos || is_androi
