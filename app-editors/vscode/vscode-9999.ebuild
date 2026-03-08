@@ -18,7 +18,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-36 electron-38 electron-40 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers electron-40 electron-41 openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -51,14 +51,12 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	electron-36? ( dev-util/electron:36 )
-	electron-38? ( dev-util/electron:38 )
 	electron-40? ( dev-util/electron:40 )
-	!electron-36? (
-	!electron-38? (
+	electron-41? ( dev-util/electron:41 )
 	!electron-40? (
+	!electron-41? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) )
+	) )
 "
 
 #TODO: oniguruma?
@@ -97,10 +95,8 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	if use electron-36; then
-		export ELECTRON_SLOT=36
-	elif use electron-38; then
-		export ELECTRON_SLOT=38
+	if use electron-41; then
+		export ELECTRON_SLOT=41
 	elif use electron-40; then
 		export ELECTRON_SLOT=40
 	else
@@ -328,8 +324,6 @@ src_configure() {
 }
 
 src_compile() {
-	ulimit -n 8192
-
 	if [ -d ".git" ]; then
 	    COMMIT_ID="$(git rev-parse HEAD)"
 	else
