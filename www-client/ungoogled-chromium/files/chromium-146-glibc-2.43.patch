@@ -1,0 +1,9 @@
+--- ./sandbox/linux/system_headers/linux_seccomp.h
++++ ./sandbox/linux/system_headers/linux_seccomp.h
+@@ -7,6 +7,7 @@
+ 
+ #include <stdint.h>
+ #include <sys/ioctl.h>
++#include <signal.h>
+ 
+ #include "build/build_config.h"
