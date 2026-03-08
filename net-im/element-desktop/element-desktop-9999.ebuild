@@ -16,7 +16,7 @@ SRC_URI=""
 REPO="https://github.com/vector-im/element-desktop"
 ELECTRON_SLOT_DEFAULT="39"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-36 electron-37 electron-40 native-modules"
+IUSE="electron-40 electron-41 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -47,14 +47,12 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-	electron-36? ( dev-util/electron:36 )
-	electron-37? ( dev-util/electron:37 )
 	electron-40? ( dev-util/electron:40 )
-	!electron-36? (
-	!electron-37? (
+	electron-41? ( dev-util/electron:41 )
 	!electron-40? (
+	!electron-41? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) )
+	) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -78,10 +76,8 @@ python_check_deps() {
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	if use electron-36; then
-		export ELECTRON_SLOT=36
-	elif use electron-37; then
-		export ELECTRON_SLOT=37
+	if use electron-41; then
+		export ELECTRON_SLOT=41
 	elif use electron-40; then
 		export ELECTRON_SLOT=40
 	else
