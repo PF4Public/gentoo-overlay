@@ -113,19 +113,22 @@
  class WebContentsCloseHandler;
 --- a/chrome/browser/ui/views/frame/vertical_tab_strip_region_view.cc
 +++ b/chrome/browser/ui/views/frame/vertical_tab_strip_region_view.cc
-@@ -251,8 +251,10 @@ gfx::Size VerticalTabStripRegionView::Ca
+@@ -251,10 +251,12 @@ gfx::Size VerticalTabStripRegionView::Ca
      size.set_width(
          kCollapsedWidth +
          (resize_animation_.IsShowing()
 -             ? std::floor<double>
 -             : std::ceil<double>)((target_collapse_state_.uncollapsed_width -
 +             ? std::floor((target_collapse_state_.uncollapsed_width -
-+                                   kCollapsedWidth) *
+                                    kCollapsedWidth) *
+-                                  resize_animation_.GetCurrentValue()));
 +                                  resize_animation_.GetCurrentValue())
 +             : std::ceil((target_collapse_state_.uncollapsed_width -
-                                    kCollapsedWidth) *
-                                   resize_animation_.GetCurrentValue()));
++                                   kCollapsedWidth) *
++                                  resize_animation_.GetCurrentValue())));
    } else {
+     size.set_width(target_collapse_state_.collapsed
+                        ? kCollapsedWidth
 --- a/chrome/browser/ui/webui/history/browsing_history_handler.cc
 +++ b/chrome/browser/ui/webui/history/browsing_history_handler.cc
 @@ -173,7 +173,7 @@ std::pair<std::string, std::string> SetH
@@ -174,6 +177,19 @@
  
  }  // namespace
  
+--- a/components/enterprise/client_certificates/core/private_key_factory.cc
++++ b/components/enterprise/client_certificates/core/private_key_factory.cc
+@@ -123,8 +123,8 @@ void PrivateKeyFactoryImpl::OnPrivateKey
+     scoped_refptr<PrivateKey> private_key) {
+   if (!private_key && source != PrivateKeySource::kSoftwareKey) {
+     for (auto fallback_source =
+-             ++std::find(std::begin(kKeySourcesOrderedBySecurity),
+-                         std::end(kKeySourcesOrderedBySecurity), source);
++             std::next(std::find(std::begin(kKeySourcesOrderedBySecurity),
++                         std::end(kKeySourcesOrderedBySecurity), source));
+          fallback_source != std::end(kKeySourcesOrderedBySecurity);
+          fallback_source++) {
+       auto it = sub_factories_.find(*fallback_source);
 --- a/components/one_time_tokens/core/browser/one_time_token_service.h
 +++ b/components/one_time_tokens/core/browser/one_time_token_service.h
 @@ -6,6 +6,7 @@
