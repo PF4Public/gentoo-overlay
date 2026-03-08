@@ -14,5 +14,6 @@
 		<flag name="electron-38">Build against electron-38 instead of the default one</flag>
 		<flag name="electron-39">Build against electron-39 instead of the default one</flag>
 		<flag name="electron-40">Build against electron-40 instead of the default one</flag>
+		<flag name="electron-41">Build against electron-41 instead of the default one</flag>
 	</use>
 </pkgmetadata>
