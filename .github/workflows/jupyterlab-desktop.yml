@@ -81,15 +81,11 @@ jobs:
         use:
           - 'build-online'
         include:
-          - use: 'electron-36'
-            experimental: true
-          - use: 'electron-37'
-            experimental: true
-          - use: 'electron-38'
-            experimental: true
           - use: 'electron-39'
             experimental: true
           - use: 'electron-40'
+            experimental: true
+          - use: 'electron-41'
             experimental: true
 
     steps:
