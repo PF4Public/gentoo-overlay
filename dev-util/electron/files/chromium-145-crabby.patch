@@ -1,0 +1,11 @@
+--- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
++++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
+@@ -85,7 +85,7 @@ component("image_decoders") {
+       "avif/avif_image_decoder.h",
+     ]
+ 
+-    deps += [ "//third_party/crabbyavif" ]
++    libs = [ "avif" ]
+   }
+ 
+   if (enable_jxl_decoder) {
