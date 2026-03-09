@@ -786,9 +786,15 @@ src_prepare() {
 
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
-		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+
+		#! SFINAE mangling incompatibility between clang and gcc:
+		#! https://github.com/llvm/llvm-project/issues/85656
+		#! gcc: 	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEELi0EEEOT_
+		#! clang:	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEETnNSt9enable_ifIXsr3std7is_sameIT_S8_EE5valueEiE4typeELi0EEEOSA_
+		#! So, either this:
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
-		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
+		#! or build with -fclang-abi-compat=17
+
 		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		# sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 		# 	third_party/abseil-cpp/absl/base/options.h || die
