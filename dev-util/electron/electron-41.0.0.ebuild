@@ -663,10 +663,10 @@ src_prepare() {
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
 	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
-	cp -f "${FILESDIR}/avif_image_decoder_r1.cc" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.cc || die
-	cp -f "${FILESDIR}/avif_image_decoder_r1.h" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h || die
-	cp -f "${FILESDIR}/png_image_decoder_r1.cc" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc || die
-	cp -f "${FILESDIR}/png_image_decoder_r1.h" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.h || die
+	cp -f "${FILESDIR}/avif_image_decoder-r1.cc" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.cc || die
+	cp -f "${FILESDIR}/avif_image_decoder-r1.h" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h || die
+	cp -f "${FILESDIR}/png_image_decoder-r1.cc" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc || die
+	cp -f "${FILESDIR}/png_image_decoder-r1.h" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.h || die
 	cp -f "${FILESDIR}/font_format_check.cc" third_party/blink/renderer/platform/fonts/opentype || die
 	cp -f "${FILESDIR}/font_format_check.h" third_party/blink/renderer/platform/fonts/opentype || die
 
