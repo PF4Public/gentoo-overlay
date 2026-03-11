@@ -44,7 +44,7 @@ SRC_URI="mirror+https://commondatastorage.googleapis.com/chromium-browser-offici
 
 LICENSE="BSD"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg +png re2 snappy woff2 +zstd"
 IUSE="+X bluetooth +clang cups cpu_flags_arm_neon cpu_flags_ppc_vsx3 custom-cflags debug dev-dependencies gtk4 hangouts kerberos libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland"
 RESTRICT="
@@ -663,19 +663,25 @@ src_prepare() {
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
 	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
-	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
-	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
-	cp -f "${FILESDIR}/png_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/png || die
-	cp -f "${FILESDIR}/png_image_decoder.h" third_party/blink/renderer/platform/image-decoders/png || die
+	cp -f "${FILESDIR}/avif_image_decoder_r1.cc" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.cc || die
+	cp -f "${FILESDIR}/avif_image_decoder_r1.h" third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h || die
+	cp -f "${FILESDIR}/png_image_decoder_r1.cc" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc || die
+	cp -f "${FILESDIR}/png_image_decoder_r1.h" third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.h || die
 	cp -f "${FILESDIR}/font_format_check.cc" third_party/blink/renderer/platform/fonts/opentype || die
 	cp -f "${FILESDIR}/font_format_check.h" third_party/blink/renderer/platform/fonts/opentype || die
 
 
 	if use system-abseil-cpp; then
 		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
-		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+
+		#! SFINAE mangling incompatibility between clang and gcc:
+		#! https://github.com/llvm/llvm-project/issues/85656
+		#! gcc: 	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEELi0EEEOT_
+		#! clang:	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEETnNSt9enable_ifIXsr3std7is_sameIT_S8_EE5valueEiE4typeELi0EEEOSA_
+		#! So, either this:
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
-		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
+		#! or build with -fclang-abi-compat=17
+
 		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
 		# sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
 		# 	third_party/abseil-cpp/absl/base/options.h || die
