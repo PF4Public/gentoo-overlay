@@ -18,7 +18,7 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 toolchain-funcs xdg-utils
 # EXTRA_GN — pass extra options to gn
 # NINJAOPTS="-k0 -j8" useful to populate ccache even if ebuild is still failing
 
-CROMITE_COMMIT_ID="9b33511160e6d30427778dd782e915577dc9568f"
+CROMITE_COMMIT_ID="21fe58812eb5ef4e043d1e3b418b7760749fec24"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
@@ -126,7 +126,7 @@ COMMON_X_DEPEND="
 
 COMMON_SNAPSHOT_DEPEND="
 	system-icu? ( >=dev-libs/icu-78:= )
-	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20250512.0 )
+	system-abseil-cpp? ( >=dev-cpp/abseil-cpp-20260107.0 )
 	system-brotli? ( >=app-arch/brotli-9999 )
 	system-crc32c? ( dev-libs/crc32c )
 	system-double-conversion? ( dev-libs/double-conversion )
@@ -462,7 +462,7 @@ src_prepare() {
 	python_setup
 
 	# cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
-	cp -f ${FILESDIR}/chromium-144-compiler.patch "${T}/compiler.patch"
+	cp -f ${FILESDIR}/chromium-146-compiler.patch "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -487,9 +487,10 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-stdatomic.patch"
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-145-crabby.patch"
-		"${FILESDIR}/chromium-145-no-rust.patch"
 		"${FILESDIR}/chromium-145-fontations.patch"
-		"${FILESDIR}/chromium-145-gcc.patch"
+		"${FILESDIR}/chromium-146-gcc.patch"
+		"${FILESDIR}/chromium-146-no-rust.patch"
+		"${FILESDIR}/chromium-146-glibc-2.43.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
@@ -576,7 +577,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r6.patch"
+			"${FILESDIR}/disable-bluez-r7.patch"
 		)
 	fi
 
@@ -663,7 +664,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
-	cp -f "${FILESDIR}/json_parser.cc" base/json || die
+	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
@@ -678,13 +679,19 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-145-system-abseil.patch"
-		#! not sure about this one :-/ vvvvvvvvvvvvvvvv Any better solution?
+		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
+
+		#! SFINAE mangling incompatibility between clang and gcc:
+		#! https://github.com/llvm/llvm-project/issues/85656
+		#! gcc: 	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEELi0EEEOT_
+		#! clang:	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEETnNSt9enable_ifIXsr3std7is_sameIT_S8_EE5valueEiE4typeELi0EEEOSA_
+		#! So, either this:
 		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
-		#! not sure about this one :-/ ^^^^^^^^^^^^^^^^ Any better solution?
-		cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
-		sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
-			third_party/abseil-cpp/absl/base/options.h || die
+		#! or build with -fclang-abi-compat=17
+
+		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
+		# sed -i '/^#define ABSL_OPTION_USE_STD_ORDERING.*$/{s++#define ABSL_OPTION_USE_STD_ORDERING 1+;h};${x;/./{x;q0};x;q1}' \
+		# 	third_party/abseil-cpp/absl/base/options.h || die
 	fi
 
 	readarray -t topatch < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/cromite_patches_list.txt"
@@ -744,7 +751,6 @@ src_prepare() {
 		net/third_party/mozilla_security_manager
 		net/third_party/quic
 		net/third_party/uri_template
-		third_party/abseil-cpp/absl/base
 	)
 	use system-abseil-cpp || keeplibs+=(
 		third_party/abseil-cpp
@@ -780,6 +786,7 @@ src_prepare() {
 		third_party/catapult/third_party/html5lib-1.1
 		third_party/catapult/third_party/polymer
 		third_party/catapult/third_party/six
+		third_party/catapult/third_party/typ
 		third_party/catapult/tracing/third_party/d3
 		third_party/catapult/tracing/third_party/gl-matrix
 		third_party/catapult/tracing/third_party/jpeg-js
@@ -983,7 +990,6 @@ src_prepare() {
 		third_party/six
 		third_party/skia
 		third_party/skia/include/third_party/vulkan
-		third_party/skia/third_party/vulkan
 		third_party/smhasher
 	)
 	use system-snappy || keeplibs+=(
