@@ -19,7 +19,7 @@ CHROMIUM_VERSION="146.0.7680.72"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.14.0"
 NODE_P="node-v${NODE_VERSION}"
-UGC_PVR="146.0.7680.65-1"
+UGC_PVR="146.0.7680.71-1"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -774,7 +774,7 @@ src_prepare() {
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	else
 		eapply "${FILESDIR}/more-locales.patch"
-		eapply "${FILESDIR}/misc-fixes-ung-r1.patch"
+		eapply "${FILESDIR}/misc-fixes-ung-r2.patch"
 	fi
 
 	if use system-zstd; then
