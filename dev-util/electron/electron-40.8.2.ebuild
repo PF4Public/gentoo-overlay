@@ -498,6 +498,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-144-no-rust.patch"
 		"${FILESDIR}/chromium-144-fontations.patch"
 		"${FILESDIR}/chromium-144-gcc.patch"
+		"${FILESDIR}/chromium-146-glibc-2.43.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
