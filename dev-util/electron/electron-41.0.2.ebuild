@@ -1573,6 +1573,7 @@ src_configure() {
 	myconf_gn+=" skia_use_libpng_decode=true"
 	myconf_gn+=" skia_use_rust_png_decode=false"
 	myconf_gn+=" skia_use_rust_png_encode=false"
+	myconf_gn+=" enable_jxl_decoder=false"
 	myconf_gn+=" override_electron_version=\"${PV}\""
 
 	# Disable pseudolocales, only used for testing
