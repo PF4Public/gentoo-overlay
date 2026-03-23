@@ -76,7 +76,7 @@ BDEPEND="
 "
 
 python_check_deps() {
-        python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+		python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
 
 pkg_pretend() {
