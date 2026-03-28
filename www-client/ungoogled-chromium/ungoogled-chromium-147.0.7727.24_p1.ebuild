@@ -68,7 +68,6 @@ CROMITE_COMMIT_ID="130b90c92118298354e4f70423fa0c05e7bcafa5"
 declare -A CHROMIUM_COMMITS=(
 	# ["3abf0048fc862a2db04031466be5f45a70c77a6d"]="." #147+
 	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
-	["-6457f382bd3c145e71305ccbd15c882fce741bf5"]="."
 	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
 )
