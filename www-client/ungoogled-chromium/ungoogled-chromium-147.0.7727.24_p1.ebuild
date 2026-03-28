@@ -499,7 +499,7 @@ src_prepare() {
 	python_setup
 
 	# cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
-	cp -f ${FILESDIR}/chromium-146-compiler.patch "${T}/compiler.patch"
+	cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
 	if ! use custom-cflags; then #See #25 #92
 		sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	fi
@@ -524,9 +524,9 @@ src_prepare() {
 		"${FILESDIR}/font-gc-asan.patch"
 		"${FILESDIR}/chromium-145-crabby.patch"
 		"${FILESDIR}/chromium-145-fontations.patch"
-		"${FILESDIR}/chromium-146-gcc.patch"
-		"${FILESDIR}/chromium-146-no-rust.patch"
 		"${FILESDIR}/chromium-146-glibc-2.43.patch"
+		"${FILESDIR}/chromium-147-gcc.patch"
+		"${FILESDIR}/chromium-147-no-rust.patch"
 	)
 
 	# https://issues.chromium.org/issues/442698344
@@ -1126,6 +1126,7 @@ src_prepare() {
 		third_party/perfetto
 		third_party/perfetto/protos/third_party/chromium
 		third_party/perfetto/protos/third_party/pprof
+		third_party/perfetto/protos/third_party/primes
 		third_party/perfetto/protos/third_party/simpleperf
 		third_party/pffft
 		third_party/ply
