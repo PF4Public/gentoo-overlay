@@ -1035,6 +1035,7 @@ src_prepare() {
 		third_party/googletest
 		third_party/highway
 		third_party/hunspell
+		third_party/hyphenation-patterns
 		third_party/ink_stroke_modeler/src/ink_stroke_modeler
 		third_party/ink_stroke_modeler/src/ink_stroke_modeler/internal
 		third_party/ink/src/ink/brush
