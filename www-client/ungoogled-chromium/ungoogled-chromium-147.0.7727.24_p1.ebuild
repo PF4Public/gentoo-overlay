@@ -780,7 +780,7 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-147-system-abseil.patch"
 
 		#! SFINAE mangling incompatibility between clang and gcc:
 		#! https://github.com/llvm/llvm-project/issues/85656
