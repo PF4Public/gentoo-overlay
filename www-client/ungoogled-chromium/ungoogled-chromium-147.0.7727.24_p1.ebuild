@@ -765,7 +765,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
-	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
+	cp -f "${FILESDIR}/json_parser_r2.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
