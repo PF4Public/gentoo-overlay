@@ -481,6 +481,29 @@
        ]
      },
    ]
+--- a/media/parsers/BUILD.gn
++++ b/media/parsers/BUILD.gn
+@@ -28,8 +28,6 @@ source_set("parsers") {
+     "h264_poc.h",
+     "jpeg_parser.cc",
+     "jpeg_parser.h",
+-    "parse_jpeg_wrapper.cc",
+-    "parse_jpeg_wrapper.h",
+     "temporal_scalability_id_extractor.cc",
+     "temporal_scalability_id_extractor.h",
+     "vp8_bool_decoder.cc",
+--- a/media/parsers/jpeg_parser.cc
++++ b/media/parsers/jpeg_parser.cc
+@@ -575,9 +575,6 @@ bool ParseJpegPictureLegacy(base::span<c
+ bool ParseJpegPicture(base::span<const uint8_t> buffer,
+                       JpegParseResult* result) {
+   CHECK(result);
+-  if (base::FeatureList::IsEnabled(kUseRustJpegParser)) {
+-    return ParseJpegPictureRust(buffer, result);
+-  }
+   return ParseJpegPictureLegacy(buffer, result);
+ }
+ 
 --- a/mojo/BUILD.gn
 +++ b/mojo/BUILD.gn
 @@ -57,7 +57,6 @@ test("mojo_unittests") {

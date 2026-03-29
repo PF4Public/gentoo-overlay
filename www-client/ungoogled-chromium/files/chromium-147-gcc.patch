@@ -681,3 +681,13 @@
  assert(!v8_enable_memory_corruption_api || v8_enable_sandbox,
         "The Memory Corruption API requires the sandbox")
  
+--- a/v8/src/bigint/bigint.h
++++ b/v8/src/bigint/bigint.h
+@@ -10,6 +10,7 @@
+ #include <algorithm>
+ #include <cstring>
+ #include <iostream>
++#include <memory>
+ #include <utility>
+ 
+ namespace v8 {
