@@ -481,6 +481,50 @@
        ]
      },
    ]
+--- a/content/browser/child_process_security_policy_impl.cc
++++ b/content/browser/child_process_security_policy_impl.cc
+@@ -28,7 +28,6 @@
+ #include "base/strings/stringprintf.h"
+ #include "build/build_config.h"
+ #include "content/browser/bad_message.h"
+-#include "content/browser/child_process_security_policy_impl.rs.h"
+ #include "content/browser/isolated_origin_util.h"
+ #include "content/browser/process_lock.h"
+ #include "content/browser/renderer_host/render_process_host_impl.h"
+@@ -115,10 +114,7 @@ const base::FeatureParam<RustPolicy> kRu
+ // implementation is enabled, and whether both Rust and the legacy C++
+ // implementations should run in parallel.
+ RustPolicy GetRustPolicy() {
+-  if (!base::FeatureList::IsEnabled(kChildProcessSecurityPolicyRust)) {
+     return RustPolicy::kCppOnly;
+-  }
+-  return kRustPolicyParam.Get();
+ }
+ bool IsRustEnabled() {
+   return GetRustPolicy() == RustPolicy::kRustAndCpp ||
+@@ -147,9 +143,6 @@ T CheckAndReturnRustAndCppResults(const
+ // Macro for gating whether a void function should use its Rust or C++
+ // implementation (or both), based on current feature flags.
+ #define RUST_CPP_VOID_FUNCTION(rust_function_call, cpp_function_call) \
+-  if (IsRustEnabled()) {                                              \
+-    rust_function_call;                                               \
+-  }                                                                   \
+   if (IsCppEnabled()) {                                               \
+     cpp_function_call;                                                \
+   }
+@@ -162,12 +155,6 @@ T CheckAndReturnRustAndCppResults(const
+ #define RUST_CPP_RETURN_FUNCTION(rust_function_call, cpp_function_call, \
+                                  ReturnType)                            \
+   ReturnType rust_result{};                                             \
+-  if (IsRustEnabled()) {                                                \
+-    rust_result = rust_function_call;                                   \
+-    if (GetRustPolicy() == RustPolicy::kRustOnly) {                     \
+-      return rust_result;                                               \
+-    }                                                                   \
+-  }                                                                     \
+   ReturnType cpp_result = cpp_function_call;                            \
+   return CheckAndReturnRustAndCppResults(rust_result, cpp_result);
+ 
 --- a/media/parsers/BUILD.gn
 +++ b/media/parsers/BUILD.gn
 @@ -28,8 +28,6 @@ source_set("parsers") {

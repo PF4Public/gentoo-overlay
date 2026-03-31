@@ -161,6 +161,80 @@
  
    for (const auto& [native_name, country_code] : country_native_names) {
      inl_file_content += "    {u\"" + base::UTF16ToUTF8(native_name) + "\", \"" +
+--- a/components/autofill/core/browser/webdata/addresses/autofill_profile_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/addresses/autofill_profile_sync_bridge.cc
+@@ -179,7 +179,8 @@ std::unique_ptr<syncer::DataBatch> Autof
+     return nullptr;
+   }
+ 
+-  absl::flat_hash_set<std::string> keys_set(std::from_range, storage_keys);
++  absl::flat_hash_set<std::string> keys_set;
++  keys_set.insert(storage_keys.begin(), storage_keys.end());
+   auto batch = std::make_unique<syncer::MutableDataBatch>();
+   for (const AutofillProfile& entry : entries) {
+     std::string key = GetStorageKeyFromAutofillProfile(entry);
+--- a/components/autofill/core/browser/webdata/autocomplete/autocomplete_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/autocomplete/autocomplete_sync_bridge.cc
+@@ -420,7 +420,8 @@ AutocompleteSyncBridge::AutocompleteSync
+     return nullptr;
+   }
+ 
+-  absl::flat_hash_set<std::string> keys_set(std::from_range, storage_keys);
++  absl::flat_hash_set<std::string> keys_set;
++  keys_set.insert(storage_keys.begin(), storage_keys.end());
+   auto batch = std::make_unique<MutableDataBatch>();
+   for (const AutocompleteEntry& entry : entries) {
+     std::string key = GetStorageKeyFromModel(entry.key());
+--- a/components/autofill/core/browser/webdata/payments/autofill_wallet_credential_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/payments/autofill_wallet_credential_sync_bridge.cc
+@@ -175,8 +175,8 @@ std::unique_ptr<syncer::DataBatch>
+ AutofillWalletCredentialSyncBridge::GetDataForCommit(
+     StorageKeyList storage_keys) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  absl::flat_hash_set<std::string> storage_keys_set(std::from_range,
+-                                                    storage_keys);
++  absl::flat_hash_set<std::string> storage_keys_set;
++  storage_keys_set.insert(storage_keys.begin(), storage_keys.end());
+   std::vector<std::unique_ptr<ServerCvc>> filtered_server_cvc_list;
+   for (std::unique_ptr<ServerCvc>& server_cvc :
+        GetAutofillTable()->GetAllServerCvcs()) {
+--- a/components/autofill/core/browser/webdata/payments/autofill_wallet_metadata_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/payments/autofill_wallet_metadata_sync_bridge.cc
+@@ -380,8 +380,8 @@ std::unique_ptr<syncer::DataBatch>
+ AutofillWalletMetadataSyncBridge::GetDataForCommit(
+     StorageKeyList storage_keys) {
+   // Build a set out of the list to allow quick lookup.
+-  absl::flat_hash_set<std::string> storage_keys_set(std::from_range,
+-                                                    storage_keys);
++  absl::flat_hash_set<std::string> storage_keys_set;
++  storage_keys_set.insert(storage_keys.begin(), storage_keys.end());
+   return GetDataImpl(std::move(storage_keys_set));
+ }
+ 
+--- a/components/autofill/core/browser/webdata/valuables/valuable_metadata_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/valuables/valuable_metadata_sync_bridge.cc
+@@ -249,7 +249,8 @@ std::unique_ptr<syncer::DataBatch> Valua
+     StorageKeyList storage_keys) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   auto batch = std::make_unique<syncer::MutableDataBatch>();
+-  absl::flat_hash_set<std::string> keys_set(std::from_range, storage_keys);
++  absl::flat_hash_set<std::string> keys_set;
++  keys_set.insert(storage_keys.begin(), storage_keys.end());
+   std::unique_ptr<syncer::DataBatch> all_data = GetAllData();
+   while (all_data->HasNext()) {
+     syncer::KeyAndData item = all_data->Next();
+--- a/components/autofill/core/browser/webdata/valuables/valuable_sync_bridge.cc
++++ b/components/autofill/core/browser/webdata/valuables/valuable_sync_bridge.cc
+@@ -372,7 +372,8 @@ std::unique_ptr<syncer::DataBatch> Valua
+     StorageKeyList storage_keys) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   auto batch = std::make_unique<syncer::MutableDataBatch>();
+-  absl::flat_hash_set<std::string> keys_set(std::from_range, storage_keys);
++  absl::flat_hash_set<std::string> keys_set;
++  keys_set.insert(storage_keys.begin(), storage_keys.end());
+   std::unique_ptr<syncer::DataBatch> all_data = GetData();
+   while (all_data->HasNext()) {
+     syncer::KeyAndData item = all_data->Next();
 --- a/components/compose/core/browser/config.cc
 +++ b/components/compose/core/browser/config.cc
 @@ -47,11 +47,11 @@ std::vector<std::string> GetFieldTrialPa
@@ -320,7 +394,7 @@
  #include "content/browser/renderer_host/navigation_transitions/navigation_transition_config.h"
 --- a/extensions/browser/api/extensions_api_client.cc
 +++ b/extensions/browser/api/extensions_api_client.cc
-@@ -7,6 +7,17 @@
+@@ -7,6 +7,16 @@
  #include "base/task/single_thread_task_runner.h"
  #include "build/build_config.h"
  #include "extensions/browser/api/messaging/native_message_host.h"
@@ -331,7 +405,6 @@
 +#include "extensions/browser/guest_view/web_view/web_view_guest_delegate.h"
 +#include "extensions/browser/guest_view/web_view/web_view_permission_helper_delegate.h"
 +#include "extensions/browser/api/declarative_content/content_rules_registry.h"
-+#include "extensions/browser/api/device_permissions_prompt.h"
 +#include "extensions/browser/api/virtual_keyboard_private/virtual_keyboard_delegate.h"
 +#include "extensions/browser/supervised_user_extensions_delegate.h"
 +#include "extensions/browser/api/system_display/display_info_provider.h"
@@ -410,6 +483,19 @@
        !data.ReadRequiredSellerCapabilities(
            &out->required_seller_capabilities) ||
        !data.ReadRequestedSize(&out->requested_size) ||
+--- a/third_party/blink/renderer/bindings/core/v8/to_v8_traits.h
++++ b/third_party/blink/renderer/bindings/core/v8/to_v8_traits.h
+@@ -44,8 +44,8 @@ struct NullTraits<T> {
+ };
+ 
+ template <>
+-struct NullTraits<nullptr_t> {
+-  static constexpr bool IsNull(nullptr_t) { return true; }
++struct NullTraits<std::nullptr_t> {
++  static constexpr bool IsNull(std::nullptr_t) { return true; }
+ };
+ 
+ template <typename T>
 --- a/third_party/blink/renderer/core/layout/inline/line_breaker.cc
 +++ b/third_party/blink/renderer/core/layout/inline/line_breaker.cc
 @@ -2677,7 +2677,7 @@ bool LineBreaker::ComputeTrailingCollaps
@@ -681,6 +767,17 @@
  assert(!v8_enable_memory_corruption_api || v8_enable_sandbox,
         "The Memory Corruption API requires the sandbox")
  
+--- a/v8/src/base/hashmap.h
++++ b/v8/src/base/hashmap.h
+@@ -446,7 +446,7 @@ void TemplateHashMapImpl<Key, Value, Mat
+ // expensive) key comparison.
+ template <typename Key, typename MatchFun>
+ struct HashEqualityThenKeyMatcher {
+-  explicit HashEqualityThenKeyMatcher(MatchFun match) : match_(match) {}
++  explicit HashEqualityThenKeyMatcher(MatchFun match = nullptr) : match_(match) {}
+ 
+   bool operator()(uint32_t hash1, uint32_t hash2, const Key& key1,
+                   const Key& key2) const {
 --- a/v8/src/bigint/bigint.h
 +++ b/v8/src/bigint/bigint.h
 @@ -10,6 +10,7 @@
@@ -691,3 +788,14 @@
  #include <utility>
  
  namespace v8 {
+--- a/v8/src/runtime/runtime-literals.cc
++++ b/v8/src/runtime/runtime-literals.cc
+@@ -613,7 +613,7 @@ Handle<JSObject> CreateObjectLiteral(
+       DirectHandle<NumberDictionary> dict = Cast<NumberDictionary>(elements);
+       PropertyDetails details(PropertyKind::kData, NONE,
+                               PropertyConstness::kConst, 0);
+-      NumberDictionary::UncheckedAdd(isolate, dict, element_index, value,
++      NumberDictionary::UncheckedAdd<Isolate, DirectHandle, AllocationType::kSharedOld>(isolate, dict, element_index, value,
+                                      details);
+     }
+   }
