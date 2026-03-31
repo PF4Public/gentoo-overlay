@@ -59,7 +59,7 @@ REQUIRED_USE="
 "
 
 declare -A CHROMIUM_COMMITS=(
-	# ["3abf0048fc862a2db04031466be5f45a70c77a6d"]="." #147+
+	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
 	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
 	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
@@ -659,7 +659,7 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	cp -f "${FILESDIR}/rust_static_library.gni" build/rust || die
-	cp -f "${FILESDIR}/json_parser_r1.cc" base/json/json_parser.cc || die
+	cp -f "${FILESDIR}/json_parser_r2.cc" base/json/json_parser.cc || die
 	cp -f "${FILESDIR}/json_parser.h" base/json || die
 	cp -f "${FILESDIR}/avif_image_decoder.cc" third_party/blink/renderer/platform/image-decoders/avif || die
 	cp -f "${FILESDIR}/avif_image_decoder.h" third_party/blink/renderer/platform/image-decoders/avif || die
@@ -674,7 +674,7 @@ src_prepare() {
 	fi
 
 	if use system-abseil-cpp; then
-		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-147-system-abseil.patch"
 
 		#! SFINAE mangling incompatibility between clang and gcc:
 		#! https://github.com/llvm/llvm-project/issues/85656
