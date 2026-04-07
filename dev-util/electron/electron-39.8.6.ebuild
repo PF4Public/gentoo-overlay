@@ -791,6 +791,7 @@ src_prepare() {
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
 		["electron/patches/skia"]="third_party/skia"
+		["electron/patches/angle"]="third_party/angle"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
