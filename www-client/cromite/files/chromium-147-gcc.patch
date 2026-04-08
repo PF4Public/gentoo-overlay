@@ -150,6 +150,32 @@
  #include <vector>
  
  #include "components/affiliations/core/browser/affiliation_api.pb.h"
+--- a/components/autofill/core/browser/geo/country_data.h
++++ b/components/autofill/core/browser/geo/country_data.h
+@@ -316,13 +316,16 @@ inline constexpr auto kCountryAddressImp
+          {"ZM", ADDRESS_REQUIRES_LINE1_CITY},
+          {"ZW", ADDRESS_REQUIRES_LINE1_CITY}});
+ 
+-// Compute at compile-time a base::fixed_flat_set<std::string_view> containing
+-// all the country codes used as keys in kCountryAddressImportRequirementsData
+-constexpr base::fixed_flat_set<std::string_view, 252u> GetCountryCodes() {
+-  return []<size_t... I>(std::index_sequence<I...>) {
+-    return base::MakeFixedFlatSet<std::string_view>(
+-        {kCountryAddressImportRequirementsData.begin()[I].first...});
+-  }(std::make_index_sequence<kCountryAddressImportRequirementsData.size()>());
++inline const base::flat_set<std::string_view>& GetCountryCodes() {
++  static const base::flat_set<std::string_view> codes = []() {
++    base::flat_set<std::string_view> result;
++    result.reserve(kCountryAddressImportRequirementsData.size());
++    for (const auto& [code, _] : kCountryAddressImportRequirementsData) {
++      result.insert(code);
++    }
++    return result;
++  }();
++  return codes;
+ }
+ 
+ // A singleton class that encapsulates a map from country codes to country data.
 --- a/components/autofill/core/browser/geo/generate_country_native_names.cc
 +++ b/components/autofill/core/browser/geo/generate_country_native_names.cc
 @@ -84,7 +84,7 @@ void WriteCountryNativeNamesInlFile(
