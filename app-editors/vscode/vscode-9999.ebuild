@@ -280,6 +280,7 @@ src_configure() {
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
+	export VSCODE_SKIP_PRELAUNCH=1
 	npm config set update-notifier false || die
 	# echo "$PATH"
 	# yarn config set disable-self-update-check true || die
