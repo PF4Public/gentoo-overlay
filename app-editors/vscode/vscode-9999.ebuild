@@ -149,6 +149,10 @@ src_prepare() {
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
+	einfo "Editing preinstall.js"
+	sed -i 's/const npmVersionMatch =.*/const npmVersionMatch = false;/' build/npm/preinstall.ts || die
+	sed -i '/installHeaders();/d' build/npm/preinstall.ts || die
+
 	einfo "Editing postinstall.js"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.ts || die
 	sed -i '/git config pull/d' build/npm/postinstall.ts || die
