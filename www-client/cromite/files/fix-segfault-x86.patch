@@ -1,0 +1,23 @@
+--- a/net/tools/huffman_trie/trie/trie_writer.cc
++++ b/net/tools/huffman_trie/trie/trie_writer.cc
+@@ -110,7 +110,7 @@
+     reversed_entries.push_back(std::move(reversed_entry));
+   }
+ 
+-  std::stable_sort(reversed_entries.begin(), reversed_entries.end(),
++  std::sort(reversed_entries.begin(), reversed_entries.end(),
+                    CompareReversedEntries);
+ 
+   return WriteDispatchTables(reversed_entries.begin(), reversed_entries.end(),
+--- a/base/containers/flat_tree.h
++++ b/base/containers/flat_tree.h
+@@ -530,7 +530,7 @@
+ 
+   void sort_and_unique(iterator first, iterator last) {
+     // Preserve stability for the unique code below.
+-    std::stable_sort(first, last, value_comp());
++    std::sort(first, last, value_comp());
+ 
+     // lhs is already <= rhs due to sort, therefore !(lhs < rhs) <=> lhs == rhs.
+     auto equal_comp = std::not_fn(value_comp());
+
