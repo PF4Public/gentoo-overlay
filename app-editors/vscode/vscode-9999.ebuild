@@ -174,6 +174,7 @@ src_prepare() {
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
 	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
+	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.js"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
