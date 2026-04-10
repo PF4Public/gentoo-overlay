@@ -1995,6 +1995,7 @@ src_install() {
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
 	doins out/Release/*.pak
+	doins -r out/Release/hyphen-data
 	(
 		shopt -s nullglob
 		local files=(out/Release/*.so out/Release/*.so.[0-9])
