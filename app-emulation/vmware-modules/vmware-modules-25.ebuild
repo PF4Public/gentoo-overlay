@@ -14,7 +14,7 @@ MY_KERNEL_VERSION="6.19"
 MY_COMMIT="5c80f597017882f76e9c7ffd48a292a4b7c860fe"
 
 SRC_URI=" https://github.com/philipl/vmware-host-modules/archive/${MY_COMMIT}.tar.gz -> ${P}-${MY_COMMIT}.tar.gz"
-S="${WORKDIR}/vm-host-modules-${MY_COMMIT}"
+S="${WORKDIR}/vmware-host-modules-${MY_COMMIT}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
