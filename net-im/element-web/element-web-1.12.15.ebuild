@@ -116,7 +116,7 @@ src_compile() {
 	# pnpm run build || die
 	node module_system/scripts/install.ts || die
 	sh ./res/css/rethemendex.sh || die
-	webpack-cli --progress --mode production || die
+	../../node_modules/.bin/webpack-cli --progress --mode production || die
 }
 
 src_install() {
