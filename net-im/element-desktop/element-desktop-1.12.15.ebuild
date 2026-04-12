@@ -30,9 +30,10 @@ else
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
 		DOWNLOAD+="v${PV}.tar.gz -> element-web-${PV}.tar.gz"
+		S="${WORKDIR}/element-web-${PV}"
 	else
 		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> element-web-${ELEMENT_COMMIT_ID}.tar.gz"
-		S="${WORKDIR}/${PN}-${ELEMENT_COMMIT_ID}"
+		S="${WORKDIR}/element-web-${ELEMENT_COMMIT_ID}"
 	fi
 fi
 
