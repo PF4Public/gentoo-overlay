@@ -69,7 +69,7 @@ src_prepare() {
 	echo "runtimeConfig: false" > .svgrrc.yml || die
 }
 
-src_configure() {
+src_compile() {
 	# export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
 	# yarn config set disable-self-update-check true || die
 	# yarn config set nodedir /usr/include/node || die
@@ -111,11 +111,12 @@ src_configure() {
 	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
 	# 	# --ignore-scripts
 	# popd > /dev/null || die
-}
 
-src_compile() {
 	cd apps/web
-	pnpm run build || die
+	# pnpm run build || die
+	node module_system/scripts/install.ts || die
+	sh ./res/css/rethemendex.sh || die
+	webpack-cli --progress --mode production || die
 }
 
 src_install() {
