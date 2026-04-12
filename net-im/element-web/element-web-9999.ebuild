@@ -8,8 +8,7 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI=""
-
-REPO="https://github.com/vector-im/element-web"
+REPO="https://github.com/element-hq/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -24,9 +23,9 @@ else
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
-		DOWNLOAD+="v${PV}.tar.gz -> ${P}.tar.gz"
+		DOWNLOAD+="v${PV}.tar.gz -> element-web-${PV}.tar.gz"
 	else
-		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> ${PN}-${ELEMENT_COMMIT_ID}.tar.gz"
+		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> element-web-${ELEMENT_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${ELEMENT_COMMIT_ID}"
 	fi
 fi
@@ -70,7 +69,7 @@ src_prepare() {
 	echo "runtimeConfig: false" > .svgrrc.yml || die
 }
 
-src_configure() {
+src_compile() {
 	# export PATH="/usr/$(get_libdir)/node_modules/npm/bin/node-gyp-bin:$PATH"
 	# yarn config set disable-self-update-check true || die
 	# yarn config set nodedir /usr/include/node || die
@@ -112,20 +111,18 @@ src_configure() {
 	# 	node /usr/bin/yarn install ${ONLINE_OFFLINE} --no-progressn|| die
 	# 	# --ignore-scripts
 	# popd > /dev/null || die
-}
 
-src_compile() {
 	cd apps/web
 	pnpm run build || die
 }
 
 src_install() {
 	insinto /usr/share/element-web
-	doins -r webapp/*
+	doins -r apps/web/webapp/*
 	dosym ../../../etc/element-web/config.json /usr/share/element-web/config.json
 
 	insinto /etc/element-web
-	newins config.sample.json config.json
+	newins apps/web/config.sample.json config.json
 }
 
 pkg_postinst() {

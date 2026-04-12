@@ -120,7 +120,7 @@ src_compile() {
 
 src_install() {
 	insinto /usr/share/element-web
-	doins -r apps/web/*
+	doins -r apps/web/webapp/*
 	dosym ../../../etc/element-web/config.json /usr/share/element-web/config.json
 
 	insinto /etc/element-web
