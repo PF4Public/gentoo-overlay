@@ -115,6 +115,7 @@ src_configure() {
 }
 
 src_compile() {
+	cd apps/web
 	pnpm run build || die
 }
 
