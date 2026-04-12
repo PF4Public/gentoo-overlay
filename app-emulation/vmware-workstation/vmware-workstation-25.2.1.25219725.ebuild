@@ -177,6 +177,9 @@ src_install() {
 	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware/lib/libxcb.so.1
 	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware-installer/${vmware_installer_version}/cdsHelper/lib/libxcb.so.1
 
+	# fix libstdc++ incompatibility
+	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware/lib/libstdc++.so.6
+
 	# install the ancillaries
 	insinto /usr
 	doins -r */share
