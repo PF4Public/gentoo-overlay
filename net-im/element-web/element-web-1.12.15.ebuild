@@ -124,7 +124,7 @@ src_install() {
 	dosym ../../../etc/element-web/config.json /usr/share/element-web/config.json
 
 	insinto /etc/element-web
-	newins config.sample.json config.json
+	newins apps/web/config.sample.json config.json
 }
 
 pkg_postinst() {
