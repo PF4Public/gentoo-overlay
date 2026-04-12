@@ -178,6 +178,8 @@ src_compile() {
 }
 
 src_install() {
+	cd apps/desktop
+	
 	insinto "/usr/$(get_libdir)/element-desktop"
 
 	doins -r dist/linux-unpacked/resources/*
