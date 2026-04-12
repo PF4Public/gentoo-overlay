@@ -12,8 +12,7 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI=""
-
-REPO="https://github.com/vector-im/element-desktop"
+REPO="https://github.com/element-hq/element-web"
 ELECTRON_SLOT_DEFAULT="39"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 IUSE="electron-40 electron-41 native-modules"
@@ -30,10 +29,11 @@ else
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
-		DOWNLOAD+="v${PV}.tar.gz -> ${P}.tar.gz"
+		DOWNLOAD+="v${PV}.tar.gz -> element-web-${PV}.tar.gz"
+		S="${WORKDIR}/element-web-${PV}"
 	else
-		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> ${PN}-${ELEMENT_COMMIT_ID}.tar.gz"
-		S="${WORKDIR}/${PN}-${ELEMENT_COMMIT_ID}"
+		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> element-web-${ELEMENT_COMMIT_ID}.tar.gz"
+		S="${WORKDIR}/element-web-${ELEMENT_COMMIT_ID}"
 	fi
 fi
 
@@ -85,13 +85,13 @@ src_unpack() {
 	fi
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
-		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
-			unpack "${P}".tar.gz || die
+		if [ -f "${DISTDIR}/element-web-${PV}.tar.gz" ]; then
+			unpack "element-web-${PV}.tar.gz" || die
 		else
 			git-r3_src_unpack
 		fi
 	else
-		unpack "${PN}-${ELEMENT_COMMIT_ID}.tar.gz" || die
+		unpack "element-web-${ELEMENT_COMMIT_ID}.tar.gz" || die
 	fi
 }
 
@@ -110,7 +110,7 @@ src_compile() {
 	# # #! Until electron-builder >=22.11.5
 	# # yarn config set ignore-engines true || die
 
-	sed -i 's/electron-builder install-app-deps/true/' package.json || die
+	sed -i 's/electron-builder install-app-deps/true/' apps/desktop/package.json || die
 
 	# if ! use build-online; then
 	# 	ONLINE_OFFLINE="--offline --frozen-lockfile"
@@ -118,14 +118,14 @@ src_compile() {
 	# fi
 
 	einfo "Removing playwright from dependencies"
-	sed -i '/playwright":/d' package.json || die
+	sed -i '/playwright":/d' apps/desktop/package.json || die
 
 	einfo "Installing node_modules"
 	pnpm install || die
 
-	# node node_modules/.bin/tsc || die
-	# node node_modules/.bin/tsx scripts/copy-res.ts || die
-	pnpm run build || die
+	cd apps/desktop
+	pnpm run build:ts || die
+	pnpm run build:res || die
 
 	if use native-modules
 	then
@@ -178,6 +178,8 @@ src_compile() {
 }
 
 src_install() {
+	cd apps/desktop
+
 	insinto "/usr/$(get_libdir)/element-desktop"
 
 	doins -r dist/linux-unpacked/resources/*
