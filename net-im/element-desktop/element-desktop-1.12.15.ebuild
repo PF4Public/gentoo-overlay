@@ -124,7 +124,8 @@ src_compile() {
 	pnpm install || die
 
 	cd apps/desktop
-	pnpm run build || die
+	pnpm run build:ts || die
+	pnpm run build:res || die
 
 	if use native-modules
 	then
