@@ -148,7 +148,7 @@ src_compile() {
 		mkdir -p ${distdir}/node_modules || die
 		cp -r lib ${distdir} || die
 		# Copying yarn.lock allows freezing versions to the build versions
-		cp apps/desktop/package.json ${distdir} || die
+		cp package.json ${distdir} || die
 		pushd ${distdir} &> /dev/null || die
 		pnpm install || die
 		popd &> /dev/null || die
