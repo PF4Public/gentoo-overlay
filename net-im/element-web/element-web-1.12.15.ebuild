@@ -8,7 +8,7 @@ HOMEPAGE="https://element.io/"
 LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI=""
-REPO="https://github.com/vector-im/element-web"
+REPO="https://github.com/element-hq/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
 
 if [[ ${PV} = *9999* ]]; then
@@ -23,9 +23,9 @@ else
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
-		DOWNLOAD+="v${PV}.tar.gz -> ${P}.tar.gz"
+		DOWNLOAD+="v${PV}.tar.gz -> element-web-${PV}.tar.gz"
 	else
-		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> ${PN}-${ELEMENT_COMMIT_ID}.tar.gz"
+		DOWNLOAD+="${ELEMENT_COMMIT_ID}.tar.gz -> element-web-${ELEMENT_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${ELEMENT_COMMIT_ID}"
 	fi
 fi
@@ -120,7 +120,7 @@ src_compile() {
 
 src_install() {
 	insinto /usr/share/element-web
-	doins -r webapp/*
+	doins -r apps/web/*
 	dosym ../../../etc/element-web/config.json /usr/share/element-web/config.json
 
 	insinto /etc/element-web
