@@ -25,7 +25,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE+=" +build-online"
 else
 	IUSE+=" +build-online"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
@@ -175,6 +175,11 @@ src_compile() {
 	#node node_modules/.bin/asar l webapp.asar
 
 	# export PATH=${OLD_PATH}
+
+	#! Fail CI
+	if [ ! -z "${NODIE}" ]; then
+		die
+	fi
 }
 
 src_install() {
