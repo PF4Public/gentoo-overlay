@@ -701,7 +701,8 @@ src_prepare() {
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
-			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc"
+			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc \
+			password_manual_fallback_flow_unittest.cc"
 
 		local ugc_unneeded=(
 			# GN bootstrap
