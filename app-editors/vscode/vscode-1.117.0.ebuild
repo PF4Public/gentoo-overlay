@@ -347,6 +347,8 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
+	#? `exploration`, `insider`, `stable`
+	export VSCODE_QUALITY="stable"
 
 	#TODO --experimental-strip-types until node>=22.18 stabilised
 	if use temp-fix; then
