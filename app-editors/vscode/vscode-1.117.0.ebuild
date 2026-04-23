@@ -318,7 +318,7 @@ src_configure() {
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
-	rm -rf extensions/copilot > /dev/null || die
+	# rm -rf extensions/copilot > /dev/null || die
 
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
