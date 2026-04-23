@@ -3,14 +3,14 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{10..13} python3_13t )
 inherit readme.gentoo-r1 pam python-any-r1 systemd xdg-utils
 
 MY_PN="VMware-Workstation"
-MY_PV=$(ver_cut 1)H$(ver_cut 2)u$(ver_cut 3)
-PV_MODULES="25"
+MY_PV=$(ver_cut 1-3)
+PV_MODULES="17.6.3"
 PV_BUILD=$(ver_cut 4)
-# MY_P="${MY_PN}-${MY_PV}-${PV_BUILD}"
+MY_P="${MY_PN}-${MY_PV}-${PV_BUILD}"
 SYSTEMD_UNITS_TAG="gentoo-02"
 UNLOCKER_VERSION="3.0.5"
 
@@ -43,6 +43,7 @@ RDEPEND="
 	dev-libs/gmp:0
 	dev-libs/icu
 	dev-libs/json-c
+	dev-libs/libxml2-compat:2
 	dev-libs/nettle:0
 	gnome-base/dconf
 	media-gfx/graphite2
@@ -82,9 +83,7 @@ QA_WX_LOAD="opt/vmware/lib/vmware/tools-upgraders/vmware-tools-upgrader-32 opt/v
 # adding "opt/vmware/lib/vmware/lib/libvmware-gksu.so/libvmware-gksu.so" to QA_WX_LOAD doesn't work
 
 pkg_nofetch() {
-	einfo "Please download"
-	einfo "  - ${MY_PN}-Full-${MY_PV}-${PV_BUILD}.x86_64.bundle"
-	einfo "manually and place it in your DISTDIR directory."
+	einfo "${MY_PN}-Full-${MY_PV}-${PV_BUILD}.x86_64.bundle should be downloaded manually"
 }
 
 src_unpack() {
@@ -176,9 +175,6 @@ src_install() {
 	# fix libxcb incompatibility
 	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware/lib/libxcb.so.1
 	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware-installer/${vmware_installer_version}/cdsHelper/lib/libxcb.so.1
-
-	# fix libstdc++ incompatibility
-	rm -rf "${ED}${VM_INSTALL_DIR}"/lib/vmware/lib/libstdc++.so.6
 
 	# install the ancillaries
 	insinto /usr
