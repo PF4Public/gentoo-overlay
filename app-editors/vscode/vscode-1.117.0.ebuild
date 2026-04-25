@@ -181,6 +181,9 @@ src_prepare() {
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
+	einfo "Editing build/lib/copilot.ts"
+	sed -i 's/!fs.existsSync(copilotSdkBase)/false/' build/lib/copilot.ts || die
+
 	einfo "Editing product.json"
 
 	mv product.json product.json.bak || die
