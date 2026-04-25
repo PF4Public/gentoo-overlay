@@ -149,15 +149,15 @@ src_prepare() {
 
 	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
-	einfo "Editing preinstall.js"
+	einfo "Editing preinstall.ts"
 	sed -i 's/const npmVersionMatch =.*/const npmVersionMatch = false;/' build/npm/preinstall.ts || die
 	sed -i '/installHeaders();/d' build/npm/preinstall.ts || die
 
-	einfo "Editing postinstall.js"
+	einfo "Editing postinstall.ts"
 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.ts || die
 	sed -i '/git config pull/d' build/npm/postinstall.ts || die
 
-	einfo "Editing dirs.js"
+	einfo "Editing dirs.ts"
 	if ! ( use reh || use reh-web ); then
 		sed -i '/remote/d' build/npm/dirs.ts || die
 	fi
@@ -170,19 +170,19 @@ src_prepare() {
 	# einfo "Editing build/gulpfile.extensions.js"
 	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.ts || die
 
-	einfo "Editing build/gulpfile.vscode.js"
+	einfo "Editing build/gulpfile.vscode.ts"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
 	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
+	sed -i '/copyCopilotNativeDepsTask(platform,/d' build/gulpfile.vscode.ts || die
 
-	einfo "Editing build/gulpfile.vscode.linux.js"
+	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
 	einfo "Editing product.json"
-
 	mv product.json product.json.bak || die
 	sed -i '1d' product.json.bak || die
 
