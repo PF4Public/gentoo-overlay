@@ -183,6 +183,8 @@ src_prepare() {
 
 	einfo "Editing build/lib/copilot.ts"
 	sed -i 's/!fs.existsSync(copilotSdkBase)/false/' build/lib/copilot.ts || die
+	sed -i 's/!fs.existsSync(nodePtySource)/false/' build/lib/copilot.ts || die
+	sed -i 's/!fs.existsSync(ripgrepSource)/false/' build/lib/copilot.ts || die
 
 	einfo "Editing product.json"
 
