@@ -581,7 +581,7 @@ src_unpack() {
 	# # unpack chromium-patches-${PATCH_V}.tar.bz2
 	# # Warned you!
 
-	unpack ${PV/_*}-linux.tar.xz
+	unpack chromium-${PV/_*}-linux.tar.xz
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
 	if use !bundled-toolchain; then
