@@ -40,7 +40,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-LLVM_COMPAT=( 21 22 23 )
+LLVM_COMPAT=( 22 23 )
 PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
 RUST_MIN_VER=1.91.0
@@ -90,7 +90,7 @@ LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 LICENSE+=" cromite? ( GPL-3 )"
 
 SLOT="beta"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug ffmpeg-chromium enable-driver gtk4 hangouts headless kerberos +libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo"
@@ -327,6 +327,7 @@ DEPEND="${COMMON_DEPEND}
 	)
 "
 
+	# pgo? ( >=llvm-core/clang-22.0.0_pre20260106 >=llvm-core/lld-22.0.0_pre20260106	)
 BDEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
 	${PYTHON_DEPS}
@@ -347,7 +348,6 @@ BDEPEND="
 		) ')
 		${RUST_DEPEND}
 	)
-	pgo? ( >=llvm-core/clang-22.0.0_pre20260106 >=llvm-core/lld-22.0.0_pre20260106	)
 	>=dev-util/bindgen-0.72.1
 	>=dev-build/gn-${GN_MIN_VER}
 	app-alternatives/ninja
