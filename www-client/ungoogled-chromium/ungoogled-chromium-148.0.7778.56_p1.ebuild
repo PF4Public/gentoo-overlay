@@ -592,7 +592,7 @@ src_unpack() {
 
 	if use test; then
 		# This just contains a bunch of font files that need to be unpacked (or moved) to the correct location.
-		local testfonts_dir="${WORKDIR}/${P}/third_party/test_fonts/test_fonts"
+		local testfonts_dir="${WORKDIR}/chromium-${PV/_*}/third_party/test_fonts/test_fonts"
 		local testfonts_tar="${DISTDIR}/chromium-testfonts-${TEST_FONT:0:10}.tar.gz"
 		einfo "Unpacking test fonts ..."
 		tar xf "${testfonts_tar}" -C "${testfonts_dir}" || die "Failed to unpack testfonts"
