@@ -588,8 +588,6 @@ src_unpack() {
 		unpack chromium-patches-copium-${COPIUM_COMMIT:0:10}.tar.gz
 	fi
 
-	use pgo && unpack chromium-profiler-0.2.tar
-
 	if use test; then
 		# This just contains a bunch of font files that need to be unpacked (or moved) to the correct location.
 		local testfonts_dir="${WORKDIR}/chromium-${PV/_*}/third_party/test_fonts/test_fonts"
