@@ -115,7 +115,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="333b53c589852cca549a664a484e3d4040d012d7"
+UGC_COMMIT_ID="eb8121bdae2469f4e0a3634437e99ff687c0e55f"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -685,6 +685,9 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
+	if use pgo; then
+		rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
+	fi
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
