@@ -532,10 +532,6 @@ pkg_setup() {
 			CPP="${CBUILD}-clang++-${LLVM_SLOT} -E"
 		fi
 
-		# I hate doing this but upstream Rust have yet to come up with a better solution for
-		# us poor packagers. Required for Split LTO units, which are required for CFI.
-		export RUSTC_BOOTSTRAP=1
-
 		# Sanity checks for development convenience
 		if ver_test $(gn --version || die) -lt ${GN_MIN_VER}; then
 			die "dev-build/gn >= ${GN_MIN_VER} is required to build this Chromium"
@@ -680,14 +676,17 @@ remove_compiler_builtins() {
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
+	# I hate doing this but upstream Rust have yet to come up with a better solution for
+	# us poor packagers. Required for Split LTO units, which are required for CFI.
+	export RUSTC_BOOTSTRAP=1
 
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	if use pgo; then
-		rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
-	fi
+	# if use pgo; then
+	# 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
+	# fi
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
@@ -1048,6 +1047,7 @@ src_prepare() {
 	local ugc_unneeded=(
 		# GN bootstrap
 		extra/debian/gn/parallel
+		# following Gentoo's Chromium
 		core/ungoogled-chromium/build-with-wasm-rollup
 	)
 
