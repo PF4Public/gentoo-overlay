@@ -1043,6 +1043,7 @@ src_prepare() {
 	local ugc_unneeded=(
 		# GN bootstrap
 		extra/debian/gn/parallel
+		core/ungoogled-chromium/build-with-wasm-rollup
 	)
 
 	if use cromite ; then
