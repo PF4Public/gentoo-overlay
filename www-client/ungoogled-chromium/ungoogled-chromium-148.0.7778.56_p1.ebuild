@@ -1878,7 +1878,7 @@ src_configure() {
 		"ozone_platform_headless=true"
 		# Enables building without non-free unRAR licence
 		"safe_browsing_use_unrar=false"
-		"thin_lto_enable_optimizations=${use_lto}"
+		# "thin_lto_enable_optimizations=${use_lto}"
 		"treat_warnings_as_errors=false"
 		# Use in-tree libc++ (buildtools/third_party/libc++ and buildtools/third_party/libc++abi)
 		# instead of the system C++ library for C++ standard library support.
@@ -1890,7 +1890,7 @@ src_configure() {
 		"use_sysroot=false"
 		# See dependency logic in third_party/BUILD.gn
 		"use_system_harfbuzz=$(usex system-harfbuzz true false)"
-		"use_thin_lto=${use_lto}"
+		# "use_thin_lto=${use_lto}"
 		# Only enabled for clang, but gcc has endian macros too
 		"v8_use_libm_trig_functions=true"
 	)
@@ -1994,11 +1994,6 @@ src_configure() {
 		# Allow building against system libraries in official builds
 		sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 			tools/generate_shim_headers/generate_shim_headers.py || die
-		if use !ppc64; then
-			myconf_gn+=( "is_cfi=${use_lto}" )
-		else
-			myconf_gn+=( "is_cfi=false" ) # requires llvm-runtimes/compiler-rt-sanitizers[cfi]
-		fi
 		# Don't add symbols to build
 		myconf_gn+=( "symbol_level=0" )
 	fi
@@ -2054,6 +2049,8 @@ src_configure() {
 		"enable_pdf=true"
 		"use_system_lcms2=true"
 		"enable_print_preview=true"
+		"use_thin_lto=$(usex thinlto true false)"
+		"thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 
 		# Ungoogled flags
 		"build_with_tflite_lib=false"
