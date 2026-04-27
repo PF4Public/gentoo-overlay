@@ -676,9 +676,6 @@ remove_compiler_builtins() {
 src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
-	# I hate doing this but upstream Rust have yet to come up with a better solution for
-	# us poor packagers. Required for Split LTO units, which are required for CFI.
-	export RUSTC_BOOTSTRAP=1
 
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
@@ -2142,6 +2139,9 @@ src_compile() {
 
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
+	# I hate doing this but upstream Rust have yet to come up with a better solution for
+	# us poor packagers. Required for Split LTO units, which are required for CFI.
+	export RUSTC_BOOTSTRAP=1
 
 	# Don't inherit PYTHONPATH from environment, bug #789021, #812689
 	local -x PYTHONPATH=
