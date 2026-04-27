@@ -620,6 +620,8 @@ src_unpack() {
 	if use cromite; then
 		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
 	fi
+
+	unpack ${UGC_URL#*->}
 }
 
 remove_compiler_builtins() {
