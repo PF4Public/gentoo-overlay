@@ -684,6 +684,8 @@ src_prepare() {
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
 
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
+
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
 	#if ! use custom-cflags; then #See #25 #92
@@ -1701,9 +1703,6 @@ src_configure() {
 	if use system-icu; then
 		gn_system_libraries+=( icu )
 	fi
-
-	gn_system_libraries+=( libpng )
-	myconf_gn+=" use_system_libpng=true"
 
 	if use system-zstd; then
 		gn_system_libraries+=( zstd )
