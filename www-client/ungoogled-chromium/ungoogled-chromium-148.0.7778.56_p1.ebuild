@@ -90,7 +90,7 @@ LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 LICENSE+=" cromite? ( GPL-3 )"
 
 SLOT="beta"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug ffmpeg-chromium enable-driver gtk4 hangouts headless kerberos +libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo"
