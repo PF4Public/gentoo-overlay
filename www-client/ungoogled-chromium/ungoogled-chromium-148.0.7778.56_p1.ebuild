@@ -92,7 +92,7 @@ LICENSE+=" cromite? ( GPL-3 )"
 SLOT="beta"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
-IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz +icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
+IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug ffmpeg-chromium enable-driver gtk4 hangouts headless kerberos +libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo"
 IUSE+=" +proprietary-codecs pulseaudio qt6 screencast selinux test thinlto cromite vaapi wayland widevine cpu_flags_ppc_vsx3"
 RESTRICT="
