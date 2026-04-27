@@ -2032,10 +2032,10 @@ src_configure() {
 
 	myconf_gn+=( "use_bluez=$(usex bluetooth true false)" )
 
+	myconf_gn+=( "is_cfi=$(usex cfi true false)" )
 
 	if use cfi; then
 		myconf_gn+=(
-			"is_cfi=true"
 			"use_cfi_icall=true"
 			"use_cfi_cast=true"
 		)
