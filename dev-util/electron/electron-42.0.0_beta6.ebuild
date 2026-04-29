@@ -976,8 +976,8 @@ src_prepare() {
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
-		["electron/patches/dawn"]="third_party/dawn"
-		["electron/patches/pdfium"]="third_party/pdfium"
+		# ["electron/patches/dawn"]="third_party/dawn"
+		# ["electron/patches/pdfium"]="third_party/pdfium"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
