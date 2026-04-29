@@ -997,9 +997,15 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "cherry-pick-b173791bf402.patch" ] ||
-				[ "$i" = "cherry-pick-be87466afecb.patch" ]; then
-				ewarn "Skipping ${i}: already applied"
-				continue;
+				[ "$i" = "cherry-pick-be87466afecb.patch" ] ||
+				[ "$i" = "cherry-pick-c0390bcd64ba.patch" ] ||
+				[ "$i" = "cherry-pick-1b69067db7d2.patch" ] ||
+				[ "$i" = "cherry-pick-d513cd2fe668.patch" ] ||
+				[ "$i" = "cherry-pick-dc5e20c4c055.patch" ] ||
+				[ "$i" = "cherry-pick-847b11ad2fa3.patch" ] ||
+				[ "$i" = "cherry-pick-fc79e8cc2dfc.patch" ]; then
+					ewarn "Skipping ${i}: already applied"
+					continue;
 			fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
