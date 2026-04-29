@@ -231,6 +231,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/freetype-2.11.0-r1:=
 	system-harfbuzz? ( >=media-libs/harfbuzz-3:0=[icu(-)] )
 	media-libs/libjpeg-turbo:=
+	media-libs/libpng:=
 	system-zstd? ( >=app-arch/zstd-1.5.5:= )
 	>=media-libs/libwebp-0.4.0:=
 	media-libs/mesa:=[gbm(+)]
@@ -320,6 +321,7 @@ RDEPEND="${COMMON_DEPEND}
 		!www-client/cromite:${SLOT}[-override-data-dir]
 	)
 "
+
 DEPEND="${COMMON_DEPEND}
 	!headless? (
 		gtk4? ( gui-libs/gtk:4[X?,wayland?] )
@@ -682,6 +684,7 @@ src_prepare() {
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
 	if use pgo; then
+		rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
