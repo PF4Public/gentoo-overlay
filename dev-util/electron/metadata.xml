@@ -14,9 +14,11 @@
 	</longdescription>
 	<use>
 		<flag name="bluetooth">Enable Bluetooth. Disabling bluetooth does break WebAuthn. Could also break something else. Improved patch is welcome.</flag>
+		<flag name="bundled-toolchain">Download and use the upstream binary toolchain(s) to build Chromium</flag>
 		<flag name="clang">Use Clang compiler instead of GCC</flag>
 		<flag name="debug">Enable DCHECK feature with severity configurable at runtime. Mostly intended for debugging and development, NOT RECOMMENDED for general use.</flag>
 		<flag name="dev-dependencies">Keep Electron's devDependencies. This makes them available in node_modules. For example "asar" utility is one of them.</flag>
+		<flag name="ffmpeg-chromium">(binpkg only) Use Chromium FFmpeg fork (<pkg>media-video/ffmpeg-chromium</pkg>) rather than mainline FFmpeg (<pkg>media-video/ffmpeg</pkg>)</flag>
 		<flag name="gtk4">Build with GTK4 headers</flag>
 		<flag name="hangouts">Enable support for Google Hangouts features such as screen sharing</flag>
 		<flag name="hevc">Enable HEVC decoding support. Should work with system-ffmpeg, but might require additional patching for the built-in one.</flag>
@@ -28,7 +30,7 @@
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
 		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
-		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
+		<flag name="proprietary-codecs">Enable codecs for patent-encumbered audio and video formats</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-abseil-cpp">Use the system <pkg>dev-cpp/abseil-cpp</pkg> instead of the bundled one</flag>
