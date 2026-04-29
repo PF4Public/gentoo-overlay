@@ -996,6 +996,10 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
+			if [ "$i" = "cherry-pick-b173791bf402.patch" ]; then
+				ewarn "Skipping ${i}: already applied"
+				continue;
+			fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
