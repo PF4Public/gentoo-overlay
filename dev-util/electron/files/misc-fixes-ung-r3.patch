@@ -1,0 +1,46 @@
+--- a/chrome/browser/feedback/BUILD.gn
++++ b/chrome/browser/feedback/BUILD.gn
+@@ -134,7 +134,6 @@ source_set("feedback_impl") {
+       "//components/device_event_log",
+       "//components/feedback",
+       "//components/performance_manager",
+-      "//components/safe_browsing/content/browser:client_side_detection",
+       "//components/supervised_user/core/browser",
+       "//content/public/browser",
+       "//extensions/browser",
+--- a/chrome/browser/ui/webui/feedback/report_unsafe_site/BUILD.gn
++++ b/chrome/browser/ui/webui/feedback/report_unsafe_site/BUILD.gn
+@@ -26,7 +26,6 @@ static_library("report_unsafe_site") {
+     "//chrome/browser/feedback:feedback_impl",
+     "//chrome/browser/ui/webui/top_chrome",
+     "//chrome/common",
+-    "//components/safe_browsing/content/browser:client_side_detection",
+     "//mojo/public/cpp/bindings",
+     "//ui/views",
+   ]
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -3086,7 +3086,6 @@ if (!is_android) {
+       "//components/resources",
+       "//components/safe_browsing:buildflags",
+       "//components/safe_browsing/content/browser",
+-      "//components/safe_browsing/content/browser:client_side_detection_images_cache",
+       "//components/safe_browsing/content/browser:credit_card_form_event",
+       "//components/safe_browsing/content/browser:safe_browsing_service",
+       "//components/safe_browsing/content/browser/password_protection",
+@@ -7412,7 +7411,6 @@ test("unit_tests") {
+     "//components/resources",
+     "//components/safe_browsing:buildflags",
+     "//components/safe_browsing/content/browser",
+-    "//components/safe_browsing/content/browser:client_side_detection_images_cache",
+     "//components/safe_browsing/content/browser:credit_card_form_event",
+     "//components/safe_browsing/content/browser/password_protection",
+     "//components/safe_browsing/content/browser/password_protection:mock_password_protection",
+@@ -11748,7 +11746,6 @@ if (!is_android && !is_chromeos_device)
+       "//components/privacy_sandbox:tracking_protection_settings",
+       "//components/reading_list/core",
+       "//components/resources",
+-      "//components/safe_browsing/content/browser:client_side_detection",
+       "//components/safe_browsing/core/common",
+       "//components/safe_browsing/core/common:safe_browsing_policy_handler",
+       "//components/search",
