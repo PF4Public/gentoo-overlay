@@ -996,7 +996,8 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			if [ "$i" = "cherry-pick-b173791bf402.patch" ]; then
+			if [ "$i" = "cherry-pick-b173791bf402.patch" ] ||
+				[ "$i" = "cherry-pick-be87466afecb.patch" ]; then
 				ewarn "Skipping ${i}: already applied"
 				continue;
 			fi
