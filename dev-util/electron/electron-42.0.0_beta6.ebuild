@@ -1853,7 +1853,7 @@ src_configure() {
 	)
 
 	# Explicitly disable ICU data file support for system-icu/headless builds.
-	if use system-icu || use headless; then
+	if use system-icu; then
 		myconf_gn+=( "icu_use_data_file=false" )
 	fi
 
