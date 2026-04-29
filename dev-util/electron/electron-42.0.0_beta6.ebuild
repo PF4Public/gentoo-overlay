@@ -81,7 +81,7 @@ LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
-IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
+IUSE="+X bindist bluetooth bundled-toolchain cfi cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
 IUSE+=" +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland cpu_flags_ppc_vsx3"
 RESTRICT="
 	!bindist? ( bindist )
@@ -1902,15 +1902,6 @@ src_configure() {
 	fi
 
 	myconf_gn+=( "use_bluez=$(usex bluetooth true false)" )
-
-	myconf_gn+=( "is_cfi=$(usex cfi true false)" )
-
-	if use cfi; then
-		myconf_gn+=(
-			"use_cfi_icall=true"
-			"use_cfi_cast=true"
-		)
-	fi
 
 	myconf_gn+=(
 		"optimize_webui=$(usex optimize-webui true false)"
