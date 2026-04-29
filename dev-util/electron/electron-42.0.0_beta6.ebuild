@@ -505,10 +505,6 @@ src_unpack() {
 	# to build locally due to deps
 	unpack rollup-wasm-node-${ROLLUP_VER}.tgz
 
-	if use cromite; then
-		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
-	fi
-
 	use ungoogled && unpack ${UGC_URL#*->}
 }
 
