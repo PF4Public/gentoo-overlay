@@ -1703,7 +1703,6 @@ src_configure() {
 	if use system-icu; then
 		gn_system_libraries+=( icu )
 	fi
-
 	if use system-zstd; then
 		gn_system_libraries+=( zstd )
 	fi
@@ -2190,7 +2189,7 @@ src_compile() {
 	use enable-driver && eninja -C out/Release chromedriver
 	#use suid && eninja -C out/Release chrome_sandbox
 
-	use enable-driver && mv out/Release/chromedriver{.unstripped,} || die
+	use enable-driver && mv out/Release/chromedriver{.unstripped,}
 
 	rm -f out/Release/locales/*.pak.info || die
 
