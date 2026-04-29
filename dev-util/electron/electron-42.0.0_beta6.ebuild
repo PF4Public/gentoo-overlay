@@ -415,10 +415,6 @@ pkg_setup() {
 			einfo "and to be consistent with the upstream \"official\" build optimisations."
 		fi
 
-		if [[ "$use_lto" == "false" ]]; then
-			die "Tests require CFI which requires LTO"
-		fi
-
 		export use_lto
 
 		# 936858
