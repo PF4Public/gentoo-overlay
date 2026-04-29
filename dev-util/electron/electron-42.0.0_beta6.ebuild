@@ -570,9 +570,10 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	# if use pgo; then
-	# 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
-	# fi
+	if use pgo; then
+		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
+		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
+	fi
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
