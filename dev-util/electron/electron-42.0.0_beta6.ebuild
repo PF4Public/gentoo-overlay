@@ -81,7 +81,7 @@ LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
-IUSE="+X bindist bluetooth bundled-toolchain cfi cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
+IUSE="+X bindist bluetooth bundled-toolchain cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
 IUSE+=" +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland cpu_flags_ppc_vsx3"
 RESTRICT="
 	!bindist? ( bindist )
@@ -290,8 +290,6 @@ BDEPEND="
 		llvm-core/clang:${LLVM_SLOT}
 		llvm-core/llvm:${LLVM_SLOT}
 		llvm-core/lld:${LLVM_SLOT}
-		cfi? ( llvm-runtimes/clang-runtime:${LLVM_SLOT}[sanitize] )
-		!ppc64? ( llvm-runtimes/compiler-rt-sanitizers:${LLVM_SLOT}[cfi] )
 		')
 		${RUST_DEPEND}
 	)
@@ -358,12 +356,6 @@ pkg_pretend() {
 		ewarn "with the same c++ library as ungoogled-chromium itself"
 		ewarn "dev-libs/jsoncpp is most problematic, see #58 #49 #119 for details"
 		ewarn "Simplest solution would be to disable corresponding system-* flags"
-		ewarn
-	fi
-	if use cfi; then
-		ewarn
-		ewarn "Building with cfi is only possible if building with -stdlib=libc++"
-		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
 	if [ "$CHROMIUM_VERSION_WARNING" = "true" ]; then
