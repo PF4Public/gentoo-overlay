@@ -495,6 +495,7 @@ src_unpack() {
 	fi
 
 	unpack "${P}.tar.gz"
+	mv "${WORKDIR}/electron-42.0.0-beta.6" "${WORKDIR}/${P}"
 	unpack "node-v${NODE_VERSION}.tar.xz"
 
 	if use ppc64; then
