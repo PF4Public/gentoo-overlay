@@ -1771,7 +1771,6 @@ src_configure() {
 		"enable_nocompile_tests=false"
 		# pseudolocales are only used for testing
 		"enable_pseudolocales=false"
-		"enable_widevine=$(usex widevine true false)"
 		# Disable fatal linker warnings, bug 506268.
 		"fatal_linker_warnings=false"
 		# Component build isn't generally intended for use by end users. It's mostly useful
