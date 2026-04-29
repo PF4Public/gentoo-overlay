@@ -39,7 +39,7 @@
 		<flag name="override-data-dir">Change default user data directory to "~/.config/ungoogled-chromium". No data moved automatically.</flag>
 		<flag name="pax-kernel">Allow building on a PaX-enabled kernel</flag>
 		<flag name="pgo">Enable PGO. Requires bundled binary profile data in sources tree. Often requires masked/testing llvm.</flag>
-		<flag name="proprietary-codecs">Enable codecs for patent-encumbered audio and video formats.</flag>
+		<flag name="proprietary-codecs">Enable codecs for patent-encumbered audio and video formats</flag>
 		<flag name="screencast">Enable support for remote desktop and screen cast using <pkg>media-video/pipewire</pkg></flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-abseil-cpp">Use the system <pkg>dev-cpp/abseil-cpp</pkg> instead of the bundled one</flag>
