@@ -15,7 +15,7 @@ SRC_URI=""
 REPO="https://github.com/element-hq/element-web"
 ELECTRON_SLOT_DEFAULT="39"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-40 electron-41 native-modules"
+IUSE="electron-40 electron-41 electron-42 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -49,10 +49,12 @@ COMMON_DEPEND="
 	native-modules? ( dev-db/sqlcipher )
 	electron-40? ( dev-util/electron:40 )
 	electron-41? ( dev-util/electron:41 )
+	electron-42? ( dev-util/electron:42 )
 	!electron-40? (
 	!electron-41? (
+	!electron-42? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) )
+	) ) )
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -80,6 +82,8 @@ src_unpack() {
 		export ELECTRON_SLOT=41
 	elif use electron-40; then
 		export ELECTRON_SLOT=40
+	elif use electron-42; then
+		export ELECTRON_SLOT=42
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
