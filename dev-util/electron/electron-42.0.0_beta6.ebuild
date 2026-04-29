@@ -1943,6 +1943,7 @@ src_configure() {
 		# "skia_use_rust_png_decode=false"
 		# "skia_use_rust_png_encode=false"
 		# "enable_jxl_decoder=false"
+		"override_electron_version=\"${PV}\""
 	)
 
 
