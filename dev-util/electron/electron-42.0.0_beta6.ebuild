@@ -1738,6 +1738,12 @@ src_configure() {
 										-mno-avx -mno-avx2 -mno-fma -mno-fma4 -mno-xop -mno-sse4a
 			myconf_gn+=( 'target_cpu="x64"' )
 			;;
+		x86)
+			# Bug 530248, 544702, 546984, 853646.
+			use !custom-cflags && filter-flags -mno-mmx -mno-sse2 -mno-ssse3 -mno-sse4.1 \
+										-mno-avx -mno-avx2 -mno-fma -mno-fma4 -mno-xop -mno-sse4a
+			myconf_gn+=( 'target_cpu="x86"' )
+			;;
 		arm64)
 			myconf_gn+=( 'target_cpu="arm64"' )
 			;;
