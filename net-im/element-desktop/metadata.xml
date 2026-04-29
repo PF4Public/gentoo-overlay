@@ -32,6 +32,7 @@
 		<flag name="electron-39">Build against electron-39 instead of the default one</flag>
 		<flag name="electron-40">Build against electron-40 instead of the default one</flag>
 		<flag name="electron-41">Build against electron-41 instead of the default one</flag>
+		<flag name="electron-42">Build against electron-42 instead of the default one</flag>
 		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
 	</use>
 </pkgmetadata>
