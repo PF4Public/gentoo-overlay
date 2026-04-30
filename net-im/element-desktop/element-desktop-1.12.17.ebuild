@@ -156,28 +156,28 @@ src_compile() {
 	# 	#!Error: With electron's node: "Invalid package app.asar"
 	# 	/usr/bin/node node_modules/.bin/electron-builder --dir || die
 	# else
-		einfo "Manually preparing app.asar"
-		local distdir="dist/linux-unpacked/resources"
-		mkdir -p ${distdir}/node_modules || die
-		cp -r lib ${distdir} || die
-		# Copying yarn.lock allows freezing versions to the build versions
-		cp package.json ${distdir} || die
-		pushd ${distdir} &> /dev/null || die
-		pnpm install --no-frozen-lockfile || die
-		popd &> /dev/null || die
-		# rm ${distdir}/yarn.lock || die
-		if use native-modules; then
-			cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
-		fi
+		# einfo "Manually preparing app.asar"
+		# local distdir="dist/linux-unpacked/resources"
+		# mkdir -p ${distdir}/node_modules || die
+		# cp -r lib ${distdir} || die
+		# # Copying yarn.lock allows freezing versions to the build versions
+		# cp package.json ${distdir} || die
+		# pushd ${distdir} &> /dev/null || die
+		# pnpm install --no-frozen-lockfile || die
+		# popd &> /dev/null || die
+		# # rm ${distdir}/yarn.lock || die
+		# if use native-modules; then
+		# 	cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
+		# fi
 
-		einfo "Creating archive"
-		/usr/bin/node node_modules/@electron/asar/bin/asar.mjs pack ${distdir} ${distdir}/app.asar \
-			--unpack-dir '{**/Release,**/matrix-seshat}' || die
-		# Remove unarchived copies of files (they are still in app.asar)
-		rm -r ${distdir}/node_modules || die
-		rm -r ${distdir}/lib || die
+		# einfo "Creating archive"
+		# /usr/bin/node node_modules/@electron/asar/bin/asar.mjs pack ${distdir} ${distdir}/app.asar \
+		# 	--unpack-dir '{**/Release,**/matrix-seshat}' || die
+		# # Remove unarchived copies of files (they are still in app.asar)
+		# rm -r ${distdir}/node_modules || die
+		# rm -r ${distdir}/lib || die
 
-		cp -r build ${distdir} || die
+		# cp -r build ${distdir} || die
 	# fi
 
 	#cp -r /usr/share/element-web webapp
