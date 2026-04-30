@@ -157,11 +157,11 @@ src_compile() {
 		einfo "Manually preparing app.asar"
 		local distdir="dist/linux-unpacked/resources"
 		mkdir -p ${distdir}/node_modules || die
-		cp -r lib ${distdir} || die
+		cp -r apps/desktop/lib ${distdir} || die
 		# Copying yarn.lock allows freezing versions to the build versions
 		cp package.json ${distdir} || die
 		pushd ${distdir} &> /dev/null || die
-		pnpm install || die
+		pnpm install --no-frozen-lockfile || die
 		popd &> /dev/null || die
 		# rm ${distdir}/yarn.lock || die
 		if use native-modules; then
