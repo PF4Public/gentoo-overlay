@@ -122,8 +122,9 @@ src_compile() {
 	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# fi
 
-	einfo "Removing playwright from dependencies"
+	einfo "Removing playwright and sentry from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
+	sed -i '/@sentry/d' apps/desktop/package.json || die
 
 	einfo "Installing node_modules"
 	pnpm install || die
@@ -181,10 +182,10 @@ src_compile() {
 
 	# export PATH=${OLD_PATH}
 
-	#! Fail CI
-	if [ ! -z "${NODIE}" ]; then
-		die
-	fi
+	# #! Fail in CI
+	# if [ ! -z "${NODIE}" ]; then
+	# 	die "Fail in CI"
+	# fi
 }
 
 src_install() {
