@@ -137,8 +137,7 @@ src_compile() {
 	../../node_modules/.bin/tsc || die
 	node scripts/copy-res.ts || die
 
-	if use native-modules
-	then
+	if use native-modules; then
 		pnpm run build:native || die
 	fi
 
@@ -157,7 +156,7 @@ src_compile() {
 		einfo "Manually preparing app.asar"
 		local distdir="dist/linux-unpacked/resources"
 		mkdir -p ${distdir}/node_modules || die
-		cp -r apps/desktop/lib ${distdir} || die
+		cp -r lib ${distdir} || die
 		# Copying yarn.lock allows freezing versions to the build versions
 		cp package.json ${distdir} || die
 		pushd ${distdir} &> /dev/null || die
