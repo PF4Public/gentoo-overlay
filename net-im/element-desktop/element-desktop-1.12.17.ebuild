@@ -133,10 +133,10 @@ src_compile() {
 	einfo "Installing node_modules"
 	sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
 
-	# pnpm install --no-frozen-lockfile || die
+	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
-	pnpm install --no-frozen-lockfile || die
+	# pnpm install --no-frozen-lockfile || die
 	../../node_modules/.bin/tsc || die
 	node scripts/copy-res.ts || die
 
