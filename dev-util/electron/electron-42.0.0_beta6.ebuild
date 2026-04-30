@@ -2128,7 +2128,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	readme.gentoo_print_elog
 	#? How to supply these flags to Electron?
 	if use vaapi; then
 		elog "VA-API is disabled by default at runtime. You have to enable it"
