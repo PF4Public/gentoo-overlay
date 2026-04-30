@@ -130,7 +130,7 @@ src_compile() {
 
 	cd apps/desktop
 	../../node_modules/.bin/tsc || die
-	pnpm run build:res || die
+	node scripts/copy-res.ts || die
 
 	if use native-modules
 	then
