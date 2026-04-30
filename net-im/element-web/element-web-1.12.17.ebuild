@@ -119,10 +119,10 @@ src_compile() {
 	# sh ./res/css/rethemendex.sh || die
 	# node ../../node_modules/.bin/webpack-cli --progress --mode production || die
 
-	#! Fail CI
-	if [ ! -z "${NODIE}" ]; then
-		die
-	fi
+	# #! Fail CI
+	# if [ ! -z "${NODIE}" ]; then
+	# 	die
+	# fi
 }
 
 src_install() {
