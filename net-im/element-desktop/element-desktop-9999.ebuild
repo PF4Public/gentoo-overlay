@@ -124,16 +124,24 @@ src_compile() {
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
 
+	# einfo "Removing sentry from dependencies"
+	# sed -i '/@sentry/d' apps/desktop/package.json || die
+	# sed -i '/@sentry/d' apps/desktop/src/electron-main.ts || die
+	# sed -i '/configureSentry()/d' apps/desktop/src/electron-main.ts || die
+
 	einfo "Installing node_modules"
-	pnpm install || die
+	# sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
+	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
-	pnpm run build || die
-
-	if use native-modules
-	then
+	if use native-modules; then
 		pnpm run build:native || die
 	fi
+
+	script -c "pnpm run build" /dev/null || die
+	# pnpm install --no-frozen-lockfile || die
+	# ../../node_modules/.bin/tsc || die
+	# node scripts/copy-res.ts || die
 
 	# # Electron-Builder doesn't support ppc64 due to using precompiled binaries
 	# if ! use ppc64; then
@@ -147,28 +155,28 @@ src_compile() {
 	# 	#!Error: With electron's node: "Invalid package app.asar"
 	# 	/usr/bin/node node_modules/.bin/electron-builder --dir || die
 	# else
-		einfo "Manually preparing app.asar"
-		local distdir="dist/linux-unpacked/resources"
-		mkdir -p ${distdir}/node_modules || die
-		cp -r lib ${distdir} || die
-		# Copying yarn.lock allows freezing versions to the build versions
-		cp package.json ${distdir} || die
-		pushd ${distdir} &> /dev/null || die
-		pnpm install || die
-		popd &> /dev/null || die
-		# rm ${distdir}/yarn.lock || die
-		if use native-modules; then
-			cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
-		fi
+		# einfo "Manually preparing app.asar"
+		# local distdir="dist/linux-unpacked/resources"
+		# mkdir -p ${distdir}/node_modules || die
+		# cp -r lib ${distdir} || die
+		# # Copying yarn.lock allows freezing versions to the build versions
+		# cp package.json ${distdir} || die
+		# pushd ${distdir} &> /dev/null || die
+		# pnpm install --no-frozen-lockfile || die
+		# popd &> /dev/null || die
+		# # rm ${distdir}/yarn.lock || die
+		# if use native-modules; then
+		# 	cp -r .hak/hakModules/matrix-seshat ${distdir}/node_modules/ || die
+		# fi
 
-		einfo "Creating archive"
-		/usr/bin/node node_modules/@electron/asar/bin/asar.mjs pack ${distdir} ${distdir}/app.asar \
-			--unpack-dir '{**/Release,**/matrix-seshat}' || die
-		# Remove unarchived copies of files (they are still in app.asar)
-		rm -r ${distdir}/node_modules || die
-		rm -r ${distdir}/lib || die
+		# einfo "Creating archive"
+		# /usr/bin/node node_modules/@electron/asar/bin/asar.mjs pack ${distdir} ${distdir}/app.asar \
+		# 	--unpack-dir '{**/Release,**/matrix-seshat}' || die
+		# # Remove unarchived copies of files (they are still in app.asar)
+		# rm -r ${distdir}/node_modules || die
+		# rm -r ${distdir}/lib || die
 
-		cp -r build ${distdir} || die
+		# cp -r build ${distdir} || die
 	# fi
 
 	#cp -r /usr/share/element-web webapp
@@ -179,10 +187,10 @@ src_compile() {
 
 	# export PATH=${OLD_PATH}
 
-	#! Fail CI
-	if [ ! -z "${NODIE}" ]; then
-		die
-	fi
+	# #! Fail in CI
+	# if [ ! -z "${NODIE}" ]; then
+	# 	die "Fail in CI"
+	# fi
 }
 
 src_install() {
