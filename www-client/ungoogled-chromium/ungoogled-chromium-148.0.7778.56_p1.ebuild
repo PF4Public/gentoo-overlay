@@ -897,12 +897,12 @@ src_prepare() {
 		)
 	fi
 
-	# if use x86 ; then
-	# 	#* Fixes a segfault in transport_security_state_generator
-	# 	PATCHES+=(
-	# 		"${FILESDIR}/fix-segfault-x86.patch"
-	# 	)
-	# fi
+	if use x86 ; then
+		#* Fixes a segfault in transport_security_state_generator
+		PATCHES+=(
+			"${FILESDIR}/fix-segfault-x86.patch"
+		)
+	fi
 
 	# Testing all patches when NODIE is defined
 	if [ ! -z "${NODIE}" ]; then
