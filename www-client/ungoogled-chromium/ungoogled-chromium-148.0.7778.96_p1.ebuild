@@ -35,6 +35,21 @@ ESBUILD_VER="0.25.1"
 ROLLUP_VER="4.57.1" # currently manual.
 VIRTUALX_REQUIRED="pgo"
 
+UGC_COMMIT_ID="94267d333da299337c545c1723db169e7f9a6e24"
+# UGC_PR_COMMITS=(
+# 	c917e096342e5b90eeea91ab1f8516447c8756cf
+# 	5794e9d12bf82620d5f24505798fecb45ca5a22d
+# )
+
+CROMITE_COMMIT_ID="15d48b061426a1f4a8ae8596622f0599ca626056"
+
+#declare -A CHROMIUM_COMMITS=(
+#	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
+#	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
+#	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
+#	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
+#)
+
 CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
 	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
@@ -114,21 +129,6 @@ REQUIRED_USE="
 	debug? ( !official )
 	vaapi? ( !system-av1 !system-libvpx )
 "
-
-UGC_COMMIT_ID="eb8121bdae2469f4e0a3634437e99ff687c0e55f"
-# UGC_PR_COMMITS=(
-# 	c917e096342e5b90eeea91ab1f8516447c8756cf
-# 	5794e9d12bf82620d5f24505798fecb45ca5a22d
-# )
-
-CROMITE_COMMIT_ID="15d48b061426a1f4a8ae8596622f0599ca626056"
-
-#declare -A CHROMIUM_COMMITS=(
-#	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
-#	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
-#	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
-#	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
-#)
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
