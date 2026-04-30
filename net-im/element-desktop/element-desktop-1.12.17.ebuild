@@ -127,7 +127,7 @@ src_compile() {
 	sed -i '/@sentry/d' apps/desktop/package.json || die
 
 	einfo "Installing node_modules"
-	pnpm install || die
+	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
 	../../node_modules/.bin/tsc || die
