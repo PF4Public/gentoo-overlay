@@ -131,6 +131,8 @@ src_compile() {
 	# sed -i '/configureSentry()/d' apps/desktop/src/electron-main.ts || die
 
 	einfo "Installing node_modules"
+	sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
+
 	# pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
