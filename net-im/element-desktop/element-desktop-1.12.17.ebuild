@@ -135,14 +135,14 @@ src_compile() {
 	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
+	if use native-modules; then
+		pnpm run build:native || die
+	fi
+
 	script -c "pnpm run build" /dev/null || die
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die
 	# node scripts/copy-res.ts || die
-
-	if use native-modules; then
-		pnpm run build:native || die
-	fi
 
 	# # Electron-Builder doesn't support ppc64 due to using precompiled binaries
 	# if ! use ppc64; then
