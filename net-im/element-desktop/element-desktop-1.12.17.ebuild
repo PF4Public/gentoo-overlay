@@ -134,6 +134,7 @@ src_compile() {
 	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
+	pnpm install --no-frozen-lockfile || die
 	../../node_modules/.bin/tsc || die
 	node scripts/copy-res.ts || die
 
