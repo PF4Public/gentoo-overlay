@@ -122,9 +122,14 @@ src_compile() {
 	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# fi
 
-	einfo "Removing playwright and sentry from dependencies"
+	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
+
+
+	einfo "Removing sentry from dependencies"
 	sed -i '/@sentry/d' apps/desktop/package.json || die
+	sed -i '/@sentry/d' apps/desktop/src/electron-main.ts || die
+	sed -i '/configureSentry()/d' apps/desktop/src/electron-main.ts || die
 
 	einfo "Installing node_modules"
 	pnpm install --no-frozen-lockfile || die
