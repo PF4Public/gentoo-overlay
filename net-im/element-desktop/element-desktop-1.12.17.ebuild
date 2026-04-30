@@ -129,7 +129,7 @@ src_compile() {
 	pnpm install || die
 
 	cd apps/desktop
-	node_modules/.bin/tsc || die
+	../../node_modules/.bin/tsc || die
 	pnpm run build:res || die
 
 	if use native-modules
