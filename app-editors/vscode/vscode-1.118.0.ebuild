@@ -179,7 +179,7 @@ src_prepare() {
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
 	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
-	sed -i '/copyCopilotNativeDepsTask(platform,/d' build/gulpfile.vscode.ts || die
+	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
