@@ -895,6 +895,7 @@ src_prepare() {
 			extra/debian/gn/parallel
 			# following Gentoo's Chromium
 			core/ungoogled-chromium/build-with-wasm-rollup
+			core/ungoogled-chromium/disable-ai
 		)
 
 		##* Temporary fix
