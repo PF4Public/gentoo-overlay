@@ -70,7 +70,7 @@ SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/d
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
-	https://github.com/electron/electron/archive/v42.0.0-beta.6.tar.gz -> ${P}.tar.gz
+	https://github.com/electron/electron/archive/v42.0.0-beta.8.tar.gz -> ${P}.tar.gz
 "
 	# https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 
