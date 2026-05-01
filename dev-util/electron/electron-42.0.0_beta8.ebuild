@@ -36,7 +36,7 @@ RUST_NEEDS_LLVM="yes please"
 RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or LLVM) with USE=bundled-toolchain
 RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it to be available.
 
-CHROMIUM_VERSION_WARNING="true"
+CHROMIUM_VERSION_WARNING="false"
 CHROMIUM_VERSION="148.0.7778.56"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.15.0"
@@ -999,17 +999,17 @@ src_prepare() {
 			# 	einfo "Skipping ${i}: No files to patch."
 			# 	continue;
 			# fi
-			if [ "$i" = "cherry-pick-b173791bf402.patch" ] ||
-				[ "$i" = "cherry-pick-be87466afecb.patch" ] ||
-				[ "$i" = "cherry-pick-c0390bcd64ba.patch" ] ||
-				[ "$i" = "cherry-pick-1b69067db7d2.patch" ] ||
-				[ "$i" = "cherry-pick-d513cd2fe668.patch" ] ||
-				[ "$i" = "cherry-pick-dc5e20c4c055.patch" ] ||
-				[ "$i" = "cherry-pick-847b11ad2fa3.patch" ] ||
-				[ "$i" = "cherry-pick-fc79e8cc2dfc.patch" ]; then
-					ewarn "Skipping ${i}: already applied"
-					continue;
-			fi
+			# if [ "$i" = "cherry-pick-b173791bf402.patch" ] ||
+			# 	[ "$i" = "cherry-pick-be87466afecb.patch" ] ||
+			# 	[ "$i" = "cherry-pick-c0390bcd64ba.patch" ] ||
+			# 	[ "$i" = "cherry-pick-1b69067db7d2.patch" ] ||
+			# 	[ "$i" = "cherry-pick-d513cd2fe668.patch" ] ||
+			# 	[ "$i" = "cherry-pick-dc5e20c4c055.patch" ] ||
+			# 	[ "$i" = "cherry-pick-847b11ad2fa3.patch" ] ||
+			# 	[ "$i" = "cherry-pick-fc79e8cc2dfc.patch" ]; then
+			# 		ewarn "Skipping ${i}: already applied"
+			# 		continue;
+			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
