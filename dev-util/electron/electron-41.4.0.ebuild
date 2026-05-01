@@ -813,6 +813,7 @@ src_prepare() {
 			# 	continue;
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
+				[ "$i" = "cherry-pick-cve-2026-6920.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
 				continue;
