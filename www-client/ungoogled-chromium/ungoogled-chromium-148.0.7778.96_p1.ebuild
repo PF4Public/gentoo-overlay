@@ -2343,7 +2343,7 @@ src_install() {
 		doins out/Release/swiftshader/*.so
 	fi
 
-	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so /usr/$(get_libdir)/chromium-browser/libwidevinecdm.so
+	use widevine && dosym WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so "${CHROMIUM_HOME}/libwidevinecdm.so"
 
 	# Install icons
 	local branding size
