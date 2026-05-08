@@ -51,7 +51,7 @@ RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it t
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
 
-CROMITE_COMMIT_ID="15d48b061426a1f4a8ae8596622f0599ca626056"
+CROMITE_COMMIT_ID="2afc7b19a4f8a398f715287f6b4ac6a45bc69cd9"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
