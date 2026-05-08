@@ -948,7 +948,7 @@ src_prepare() {
 		fi
 		einfo "$i"
 		# ebegin "$i"
-		if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
+		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]] ||
 			[[ "$i" =~ "Experimental-support-for-extensions-on-Android.patch" ]]; then
 			filter_wrapper "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
 				--exclude="*/web_tests/*" --exclude="*/test-list/*" \
