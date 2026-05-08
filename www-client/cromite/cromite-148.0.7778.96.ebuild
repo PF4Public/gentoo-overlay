@@ -948,20 +948,7 @@ src_prepare() {
 		fi
 		einfo "$i"
 		# ebegin "$i"
-		# git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
-		# 	--exclude="*/uv/test/*" --exclude="*.rst" \
-		# 	--exclude="*/cctest/*" --exclude="*/unittests/*" \
-		# 	--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
-		# 	--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
-		# 	--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*" \
-		# 	-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
-		# # eend $? || die
-		if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
-			[[ "$i" =~ "JIT-site-settings.patch" ]] ||
-			[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
-			einfo "Git binary patch: ${i##*/}"
-			git_wrapper apply -p1 < "$i"
-		else
+		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]]; then
 			filter_wrapper "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
 				--exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
@@ -969,7 +956,16 @@ src_prepare() {
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
 				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*"
+		else
+			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
+				--exclude="*/uv/test/*" --exclude="*.rst" \
+				--exclude="*/cctest/*" --exclude="*/unittests/*" \
+				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
+				--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
+				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*" \
+				-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
 		fi
+		# eend $? || die
 	done
 
 	if ! use libcxx ; then
