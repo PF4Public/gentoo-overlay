@@ -164,7 +164,7 @@ src_install() {
 	# Install icons
 	local branding size
 	for size in 16 24 32 48 64 128 256 ; do
-		newicon -s ${size} "./usr/share/icons/hicolor/${size}x${size}/apps/chromium-browser.png" \
+		newicon -s ${size} "./usr/share/icons/hicolor/${size}x${size}/apps/ungoogled-chromium-browser-beta.png" \
 			chromium-browser-bin.png
 	done
 
@@ -189,8 +189,8 @@ src_install() {
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
 	sed -i '/chromium-browser/{s++chromium-browser-bin+;h};${x;/./{x;q0};x;q1}' \
-			./usr/share/gnome-control-center/default-apps/chromium-browser.xml || die
-	newins ./usr/share/gnome-control-center/default-apps/chromium-browser.xml chromium-browser-bin.xml
+			./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser-beta.xml || die
+	newins ./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser-beta.xml chromium-browser-bin.xml
 
 	readme.gentoo_create_doc
 }
