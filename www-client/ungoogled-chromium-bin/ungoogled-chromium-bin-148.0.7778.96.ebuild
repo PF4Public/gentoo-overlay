@@ -132,11 +132,12 @@ src_install() {
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-bin
 
-	if ! has_version "www-client/ungoogled-chromium" && ! has_version "www-client/chromium"; then
-		# Allow users to override command-line options, bug #357629.
-		insinto /etc/chromium
-		doins ./etc/chromium/default
-	fi
+	#TODO where is default?
+	# if ! has_version "www-client/ungoogled-chromium" && ! has_version "www-client/chromium"; then
+	# 	# Allow users to override command-line options, bug #357629.
+	# 	insinto /etc/chromium
+	# 	doins ./etc/chromium/default
+	# fi
 
 	pushd ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/locales > /dev/null || die
 	chromium_remove_language_paks
