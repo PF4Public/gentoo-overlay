@@ -937,7 +937,6 @@ src_prepare() {
 			[ "$i" = "Force-use-vpython3-for-all-scripts.patch" ] ||
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
-			[ "$i" = "Experimental-support-for-extensions-on-Android.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
@@ -949,13 +948,15 @@ src_prepare() {
 		fi
 		einfo "$i"
 		# ebegin "$i"
-		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]]; then
+		if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
+			[[ "$i" =~ "Experimental-support-for-extensions-on-Android.patch" ]]; then
 			filter_wrapper "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
 				--exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
+				--exclude="*/current_channel_logo.cc" \
 				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*"
 		else
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
