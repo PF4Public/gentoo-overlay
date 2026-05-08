@@ -10,7 +10,6 @@ EAPI=8
 # UGC_KEEP_BINARIES — space-separated list of binaries to keep
 # UGC_SKIP_SUBSTITUTION — space-separated list of files to skip domain substitution
 
-
 GN_MIN_VER=0.2354
 # chromium-tools/get-chromium-toolchain-strings.py (or just use Chromicler)
 # Node for M145+ should be 24.12.0 but that's not packaged in Gentoo yet. See #969145
@@ -37,11 +36,11 @@ RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or L
 RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it to be available.
 
 CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="148.0.7778.56"
+CHROMIUM_VERSION="148.0.7778.96"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.15.0"
 NODE_P="node-v${NODE_VERSION}"
-UGC_PVR="148.0.7778.56-1"
+UGC_PVR="148.0.7778.96-1"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -70,9 +69,9 @@ SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/d
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	)
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
-	https://github.com/electron/electron/archive/v42.0.0-beta.8.tar.gz -> ${P}.tar.gz
+	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 "
-	# https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
+	# https://github.com/electron/electron/archive/v42.0.0-beta.8.tar.gz -> ${P}.tar.gz
 
 LICENSE="Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Base64 Boost-1.0 CC-BY-3.0 CC-BY-4.0 Clear-BSD FFT2D FTL"
 LICENSE+=" IJG ISC LGPL-2 LGPL-2.1 MIT MPL-1.1 MPL-2.0 Ms-PL PSF-2 SGI-B-2.0 SSLeay SunSoft Unicode-3.0"
@@ -496,7 +495,7 @@ src_unpack() {
 	fi
 
 	unpack "${P}.tar.gz"
-	mv "${WORKDIR}/electron-42.0.0-beta.8" "${WORKDIR}/${P}"
+	# mv "${WORKDIR}/electron-42.0.0-beta.8" "${WORKDIR}/${P}"
 	unpack "node-v${NODE_VERSION}.tar.xz"
 
 	if use ppc64; then
