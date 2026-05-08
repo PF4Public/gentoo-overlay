@@ -96,7 +96,7 @@ REQUIRED_USE="
 	vaapi? ( !system-av1 !system-libvpx )
 "
 
-UGC_COMMIT_ID="eb8121bdae2469f4e0a3634437e99ff687c0e55f"
+# UGC_COMMIT_ID="eb8121bdae2469f4e0a3634437e99ff687c0e55f"
 
 #declare -A CHROMIUM_COMMITS=(
 #	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
