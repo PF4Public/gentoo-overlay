@@ -937,6 +937,7 @@ src_prepare() {
 			[ "$i" = "Force-use-vpython3-for-all-scripts.patch" ] ||
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
+			[ "$i" = "Experimental-support-for-extensions-on-Android.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
@@ -948,8 +949,7 @@ src_prepare() {
 		fi
 		einfo "$i"
 		# ebegin "$i"
-		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]] ||
-			[[ "$i" =~ "Experimental-support-for-extensions-on-Android.patch" ]]; then
+		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]]; then
 			filter_wrapper "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
 				--exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
