@@ -35,13 +35,13 @@ ESBUILD_VER="0.25.1"
 ROLLUP_VER="4.57.1" # currently manual.
 VIRTUALX_REQUIRED="pgo"
 
-UGC_COMMIT_ID="94267d333da299337c545c1723db169e7f9a6e24"
+#UGC_COMMIT_ID="94267d333da299337c545c1723db169e7f9a6e24"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="15d48b061426a1f4a8ae8596622f0599ca626056"
+CROMITE_COMMIT_ID="2afc7b19a4f8a398f715287f6b4ac6a45bc69cd9"
 
 #declare -A CHROMIUM_COMMITS=(
 #	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
@@ -104,8 +104,8 @@ LICENSE+=" IJG ISC LGPL-2 LGPL-2.1 MIT MPL-1.1 MPL-2.0 Ms-PL PSF-2 SGI-B-2.0 SSL
 LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 LICENSE+=" cromite? ( GPL-3 )"
 
-SLOT="beta"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+SLOT="stable"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug ffmpeg-chromium enable-driver gtk4 hangouts headless kerberos +libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo"
