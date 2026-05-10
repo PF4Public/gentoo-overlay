@@ -301,8 +301,8 @@ COMMON_DEPEND="
 		X? ( ${COMMON_X_DEPEND} )
 	)
 "
-#!www-client/ungoogled-chromium:0
 RDEPEND="${COMMON_DEPEND}
+	!www-client/ungoogled-chromium:0
 	>=www-client/chromium-common-2
 	!headless? (
 		|| (
