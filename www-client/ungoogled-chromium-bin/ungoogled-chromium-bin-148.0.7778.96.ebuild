@@ -66,6 +66,7 @@ CDEPEND="
 	dev-libs/libxslt"
 
 RDEPEND="${CDEPEND}
+	>=www-client/chromium-common-2
 	x11-misc/xdg-utils
 	virtual/opengl
 	virtual/ttf-fonts"
