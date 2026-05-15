@@ -52,7 +52,7 @@ HOMEPAGE="https://electronjs.org/"
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
 PATCH_V="${CHROMIUM_VERSION%%\.*}-3"
 COPIUM_COMMIT="fe1caafa06f27542c18a881348f78e984e2d9fe2"
-SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz -> ${CHROMIUM_P}-lite.tar.xz
+SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz
 	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
@@ -475,7 +475,8 @@ src_unpack() {
 #	#unpack chromium-patches-${PATCH_V}.tar.bz2
 #	# Warned you!
 
-	unpack chromium-${CHROMIUM_VERSION/_*}-linux.tar.xz
+	unpack ${CHROMIUM_P}-lite.tar.xz
+	# unpack chromium-${CHROMIUM_VERSION/_*}-linux.tar.xz
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
 	if use !bundled-toolchain; then
