@@ -52,8 +52,8 @@ HOMEPAGE="https://electronjs.org/"
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
 PATCH_V="${CHROMIUM_VERSION%%\.*}-3"
 COPIUM_COMMIT="fe1caafa06f27542c18a881348f78e984e2d9fe2"
-SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${CHROMIUM_P}/${CHROMIUM_P}-linux.tar.xz
-	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
+SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz -> ${CHROMIUM_P}-lite.tar.xz
+https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${CHROMIUM_P}/${CHROMIUM_P}-linux.tar.xz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
 		https://codeberg.org/selfisekai/copium/archive/${COPIUM_COMMIT}.tar.gz
@@ -71,6 +71,7 @@ SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/d
 	https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.xz
 	https://github.com/electron/electron/archive/v${PV}.tar.gz -> ${P}.tar.gz
 "
+	# https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	# https://github.com/electron/electron/archive/v42.0.0-beta.8.tar.gz -> ${P}.tar.gz
 
 LICENSE="Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Base64 Boost-1.0 CC-BY-3.0 CC-BY-4.0 Clear-BSD FFT2D FTL"
