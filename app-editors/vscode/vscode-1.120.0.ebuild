@@ -129,8 +129,8 @@ src_prepare() {
 	einfo "Add PPC target to package build scripts"
 	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die
 
-	einfo "Removing vscode-ripgrep and other dependencies"
-	sed -i '/ripgrep"/d' package.json || die
+	einfo "Removing telemetry-extractor"
+	# sed -i '/ripgrep"/d' package.json || die
 	sed -i '/telemetry-extractor"/d' package.json || die
 	sed -i '/git-blame-ignore/d' build/npm/postinstall.ts || die
 
@@ -151,7 +151,7 @@ src_prepare() {
 	# sed -i '/"playwright"/d' package.json || die
 	sed -i '/test-web"/d' package.json || die
 
-	sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
+	# sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing preinstall.ts"
 	sed -i 's/const npmVersionMatch =.*/const npmVersionMatch = false;/' build/npm/preinstall.ts || die
@@ -225,9 +225,9 @@ src_prepare() {
 	eend $? || die
 	fi
 
-	einfo "Disabling signature verification for extensions"
-	einfo "as it depends on a package from a hidden repository"
-	patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
+	# einfo "Disabling signature verification for extensions"
+	# einfo "as it depends on a package from a hidden repository"
+	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
 }
 
 src_configure() {
@@ -310,15 +310,15 @@ src_configure() {
 
 	export PATH=${OLD_PATH}
 
-	einfo "Restoring vscode-ripgrep"
-	pushd "node_modules/@vscode" > /dev/null || die
-		tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
-		mv package ripgrep
-		sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
-		sed -i '/"postinstall"/d' ripgrep/package.json || die
-	popd > /dev/null || die
-	eend $? || die
-	sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
+	# einfo "Restoring vscode-ripgrep"
+	# pushd "node_modules/@vscode" > /dev/null || die
+	# 	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
+	# 	mv package ripgrep
+	# 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
+	# 	sed -i '/"postinstall"/d' ripgrep/package.json || die
+	# popd > /dev/null || die
+	# eend $? || die
+	# sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
 
 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
