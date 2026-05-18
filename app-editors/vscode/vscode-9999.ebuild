@@ -179,7 +179,7 @@ src_prepare() {
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
 	# sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
-	# sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
+	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
@@ -247,8 +247,6 @@ src_configure() {
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
-	#TODO: exported but unavailable if emerge/ebuild restarted
-	export VSCODE_ARCH
 
 	# #TODO: should work starting with electron-22
 	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
@@ -270,7 +268,7 @@ src_configure() {
 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
 	# fi
 
-	ebegin "Installing node_modules"
+	einfo "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
@@ -345,6 +343,22 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
+
+	local myarch="$(tc-arch)"
+
+	if [[ $myarch = amd64 ]]; then
+		VSCODE_ARCH="x64"
+	elif [[ $myarch = x86 ]]; then
+		VSCODE_ARCH="ia32"
+	elif [[ $myarch = arm64 ]]; then
+		VSCODE_ARCH="arm64"
+	elif [[ $myarch = arm ]]; then
+		VSCODE_ARCH="armhf"
+	elif [[ $myarch = ppc64 ]]; then
+		VSCODE_ARCH="ppc64"
+	else
+		die "Failed to determine target arch, got '$myarch'."
+	fi
 
 	OLD_PATH=$PATH
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
