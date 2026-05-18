@@ -149,7 +149,7 @@ src_prepare() {
 	# sed -i '/"electron"/d' package.json || die
 	# sed -i '/vscode-ripgrep/d' remote/package.json || die
 	# sed -i '/"playwright"/d' package.json || die
-	sed -i '/test-web"/d' package.json || die
+	# sed -i '/test-web"/d' package.json || die
 
 	# sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
@@ -165,11 +165,11 @@ src_prepare() {
 	if ! ( use reh || use reh-web ); then
 		sed -i '/remote/d' build/npm/dirs.ts || die
 	fi
-	sed -i '/test\/automation/d' build/npm/dirs.ts || die
-	sed -i '/test\/integration\/browser/d' build/npm/dirs.ts || die
-	sed -i '/test\/smoke/d' build/npm/dirs.ts || die
-	sed -i '/test\/monaco/d' build/npm/dirs.ts || die
-	sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.ts || die
+	# sed -i '/test\/automation/d' build/npm/dirs.ts || die
+	# sed -i '/test\/integration\/browser/d' build/npm/dirs.ts || die
+	# sed -i '/test\/smoke/d' build/npm/dirs.ts || die
+	# sed -i '/test\/monaco/d' build/npm/dirs.ts || die
+	# sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.ts || die
 
 	# einfo "Editing build/gulpfile.extensions.js"
 	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.ts || die
@@ -326,8 +326,8 @@ src_configure() {
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
 		build/lib/getVersion.ts || die
 
-	einfo "Copying @vscode/vsce-sign"
-	cp -r build/node_modules/@vscode/vsce* node_modules/@vscode/ || die
+	# einfo "Copying @vscode/vsce-sign"
+	# cp -r build/node_modules/@vscode/vsce* node_modules/@vscode/ || die
 
 	#TODO Although this allows the build to continue, it renders vscode unusable
 	#TODO Does it really? Investigate later
