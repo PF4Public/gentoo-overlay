@@ -177,14 +177,14 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.ts"
 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts || die
 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
-	sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
+	# sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
-	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
+	# sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
-	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
+	# sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
 	einfo "Editing product.json"
 	mv product.json product.json.bak || die
@@ -427,6 +427,7 @@ src_install() {
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
+	fperms +x ${VSCODE_HOME}/node_modules/@vscode/ripgrep/bin/rg
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
 	if use reh; then
