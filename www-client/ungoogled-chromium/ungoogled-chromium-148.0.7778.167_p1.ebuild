@@ -2077,6 +2077,8 @@ src_configure() {
 		"safe_browsing_mode=0"
 		"use_official_google_api_keys=false"
 		"use_unofficial_version_number=false"
+		"v8_drumbrake_bounds_checks=true"
+		"v8_enable_drumbrake=true"
 
 		# "enable_swiftshader=false"
 
