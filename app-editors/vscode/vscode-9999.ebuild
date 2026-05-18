@@ -184,7 +184,7 @@ src_prepare() {
 	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
-	# sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
+	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
 	einfo "Editing product.json"
 	mv product.json product.json.bak || die
