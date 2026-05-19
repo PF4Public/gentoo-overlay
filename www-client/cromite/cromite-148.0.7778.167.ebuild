@@ -51,7 +51,7 @@ RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it t
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
 
-CROMITE_COMMIT_ID="2afc7b19a4f8a398f715287f6b4ac6a45bc69cd9"
+CROMITE_COMMIT_ID="3dc5833d37213ab16c73b0f3d5e4246bf9eaf5bb"
 # CROMITE_PR_COMMITS=(
 # 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
 # )
@@ -83,9 +83,12 @@ SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/d
 	https://github.com/uazo/${PN}/archive/${CROMITE_COMMIT_ID}.tar.gz -> ${PN}-${CROMITE_COMMIT_ID}.tar.gz
 "
 
-# https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 # Gentoo tarball:
 # https://chromium-tarballs.distfiles.gentoo.org/chromium-${PV/_*}.tar.xz -> chromium-${PV/_*}-gentoo.tar.xz
+
+# chromium-linux-tarballs
+# https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz
+
 # Official tarball:
 # https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz
 
@@ -96,7 +99,7 @@ LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 LICENSE+=" GPL-3"
 
 SLOT="beta"
-# KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cfi convert-dict cups custom-cflags debug ffmpeg-chromium enable-driver gtk4 hangouts headless kerberos +libcxx nvidia +official optimize-thinlto optimize-webui override-data-dir pax-kernel pgo"
@@ -280,8 +283,8 @@ COMMON_DEPEND="
 		X? ( ${COMMON_X_DEPEND} )
 	)
 "
-#!www-client/cromite:0
 RDEPEND="${COMMON_DEPEND}
+	!www-client/cromite:0
 	>=www-client/chromium-common-2
 	!headless? (
 		|| (
