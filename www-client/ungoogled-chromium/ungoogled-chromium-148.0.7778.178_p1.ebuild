@@ -928,7 +928,7 @@ src_prepare() {
 
 		sed -i 's/absl::/std::/' "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" || die
 
-		filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" -exclude="content/browser/renderer_host/render_process_host_impl.cc" \
+		filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" --exclude="content/browser/renderer_host/render_process_host_impl.cc" \
 			> "${BR_PA_PATH}/JIT-site-settings.patch1"
 		mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
 
