@@ -299,9 +299,9 @@ RDEPEND="${COMMON_DEPEND}
 		ffmpeg-chromium? ( media-video/ffmpeg-chromium:${PV%%\.*} )
 	)
 	!override-data-dir? (
-		!www-client/chromium:${SLOT="beta"
+		!www-client/chromium:${SLOT}
 		!www-client/ungoogled-chromium-bin
-		!www-client/ungoogled-chromium:${SLOT="beta"
+		!www-client/ungoogled-chromium:${SLOT}[-override-data-dir]
 	)
 "
 
@@ -324,12 +324,12 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	!bundled-toolchain? ( $(llvm_gen_dep '
-		llvm-core/clang:${LLVM_SLOT="beta"
-		llvm-core/llvm:${LLVM_SLOT="beta"
-		llvm-core/lld:${LLVM_SLOT="beta"
-		cfi? ( llvm-runtimes/clang-runtime:${LLVM_SLOT="beta"
+		llvm-core/clang:${LLVM_SLOT}
+		llvm-core/llvm:${LLVM_SLOT}
+		llvm-core/lld:${LLVM_SLOT}
+		cfi? ( llvm-runtimes/clang-runtime:${LLVM_SLOT}[sanitize] )
 		official? (
-			!ppc64? ( llvm-runtimes/compiler-rt-sanitizers:${LLVM_SLOT="beta"
+			!ppc64? ( llvm-runtimes/compiler-rt-sanitizers:${LLVM_SLOT}[cfi] )
 		) ')
 		${RUST_DEPEND}
 	)
@@ -465,16 +465,16 @@ pkg_setup() {
 
 			# Forcing clang; respect llvm_slot_x to enable selection of impl via LLVM_COMPAT
 			AR=llvm-ar
-			CPP="${CHOST}-clang++-${LLVM_SLOT="beta"
+			CPP="${CHOST}-clang++-${LLVM_SLOT} -E"
 			NM=llvm-nm
-			CC="${CHOST}-clang-${LLVM_SLOT="beta"
-			CXX="${CHOST}-clang++-${LLVM_SLOT="beta"
+			CC="${CHOST}-clang-${LLVM_SLOT}"
+			CXX="${CHOST}-clang++-${LLVM_SLOT}"
 		fi
 
 		use_lto="false"
 		local lto_usable="true"
 		if [[ "$want_lto" == "true" ]]; then
-			if use arm64 && [[ "${LLVM_SLOT="beta"
+			if use arm64 && [[ "${LLVM_SLOT}" -lt 22 ]]; then
 				einfo "LTO is broken with LLVM 21 on arm64, ignoring CFLAGS."
 				lto_usable="false"
 			else
@@ -506,7 +506,7 @@ pkg_setup() {
 
 		if tc-is-cross-compiler; then
 			use pgo && die "The pgo USE flag cannot be used when cross-compiling"
-			CPP="${CBUILD}-clang++-${LLVM_SLOT="beta"
+			CPP="${CBUILD}-clang++-${LLVM_SLOT} -E"
 		fi
 
 		# Sanity checks for development convenience
@@ -516,8 +516,8 @@ pkg_setup() {
 
 		# Sometimes, when adding a new LLVM slot, devs (me) forget to install an appropriate lld.
 		local lld_ver=$(ld.lld --version | awk '{split($2,a,"."); print a[1]}' || die "Failed to check lld version")
-		if [[ ${lld_ver} -lt ${LLVM_SLOT="beta"
-			die "Your lld version (${lld_ver}) is too old for the selected LLVM slot (${LLVM_SLOT="beta"
+		if [[ ${lld_ver} -lt ${LLVM_SLOT} ]]; then
+			die "Your lld version (${lld_ver}) is too old for the selected LLVM slot (${LLVM_SLOT}). Please install a newer lld or select an older LLVM slot."
 		fi
 	fi
 
@@ -715,7 +715,7 @@ src_prepare() {
 		# Where `lt-23` means "apply this patch if the LLVM version is less than 23".
 		# Only categories in `slot_map` will be checked for version constraints.
 		shopt -s nullglob
-		local -A slot_map=( [llvm]="${LLVM_SLOT="beta"
+		local -A slot_map=( [llvm]="${LLVM_SLOT}" [rust]="${RUST_SLOT}" )
 
 		for category in "${WORKDIR}/chromium-patches-${PATCH_V}"/*/; do
 			local category_name="${category%/}"
@@ -771,9 +771,9 @@ src_prepare() {
 		# We can't rely on the eselect'd Rust to actually include rustfmt, so we'll point to the selected slot specifically.
 		local suffix=""
 		if [[ "${RUST_TYPE}" == "binary" ]]; then
-			suffix="-bin-${RUST_SLOT="beta"
+			suffix="-bin-${RUST_SLOT}"
 		else
-			suffix="-${RUST_SLOT="beta"
+			suffix="-${RUST_SLOT}"
 		fi
 		sed -i "s|/bin/rustfmt|/bin/rustfmt${suffix}|g" build/rust/rust_bindgen_generator.gni ||
 			die "Failed to update rustfmt path"
@@ -885,7 +885,7 @@ src_prepare() {
 		default
 	fi
 
-	# if [[ ${LLVM_SLOT="beta"
+	# if [[ ${LLVM_SLOT} == "19" ]]; then
 	# 	# Upstream now hard depend on a feature that was added in LLVM 20.1, but we don't want to stabilise that yet.
 	# 	# Do the temp file shuffle in case someone is using something other than `gawk`
 	# 	{
@@ -1643,10 +1643,10 @@ src_configure() {
 			# and it defaults to the google toolchain location. Instead provide a location
 			# to where system clang lives so that bindgen can find system headers (e.g. stddef.h)
 			"bindgen_libclang_path=\"$(get_llvm_prefix)/$(get_libdir)\""
-			"clang_base_path=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT="beta"
+			"clang_base_path=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/\""
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
-			"rustc_version=\"${RUST_SLOT="beta"
+			"rustc_version=\"${RUST_SLOT}\""
 		)
 
 		if ! tc-is-cross-compiler; then
@@ -1977,7 +1977,7 @@ src_configure() {
 	done
 
 	# Since we build from tarballs, we need to set the channel here so that it can be used in the build.
-	export CHROME_VERSION_EXTRA="${SLOT="beta"
+	export CHROME_VERSION_EXTRA="${SLOT}"
 
 	einfo "Configuring Cromite ..."
 	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
@@ -2058,7 +2058,7 @@ src_compile() {
 	# Generate support files (desktop file, manpage, etc.) See: #684550 #706786 #968958
 	${EPYTHON} "${FILESDIR}/generate-support-files.py" \
 		--installdir "/usr/$(get_libdir)/cromite-browser" \
-		--channel "${SLOT="beta"
+		--channel "${SLOT}" ||
 			die "Failed to generate support files"
 }
 
@@ -2105,8 +2105,8 @@ src_test() {
 
 src_install() {
 	local browser_suffix
-	if [[ "${SLOT="beta"
-		browser_suffix="-${SLOT="beta"
+	if [[ "${SLOT}" != "stable" ]]; then
+		browser_suffix="-${SLOT}"
 	else
 		browser_suffix=""
 	fi
@@ -2135,7 +2135,7 @@ src_install() {
 		# Wrapper to launch slotted Chromium via the chromium-common launcher script.
 		export CHROME_DESKTOP="cromite-browser${browser_suffix}.desktop"
 		export CHROME_EXEC_NAME="cromite-browser${browser_suffix}"
-		export CHROME_VERSION_EXTRA="${SLOT="beta"
+		export CHROME_VERSION_EXTRA="${SLOT}"
 		export CHROME_WRAPPER="\$(readlink -f "\$0")"
 		export OZONE_AUTO_SESSION=$(ozone_auto_session)
 
@@ -2318,7 +2318,7 @@ pkg_postinst() {
 		done
 		if ${replacing_non_slotted}; then
 			ewarn "This version of Chromium has replaced a non-slotted ebuild."
-			if [[ ${SLOT="beta"
+			if [[ ${SLOT} != "stable" ]]; then
 				ewarn "This channel has its own profile directory, so your existing profile will not be used."
 				ewarn "To use your existing profile, either copy or move it to the new location."
 				ewarn "See https://wiki.gentoo.org/wiki/Chromium#Profile_Directories for more information."
