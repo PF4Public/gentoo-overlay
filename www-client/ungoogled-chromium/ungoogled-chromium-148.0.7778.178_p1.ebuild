@@ -968,7 +968,7 @@ src_prepare() {
 				einfo "Git binary patch: ${i##*/}"
 				git_wrapper apply -p1 < "$i"
 			else
-				filter_wrapper "$i" --exclude="chrome/android/*"
+				filter_wrapper "$i" --exclude="chrome/android/*" --exclude="content/browser/renderer_host/render_process_host_impl.cc"
 			fi
 		done
 
