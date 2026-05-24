@@ -2081,8 +2081,6 @@ src_configure() {
 		"safe_browsing_mode=0"
 		"use_official_google_api_keys=false"
 		"use_unofficial_version_number=false"
-		"v8_drumbrake_bounds_checks=true"
-		"v8_enable_drumbrake=true"
 
 		# "enable_swiftshader=false"
 
@@ -2106,6 +2104,12 @@ src_configure() {
 		# "enable_jxl_decoder=false"
 	)
 
+	if use amd64 || use arm64; then
+		myconf_gn+=(
+			"v8_drumbrake_bounds_checks=true"
+			"v8_enable_drumbrake=true"
+		)
+	fi
 
 	if use thinlto; then
 		# We need to change the default value of import-instr-limit in
