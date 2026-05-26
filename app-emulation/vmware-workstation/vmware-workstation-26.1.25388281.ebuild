@@ -337,10 +337,10 @@ src_install() {
 	sed -i \
 		-e "s:@@LIBCONF_DIR@@:${VM_INSTALL_DIR}/lib/vmware/libconf:g" \
 		"${ED}${VM_INSTALL_DIR}"/lib/vmware/libconf/etc/gtk-3.0/gdk-pixbuf.loaders || die
-	sed -i \
-		-e "s:@@BINARY@@:${EPREFIX}${VM_INSTALL_DIR}/bin/vmplayer:g" \
-		-e "/^Encoding/d" \
-		"${ED}/usr/share/applications/vmware-player.desktop" || die
+	# sed -i \
+	# 	-e "s:@@BINARY@@:${EPREFIX}${VM_INSTALL_DIR}/bin/vmplayer:g" \
+	# 	-e "/^Encoding/d" \
+	# 	"${ED}/usr/share/applications/vmware-player.desktop" || die
 	sed -i \
 		-e "s:@@BINARY@@:${EPREFIX}${VM_INSTALL_DIR}/bin/vmware:g" \
 		-e "/^Encoding/d" \
