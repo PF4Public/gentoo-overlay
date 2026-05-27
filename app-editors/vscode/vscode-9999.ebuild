@@ -18,18 +18,19 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-40 electron-41 electron-42 openvsx reh reh-web substitute-urls temp-fix"
+# IUSE="api-proposals badge-providers electron-40 electron-41 electron-42 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="39"
+	ELECTRON_SLOT_DEFAULT="42"
 else
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="39"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	ELECTRON_SLOT_DEFAULT="42"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		DOWNLOAD+="${PV}.tar.gz -> ${P}.tar.gz"
@@ -51,15 +52,15 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	electron-40? ( dev-util/electron:40 )
-	electron-41? ( dev-util/electron:41 )
-	electron-42? ( dev-util/electron:42 )
-	!electron-40? (
-	!electron-41? (
-	!electron-42? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	) ) )
 "
+	# electron-40? ( dev-util/electron:40 )
+	# electron-41? ( dev-util/electron:41 )
+	# electron-42? ( dev-util/electron:42 )
+	# !electron-40? (
+	# !electron-41? (
+	# !electron-42? (
+	# ) ) )
 
 #TODO: oniguruma?
 
@@ -97,15 +98,15 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	if use electron-41; then
-		export ELECTRON_SLOT=41
-	elif use electron-40; then
-		export ELECTRON_SLOT=40
-	elif use electron-42; then
-		export ELECTRON_SLOT=42
-	else
+	# if use electron-41; then
+	# 	export ELECTRON_SLOT=41
+	# elif use electron-40; then
+	# 	export ELECTRON_SLOT=40
+	# elif use electron-42; then
+	# 	export ELECTRON_SLOT=42
+	# else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
+	# fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
