@@ -36,7 +36,7 @@ RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or L
 RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it to be available.
 
 CHROMIUM_VERSION_WARNING="false"
-CHROMIUM_VERSION="148.0.7778.180"
+CHROMIUM_VERSION="148.0.7778.178"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.15.0"
 NODE_P="node-v${NODE_VERSION}"
