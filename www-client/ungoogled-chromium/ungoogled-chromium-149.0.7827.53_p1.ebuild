@@ -34,6 +34,11 @@ NODE_VER="24.12.0"
 ESBUILD_VER="0.25.1"
 ROLLUP_VER="4.57.1" # currently manual.
 
+CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
+	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
+	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
+	vi zh-CN zh-HK zh-TW zu"
+
 UGC_COMMIT_ID="4a7dad94814d52c463602516d1371587631a3bed"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
@@ -48,11 +53,6 @@ CROMITE_COMMIT_ID="cb3baf14f52eb4365d017f640f85310735c19b79"
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 #	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
 #)
-
-CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
-	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
-	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
-	vi zh-CN zh-HK zh-TW zu"
 
 LLVM_COMPAT=( 21 22 23 )
 PYTHON_COMPAT=( python3_{11..14} )
@@ -1792,13 +1792,10 @@ src_configure() {
 			"use_clang_modules=false" # M141 enables this for the linux platform by default.
 			"use_lld=true"
 			'custom_toolchain="//build/toolchain/linux/unbundle:default"'
-			# From M127 we need to provide a location for libclang.
-			# We patch this in for gentoo - see chromium-*-bindgen-custom-toolchain.patch
-			# rust_bindgen_root = directory with `bin/bindgen` beneath it.
-			# We don't need to set 'clang_base_path' for anything in our build
-			# and it defaults to the google toolchain location. Instead provide a location
-			# to where system clang lives so that bindgen can find system headers (e.g. stddef.h)
+			# From M127 we need to provide a location for libclang and the clang resource dir so that bindgen can find them
 			"bindgen_libclang_path=\"$(get_llvm_prefix)/$(get_libdir)\""
+			"bindgen_clang_resource_dir=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/include\""
+			"bindgen_extra_clang_args=[\"-I${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/include\"]"
 			"clang_base_path=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/\""
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
