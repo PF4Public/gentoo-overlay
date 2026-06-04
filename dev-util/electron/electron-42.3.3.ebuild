@@ -969,6 +969,8 @@ src_prepare() {
 	if use system-zstd; then
 		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
 			electron/patches/node/build_add_gn_build_files.patch || die
+		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
+			electron/patches/node/electron_enable_node_startup_snapshot_generation_in_chromium_s_v8.patch || die
 	fi
 
 	declare -A patches=(
