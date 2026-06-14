@@ -751,9 +751,9 @@ src_prepare() {
 		eapply "${FILESDIR}/misc-fixes.patch" || die
 		eapply "${FILESDIR}/ozone-detection-fix.patch" || die
 
-		if use pgo; then
+		# if use pgo; then
 			python3 script/pgo/download-profiles.py --targets linux-x64,v8-builtins
-		fi
+		# fi
 	popd > /dev/null || die
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
