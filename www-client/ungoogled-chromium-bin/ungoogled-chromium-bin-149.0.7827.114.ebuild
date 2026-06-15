@@ -111,19 +111,19 @@ pkg_pretend() {
 src_install() {
 	local CHROMIUM_HOME="/opt/chromium-browser"
 	exeinto "${CHROMIUM_HOME}"
-	doexe ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/chrome
+	doexe ./usr/$(get_libdir)/ungoogled-chromium-browser/chrome
 	#* https://github.com/ungoogled-software/ungoogled-chromium/pull/3563
-	doexe ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/chrome_crashpad_handler
+	doexe ./usr/$(get_libdir)/ungoogled-chromium-browser/chrome_crashpad_handler
 
 	if use convert-dict; then
-		newexe "./usr/$(get_libdir)/ungoogled-chromium-browser-beta/update-dicts.sh" update-dicts.sh
-		doexe ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/convert_dict
+		newexe "./usr/$(get_libdir)/ungoogled-chromium-browser/update-dicts.sh" update-dicts.sh
+		doexe ./usr/$(get_libdir)/ungoogled-chromium-browser/convert_dict
 	fi
 
 	# The launcher script must export the correct desktop file name
 	# as env var CHROME_DESKTOP so XDG can associate it with the app
 	local DESKTOP_FILE_NAME="chromium-browser-bin-${PN}.desktop"
-	local LAUNCHER_FILE_NAME="./usr/$(get_libdir)/ungoogled-chromium-browser-beta/chromium-launcher.sh"
+	local LAUNCHER_FILE_NAME="./usr/$(get_libdir)/ungoogled-chromium-browser/chromium-launcher.sh"
 	sed -E "s/(^export CHROME_DESKTOP=)\".*\"/\\1\"${DESKTOP_FILE_NAME}\"/" -i "${LAUNCHER_FILE_NAME}" || die
 	doexe "${LAUNCHER_FILE_NAME}"
 
@@ -140,32 +140,32 @@ src_install() {
 	# 	doins ./etc/chromium/default
 	# fi
 
-	pushd ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/locales > /dev/null || die
+	pushd ./usr/$(get_libdir)/ungoogled-chromium-browser/locales > /dev/null || die
 	chromium_remove_language_paks
 	popd
 
 	insinto "${CHROMIUM_HOME}"
-	doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/*.bin
-	doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/*.pak
-	doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/*.so
-	doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/icudtl.dat
+	doins ./usr/$(get_libdir)/ungoogled-chromium-browser/*.bin
+	doins ./usr/$(get_libdir)/ungoogled-chromium-browser/*.pak
+	doins ./usr/$(get_libdir)/ungoogled-chromium-browser/*.so
+	doins ./usr/$(get_libdir)/ungoogled-chromium-browser/icudtl.dat
 
-	doins -r ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/locales
+	doins -r ./usr/$(get_libdir)/ungoogled-chromium-browser/locales
 
 	# Install vk_swiftshader_icd.json; bug #827861
-	doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/vk_swiftshader_icd.json
+	doins ./usr/$(get_libdir)/ungoogled-chromium-browser/vk_swiftshader_icd.json
 
 	if [[ -d out/Release/swiftshader ]]; then
 		insinto "${CHROMIUM_HOME}/swiftshader"
-		doins ./usr/$(get_libdir)/ungoogled-chromium-browser-beta/swiftshader/*.so
+		doins ./usr/$(get_libdir)/ungoogled-chromium-browser/swiftshader/*.so
 	fi
 
-	use widevine && dosym "../../usr/$(get_libdir)/ungoogled-chromium-browser-beta/WidevineCdm" "${CHROMIUM_HOME}/WidevineCdm"
+	use widevine && dosym "../../usr/$(get_libdir)/ungoogled-chromium-browser/WidevineCdm" "${CHROMIUM_HOME}/WidevineCdm"
 
 	# Install icons
 	local branding size
 	for size in 16 24 32 48 64 128 256 ; do
-		newicon -s ${size} "./usr/share/icons/hicolor/${size}x${size}/apps/ungoogled-chromium-browser-beta.png" \
+		newicon -s ${size} "./usr/share/icons/hicolor/${size}x${size}/apps/ungoogled-chromium-browser.png" \
 			chromium-browser-bin.png
 	done
 
@@ -190,8 +190,8 @@ src_install() {
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps
 	sed -i '/chromium-browser/{s++chromium-browser-bin+;h};${x;/./{x;q0};x;q1}' \
-			./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser-beta.xml || die
-	newins ./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser-beta.xml chromium-browser-bin.xml
+			./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser.xml || die
+	newins ./usr/share/gnome-control-center/default-apps/ungoogled-chromium-browser.xml chromium-browser-bin.xml
 
 	readme.gentoo_create_doc
 }
