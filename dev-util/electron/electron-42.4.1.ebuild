@@ -1019,7 +1019,8 @@ src_prepare() {
 			# 		continue;
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
-				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]; then
+				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
+				[ "$i" = "desktop_media_list.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
 				continue;
 			fi
