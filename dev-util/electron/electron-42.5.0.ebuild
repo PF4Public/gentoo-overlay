@@ -79,7 +79,7 @@ LICENSE+=" IJG ISC LGPL-2 LGPL-2.1 MIT MPL-1.1 MPL-2.0 Ms-PL PSF-2 SGI-B-2.0 SSL
 LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
 IUSE+=" +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland cpu_flags_ppc_vsx3"
