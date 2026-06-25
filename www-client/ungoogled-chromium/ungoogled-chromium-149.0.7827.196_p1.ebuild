@@ -733,7 +733,7 @@ src_prepare() {
 			"${WORKDIR}/copium/cr149-unbundle-minizip-undo-unicode.patch"
 		)
 
-		if ver_test "${RUST_VERSION}" -ge "1.95.0"; then
+		if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 			PATCHES+=( "${FILESDIR}/fix-rust-1.95-bytemuck.patch" )
 		fi
 
