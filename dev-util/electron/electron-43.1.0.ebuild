@@ -1668,11 +1668,10 @@ src_configure() {
 		# 949123: Several multimedia components explicitly build with specific CFLAGS and
 		# use runtime detection to enable optimisations; unfortunately any of our CFLAGS are suffixed
 		# to the end of the command line, which causes build failures.
+	fi
 		# Since M150 `skia` will begin breaking for x86_64 due to compilation of `avx512` code paths;
 		# we need to filter these for all arches.
 		filter-flags "-march*" "-mtune*" "-mcpu*"
-
-	fi
 
 	# We don't use the same clang version as upstream, and with -Werror
 	# we need to make sure that we don't get superfluous warnings.
