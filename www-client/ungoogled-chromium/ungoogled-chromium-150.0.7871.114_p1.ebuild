@@ -700,7 +700,7 @@ src_prepare() {
 	#fi
 
 	PATCHES+=( "${WORKDIR}/chromium-patches-${PATCH_V}/common/" )
-	PATCHES+=( "${FILESDIR}/restore-x86-r3.patch" )
+	PATCHES+=( "${FILESDIR}/restore-x86-r4.patch" )
 
 	# https://issues.chromium.org/issues/442698344
 	# Unreleased fontconfig changed magic numbers and google have rolled to this version
