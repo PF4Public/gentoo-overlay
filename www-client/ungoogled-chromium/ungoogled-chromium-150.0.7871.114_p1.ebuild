@@ -47,12 +47,12 @@ UGC_COMMIT_ID="2d89b04e1b68385c9086efab0df1e3679b35246e"
 
 CROMITE_COMMIT_ID="cb3baf14f52eb4365d017f640f85310735c19b79"
 
-#declare -A CHROMIUM_COMMITS=(
+declare -A CHROMIUM_COMMITS=(
 #	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
-#	["-acb47d9a6b56c4889a2ed4216e9968cfc740086c"]="."
+	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="."
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 #	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
-#)
+)
 
 LLVM_COMPAT=( 21 22 23 )
 PYTHON_COMPAT=( python3_{11..14} )
