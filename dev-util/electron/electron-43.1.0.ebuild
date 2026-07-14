@@ -1022,6 +1022,7 @@ src_prepare() {
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
+				[ "$i" = "build_enable_perfetto.patch" ]||
 				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
 				[ "$i" = "desktop_media_list.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
@@ -1034,13 +1035,13 @@ src_prepare() {
 					continue;
 				fi
 			fi
-			if [ "$i" = "build_enable_perfetto.patch" ]; then
-				einfo "Git binary patch: ${i}"
-				pushd "${patches[$patch_folder]}" > /dev/null || die
-				git apply -p1 < "${S}/${patch_folder}/$i" || die
-				popd > /dev/null || die
-				continue;
-			fi
+			# if [ "$i" = "build_enable_perfetto.patch" ]; then
+			# 	einfo "Git binary patch: ${i}"
+			# 	pushd "${patches[$patch_folder]}" > /dev/null || die
+			# 	git apply -p1 < "${S}/${patch_folder}/$i" || die
+			# 	popd > /dev/null || die
+			# 	continue;
+			# fi
 			# pushd "${patches[$patch_folder]}" > /dev/null || die
 			# eapply "${S}/${patch_folder}/$i" || die
 			# popd > /dev/null || die
