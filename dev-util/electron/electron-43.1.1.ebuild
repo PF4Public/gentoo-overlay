@@ -895,7 +895,7 @@ src_prepare() {
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
 			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc \
-			graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc unofficial.gni"
+			graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc"
 
 		local ugc_unneeded=(
 			# GN bootstrap
@@ -977,6 +977,8 @@ src_prepare() {
 			electron/patches/node/build_add_gn_build_files.patch || die
 		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
 			electron/patches/node/electron_enable_node_startup_snapshot_generation_in_chromium_s_v8.patch || die
+		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
+			electron/patches/node/build_enable_perfetto.patch || die
 	fi
 
 	declare -A patches=(
