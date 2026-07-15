@@ -895,7 +895,7 @@ src_prepare() {
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
 			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc \
-			graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc"
+			graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc unofficial.gni"
 
 		local ugc_unneeded=(
 			# GN bootstrap
@@ -1022,7 +1022,6 @@ src_prepare() {
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
-				[ "$i" = "build_enable_perfetto.patch" ]||
 				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
 				[ "$i" = "desktop_media_list.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
