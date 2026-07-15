@@ -1953,7 +1953,6 @@ src_configure() {
 		"enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 		"enable_remoting=false"
 		"enable_reporting=false"
-		# "enable_service_discovery=false"
 		"exclude_unwind_tables=true"
 		"google_api_key=\"\""
 		"google_default_client_id=\"\""
@@ -1962,6 +1961,7 @@ src_configure() {
 		"use_official_google_api_keys=false"
 		"use_unofficial_version_number=false"
 
+		"enable_service_discovery=true"
 		# "enable_swiftshader=false"
 
 		# Additional flags
