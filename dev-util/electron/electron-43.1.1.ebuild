@@ -1557,6 +1557,7 @@ src_configure() {
 	pushd electron > /dev/null || die
 	#!v No control over what happens here
 	einfo "Installing node_modules"
+	npm install corepack
 	# yarn config set disable-self-update-check true || die
 	# yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# yarn config set cacheFolder "${DISTDIR}" || die
@@ -1961,7 +1962,6 @@ src_configure() {
 		"use_official_google_api_keys=false"
 		"use_unofficial_version_number=false"
 
-		"enable_service_discovery=true"
 		# "enable_swiftshader=false"
 
 		# Additional flags
@@ -1982,6 +1982,7 @@ src_configure() {
 		# "skia_use_rust_png_decode=false"
 		# "skia_use_rust_png_encode=false"
 		# "enable_jxl_decoder=false"
+		"enable_service_discovery=true"
 		"override_electron_version=\"${PV}\""
 	)
 
