@@ -1558,6 +1558,9 @@ src_configure() {
 	#!v No control over what happens here
 	einfo "Installing node_modules"
 	npm install corepack
+	OLD_PATH=$PATH
+	PATH="./node_modules/.bin:$PATH"
+	export PATH
 	# yarn config set disable-self-update-check true || die
 	# yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# yarn config set cacheFolder "${DISTDIR}" || die
