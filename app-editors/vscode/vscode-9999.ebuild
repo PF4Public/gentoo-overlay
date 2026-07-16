@@ -75,7 +75,7 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	>=net-libs/nodejs-7.6.0[corepack]
+	>=net-libs/nodejs-7.6.0[npm]
 "
 
 python_check_deps() {
