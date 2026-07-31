@@ -693,6 +693,8 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
+	rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
+
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
 	#if ! use custom-cflags; then #See #25 #92
