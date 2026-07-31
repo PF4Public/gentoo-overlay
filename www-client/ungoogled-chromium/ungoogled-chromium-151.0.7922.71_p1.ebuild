@@ -693,8 +693,6 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
-	# rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
-
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
 	#if ! use custom-cflags; then #See #25 #92
@@ -1926,6 +1924,7 @@ src_configure() {
 		# "use_thin_lto=${use_lto}"
 		# Only enabled for clang, but gcc has endian macros too
 		"v8_use_libm_trig_functions=true"
+		"tint_use_system_go=true"
 	)
 
 	myconf_gn+=( "enable_iterator_debugging=$(usex debug true false)" )
