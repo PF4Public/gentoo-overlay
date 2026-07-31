@@ -68,7 +68,7 @@ inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
-PATCH_V="${PV%%\.*}"
+PATCH_V="${PV%%\.*}-1"
 COPIUM_COMMIT="b00f26bb5e0781020da5f830981472a142c6baf1"
 SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz
 	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
@@ -693,7 +693,7 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
+	# rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
