@@ -1158,6 +1158,8 @@ src_prepare() {
 	${EPYTHON} "${FILESDIR}/bin-finder.py" --elf "${S}" | awk '{print $1}' | xargs rm -f ||
 		die "Failed to remove bundled binaries"
 
+	rm "${S}/third_party/dawn/tools/golang/linux-amd64/bin/go" || die
+
 	# And now we restore any that we actually need, from the host system
 	local esbuild_path="${S}/third_party/devtools-frontend/src/third_party/esbuild"
 	local -A restore_list=(
