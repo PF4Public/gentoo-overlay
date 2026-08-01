@@ -1,0 +1,21 @@
+diff --git a/desktop/scripts/build-release.tsx b/desktop/scripts/build-release.tsx
+index bccc2b16d..f953476ce 100755
+--- a/desktop/scripts/build-release.tsx
++++ b/desktop/scripts/build-release.tsx
+@@ -16,6 +16,7 @@ import {
+   build,
+   AfterPackContext,
+   AppInfo,
++  DIR_TARGET,
+ } from 'electron-builder';
+ import {spawn} from 'promisify-child-process';
+ import {
+@@ -213,7 +214,7 @@ async function buildDist(buildFolder: string) {
+     );
+   }
+   if (argv.linux || argv['linux-deb'] || argv['linux-snap']) {
+-    targetsRaw.push(Platform.LINUX.createTarget(['zip']));
++    targetsRaw.push(Platform.LINUX.createTarget([DIR_TARGET]));
+ 
+     if (argv['linux-deb']) {
+       // linux targets can be:
