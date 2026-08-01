@@ -694,6 +694,7 @@ src_prepare() {
 	fi
 
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
+	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr117-material-color-include.patch || die # same
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
