@@ -697,6 +697,7 @@ src_prepare() {
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr117-material-color-include.patch || die # same
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-actually-fix-ar.patch || die # same
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-dawn-system-go.patch || die # hardcode it like node
+	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-mold-unbundle.patch || die # don't care
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
