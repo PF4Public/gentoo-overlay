@@ -1164,7 +1164,7 @@ src_prepare() {
 		["/usr/bin/esbuild-${ESBUILD_VER}"]="${esbuild_path}/esbuild"
 		["/usr/bin/gperf"]="${S}/third_party/gperf/cipd/bin/gperf"
 		["/usr/bin/node"]="${S}/third_party/node/linux/node-linux-x64/bin/node"
-		["/usr/bin/go"]="${S}/third_party/dawn/tools/golang/linux-amd64/bin/go"
+		["/usr/lib/go/bin/go"]="${S}/third_party/dawn/tools/golang/linux-amd64/bin/go"
 	)
 
 	for src in "${!restore_list[@]}"; do
