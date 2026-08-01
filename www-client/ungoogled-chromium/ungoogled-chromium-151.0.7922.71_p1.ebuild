@@ -2165,7 +2165,7 @@ src_configure() {
 	export CHROME_VERSION_EXTRA="${SLOT}"
 
 	einfo "Configuring Chromium ..."
-	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
+	set -- gn gen -v --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
 	echo "$@"
 	"$@" || die "Failed to configure Chromium"
 
