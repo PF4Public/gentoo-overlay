@@ -48,7 +48,7 @@ UGC_COMMIT_ID="f2038df00b82e3afbd5cbecac37cf7b463acb42a"
 CROMITE_COMMIT_ID="cb3baf14f52eb4365d017f640f85310735c19b79"
 
 declare -A CHROMIUM_COMMITS=(
-#	["fcfb1a42813f1e9d8babedc7bb2e0f06101a3151"]="." #148+
+	["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
 	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="."
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 #	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
