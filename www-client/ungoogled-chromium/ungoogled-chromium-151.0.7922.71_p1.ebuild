@@ -696,6 +696,7 @@ src_prepare() {
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr117-material-color-include.patch || die # same
 	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-actually-fix-ar.patch || die # same
+	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-dawn-system-go.patch || die # hardcode it like node
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
@@ -1162,6 +1163,7 @@ src_prepare() {
 		["/usr/bin/esbuild-${ESBUILD_VER}"]="${esbuild_path}/esbuild"
 		["/usr/bin/gperf"]="${S}/third_party/gperf/cipd/bin/gperf"
 		["/usr/bin/node"]="${S}/third_party/node/linux/node-linux-x64/bin/node"
+		["/usr/bin/go"]="${S}/third_party/dawn/tools/golang/linux-amd64/bin/go"
 	)
 
 	for src in "${!restore_list[@]}"; do
