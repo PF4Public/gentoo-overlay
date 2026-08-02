@@ -1317,12 +1317,8 @@ src_prepare() {
 		third_party/farmhash
 		third_party/fast_float
 		third_party/fdlibm
-		third_party/federated_compute/chromium/fcp/confidentialcompute
-		third_party/federated_compute/chromium/fcp/protos
-		third_party/federated_compute/src/fcp/base
-		third_party/federated_compute/src/fcp/client
-		third_party/federated_compute/src/fcp/confidentialcompute
-		third_party/federated_compute/src/fcp/protos
+		third_party/federated_compute/chromium/fcp/
+		third_party/federated_compute/src/fcp/
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
