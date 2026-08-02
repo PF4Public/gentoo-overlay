@@ -1317,8 +1317,9 @@ src_prepare() {
 		third_party/farmhash
 		third_party/fast_float
 		third_party/fdlibm
-		third_party/federated_compute/chromium/fcp/
-		third_party/federated_compute/src/fcp/
+		third_party/federated_compute/chromium/fcp
+		third_party/federated_compute/src/fcp
+		third_party/federated_compute/third_party/googleapis
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
