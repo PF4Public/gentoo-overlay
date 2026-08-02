@@ -1320,6 +1320,8 @@ src_prepare() {
 		third_party/federated_compute/chromium/fcp
 		third_party/federated_compute/src/fcp
 		third_party/federated_compute/third_party/googleapis
+		third_party/federated_compute/third_party/protodatastore-cpp
+		third_party/federated_compute/third_party/tensorflow-federated
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
