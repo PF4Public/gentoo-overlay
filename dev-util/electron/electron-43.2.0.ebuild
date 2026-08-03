@@ -1557,10 +1557,12 @@ src_configure() {
 	pushd electron > /dev/null || die
 	#!v No control over what happens here
 	einfo "Installing node_modules"
-	# npm install corepack
-	# OLD_PATH=$PATH
-	# PATH="./node_modules/.bin:$PATH"
-	# export PATH
+	npm install corepack
+	OLD_PATH=$PATH
+	PATH="./node_modules/.bin:$PATH"
+	export PATH
+	git config --global url."https://github".insteadOf ssh://git@github
+	git config --global url."https://github.com/".insteadOf git@github.com:
 	# yarn config set disable-self-update-check true || die
 	# yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# yarn config set cacheFolder "${DISTDIR}" || die
