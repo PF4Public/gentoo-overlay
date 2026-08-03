@@ -63,6 +63,7 @@ def main():
         # Use a distinct scheme handler for slotted installs to avoid conflicts
         "URI_SCHEME": f"x-scheme-handler/ungoogled-chromium{channel_suffix}",
         "USR_BIN_SYMLINK_NAME": f"ungoogled-chromium-browser{channel_suffix}",
+        "STARTUP_WM_CLASS": f"ungoogled-chromium-browser{channel_suffix}",
     }
 
     # upstream is currently (M145) converting from upper to lower case
