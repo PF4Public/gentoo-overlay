@@ -2237,7 +2237,7 @@ src_compile() {
 	use enable-driver && eninja -C out/Release chromedriver
 	#use suid && eninja -C out/Release chrome_sandbox
 
-	use enable-driver && mv out/Release/chromedriver{.unstripped,}
+	# use enable-driver && mv out/Release/chromedriver{.unstripped,}
 
 	rm -f out/Release/locales/*.pak.info || die
 
