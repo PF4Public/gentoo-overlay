@@ -1554,26 +1554,26 @@ src_configure() {
 	# https://bugs.gentoo.org/654216
 	addpredict /dev/dri/ #nowarn
 
-	# pushd electron > /dev/null || die
-	# #!v No control over what happens here
-	# einfo "Installing node_modules"
-	# npm install corepack
-	# OLD_PATH=$PATH
-	# PATH="./node_modules/.bin:$PATH"
-	# export PATH
-	# git config --global url."https://github".insteadOf ssh://git@github
-	# git config --global url."https://github.com/".insteadOf git@github.com:
-	# # yarn config set disable-self-update-check true || die
-	# # yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	# # yarn config set cacheFolder "${DISTDIR}" || die
-	# # yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
-	# # export YARN_CACHE_FOLDER=${DISTDIR}
-	# # export YARN_ENABLE_OFFLINE_MODE=1
-	# yarn config set --home enableTelemetry 0 || die
-	# # yarn config set --home cacheFolder ${DISTDIR}
-	# yarn install || die
-	# #!^ No control over what happens here
-	# popd > /dev/null || die
+	pushd electron > /dev/null || die
+	#!v No control over what happens here
+	einfo "Installing node_modules"
+	npm install corepack
+	OLD_PATH=$PATH
+	PATH="./node_modules/.bin:$PATH"
+	export PATH
+	git config --global url."https://github".insteadOf ssh://git@github
+	git config --global url."https://github.com/".insteadOf git@github.com:
+	# yarn config set disable-self-update-check true || die
+	# yarn config set yarn-offline-mirror "${DISTDIR}" || die
+	# yarn config set cacheFolder "${DISTDIR}" || die
+	# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
+	# export YARN_CACHE_FOLDER=${DISTDIR}
+	# export YARN_ENABLE_OFFLINE_MODE=1
+	yarn config set --home enableTelemetry 0 || die
+	# yarn config set --home cacheFolder ${DISTDIR}
+	yarn install
+	#!^ No control over what happens here
+	popd > /dev/null || die
 
 	# libevent: https://bugs.gentoo.org/593458
 	local gn_system_libraries=(
