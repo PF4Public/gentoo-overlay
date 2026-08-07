@@ -47,22 +47,23 @@ def main():
     # Configure contexts strictly for file generation
     # Common variables used across templates
     context = {
-        "BUGTRACKERURL": "https://github.com/uazo/cromite/issues",
-        "DEVELOPER_NAME": "The Cromite Authors",
+        "BUGTRACKERURL": "https://github.com/ungoogled-software/ungoogled-chromium/issues",
+        "DEVELOPER_NAME": "The ungoogled-chromium Authors",
         "EXTRA_DESKTOP_ENTRIES": "",
-        "FULLDESC": "Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!",
-        "HELPURL": "https://github.com/uazo/cromite/blob/master/docs/FAQ.md",
+        "FULLDESC": "Google Chromium, sans integration with Google",
+        "HELPURL": "https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq",
         "INSTALLDIR": args.installdir,  # Note: We've patched the installer scripts to automatically append the channel suffix, but we'll use the arg since we bypass all that.
-        "MAINTMAIL": "cromite",
-        "MENUNAME": f"Cromite{menu_suffix}",
-        "PACKAGE": f"cromite-browser{channel_suffix}",
-        "PRODUCTURL": "https://github.com/uazo/cromite/",
+        "MAINTMAIL": "ungoogled-chromium",
+        "MENUNAME": f"ungoogled-chromium{menu_suffix}",
+        "PACKAGE": f"ungoogled-chromium-browser{channel_suffix}",
+        "PRODUCTURL": "https://github.com/ungoogled-software/ungoogled-chromium/",
         "PROGNAME": "chrome",
-        "PROJECT_LICENSE": "BSD, GPL-3, LGPL-2, LGPL-2.1, MPL-1.1, MPL-2.0, Apache-2.0, and others",
-        "SHORTDESC": "Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!",
+        "PROJECT_LICENSE": "BSD, LGPL-2, LGPL-2.1, MPL-1.1, MPL-2.0, Apache-2.0, and others",
+        "SHORTDESC": "Google Chromium, sans integration with Google",
         # Use a distinct scheme handler for slotted installs to avoid conflicts
-        "URI_SCHEME": f"x-scheme-handler/cromite{channel_suffix}",
-        "USR_BIN_SYMLINK_NAME": f"cromite-browser{channel_suffix}",
+        "URI_SCHEME": f"x-scheme-handler/ungoogled-chromium{channel_suffix}",
+        "USR_BIN_SYMLINK_NAME": f"ungoogled-chromium-browser{channel_suffix}",
+        "STARTUP_WM_CLASS": f"ungoogled-chromium-browser{channel_suffix}",
     }
 
     # upstream is currently (M145) converting from upper to lower case
@@ -73,28 +74,28 @@ def main():
     # Generate Desktop file
     installer.process_template(
         Path("chrome/installer/linux/common/desktop.template"),
-        Path(f"out/Release/cromite-browser{channel_suffix}.desktop"),
+        Path(f"out/Release/ungoogled-chromium-browser{channel_suffix}.desktop"),
         context,
     )
 
     # Generate Manpage
     installer.process_template(
         Path("chrome/app/resources/manpage.1.in"),
-        Path(f"out/Release/cromite-browser{channel_suffix}.1"),
+        Path(f"out/Release/ungoogled-chromium-browser{channel_suffix}.1"),
         context,
     )
 
     # Generate AppData (AppStream)
     installer.process_template(
         Path("chrome/installer/linux/common/appdata.xml.template"),
-        Path(f"out/Release/cromite-browser{channel_suffix}.appdata.xml"),
+        Path(f"out/Release/ungoogled-chromium-browser{channel_suffix}.appdata.xml"),
         context,
     )
 
     # Generate GNOME Default Apps entry
     installer.process_template(
         Path("chrome/installer/linux/common/default-app.template"),
-        Path(f"out/Release/cromite-browser{channel_suffix}.xml"),
+        Path(f"out/Release/ungoogled-chromium-browser{channel_suffix}.xml"),
         context,
     )
 
