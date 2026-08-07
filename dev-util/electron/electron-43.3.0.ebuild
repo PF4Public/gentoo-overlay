@@ -1558,9 +1558,6 @@ src_configure() {
 	#!v No control over what happens here
 	einfo "Installing node_modules"
 	npm install corepack
-	OLD_PATH=$PATH
-	PATH="./node_modules/.bin:$PATH"
-	export PATH
 	git config --global url."https://github".insteadOf ssh://git@github
 	git config --global url."https://github.com/".insteadOf git@github.com:
 	# yarn config set disable-self-update-check true || die
@@ -1569,9 +1566,9 @@ src_configure() {
 	# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
 	# export YARN_CACHE_FOLDER=${DISTDIR}
 	# export YARN_ENABLE_OFFLINE_MODE=1
-	yarn config set --home enableTelemetry 0 || die
-	# yarn config set --home cacheFolder ${DISTDIR}
-	yarn install
+    rm .yarnrc.yml
+    ./node_modules/.bin/yarn config set --home enableTelemetry 0 || die;
+    ./node_modules/.bin/yarn install --mode=skip-build || die;
 	#!^ No control over what happens here
 	popd > /dev/null || die
 
@@ -2027,7 +2024,7 @@ src_configure() {
 	done
 
 	einfo "Configuring Electron ..."
-	set -- gn gen -v --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
+	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
 	echo "$@"
 	"$@" || die "Failed to configure Electron"
 
