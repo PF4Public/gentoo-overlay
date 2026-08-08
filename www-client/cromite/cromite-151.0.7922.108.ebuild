@@ -27,10 +27,11 @@ GN_MIN_VER=0.2374
 # chromium-tools/get-chromium-toolchain-strings.py (or just use Chromicler)
 # Node for M145+ should be 24.12.0 but that's not packaged in Gentoo yet. See #969145
 TEST_FONT="9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9"
-BUNDLED_CLANG_VER="llvmorg-23-init-10931-g20b6ec66-11"
-BUNDLED_RUST_VER="4c4205163abcbd089150.0.7871.18148b3efab796c543ba1ea687-5"
+BUNDLED_CLANG_VER="llvmorg-23-init-19482-g53d18800-1"
+BUNDLED_RUST_VER="b998449636a48e2c4a362809085b600a0174e1f2-2"
 RUST_SHORT_HASH=${BUNDLED_RUST_VER:0:10}-${BUNDLED_RUST_VER##*-}
 NODE_VER="24.16.0-r1"
+GO_MIN_VER="1.25.0"
 ESBUILD_VER="0.25.1"
 ROLLUP_VER="4.57.1" # currently manual.
 
@@ -38,6 +39,11 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
+
+CROMITE_COMMIT_ID="69e841fd35cd92ce5fa1a336791c7989809e0f17"
+# CROMITE_PR_COMMITS=(
+# 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
+# )
 
 declare -A CHROMIUM_COMMITS=(
 	["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
@@ -57,16 +63,11 @@ RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it t
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
 
-CROMITE_COMMIT_ID="69e841fd35cd92ce5fa1a336791c7989809e0f17"
-# CROMITE_PR_COMMITS=(
-# 	8a749421011cf10f461bdd5619a0bfda6a4ae0f7
-# )
-
 DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!"
 HOMEPAGE="https://github.com/uazo/cromite"
-PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
-PATCH_V="${PV%%\.*}-1"
-COPIUM_COMMIT="b00f26bb5e0781020da5f830981472a142c6baf1"
+PPC64_HASH="7aae8a84e327fc2078ce1625c9c70bfda77d626f"
+PATCH_V="${PV%%\.*}-3"
+COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
 SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz
 	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
@@ -341,6 +342,7 @@ BDEPEND="
 	)
 	>=dev-util/bindgen-0.72.1
 	>=dev-build/gn-${GN_MIN_VER}
+	>=dev-lang/go-${GO_MIN_VER}
 	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.2
@@ -468,6 +470,10 @@ pkg_setup() {
 		if use !bundled-toolchain; then
 			llvm-r1_pkg_setup
 			rust_pkg_setup
+
+			if tc-ld-is-mold; then
+				ewarn "Mold is currently not supported, it will not be used"
+			fi
 
 			# Forcing clang; respect llvm_slot_x to enable selection of impl via LLVM_COMPAT
 			AR=llvm-ar
@@ -657,17 +663,27 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
-		rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
-		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
-		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
+	#if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
+	#	rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
+	#	sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
+	#	sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
+	#fi
+
+	# So many fontconfig magic numbers to cover
+	# TODO: once upstream roll to 2.18.2+ set that as our minimum and remove this logic.
+	# <=2.17.1 -> 9
+	# >2.17.1 && <2.18.2 -> 11
+	# >=2.18.2 -> 12
+	local fontconfig_cache_magic=9
+	if has_version ">=media-libs/fontconfig-2.18.2"; then
+		fontconfig_cache_magic=12
+	elif has_version ">media-libs/fontconfig-2.17.1"; then
+		fontconfig_cache_magic=11
 	fi
 
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/common/cr150-module-sysroot.patch || die # upstreamed
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr117-material-color-include.patch || die # same
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-actually-fix-ar.patch || die # same
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-dawn-system-go.patch || die # hardcode it like node
-	rm ${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr151-mold-unbundle.patch || die # don't care
+	sed -E -i \
+		-e "s#(fb5c91b2895aa445d23aebf7f9e2189c-le64\.cache-)(9|10|11|12)#\1${fontconfig_cache_magic}#g" \
+		third_party/test_fonts/fontconfig/BUILD.gn || die "Failed to set fontconfig cache magic in BUILD.gn"
 
 	#cp -f ${WORKDIR}/chromium-patches-${PATCH_V}/*-compiler.patch "${T}/compiler.patch"
 	##cp -f ${FILESDIR}/chromium-147-compiler.patch "${T}/compiler.patch"
@@ -675,14 +691,11 @@ src_prepare() {
 	#	sed -i '/default_stack_frames/Q' "${T}/compiler.patch" || die
 	#fi
 
-	PATCHES+=( "${WORKDIR}/chromium-patches-${PATCH_V}/common/" )
-	PATCHES+=( "${FILESDIR}/restore-x86-r4.patch" )
-
-	# https://issues.chromium.org/issues/442698344
-	# Unreleased fontconfig changed magic numbers and google have rolled to this version
-	if has_version "<=media-libs/fontconfig-2.17.1"; then
-		PATCHES+=( "${FILESDIR}/chromium-142-work-with-old-fontconfig.patch" )
-	fi
+	sed -E -i \
+		-e "s#(kCacheKey \+ \"/-le64\.cache-)(9|10|11|12)(\")#\1${fontconfig_cache_magic}\3#g" \
+		-e "s#(kCacheKey \+ \"-le64\.cache-)(9|10|11|12)(\")#\1${fontconfig_cache_magic}\3#g" \
+		third_party/test_fonts/fontconfig/generate_fontconfig_caches.cc || \
+			die "Failed to set fontconfig cache magic in generate_fontconfig_caches.cc"
 
 	if use bundled-toolchain; then
 		# We need to symlink the toolchain into the expected location
@@ -1012,7 +1025,6 @@ src_prepare() {
 		["/usr/bin/esbuild-${ESBUILD_VER}"]="${esbuild_path}/esbuild"
 		["/usr/bin/gperf"]="${S}/third_party/gperf/cipd/bin/gperf"
 		["/usr/bin/node"]="${S}/third_party/node/linux/node-linux-x64/bin/node"
-		["/usr/lib/go/bin/go"]="${S}/third_party/dawn/tools/golang/linux-amd64/bin/go"
 	)
 
 	for src in "${!restore_list[@]}"; do
@@ -1033,8 +1045,8 @@ src_prepare() {
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 
-	# Use the system copy of hwdata's usb.ids; upstream is woefully out of date (2015!)
-	sed 's|//third_party/usb_ids/usb.ids|/usr/share/hwdata/usb.ids|g' \
+	# Use the system copy of hwdata's usb.ids
+	sed 's|//third_party/usb_ids/src/usb.ids|/usr/share/hwdata/usb.ids|g' \
 		-i services/device/public/cpp/usb/BUILD.gn || die "Failed to set system usb.ids path"
 
 	# remove_bundled_libraries.py walks the source tree and looks for paths containing the substring 'third_party'
@@ -1165,7 +1177,6 @@ src_prepare() {
 		third_party/federated_compute/src/fcp
 		third_party/federated_compute/third_party/googleapis
 		third_party/federated_compute/third_party/protodatastore-cpp
-		third_party/federated_compute/third_party/tensorflow-federated
 		third_party/fft2d
 		third_party/flatbuffers
 		third_party/fp16
@@ -1202,11 +1213,6 @@ src_prepare() {
 		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
-	)
-	use libcxx && keeplibs+=(
-		third_party/libc++
-	)
-	keeplibs+=(
 		third_party/libdrm
 		third_party/libgav1
 		third_party/libjingle
@@ -1496,6 +1502,9 @@ src_configure() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
+	# 974899: sometimes people try to build with a non-Unicode locale and python gets very upset
+	python_export_utf8_locale || die "Chromium builds require a UTF-8 locale."
+
 	# Bug 491582.
 	export TMPDIR="${WORKDIR}/temp"
 	mkdir -p -m 755 "${TMPDIR}" || die
@@ -1659,15 +1668,16 @@ src_configure() {
 			"rustc_version=\"${RUST_SLOT}\""
 		)
 
-		if tc-ld-is-mold; then
-			myconf_gn+=(
-				"use_mold=true"
-				"use_lld=false"
-				"linker_path=\"${EPREFIX}/usr/bin/mold\""
-			)
-		else
-			myconf_gn+=( "use_lld=true" )
-		fi
+		# Currently disabled, runtime issues with mold
+		#if tc-ld-is-mold; then
+		#	myconf_gn+=(
+		#		"use_mold=true"
+		#		"use_lld=false"
+		#		"linker_path=\"${EPREFIX}/usr/bin/mold\""
+		#	)
+		#else
+		myconf_gn+=( "use_lld=true" )
+		#fi
 
 		if [[ ${LLVM_SLOT} -lt 23 ]]; then
 			# Workaround for -fsanitize-ignore-for-ubsan-feature (added in LLVM 23)
@@ -1776,6 +1786,7 @@ src_configure() {
 		# "use_thin_lto=${use_lto}"
 		# Only enabled for clang, but gcc has endian macros too
 		"v8_use_libm_trig_functions=true"
+		# use system go
 		"tint_use_system_go=true"
 	)
 
@@ -1842,6 +1853,8 @@ src_configure() {
 			"ozone_platform_x11=$(usex X true false)"
 			"ozone_platform=\"$(usex wayland wayland x11)\""
 			"rtc_use_pipewire=$(usex screencast true false)"
+			# As above - link directly instead of dlopening
+			"rtc_link_pipewire=$(usex screencast true false)"
 			"use_cups=$(usex cups true false)"
 			"use_kerberos=$(usex kerberos true false)"
 			"use_pulseaudio=$(usex pulseaudio true false)"
@@ -2120,6 +2133,8 @@ src_test() {
 		StackTraceDeathTest.StackDumpSignalHandlerIsMallocFree
 		TestLauncherTools.TruncateSnippetFocusedMatchesFatalMessagesTest
 		ThreadPoolEnvironmentConfig.CanUseBackgroundPriorityForWorker
+		DriveInfoTest.GetFileDriveInfo
+
 	)
 	local test_filter="-$(IFS=:; printf '%s' "${skip_tests[*]}")"
 	# test-launcher-bot-mode enables parallelism and plain output
