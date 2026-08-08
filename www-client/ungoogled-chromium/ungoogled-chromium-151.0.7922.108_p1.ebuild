@@ -360,6 +360,7 @@ BDEPEND="
 	>=dev-util/bindgen-0.72.1
 	>=dev-build/gn-${GN_MIN_VER}
 	app-alternatives/ninja
+	dev-lang/go
 	dev-lang/perl
 	>=dev-util/gperf-3.2
 	dev-util/esbuild:${ESBUILD_VER}
@@ -1164,7 +1165,7 @@ src_prepare() {
 		["/usr/bin/esbuild-${ESBUILD_VER}"]="${esbuild_path}/esbuild"
 		["/usr/bin/gperf"]="${S}/third_party/gperf/cipd/bin/gperf"
 		["/usr/bin/node"]="${S}/third_party/node/linux/node-linux-x64/bin/node"
-		["/usr/lib/go/bin/go"]="${S}/third_party/dawn/tools/golang/linux-amd64/bin/go"
+		["/usr/lib/go/bin/go"]="${S}/third_party/dawn/tools/golang/linux-$(tc-arch)/bin/go"
 	)
 
 	for src in "${!restore_list[@]}"; do
@@ -2165,7 +2166,7 @@ src_configure() {
 	export CHROME_VERSION_EXTRA="${SLOT}"
 
 	einfo "Configuring Chromium ..."
-	set -- gn gen -v --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
+	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
 	echo "$@"
 	"$@" || die "Failed to configure Chromium"
 
