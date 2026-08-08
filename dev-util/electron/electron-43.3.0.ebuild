@@ -969,7 +969,7 @@ src_prepare() {
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	else
 		eapply "${FILESDIR}/more-locales.patch"
-		eapply "${FILESDIR}/misc-fixes-ung-r3.patch"
+		eapply "${FILESDIR}/misc-fixes-ung-r4.patch"
 	fi
 
 	if use system-zstd; then
