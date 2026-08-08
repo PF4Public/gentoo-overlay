@@ -27,7 +27,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	vi zh-CN zh-HK zh-TW zu"
 
 LLVM_COMPAT=( 21 22 23 )
-PYTHON_COMPAT=( python3_{11..15} )
+PYTHON_COMPAT=( python3_{11..14} )
 PYTHON_REQ_USE="xml(+)"
 RUST_MIN_VER=1.91.0
 RUST_NEEDS_LLVM="yes please"
