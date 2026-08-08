@@ -1260,11 +1260,6 @@ src_prepare() {
 		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
-	)
-	use libcxx && keeplibs+=(
-		third_party/libc++
-	)
-	keeplibs+=(
 		third_party/libdrm
 		third_party/libgav1
 		third_party/libjingle
@@ -1712,13 +1707,10 @@ src_configure() {
 			"clang_use_chrome_plugins=false"
 			"use_clang_modules=false" # M141 enables this for the linux platform by default.
 			'custom_toolchain="//build/toolchain/linux/unbundle:default"'
-			# From M127 we need to provide a location for libclang.
-			# We patch this in for gentoo - see chromium-*-bindgen-custom-toolchain.patch
-			# rust_bindgen_root = directory with `bin/bindgen` beneath it.
-			# We don't need to set 'clang_base_path' for anything in our build
-			# and it defaults to the google toolchain location. Instead provide a location
-			# to where system clang lives so that bindgen can find system headers (e.g. stddef.h)
+			# From M127 we need to provide a location for libclang and the clang resource dir so that bindgen can find them
 			"bindgen_libclang_path=\"$(get_llvm_prefix)/$(get_libdir)\""
+			"bindgen_clang_resource_dir=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/include\""
+			"bindgen_extra_clang_args=[\"-I${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/include\"]"
 			"clang_base_path=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/\""
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
