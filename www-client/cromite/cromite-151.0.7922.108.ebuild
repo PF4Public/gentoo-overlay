@@ -46,7 +46,7 @@ CROMITE_COMMIT_ID="69e841fd35cd92ce5fa1a336791c7989809e0f17"
 # )
 
 declare -A CHROMIUM_COMMITS=(
-	["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
+	# ["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
 	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="."
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 #	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
@@ -1961,7 +1961,7 @@ src_configure() {
 		"enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 		"enable_remoting=false"
 		"enable_reporting=false"
-		#"enable_service_discovery=false"
+		"enable_service_discovery=false"
 		"exclude_unwind_tables=true"
 		"google_api_key=\"\""
 		"google_default_client_id=\"\""
