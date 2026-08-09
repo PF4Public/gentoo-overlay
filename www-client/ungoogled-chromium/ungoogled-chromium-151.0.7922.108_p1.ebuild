@@ -71,7 +71,7 @@ HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="7aae8a84e327fc2078ce1625c9c70bfda77d626f"
 PATCH_V="${PV%%\.*}-3"
 COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
-SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz
+SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz
 	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
@@ -589,7 +589,7 @@ src_unpack() {
 	# # unpack chromium-patches-${PATCH_V}.tar.bz2
 	# # Warned you!
 
-	unpack chromium-${PV/_*}-linux.tar.xz
+	unpack chromium-${PV/_*}-lite.tar.xz
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
 	if use !bundled-toolchain; then
@@ -693,11 +693,10 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	#if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
-	#	rm "${WORKDIR}/chromium-patches-${PATCH_V}/rust/cr146-fix-botched-bytemuck-roll.patch"
-	#	sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
-	#	sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
-	#fi
+	PATCHES+=(
+		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
+		"${FILESDIR}/restore-x86-r4.patch"
+	)
 
 	# So many fontconfig magic numbers to cover
 	# TODO: once upstream roll to 2.18.2+ set that as our minimum and remove this logic.
@@ -2186,6 +2185,7 @@ src_configure() {
 	export CHROME_VERSION_EXTRA="${SLOT}"
 
 	einfo "Configuring Chromium ..."
+	# add a `-v` here if gn `hangs` to see which file it's getting stuck on.
 	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
 	echo "$@"
 	"$@" || die "Failed to configure Chromium"
