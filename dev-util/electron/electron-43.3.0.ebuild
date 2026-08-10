@@ -1552,7 +1552,7 @@ src_configure() {
 	pushd electron > /dev/null || die
 	#!v No control over what happens here
 	einfo "Installing node_modules"
-	npm install corepack
+	# npm install corepack
 	git config --global url."https://github".insteadOf ssh://git@github
 	git config --global url."https://github.com/".insteadOf git@github.com:
 	# yarn config set disable-self-update-check true || die
@@ -1561,9 +1561,8 @@ src_configure() {
 	# yarn install --frozen-lockfile --offline --no-progress --ignore-scripts || die
 	# export YARN_CACHE_FOLDER=${DISTDIR}
 	# export YARN_ENABLE_OFFLINE_MODE=1
-    rm .yarnrc.yml
-    ./node_modules/.bin/yarn config set --home enableTelemetry 0 || die;
-    ./node_modules/.bin/yarn install --no-immutable
+    node script/yarn.js config set --home enableTelemetry 0 || die;
+    node script/yarn.js install --immutable
 	#!^ No control over what happens here
 	popd > /dev/null || die
 
