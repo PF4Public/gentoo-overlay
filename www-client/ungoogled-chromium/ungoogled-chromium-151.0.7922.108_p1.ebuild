@@ -693,6 +693,11 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
+	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
+		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
+		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
+	fi
+
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
