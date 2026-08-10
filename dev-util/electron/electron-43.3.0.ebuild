@@ -1563,7 +1563,7 @@ src_configure() {
 	# export YARN_ENABLE_OFFLINE_MODE=1
     rm .yarnrc.yml
     ./node_modules/.bin/yarn config set --home enableTelemetry 0 || die;
-    ./node_modules/.bin/yarn install --no-immutable --mode=skip-build || die;
+    ./node_modules/.bin/yarn install --no-immutable
 	#!^ No control over what happens here
 	popd > /dev/null || die
 
