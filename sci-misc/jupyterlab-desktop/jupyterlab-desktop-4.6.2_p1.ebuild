@@ -683,7 +683,7 @@ SRC_URI="
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
 ELECTRON_SLOT_DEFAULT="42"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-# IUSE="electron-40 electron-41 electron-42"
+IUSE="electron-43"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -710,15 +710,11 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE=""
 
 COMMON_DEPEND="
+	electron-43? ( dev-util/electron:43 )
+	!electron-43? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
+	)
 "
-	# electron-40? ( dev-util/electron:40 )
-	# electron-41? ( dev-util/electron:41 )
-	# electron-42? ( dev-util/electron:42 )
-	# !electron-40? (
-	# !electron-41? (
-	# !electron-42? (
-	# ) ) )
 
 RDEPEND="${COMMON_DEPEND}
 	>=dev-python/jupyterlab-$(ver_cut 1-3)
@@ -727,20 +723,14 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND="
-	>=net-libs/nodejs-7.6.0[corepack]
-"
+BDEPEND=">=net-libs/nodejs-7.6.0"
 
 src_unpack() {
-	# if use electron-41; then
-	# 	export ELECTRON_SLOT=41
-	# elif use electron-40; then
-	# 	export ELECTRON_SLOT=40
-	# elif use electron-42; then
-	# 	export ELECTRON_SLOT=42
-	# else
+	if use electron-43; then
+		export ELECTRON_SLOT=43
+	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	# fi
+	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
