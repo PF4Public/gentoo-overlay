@@ -103,7 +103,7 @@ src_compile() {
 	# fi
 
 	einfo "Installing node_modules"
-	npm install corepack
+	npx get-pnpm
 	node_modules/.bin/pnpm install || die
 	# --ignore-scripts
 
