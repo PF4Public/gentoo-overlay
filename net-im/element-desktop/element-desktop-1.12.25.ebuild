@@ -123,6 +123,7 @@ src_compile() {
 
 	einfo "Installing node_modules"
 	# sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
+	mkdir corepack
 	pushd "corepack" > /dev/null || die
 		npm install corepack --force
 	popd > /dev/null || die
