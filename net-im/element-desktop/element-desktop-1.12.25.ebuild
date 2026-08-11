@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit desktop flag-o-matic multilib python-any-r1 xdg-utils
 
@@ -25,7 +25,7 @@ if [[ ${PV} = *9999* ]]; then
 	IUSE+=" +build-online"
 else
 	IUSE+=" +build-online"
-	# KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
