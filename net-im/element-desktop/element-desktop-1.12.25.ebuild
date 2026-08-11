@@ -123,7 +123,7 @@ src_compile() {
 
 	einfo "Installing node_modules"
 	# sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
-	npx get-pnpm
+	npm install corepack --force
 	node_modules/.bin/pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
