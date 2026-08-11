@@ -103,7 +103,8 @@ src_compile() {
 	# fi
 
 	einfo "Installing node_modules"
-	npm install corepack --force
+	npm install -g corepack --force
+	corepack enable
 	node_modules/.bin/pnpm install || die
 	# --ignore-scripts
 
