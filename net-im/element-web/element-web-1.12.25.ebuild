@@ -103,7 +103,8 @@ src_compile() {
 	# fi
 
 	einfo "Installing node_modules"
-	pnpm install || die
+	npm install corepack
+	node_modules/.bin/pnpm install || die
 	# --ignore-scripts
 
 	# pushd "packages/shared-components" > /dev/null || die
