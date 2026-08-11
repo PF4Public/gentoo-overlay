@@ -41,7 +41,7 @@ DEPEND="${COMMON_DEPEND}"
 
 BDEPEND="
 	${PYTHON_DEPS}
-	net-libs/nodejs[corepack]
+	net-libs/nodejs
 "
 
 #TODO: Jitsi
