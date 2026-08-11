@@ -15,8 +15,7 @@ SRC_URI=""
 REPO="https://github.com/element-hq/element-web"
 ELECTRON_SLOT_DEFAULT="42"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-# IUSE="electron-40 electron-41 electron-42 native-modules"
-IUSE="native-modules"
+IUSE="electron-43 native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -48,15 +47,11 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
+	electron-43? ( dev-util/electron:43 )
+	!electron-43? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
+	)
 "
-	# electron-40? ( dev-util/electron:40 )
-	# electron-41? ( dev-util/electron:41 )
-	# electron-42? ( dev-util/electron:42 )
-	# !electron-40? (
-	# !electron-41? (
-	# !electron-42? (
-	# ) ) )
 
 RDEPEND="${COMMON_DEPEND}
 "
@@ -69,7 +64,7 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	native-modules? ( || ( dev-lang/rust dev-lang/rust-bin )  )
-	net-libs/nodejs[corepack]
+	net-libs/nodejs
 "
 
 python_check_deps() {
@@ -79,15 +74,11 @@ python_check_deps() {
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	# if use electron-41; then
-	# 	export ELECTRON_SLOT=41
-	# elif use electron-40; then
-	# 	export ELECTRON_SLOT=40
-	# elif use electron-42; then
-	# 	export ELECTRON_SLOT=42
-	# else
+	if use electron-43; then
+		export ELECTRON_SLOT=43
+	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	# fi
+	fi
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
 		if [ -f "${DISTDIR}/element-web-${PV}.tar.gz" ]; then
