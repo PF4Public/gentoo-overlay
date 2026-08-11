@@ -769,13 +769,14 @@ src_configure() {
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	# echo "$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	npm install corepack
+	node_modules/.bin/yarn config set disable-self-update-check true || die
+	node_modules/.bin/yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	if ! use build-online; then
 		ONLINE_OFFLINE="--offline"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		node_modules/.bin/yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
+	node_modules/.bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 
 	export PATH=${OLD_PATH}
 }
@@ -791,13 +792,14 @@ src_compile() {
 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	# echo "$PATH"
-	yarn config set disable-self-update-check true || die
-	yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+	npm install corepack
+	node_modules/.bin/yarn config set disable-self-update-check true || die
+	node_modules/.bin/yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	if ! use build-online; then
 		ONLINE_OFFLINE="--offline"
-		yarn config set yarn-offline-mirror "${DISTDIR}" || die
+		node_modules/.bin/yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	fi
-	yarn build || die
+	node_modules/.bin/yarn build || die
 
 	einfo "Manually preparing app.asar"
 	local distdir="dist/linux-unpacked/resources"
@@ -806,7 +808,8 @@ src_compile() {
 	# Copying yarn.lock allows freezing versions to the build versions
 	cp package.json yarn.lock ${distdir} || die
 	pushd ${distdir} &> /dev/null || die
-		yarn install ${ONLINE_OFFLINE} --production --no-progress --frozen-lockfile || die
+		npm install corepack
+		node_modules/.bin/yarn install ${ONLINE_OFFLINE} --production --no-progress --frozen-lockfile || die
 	popd &> /dev/null || die
 	rm ${distdir}/yarn.lock || die
 
