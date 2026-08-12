@@ -76,9 +76,10 @@ jobs:
       matrix:
         use:
           - 'api-proposals badge-providers'
-          - 'openvsx'
           - 'substitute-urls'
         include:
+          - use: 'openvsx'
+            experimental: true
           - use: '-build-online'
             experimental: true
           - use: 'reh reh-web'
