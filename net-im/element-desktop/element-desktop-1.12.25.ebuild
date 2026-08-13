@@ -122,13 +122,16 @@ src_compile() {
 	# sed -i '/configureSentry()/d' apps/desktop/src/electron-main.ts || die
 
 	einfo "Installing node_modules"
+	OLD_PATH=$PATH
+	PATH="$T/pnpm/node_modules/.bin:$PATH"
+	export PATH
 	# sed -i 's/linkWorkspacePackages.*/linkWorkspacePackages: false/' pnpm-workspace.yaml || die
 	mkdir "$T/pnpm"
 	pushd "$T/pnpm" > /dev/null || die
 		npm init -y
 		npm install pnpm
 	popd > /dev/null || die
-	"$T/pnpm/node_modules/.bin/pnpm" install --no-frozen-lockfile || die
+	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
 	if use native-modules; then
