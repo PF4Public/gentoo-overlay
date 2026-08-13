@@ -129,7 +129,7 @@ src_compile() {
 	mkdir "$T/pnpm"
 	pushd "$T/pnpm" > /dev/null || die
 		npm init -y
-		npm install pnpm
+		npm install pnpm yarn
 	popd > /dev/null || die
 	pnpm install --no-frozen-lockfile || die
 
