@@ -103,12 +103,15 @@ src_compile() {
 	# fi
 
 	einfo "Installing node_modules"
+	OLD_PATH=$PATH
+	PATH="$T/pnpm/node_modules/.bin:$PATH"
+	export PATH
 	mkdir "$T/pnpm"
 	pushd "$T/pnpm" > /dev/null || die
 		npm init -y
 		npm install pnpm
 	popd > /dev/null || die
-	"$T/pnpm/node_modules/.bin/pnpm" install || die
+	pnpm install || die
 	# --ignore-scripts
 
 	# pushd "packages/shared-components" > /dev/null || die
