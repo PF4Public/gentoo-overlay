@@ -987,6 +987,7 @@ src_prepare() {
 		["electron/patches/devtools_frontend"]="third_party/devtools-frontend/src"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/v8"]="v8"
+		["electron/patches/angle"]="third_party/angle"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
@@ -1023,6 +1024,7 @@ src_prepare() {
 			# 		continue;
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
+				[ "$i" = "cherry-pick-4de99209fb4f.patch" ]||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
 				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
 				[ "$i" = "desktop_media_list.patch" ]; then
