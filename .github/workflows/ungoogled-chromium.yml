@@ -82,11 +82,12 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - -official
           - wayland
           - headless -X -wayland
         include:
           - use: cromite
+            experimental: true
+          - use: -official
             experimental: true
           - use: -libcxx
             experimental: true
