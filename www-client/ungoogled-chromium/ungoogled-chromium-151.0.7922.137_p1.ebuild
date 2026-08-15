@@ -953,7 +953,6 @@ src_prepare() {
 			components/components_strings.grd || die
 
 		sed -i 's/absl::/std::/' "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" || die
-		sed -i 's/RandInt/RandIntInclusive/' "${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch" || die
 
 		filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" --exclude="content/browser/renderer_host/render_process_host_impl.cc" \
 			> "${BR_PA_PATH}/JIT-site-settings.patch1"
