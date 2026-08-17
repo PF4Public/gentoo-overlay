@@ -1,0 +1,28 @@
+commit 4e88834e10afed25968779041f0da020e11d6ae6
+Author: Niccolò Belli <niccolo.belli@linuxsystems.it>
+Date:   Thu Mar 9 11:31:37 2023 +0100
+
+    fix(build-utils): await stripSourceMapComment
+
+diff --git a/desktop/scripts/build-utils.tsx b/desktop/scripts/build-utils.tsx
+index 073f2001b..685a1b852 100644
+--- a/desktop/scripts/build-utils.tsx
++++ b/desktop/scripts/build-utils.tsx
+@@ -123,7 +123,7 @@ async function compile(
+     },
+   );
+   if (!dev) {
+-    stripSourceMapComment(out);
++    await stripSourceMapComment(out);
+   }
+ }
+ 
+@@ -233,7 +233,7 @@ export async function compileMain() {
+     });
+     console.log('✅  Compiled main bundle.');
+     if (!dev) {
+-      stripSourceMapComment(out);
++      await stripSourceMapComment(out);
+     }
+   } catch (err) {
+     die(err);
