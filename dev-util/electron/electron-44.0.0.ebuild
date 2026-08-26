@@ -838,6 +838,7 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
+			"${FILESDIR}/chromium-152-system-ffmpeg.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
