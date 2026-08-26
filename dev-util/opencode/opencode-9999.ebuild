@@ -402,75 +402,32 @@ src_compile() {
 }
 
 src_install() {
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
+	cd packages/desktop
 
-	#TODO --experimental-strip-types until node>=22.18 stabilised
-	if use temp-fix; then
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" node --experimental-strip-types node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	else
-	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	YARN_CACHE_FOLDER="${T}/.yarn-cache" /usr/bin/node --experimental-strip-types node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-prepare-deb || die
-	fi
-	local VSCODE_HOME="/usr/$(get_libdir)/vscode"
+	insinto "/usr/$(get_libdir)/opencode"
 
-	exeinto "${VSCODE_HOME}"
-	sed -i '/^ELECTRON/,+3d' "${WORKDIR}"/V*/bin/code-oss || die
+	doins -r dist/linux-unpacked/resources/app.asar.unpacked/
+	doins dist/linux-unpacked/resources/app.asar
 
-	awk -i inplace -v text="$(cat ${FILESDIR}/read_flags_file)" '!/^#/ && !p {print text; p=1} 1' "${WORKDIR}"/V*/bin/code-oss
-	sed -i "s|@ELECTRON@|code-oss|" "${WORKDIR}"/V*/bin/code-oss
+	exeinto "/usr/$(get_libdir)/opencode"
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode
+	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode
 
-	echo "VSCODE_PATH=\"/usr/$(get_libdir)/vscode\"
-	ELECTRON_PATH=\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}\"
-	CLI=\"\${VSCODE_PATH}/out/cli.js\"
-	exec /usr/bin/env ELECTRON_RUN_AS_NODE=1 \
-	NPM_CONFIG_NODEDIR=\"\${ELECTRON_PATH}/node/\" \
-	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
-	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
-	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
+	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+/usr/$(get_libdir)/opencode/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode
+	doexe dist/linux-unpacked/resources/opencode
+	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 
-	insinto "${VSCODE_HOME}"
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources/app/*
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/extensions
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/out
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.json
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/*.txt
-	#TODO why no asar?
-	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
-	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
-	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
-	fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/@vscode/ripgrep-universal/bin/linux-${VSCODE_ARCH}/rg
-	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
+	# Install icons
+	local branding size
+	for size in 32 64 128 ; do
+		newicon -s ${size} "icons/prod/${size}x${size}.png" \
+			opencode.png
+	done
 
-	if use reh; then
-		tar cf vscode-server-linux-x64.tar.gz -C "${WORKDIR}/vscode-reh-linux-x64/" .
-		doins vscode-server-linux-x64.tar.gz
-	fi
-	if use reh-web; then
-		tar cf vscode-server-linux-x64-web.tar.gz -C "${WORKDIR}/vscode-reh-web-linux-x64/" .
-		doins vscode-server-linux-x64-web.tar.gz
-	fi
-
-	pushd .build/linux/deb/*/code-oss-*/usr/share/ > /dev/null || die
-
-	insinto /usr/share/
-	sed -i 's$x-scheme-handler/code-oss$x-scheme-handler/code-oss;x-scheme-handler/vscode$' \
-		applications/*handler.desktop || die
-	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
-	doins -r applications bash-completion pixmaps zsh
-
-	insinto /usr/share/metainfo/
-	doins appdata/*
-
-	popd > /dev/null || die
-	export PATH=${OLD_PATH}
+	make_desktop_entry "/usr/bin/opencode" OpenCode \
+		"opencode" "Development;"
 }
-
 
 pkg_postrm() {
 	xdg_icon_cache_update
@@ -478,19 +435,6 @@ pkg_postrm() {
 }
 
 pkg_postinst() {
-	if use api-proposals; then
-		ewarn
-		ewarn "You have enabled insiders API, be warned:"
-		ewarn "this might be against Microsoft licensing terms."
-		ewarn
-	fi
-
-	# elog
-	# elog "Normally vscode ships some builtin extensions, but they are omitted here"
-	# elog "Consult product.json for a list if you want to install them manually"
-	# elog "ms-vscode.references-view is one of them, for example"
-	# elog
-
 	xdg_icon_cache_update
 	xdg_desktop_database_update
 }
