@@ -61,4 +61,12 @@
    strip_binary("strip_electron_binary") {
      binary_input = "$root_out_dir/$electron_project_name"
      symbol_output = "$root_out_dir/debug/$electron_project_name.debug"
-
+@@ -1919,7 +1919,7 @@
+     ":electron_xcache",
+     ":licenses",
+   ]
+-  if (is_linux && is_official_build) {
++  if (!is_linux && is_official_build) {
+     data_deps += [ ":strip_electron_xcache_binary" ]
+   }
+   deps = data_deps

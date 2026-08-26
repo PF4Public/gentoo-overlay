@@ -28,6 +28,16 @@
        "//content/test:test_support",
        "//testing/gtest",
      ]
+--- a/chrome/browser/feedback/report_unsafe_site/BUILD.gn
++++ b/chrome/browser/feedback/report_unsafe_site/BUILD.gn
+@@ -12,7 +12,6 @@ if (!is_android) {
+       "//skia",
+     ]
+     deps = [
+-      "//components/safe_browsing/content/browser:client_side_detection",
+       "//components/viz/common",
+     ]
+   }
 --- a/chrome/browser/ui/views/file_system_access/BUILD.gn
 +++ b/chrome/browser/ui/views/file_system_access/BUILD.gn
 @@ -97,7 +97,6 @@ if (!is_android) {
