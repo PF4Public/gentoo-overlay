@@ -34,7 +34,7 @@
  #include <utility>
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -1424,7 +1424,7 @@
+@@ -1820,7 +1820,7 @@
      ":licenses",
    ]
    if (is_linux) {
@@ -52,15 +52,6 @@
      data_deps += [
        ":strip_libffmpeg_shlib",
        ":strip_libvk_swiftshader_shlib",
-@@ -1616,7 +1616,7 @@
-   public_deps = [ ":tar_node_headers" ]
- }
- 
--if (is_linux && is_official_build) {
-+if (!is_linux && is_official_build) {
-   strip_binary("strip_electron_binary") {
-     binary_input = "$root_out_dir/$electron_project_name"
-     symbol_output = "$root_out_dir/debug/$electron_project_name.debug"
 @@ -1919,7 +1919,7 @@
      ":electron_xcache",
      ":licenses",
@@ -70,3 +61,12 @@
      data_deps += [ ":strip_electron_xcache_binary" ]
    }
    deps = data_deps
+@@ -2062,7 +2062,7 @@
+   }
+ }
+ 
+-if (is_linux && is_official_build) {
++if (!is_linux && is_official_build) {
+   strip_binary("strip_electron_binary") {
+     binary_input = "$root_out_dir/$electron_project_name"
+     symbol_output = "$root_out_dir/debug/$electron_project_name.debug"
