@@ -1,0 +1,125 @@
+name: opencode
+on:
+  push:
+    paths:
+    - 'dev-util/opencode/*.ebuild'
+  pull_request:
+    paths:
+    - 'dev-util/opencode/*.ebuild'
+
+jobs:
+  default:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+
+      - name: Prepare cache dir
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Calculate the hash of changed files
+        id: hash
+        run: |
+          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+      - name: Restore cache
+        uses: actions/cache/restore@v6
+        with:
+          path: "${{ github.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Install ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.hash.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ' '
+
+      - name: Save cache
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+
+      - name: Save failed cache
+        uses: actions/cache/save@v6
+        if: ${{ failure() }}
+        with:
+          path: |
+            ${{ github.workspace }}/distfiles
+            ${{ github.workspace }}/ccache
+          key: ${{ github.workflow }}-failed-${{ steps.hash.outputs.digest }}
+
+  ebuild:
+    needs: default
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - use: 'electron-43'
+            experimental: true
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+
+      - name: Prepare cache dir
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+
+      - name: Calculate the hash of changed files
+        id: hash
+        run: |
+          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+
+      - name: Free space on runner
+        run: |
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+      - name: Restore cache
+        uses: actions/cache/restore@v6
+        with:
+          path: "${{ github.workspace }}/distfiles"
+          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
+          restore-keys: ${{ github.workflow }}
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.hash.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ${{ matrix.use }}
