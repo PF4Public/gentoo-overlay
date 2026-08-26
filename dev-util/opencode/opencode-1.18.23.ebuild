@@ -1,0 +1,440 @@
+# Copyright 2009-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+PYTHON_COMPAT=( python3_{11..14} )
+
+inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
+
+DESCRIPTION="The open source AI coding agent"
+HOMEPAGE="https://github.com/anomalyco/opencode"
+LICENSE="MIT"
+SLOT="0"
+
+REPO="https://github.com/anomalyco/opencode"
+#CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
+IUSE="electron-43"
+
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="${REPO}.git"
+	DOWNLOAD=""
+	# IUSE+=" +build-online"
+	ELECTRON_SLOT_DEFAULT="42"
+else
+	# IUSE+=" +build-online"
+	ELECTRON_SLOT_DEFAULT="42"
+	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	DOWNLOAD="${REPO}/archive/"
+	if [ -z "$CODE_COMMIT_ID" ]; then
+		DOWNLOAD+="v${PV}.tar.gz -> ${P}.tar.gz"
+	else
+		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
+		S="${WORKDIR}/${PN}-${CODE_COMMIT_ID}"
+	fi
+fi
+
+SRC_URI="${DOWNLOAD}"
+
+RESTRICT="mirror network-sandbox"
+# RESTRICT="mirror build-online? ( network-sandbox )"
+
+REQUIRED_USE=""
+
+COMMON_DEPEND="
+	sys-apps/ripgrep
+	electron-43? ( dev-util/electron:43 )
+	!electron-43? (
+		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
+	)
+"
+
+RDEPEND="${COMMON_DEPEND}
+"
+
+DEPEND="${COMMON_DEPEND}
+"
+
+BDEPEND="
+	${PYTHON_DEPS}
+	$(python_gen_any_dep '
+		dev-python/setuptools[${PYTHON_USEDEP}]
+	')
+	>=net-libs/nodejs-7.6.0[npm]
+"
+
+python_check_deps() {
+		python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+}
+
+# pkg_pretend() {
+# 	einfo
+# 	einfo "Should the build fail with JS/heap OOM errors"
+# 	einfo "try increasing vm.max_map_count"
+# 	einfo
+
+# 	if ! use build-online; then
+# 		ewarn
+# 		ewarn "Offline build is not implemented yet"
+# 		ewarn "Subscribe to #377 to stay informed"
+# 		ewarn
+# 		[[ -z "${NODIE}" ]] && die "The build will fail!"
+# 	fi
+# }
+
+src_unpack() {
+	if use electron-43; then
+		export ELECTRON_SLOT=43
+	else
+		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
+	fi
+	if [ -z "$CODE_COMMIT_ID" ]; then
+		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
+			unpack "${P}".tar.gz || die
+		else
+			# if use electron-29 || use electron-30; then
+			# 	EGIT_BRANCH="electron-29.x.y"
+			# fi
+			git-r3_src_unpack
+		fi
+	else
+		unpack "${PN}-${CODE_COMMIT_ID}.tar.gz" || die
+	fi
+}
+
+# src_prepare() {
+# 	default
+
+# 	# einfo "Restoring electron 12 support"
+# 	# patch -Rup1 -i "${DISTDIR}/${PN}-f95b7e935f0edf1b41a2195fbe380078b29ab8f8.patch" || die
+
+# 	einfo "Add PPC target to package build scripts"
+# 	patch -p1 -i "${FILESDIR}/add-ppc-target.patch" || die
+
+# 	einfo "Removing telemetry-extractor"
+# 	# sed -i '/ripgrep"/d' package.json || die
+# 	sed -i '/telemetry-extractor"/d' package.json || die
+# 	sed -i '/git-blame-ignore/d' build/npm/postinstall.ts || die
+
+# 	# einfo "Allowing any nodejs version"
+# 	# sed -i 's/if (majorNodeVersion < 16.*/if (false){/' build/npm/preinstall.ts || die
+
+# 	# ewarn "Removing extensions/npm, see #203"
+# 	# ewarn "Please poke Microsoft here: https://github.com/microsoft/vscode/issues/181598"
+# 	# rm -r extensions/npm
+# 	# sed -i '/extensions\/npm/d' build/npm/dirs.ts || die
+
+# 	#TODO: applicationinsights
+# 	# sed -i '/applicationinsights/d' package.json || die
+# 	# sed -i '/buildWebNodePaths/d' build/gulpfile.compile.ts || die
+
+# 	# sed -i '/"electron"/d' package.json || die
+# 	# sed -i '/vscode-ripgrep/d' remote/package.json || die
+# 	# sed -i '/"playwright"/d' package.json || die
+# 	# sed -i '/test-web"/d' package.json || die
+
+# 	# sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
+
+# 	einfo "Editing preinstall.ts"
+# 	sed -i 's/const npmVersionMatch =.*/const npmVersionMatch = false;/' build/npm/preinstall.ts || die
+# 	sed -i '/installHeaders();/d' build/npm/preinstall.ts || die
+
+# 	einfo "Editing postinstall.ts"
+# 	#sed -i "s/ || arg === '--frozen-lockfile'/ || arg === '--frozen-lockfile' || arg === '--offline' || arg === '--no-progress'/" build/npm/postinstall.ts || die
+# 	sed -i '/git config pull/d' build/npm/postinstall.ts || die
+
+# 	einfo "Editing dirs.ts"
+# 	if ! ( use reh || use reh-web ); then
+# 		sed -i '/remote/d' build/npm/dirs.ts || die
+# 	fi
+# 	# sed -i '/test\/automation/d' build/npm/dirs.ts || die
+# 	# sed -i '/test\/integration\/browser/d' build/npm/dirs.ts || die
+# 	# sed -i '/test\/smoke/d' build/npm/dirs.ts || die
+# 	# sed -i '/test\/monaco/d' build/npm/dirs.ts || die
+# 	# sed -i '/vscode-selfhost-test-provider/d' build/npm/dirs.ts || die
+
+# 	# einfo "Editing build/gulpfile.extensions.js"
+# 	# sed -i '/bundle-marketplace-extensions-build/d' build/gulpfile.extensions.ts || die
+
+# 	einfo "Editing build/gulpfile.vscode.ts"
+# 	#sed -i 's/ffmpegChromium: true/ffmpegChromium: false/' build/gulpfile.vscode.ts || die
+# 	sed -i '/ffmpegChromium/d' build/gulpfile.vscode.ts || die
+# 	# sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
+# 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
+# 	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
+
+# 	einfo "Editing build/gulpfile.vscode.linux.ts"
+# 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
+# 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
+# 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
+
+# 	einfo "Editing product.json"
+# 	mv product.json product.json.bak || die
+# 	sed -i '1d' product.json.bak || die
+
+# 	cat "${FILESDIR}/heading.json" > product.json
+
+# 	if use openvsx; then
+# 		cat "${FILESDIR}/openvsx.json" >> product.json
+# 	else
+# 		cat "${FILESDIR}/marketplace.json" >> product.json
+# 	fi
+
+# 	if use badge-providers; then
+# 		cat "${FILESDIR}/badge_prov.json" >> product.json
+# 	fi
+
+# 	if use api-proposals; then
+# 		cat "${FILESDIR}/api-proposals.json" >> product.json
+# 	fi
+
+# 	cat product.json.bak >> product.json
+
+# 	einfo "Disabling telemetry by default"
+# 	perl -0777 -pi -e "s/'default': true,\n\s*'restricted': true,/'default': false,'restricted': true,/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
+# 	perl -0777 -pi -e "s/'default': TelemetryConfiguration.ON,/'default': TelemetryConfiguration.OFF,/m or die" src/vs/platform/telemetry/common/telemetryService.ts || die
+# 	perl -0777 -pi -e "s/'default': true,\n\s*'tags': \['usesOnlineServices', 'telemetry'\]/'default': false,'tags': ['usesOnlineServices', 'telemetry']/m or die" src/vs/workbench/electron-browser/desktop.contribution.ts || die
+
+# 	einfo "Disabling automatic updates by default"
+# 	perl -0777 -pi -e "s/enum: \['none', 'manual', 'start', 'default'\],\n\s*default: 'default',/enum: ['none', 'manual', 'start', 'default'], default: 'none',/m or die" src/vs/platform/update/common/update.config.contribution.ts || die
+
+# 	if use substitute-urls; then
+# 	ebegin "Substituting urls"
+# 		#Taken from VSCodium
+# 		TELEMETRY_URLS="[^/]+\.data\.microsoft\.com"
+# 		REPLACEMENT="s/$TELEMETRY_URLS/0\.0\.0\.0/g"
+# 		grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
+# 	eend $? || die
+# 	fi
+
+# 	# einfo "Disabling signature verification for extensions"
+# 	# einfo "as it depends on a package from a hidden repository"
+# 	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
+# }
+
+# src_configure() {
+
+# 	# local myarch="$(tc-arch)"
+
+# 	# if [[ $myarch = amd64 ]]; then
+# 	# 	VSCODE_ARCH="x64"
+# 	# elif [[ $myarch = x86 ]]; then
+# 	# 	VSCODE_ARCH="ia32"
+# 	# elif [[ $myarch = arm64 ]]; then
+# 	# 	VSCODE_ARCH="arm64"
+# 	# elif [[ $myarch = arm ]]; then
+# 	# 	VSCODE_ARCH="armhf"
+# 	# elif [[ $myarch = ppc64 ]]; then
+# 	# 	VSCODE_ARCH="ppc64"
+# 	# else
+# 	# 	die "Failed to determine target arch, got '$myarch'."
+# 	# fi
+
+# 	# #TODO: should work starting with electron-22
+# 	# if use electron-20 || use electron-21 || use electron-23 || use electron-24; then
+# 	# 	CPPFLAGS="${CPPFLAGS} -std=c++17";
+# 	# 	use build-online || eerror "build-online should be enabled for nan substitution to work" || die;
+# 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
+# 	# fi
+
+# 	# # #TODO: temp fix
+# 	# # if use electron-32 || use electron-33 || use electron-35 || use electron-36 || use electron-38; then
+# 	# 	CPPFLAGS="${CPPFLAGS} -std=c++20";
+# 	# 	use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
+# 	# 	sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
+# 	# # fi
+
+# 	# if use build-online; then
+# 	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
+# 	# else
+# 	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
+# 	# fi
+
+# 	einfo "Installing node_modules"
+# 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
+# 	OLD_PATH=$PATH
+# 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+# 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+# 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+# 	export PATH
+# 	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+# 	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
+# 	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
+# 	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
+# 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
+# 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+# 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+# 	npm config set update-notifier false || die
+# 	# echo "$PATH"
+# 	# yarn config set disable-self-update-check true || die
+# 	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
+# 	# if ! use build-online; then
+# 	# 	ONLINE_OFFLINE="--offline"
+# 	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
+# 	# fi
+# 	npm install --frozen-lockfile ${ONLINE_OFFLINE} \
+# 		--arch=${VSCODE_ARCH} --no-progress || die
+# 	# --ignore-optional
+# 	# --ignore-engines
+# 	# --production=true
+# 	# --no-progress
+# 	# --skip-integrity-check
+# 	# --verbose
+
+# 	# # Workaround md4 see https://github.com/webpack/webpack/issues/14560
+# 	# find node_modules/webpack/lib -type f -exec sed -i 's|md4|sha512|g' {} \; || die
+# 	# # For webpack >= 5.61.0
+# 	# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
+
+# 	export PATH=${OLD_PATH}
+
+# 	# einfo "Restoring vscode-ripgrep"
+# 	# pushd "node_modules/@vscode" > /dev/null || die
+# 	# 	tar -xf "${DISTDIR}/@vscode-ripgrep-${VS_RIPGREP_V}.tgz"
+# 	# 	mv package ripgrep
+# 	# 	sed -i 's$module.exports.rgPath.*$module.exports.rgPath = "/usr/bin/rg";\n$' ripgrep/lib/index.js || die
+# 	# 	sed -i '/"postinstall"/d' ripgrep/package.json || die
+# 	# popd > /dev/null || die
+# 	# eend $? || die
+# 	# sed -i "s/\"dependencies\": {/\"dependencies\": {\"@vscode\/ripgrep\": \"^${VS_RIPGREP_V}\",/" package.json || die
+
+# 	#rm extensions/css-language-features/server/test/pathCompletionFixtures/src/data/foo.asar
+# 	#rm -rf extensions/css-language-features/server/test > /dev/null || die
+# 	# rm -rf extensions/copilot > /dev/null || die
+
+# 	# einfo "Editing build/lib/getVersion.js"
+# 	# sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
+# 	# 	build/lib/getVersion.ts || die
+
+# 	# einfo "Copying @vscode/vsce-sign"
+# 	# cp -r build/node_modules/@vscode/vsce* node_modules/@vscode/ || die
+
+# 	#TODO Although this allows the build to continue, it renders vscode unusable
+# 	#TODO Does it really? Investigate later
+# 	# einfo "Fixing l10n-dev"
+# 	# sed -i 's/return await import_web_tree_sitter/return null; await import_web_tree_sitter/' node_modules/@vscode/l10n-dev/dist/main.js || die
+# }
+
+src_compile() {
+	# if [ -d ".git" ]; then
+	#     COMMIT_ID="$(git rev-parse HEAD)"
+	# else
+	# 	if [ -z "$CODE_COMMIT_ID" ]; then
+	# 		COMMIT_ID="${PV}"
+	# 	else
+	# 		COMMIT_ID="${CODE_COMMIT_ID}"
+	# 	fi
+	# fi
+	# export BUILD_SOURCEVERSION="${COMMIT_ID}"
+
+	# local myarch="$(tc-arch)"
+
+	# if [[ $myarch = amd64 ]]; then
+	# 	VSCODE_ARCH="x64"
+	# elif [[ $myarch = x86 ]]; then
+	# 	VSCODE_ARCH="ia32"
+	# elif [[ $myarch = arm64 ]]; then
+	# 	VSCODE_ARCH="arm64"
+	# elif [[ $myarch = arm ]]; then
+	# 	VSCODE_ARCH="armhf"
+	# elif [[ $myarch = ppc64 ]]; then
+	# 	VSCODE_ARCH="ppc64"
+	# else
+	# 	die "Failed to determine target arch, got '$myarch'."
+	# fi
+
+	OLD_PATH=$PATH
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
+	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
+	export PATH
+	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+
+	einfo "Installing node_modules"
+	OLD_PATH=$PATH
+	PATH="$T/bun/node_modules/.bin:$PATH"
+	export PATH
+	mkdir "$T/bun"
+	pushd "$T/bun" > /dev/null || die
+		npm init -y
+		npm install bun
+	popd > /dev/null || die
+	bun install || die
+
+	cd packages/desktop
+	# bun install || die
+	bun run build || die
+	# bun run package || die
+	/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+
+	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
+	# #? `exploration`, `insider`, `stable`
+	# export VSCODE_QUALITY="stable"
+
+	# #TODO --experimental-strip-types until node>=22.18 stabilised
+	# if use temp-fix; then
+	# node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	# else
+	# # Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	# /usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	# fi
+
+	# #TODO: make reh use the same node at runtime as main vscode
+	# if use reh; then
+	# 	if use temp-fix; then
+	# 	node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+	# 	else
+	# 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	# 	/usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+	# 	fi
+	# fi
+	# if use reh-web; then
+	# 	if use temp-fix; then
+	# 	node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+	# 	else
+	# 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
+	# 	/usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+	# 	fi
+	# fi
+
+	export PATH=${OLD_PATH}
+}
+
+src_install() {
+	cd packages/desktop
+
+	insinto "/usr/$(get_libdir)/opencode"
+
+	doins -r dist/linux-unpacked/resources/app.asar.unpacked/
+	doins dist/linux-unpacked/resources/app.asar
+
+	exeinto "/usr/$(get_libdir)/opencode"
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode
+	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode
+
+	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+/usr/$(get_libdir)/opencode/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode
+	doexe dist/linux-unpacked/resources/opencode
+	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+
+	# Install icons
+	local branding size
+	for size in 32 64 128 ; do
+		newicon -s ${size} "icons/prod/${size}x${size}.png" \
+			opencode.png
+	done
+
+	make_desktop_entry "/usr/bin/opencode" OpenCode \
+		"opencode" "Development;"
+}
+
+pkg_postrm() {
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+}
+
+pkg_postinst() {
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+}
