@@ -585,7 +585,7 @@ src_prepare() {
 
 	sed -i '/no-lifetime-safety-inference/d' third_party/dawn/src/utils/BUILD.gn || die
 	sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
-	
+
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
@@ -996,7 +996,7 @@ src_prepare() {
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	else
 		eapply "${FILESDIR}/more-locales.patch"
-		eapply "${FILESDIR}/misc-fixes-ung-r4.patch"
+		# eapply "${FILESDIR}/misc-fixes-ung-r4.patch"
 	fi
 
 	# Sanity check esbuild version before we start removing files.
