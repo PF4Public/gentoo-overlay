@@ -350,6 +350,10 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	
+	if [[ ${PV} != *9999* ]]; then
+		export OPENCODE_VERSION="${PV}"
+	fi
 
 	einfo "Installing node_modules"
 	OLD_PATH=$PATH
