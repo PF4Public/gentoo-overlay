@@ -1023,7 +1023,7 @@ src_prepare() {
 		["electron/patches/devtools_frontend"]="third_party/devtools-frontend/src"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/v8"]="v8"
-		["electron/patches/angle"]="third_party/angle"
+		# ["electron/patches/angle"]="third_party/angle"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
