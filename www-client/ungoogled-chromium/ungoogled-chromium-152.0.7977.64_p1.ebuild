@@ -699,6 +699,9 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
+	sed -i '/no-lifetime-safety-inference/d' third_party/dawn/src/utils/BUILD.gn || die
+	sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
+
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
@@ -2119,7 +2122,6 @@ src_configure() {
 		"thin_lto_enable_optimizations=$(usex optimize-thinlto true false)"
 
 		# Ungoogled flags
-		"build_with_tflite_lib=false"
 		"enable_mdns=false"
 		"enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 		"enable_remoting=false"
