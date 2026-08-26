@@ -590,6 +590,7 @@ src_prepare() {
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
 		"${FILESDIR}/chromium-151-cbor-fix.patch"
+		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
@@ -838,7 +839,6 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
-			"${FILESDIR}/chromium-152-system-ffmpeg.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
