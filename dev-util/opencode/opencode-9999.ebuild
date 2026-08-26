@@ -28,7 +28,7 @@ else
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
-		DOWNLOAD+="${PV}.tar.gz -> ${P}.tar.gz"
+		DOWNLOAD+="v${PV}.tar.gz -> ${P}.tar.gz"
 	else
 		DOWNLOAD+="${CODE_COMMIT_ID}.tar.gz -> ${PN}-${CODE_COMMIT_ID}.tar.gz"
 		S="${WORKDIR}/${PN}-${CODE_COMMIT_ID}"
