@@ -583,6 +583,9 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
+	sed -i '/no-lifetime-safety-inference/d' third_party/dawn/src/utils/BUILD.gn || die
+	sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
+	
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
