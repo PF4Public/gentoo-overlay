@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">anomalyco/opencode</remote-id>
+		<bugs-to>https://github.com/anomalyco/opencode/issues</bugs-to>
+		<doc>https://opencode.ai/docs</doc>
+	</upstream>
+	<longdescription>
+		The open source AI coding agent
+	</longdescription>
+	<use>
+		<flag name="electron-43">Build against electron-43 instead of the default one</flag>
+	</use>
+</pkgmetadata>
