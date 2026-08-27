@@ -24,7 +24,7 @@ if [[ ${PV} = *9999* ]]; then
 	ELECTRON_SLOT_DEFAULT="42"
 else
 	# IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="42"
+	ELECTRON_SLOT_DEFAULT="43"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
