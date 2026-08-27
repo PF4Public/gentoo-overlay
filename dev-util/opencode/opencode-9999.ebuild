@@ -426,7 +426,7 @@ src_install() {
 	# doins install
 
 	exeinto "/usr/$(get_libdir)/opencode"
-	doexe packages/opencode/dist/opencode-*/bin/opencode
+	doexe packages/opencode/dist/opencode-linux-x64-baseline/bin/opencode
 	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 	# install -Dm644 schema.json $out/share/opencode/schema.json
 
@@ -439,7 +439,7 @@ src_install() {
 	cp "${FILESDIR}/read_flags_file" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	sed -i "s|@ELECTRON@|opencode|" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 
-	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+	echo "ELECTRON_FORCE_IS_PACKAGED=1 OPENCODE_EXPERIMENTAL_LSP_TOOL=1 \"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
 /usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	doexe packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	dosym "/usr/$(get_libdir)/opencode/desktop/opencode-desktop" /usr/bin/opencode-desktop
