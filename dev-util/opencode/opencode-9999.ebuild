@@ -368,11 +368,11 @@ src_compile() {
 		npm install bun
 	popd > /dev/null || die
 
-	bun install || die
+	bun install --frozen-lockfile --ignore-scripts || die
 
 	pushd "packages/opencode" > /dev/null || die
-		bun --bun ./script/build.ts --single --skip-install
-		bun --bun ./script/schema.ts schema.json
+		bun run ./script/build.ts --single --baseline --skip-install
+		# bun run ./script/schema.ts schema.json
 	popd > /dev/null || die
 
 	pushd "packages/desktop" > /dev/null || die
