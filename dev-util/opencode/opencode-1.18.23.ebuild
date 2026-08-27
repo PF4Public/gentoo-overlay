@@ -37,7 +37,7 @@ fi
 
 SRC_URI="${DOWNLOAD}"
 
-RESTRICT="mirror network-sandbox"
+RESTRICT="mirror network-sandbox strip"
 # RESTRICT="mirror build-online? ( network-sandbox )"
 
 REQUIRED_USE=""
