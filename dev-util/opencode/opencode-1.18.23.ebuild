@@ -370,15 +370,17 @@ src_compile() {
 
 	bun install || die
 
-    cd packages/opencode
-    bun --bun ./script/build.ts --single --skip-install
-    bun --bun ./script/schema.ts schema.json
+	pushd "packages/opencode" > /dev/null || die
+		bun --bun ./script/build.ts --single --skip-install
+		bun --bun ./script/schema.ts schema.json
+	popd > /dev/null || die
 
-	cd packages/desktop
-	# bun install || die
-	bun run build || die
-	# bun run package || die
-	/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+	pushd "packages/desktop" > /dev/null || die
+		# bun install || die
+		bun run build || die
+		# bun run package || die
+		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+	popd > /dev/null || die
 
 	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 	# #? `exploration`, `insider`, `stable`
@@ -424,24 +426,22 @@ src_install() {
 	doins install
 	doins package.json
 
-	cd packages/opencode
-	doexe dist/opencode-*/bin/opencode
+	doexe packages/opencode/dist/opencode-*/bin/opencode
 	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 	# install -Dm644 schema.json $out/share/opencode/schema.json
 
-	cd packages/desktop
 	insinto "/usr/$(get_libdir)/opencode/desktop"
 
 	doins -r dist/linux-unpacked/resources/app.asar.unpacked
-	doins dist/linux-unpacked/resources/app.asar
+	doins packages/desktop/dist/linux-unpacked/resources/app.asar
 
 	exeinto "/usr/$(get_libdir)/opencode/desktop"
-	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode-desktop
-	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode-desktop
+	cp "${FILESDIR}/read_flags_file" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
+	sed -i "s|@ELECTRON@|opencode|" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 
 	echo "ELECTRON_FORCE_IS_PACKAGED=1 \"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
-/usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode-desktop
-	doexe dist/linux-unpacked/resources/opencode-desktop
+/usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> packages/desktop/dist/linux-unpacked/resources/opencode-desktop
+	doexe packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	dosym "/usr/$(get_libdir)/opencode/desktop/opencode" /usr/bin/opencode-desktop
 
 	# Install icons
