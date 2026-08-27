@@ -708,6 +708,7 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r4.patch"
 		"${FILESDIR}/chromium-151-cbor-fix.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
+		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
