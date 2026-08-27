@@ -425,6 +425,7 @@ src_install() {
 	# doins package.json
 	# doins install
 
+	exeinto "/usr/$(get_libdir)/opencode"
 	doexe packages/opencode/dist/opencode-*/bin/opencode
 	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 	# install -Dm644 schema.json $out/share/opencode/schema.json
