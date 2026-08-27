@@ -2096,6 +2096,8 @@ src_install() {
 	doexe out/Release/electron
 	doexe "${FILESDIR}/node"
 
+	doexe out/Release/chrome_crashpad_handler
+	
 	exeinto "/usr/bin"
 	newexe "${WORKDIR}/electron-launcher.sh" "electron-${PV%%.*}"
 
