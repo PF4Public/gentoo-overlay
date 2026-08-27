@@ -370,13 +370,12 @@ src_compile() {
 
 	bun install || die
 
-	# pushd "packages/opencode" > /dev/null || die
-	# 	bun --bun ./script/build.ts --single --skip-install
-	# 	bun --bun ./script/schema.ts schema.json
-	# popd > /dev/null || die
+	pushd "packages/opencode" > /dev/null || die
+		bun --bun ./script/build.ts --single --skip-install
+		bun --bun ./script/schema.ts schema.json
+	popd > /dev/null || die
 
 	pushd "packages/desktop" > /dev/null || die
-		# bun install || die
 		bun run build || die
 		# bun run package || die
 		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
@@ -426,8 +425,8 @@ src_install() {
 	# doins package.json
 	# doins install
 
-	# doexe packages/opencode/dist/opencode-*/bin/opencode
-	# dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+	doexe packages/opencode/dist/opencode-*/bin/opencode
+	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 	# install -Dm644 schema.json $out/share/opencode/schema.json
 
 	insinto "/usr/$(get_libdir)/opencode/desktop"
