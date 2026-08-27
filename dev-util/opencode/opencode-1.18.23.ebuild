@@ -24,7 +24,7 @@ if [[ ${PV} = *9999* ]]; then
 	ELECTRON_SLOT_DEFAULT="42"
 else
 	# IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="43"
+	ELECTRON_SLOT_DEFAULT="42"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -379,8 +379,8 @@ src_compile() {
 		# bun install || die
 		bun run build || die
 		# bun run package || die
-		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts \
-			--config.electronDist="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/"
+		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+			# --config.electronDist="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/"
 	popd > /dev/null || die
 
 	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
