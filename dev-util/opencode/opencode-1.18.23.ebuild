@@ -370,10 +370,10 @@ src_compile() {
 
 	bun install || die
 
-	pushd "packages/opencode" > /dev/null || die
-		bun --bun ./script/build.ts --single --skip-install
-		bun --bun ./script/schema.ts schema.json
-	popd > /dev/null || die
+	# pushd "packages/opencode" > /dev/null || die
+	# 	bun --bun ./script/build.ts --single --skip-install
+	# 	bun --bun ./script/schema.ts schema.json
+	# popd > /dev/null || die
 
 	pushd "packages/desktop" > /dev/null || die
 		# bun install || die
@@ -419,15 +419,15 @@ src_compile() {
 src_install() {
 	insinto "/usr/$(get_libdir)/opencode"
 
-	doins -r packages
-	doins -r node_modules
-	doins -r patches
-	doins bun.lock
-	doins package.json
-	doins install
+	# doins -r packages
+	# doins -r node_modules
+	# doins -r patches
+	# doins bun.lock
+	# doins package.json
+	# doins install
 
-	doexe packages/opencode/dist/opencode-*/bin/opencode
-	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+	# doexe packages/opencode/dist/opencode-*/bin/opencode
+	# dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
 	# install -Dm644 schema.json $out/share/opencode/schema.json
 
 	insinto "/usr/$(get_libdir)/opencode/desktop"
@@ -439,7 +439,7 @@ src_install() {
 	cp "${FILESDIR}/read_flags_file" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	sed -i "s|@ELECTRON@|opencode|" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 
-	echo "ELECTRON_FORCE_IS_PACKAGED=1 \"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
 /usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	doexe packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	dosym "/usr/$(get_libdir)/opencode/desktop/opencode" /usr/bin/opencode-desktop
