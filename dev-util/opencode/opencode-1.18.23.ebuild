@@ -420,11 +420,10 @@ src_install() {
 
 	doins -r packages
 	doins -r node_modules
+	doins -r patches
 	doins bun.lock
 	doins package.json
-	doins patches
 	doins install
-	doins package.json
 
 	doexe packages/opencode/dist/opencode-*/bin/opencode
 	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
