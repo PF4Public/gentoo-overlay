@@ -26,7 +26,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-UGC_COMMIT_ID="59657a38437d11520a68618008eb825721319b9e"
+# UGC_COMMIT_ID="59657a38437d11520a68618008eb825721319b9e"
 
 declare -A CHROMIUM_COMMITS=(
 	# ["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
