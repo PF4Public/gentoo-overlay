@@ -350,27 +350,38 @@ src_compile() {
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
 	export PATH
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	
+
 	if [[ ${PV} != *9999* ]]; then
 		export OPENCODE_VERSION="${PV}"
+		export OPENCODE_CHANNEL='prod'
 	fi
 
 	einfo "Installing node_modules"
+
 	OLD_PATH=$PATH
 	PATH="$T/bun/node_modules/.bin:$PATH"
 	export PATH
+
 	mkdir "$T/bun"
 	pushd "$T/bun" > /dev/null || die
 		npm init -y
 		npm install bun
 	popd > /dev/null || die
+
 	bun install || die
 
-	cd packages/desktop
-	# bun install || die
-	bun run build || die
-	# bun run package || die
-	/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+	# pushd "packages/opencode" > /dev/null || die
+	# 	bun --bun ./script/build.ts --single --skip-install
+	# 	bun --bun ./script/schema.ts schema.json
+	# popd > /dev/null || die
+
+	pushd "packages/desktop" > /dev/null || die
+		# bun install || die
+		bun run build || die
+		# bun run package || die
+		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+			# --config.electronDist="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/"
+	popd > /dev/null || die
 
 	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 	# #? `exploration`, `insider`, `stable`
@@ -406,31 +417,45 @@ src_compile() {
 }
 
 src_install() {
-	cd packages/desktop
-
 	insinto "/usr/$(get_libdir)/opencode"
 
-	doins -r dist/linux-unpacked/resources/app.asar.unpacked/
-	doins dist/linux-unpacked/resources/app.asar
+	# doins -r packages
+	# doins -r node_modules
+	# doins -r patches
+	# doins bun.lock
+	# doins package.json
+	# doins install
 
-	exeinto "/usr/$(get_libdir)/opencode"
-	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode
-	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode
+	# doexe packages/opencode/dist/opencode-*/bin/opencode
+	# dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+	# install -Dm644 schema.json $out/share/opencode/schema.json
+
+	insinto "/usr/$(get_libdir)/opencode/desktop"
+
+	doins -r packages/desktop/dist/linux-unpacked/resources/app.asar.unpacked
+	doins packages/desktop/dist/linux-unpacked/resources/app.asar
+
+	exeinto "/usr/$(get_libdir)/opencode/desktop"
+	cp "${FILESDIR}/read_flags_file" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
+	sed -i "s|@ELECTRON@|opencode|" packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
-/usr/$(get_libdir)/opencode/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode
-	doexe dist/linux-unpacked/resources/opencode
-	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+/usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> packages/desktop/dist/linux-unpacked/resources/opencode-desktop
+	doexe packages/desktop/dist/linux-unpacked/resources/opencode-desktop
+	dosym "/usr/$(get_libdir)/opencode/desktop/opencode-desktop" /usr/bin/opencode-desktop
 
 	# Install icons
 	local branding size
 	for size in 32 64 128 ; do
-		newicon -s ${size} "icons/prod/${size}x${size}.png" \
-			opencode.png
+		newicon -s ${size} "packages/desktop/icons/prod/${size}x${size}.png" \
+			ai.opencode.desktop.png
 	done
 
-	make_desktop_entry "/usr/bin/opencode" OpenCode \
-		"opencode" "Development;"
+	# install -Dm644 resources/ai.opencode.desktop.metainfo.xml \
+    #   "$out/share/metainfo/ai.opencode.desktop.metainfo.xml"
+
+	make_desktop_entry "/usr/bin/opencode-desktop %U" OpenCode \
+		"ai.opencode.desktop" "Development;" 'startupWMClass="OpenCode"'
 }
 
 pkg_postrm() {

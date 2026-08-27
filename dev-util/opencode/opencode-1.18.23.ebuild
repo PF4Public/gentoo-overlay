@@ -442,7 +442,7 @@ src_install() {
 	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
 /usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> packages/desktop/dist/linux-unpacked/resources/opencode-desktop
 	doexe packages/desktop/dist/linux-unpacked/resources/opencode-desktop
-	dosym "/usr/$(get_libdir)/opencode/desktop/opencode" /usr/bin/opencode-desktop
+	dosym "/usr/$(get_libdir)/opencode/desktop/opencode-desktop" /usr/bin/opencode-desktop
 
 	# Install icons
 	local branding size
