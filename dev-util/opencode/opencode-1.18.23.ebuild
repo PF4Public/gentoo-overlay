@@ -357,15 +357,22 @@ src_compile() {
 	fi
 
 	einfo "Installing node_modules"
+
 	OLD_PATH=$PATH
 	PATH="$T/bun/node_modules/.bin:$PATH"
 	export PATH
+
 	mkdir "$T/bun"
 	pushd "$T/bun" > /dev/null || die
 		npm init -y
 		npm install bun
 	popd > /dev/null || die
+
 	bun install || die
+
+    cd packages/opencode
+    bun --bun ./script/build.ts --single --skip-install
+    bun --bun ./script/schema.ts schema.json
 
 	cd packages/desktop
 	# bun install || die
@@ -407,31 +414,48 @@ src_compile() {
 }
 
 src_install() {
-	cd packages/desktop
-
 	insinto "/usr/$(get_libdir)/opencode"
 
-	doins -r dist/linux-unpacked/resources/app.asar.unpacked/
+	doins -r packages
+	doins -r node_modules
+	doins bun.lock
+	doins package.json
+	doins patches
+	doins install
+	doins package.json
+
+	cd packages/opencode
+	doexe dist/opencode-*/bin/opencode
+	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+	# install -Dm644 schema.json $out/share/opencode/schema.json
+
+	cd packages/desktop
+	insinto "/usr/$(get_libdir)/opencode/desktop"
+
+	doins -r dist/linux-unpacked/resources/app.asar.unpacked
 	doins dist/linux-unpacked/resources/app.asar
 
-	exeinto "/usr/$(get_libdir)/opencode"
-	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode
-	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode
+	exeinto "/usr/$(get_libdir)/opencode/desktop"
+	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/opencode-desktop
+	sed -i "s|@ELECTRON@|opencode|" dist/linux-unpacked/resources/opencode-desktop
 
-	echo "\"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
-/usr/$(get_libdir)/opencode/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode
-	doexe dist/linux-unpacked/resources/opencode
-	dosym "/usr/$(get_libdir)/opencode/opencode" /usr/bin/opencode
+	echo "ELECTRON_FORCE_IS_PACKAGED=1 \"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
+/usr/$(get_libdir)/opencode/desktop/app.asar \"\${flags[@]}\" \"\$@\"" >> dist/linux-unpacked/resources/opencode-desktop
+	doexe dist/linux-unpacked/resources/opencode-desktop
+	dosym "/usr/$(get_libdir)/opencode/desktop/opencode" /usr/bin/opencode-desktop
 
 	# Install icons
 	local branding size
 	for size in 32 64 128 ; do
 		newicon -s ${size} "icons/prod/${size}x${size}.png" \
-			opencode.png
+			ai.opencode.desktop.png
 	done
 
-	make_desktop_entry "/usr/bin/opencode" OpenCode \
-		"opencode" "Development;"
+	# install -Dm644 resources/ai.opencode.desktop.metainfo.xml \
+    #   "$out/share/metainfo/ai.opencode.desktop.metainfo.xml"
+
+	make_desktop_entry "/usr/bin/opencode-desktop %U" OpenCode \
+		"ai.opencode.desktop" "Development;" 'startupWMClass="OpenCode"'
 }
 
 pkg_postrm() {
