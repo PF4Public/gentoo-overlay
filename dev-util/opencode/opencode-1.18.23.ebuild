@@ -431,7 +431,7 @@ src_install() {
 
 	insinto "/usr/$(get_libdir)/opencode/desktop"
 
-	doins -r dist/linux-unpacked/resources/app.asar.unpacked
+	doins -r packages/desktop/dist/linux-unpacked/resources/app.asar.unpacked
 	doins packages/desktop/dist/linux-unpacked/resources/app.asar
 
 	exeinto "/usr/$(get_libdir)/opencode/desktop"
