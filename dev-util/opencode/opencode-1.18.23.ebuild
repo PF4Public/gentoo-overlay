@@ -379,7 +379,8 @@ src_compile() {
 		# bun install || die
 		bun run build || die
 		# bun run package || die
-		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
+		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts \
+			--config.electronDist="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/"
 	popd > /dev/null || die
 
 	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
@@ -446,7 +447,7 @@ src_install() {
 	# Install icons
 	local branding size
 	for size in 32 64 128 ; do
-		newicon -s ${size} "icons/prod/${size}x${size}.png" \
+		newicon -s ${size} "packages/desktop/icons/prod/${size}x${size}.png" \
 			ai.opencode.desktop.png
 	done
 
