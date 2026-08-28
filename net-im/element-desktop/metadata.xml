@@ -11,6 +11,7 @@
 	<use>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="electron-43">Build against electron-43 instead of the default one</flag>
+		<flag name="electron-44">Build against electron-44 instead of the default one</flag>
 		<flag name="native-modules">Build native modules (for searching in encrypted rooms and secure storage)</flag>
 	</use>
 </pkgmetadata>
