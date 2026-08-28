@@ -14,17 +14,17 @@ SLOT="0"
 
 REPO="https://github.com/anomalyco/opencode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-43"
+IUSE="electron-44"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	# IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="42"
+	ELECTRON_SLOT_DEFAULT="43"
 else
 	# IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="42"
+	ELECTRON_SLOT_DEFAULT="43"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -44,8 +44,8 @@ REQUIRED_USE=""
 
 COMMON_DEPEND="
 	sys-apps/ripgrep
-	electron-43? ( dev-util/electron:43 )
-	!electron-43? (
+	electron-44? ( dev-util/electron:44 )
+	!electron-44? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	)
 "
@@ -85,7 +85,7 @@ python_check_deps() {
 
 src_unpack() {
 	if use electron-43; then
-		export ELECTRON_SLOT=43
+		export ELECTRON_SLOT=44
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi

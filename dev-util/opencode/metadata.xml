@@ -14,5 +14,6 @@
 	</longdescription>
 	<use>
 		<flag name="electron-43">Build against electron-43 instead of the default one</flag>
+		<flag name="electron-44">Build against electron-43 instead of the default one</flag>
 	</use>
 </pkgmetadata>
