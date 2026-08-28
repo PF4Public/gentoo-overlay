@@ -84,7 +84,7 @@ python_check_deps() {
 # }
 
 src_unpack() {
-	if use electron-43; then
+	if use electron-44; then
 		export ELECTRON_SLOT=44
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
