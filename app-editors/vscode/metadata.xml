@@ -17,6 +17,7 @@
 		<flag name="badge-providers">Allow various badge providers</flag>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
 		<flag name="electron-43">Build against electron-43 instead of the default one</flag>
+		<flag name="electron-44">Build against electron-44 instead of the default one</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
 		<flag name="reh">Build Remote Extension Host</flag>
 		<flag name="reh-web">Build Remote Extension Host for Web</flag>
