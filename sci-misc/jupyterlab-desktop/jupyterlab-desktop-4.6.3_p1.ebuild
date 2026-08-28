@@ -678,9 +678,9 @@ SRC_URI="
 "
 
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
-ELECTRON_SLOT_DEFAULT="42"
+ELECTRON_SLOT_DEFAULT="43"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-43"
+IUSE="electron-44"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -707,8 +707,8 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 REQUIRED_USE=""
 
 COMMON_DEPEND="
-	electron-43? ( dev-util/electron:43 )
-	!electron-43? (
+	electron-44? ( dev-util/electron:44 )
+	!electron-44? (
 		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 	)
 "
@@ -723,8 +723,8 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND=">=net-libs/nodejs-7.6.0"
 
 src_unpack() {
-	if use electron-43; then
-		export ELECTRON_SLOT=43
+	if use electron-44; then
+		export ELECTRON_SLOT=44
 	else
 		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
 	fi
