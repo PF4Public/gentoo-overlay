@@ -423,6 +423,7 @@ src_install() {
 	\"\${ELECTRON_PATH}/electron\" \"\${CLI}\" --app=\"\${VSCODE_PATH}\" \"\${flags[@]}\" \"\$@\"" >> "${WORKDIR}"/V*/bin/code-oss
 	doexe "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/bin/code-oss
 	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code-oss
+	dosym "${VSCODE_HOME}/code-oss" /usr/bin/code
 
 	insinto "${VSCODE_HOME}"
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/resources/app/*
