@@ -81,6 +81,8 @@ jobs:
         include:
           - use: 'electron-43'
             experimental: true
+          - use: 'electron-44'
+            experimental: true
 
     steps:
       - name: Check out the repo
