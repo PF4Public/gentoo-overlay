@@ -1,0 +1,103 @@
+--- a/src/vs/platform/native/electron-main/nativeHostMainService.ts
++++ b/src/vs/platform/native/electron-main/nativeHostMainService.ts
+@@ -5,7 +5,7 @@
+ 
+ import * as fs from 'fs';
+ import { exec } from 'child_process';
+-import { app, BrowserWindow, clipboard, contentTracing, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
++import { app, BrowserWindow, clipboard, ClipboardItem, contentTracing, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
+ import { arch, cpus, freemem, loadavg, platform, release, totalmem, type } from 'os';
+ import { promisify } from 'util';
+ import { memoize } from '../../../base/common/decorators.js';
+@@ -665,33 +665,56 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
+ 
+ 	//#region Clipboard
+ 
+ 	async readClipboardText(windowId: number | undefined, type?: 'selection' | 'clipboard'): Promise<string> {
+ 		this.logService.trace(`readClipboardText in window ${windowId} with type:`, type);
+-		const clipboardText = clipboard.readText(type);
++		const clipboardToUse = type === 'selection' ? clipboard.selection : clipboard;
++		const clipboardText = await clipboardToUse.readText();
+ 		this.logService.trace(`clipboardText.length :`, clipboardText.length);
+ 		return clipboardText;
+ 	}
+ 
+ 	async triggerPaste(windowId: number | undefined, options?: INativeHostOptions): Promise<void> {
+ 		this.logService.trace(`Triggering paste in window ${windowId} with options:`, options);
+ 		const window = this.windowById(options?.targetWindowId, windowId);
+ 		return window?.win?.webContents.paste() ?? Promise.resolve();
+ 	}
+ 
+ 	async readImage(): Promise<Uint8Array> {
+-		return clipboard.readImage().toPNG();
++		const items = await clipboard.read();
++		for (const item of items) {
++			const imageType = item.types.find(t => t.startsWith('image/'));
++			if (imageType) {
++				const blob = await item.getType(imageType);
++				return new Uint8Array(await blob.arrayBuffer());
++			}
++		}
++		return new Uint8Array(0);
+ 	}
+ 
+ 	async writeClipboardText(windowId: number | undefined, text: string, type?: 'selection' | 'clipboard'): Promise<void> {
+-		return clipboard.writeText(text, type);
++		const clipboardToUse = type === 'selection' ? clipboard.selection : clipboard;
++		return clipboardToUse.writeText(text);
+ 	}
+ 
+-	async readClipboardFindText(windowId: number | undefined,): Promise<string> {
+-		return clipboard.readFindText();
++	async readClipboardFindText(windowId: number | undefined): Promise<string> {
++		const items = await clipboard.read();
++		for (const item of items) {
++			if (item.types.includes('electron application/findtext')) {
++				const blob = await item.getType('electron application/findtext');
++				return await blob.text();
++			}
++		}
++		return '';
+ 	}
+ 
+ 	async writeClipboardFindText(windowId: number | undefined, text: string): Promise<void> {
+-		return clipboard.writeFindText(text);
++		return clipboard.write([
++			new ClipboardItem({
++				'electron application/findtext': text
++			})
++		]);
+ 	}
+ 
+ 	async writeClipboardBuffer(windowId: number | undefined, format: string, buffer: VSBuffer, type?: 'selection' | 'clipboard'): Promise<void> {
+-		return clipboard.writeBuffer(format, Buffer.from(buffer.buffer), type);
++		const customFormat = `electron application/osclipboard;format="${format}"`;
++		const clipboardToUse = type === 'selection' ? clipboard.selection : clipboard;
++		return clipboardToUse.write([
++			new ClipboardItem({
++				[customFormat]: new Blob([Buffer.from(buffer.buffer)])
++			})
++		]);
+ 	}
+ 
+ 	async readClipboardBuffer(windowId: number | undefined, format: string): Promise<VSBuffer> {
+-		return VSBuffer.wrap(clipboard.readBuffer(format));
++		const customFormat = `electron application/osclipboard;format="${format}"`;
++		const items = await clipboard.read();
++		for (const item of items) {
++			if (item.types.includes(customFormat)) {
++				const blob = await item.getType(customFormat);
++				return VSBuffer.wrap(Buffer.from(await blob.arrayBuffer()));
++			}
++		}
++		return VSBuffer.wrap(Buffer.alloc(0));
+ 	}
+ 
+ 	async hasClipboard(windowId: number | undefined, format: string, type?: 'selection' | 'clipboard'): Promise<boolean> {
+-		return clipboard.has(format, type);
++		const customFormat = `electron application/osclipboard;format="${format}"`;
++		const clipboardToUse = type === 'selection' ? clipboard.selection : clipboard;
++		return clipboardToUse.has(customFormat);
+ 	}
+ 
+ 	//#endregion
