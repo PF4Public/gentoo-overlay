@@ -333,7 +333,7 @@ src_configure() {
 
 src_compile() {
 	if [ -d ".git" ]; then
-	  COMMIT_ID="$(git rev-parse HEAD)"
+	    COMMIT_ID="$(git rev-parse HEAD)"
 	else
 		if [ -z "$CODE_COMMIT_ID" ]; then
 			COMMIT_ID="${PV}"

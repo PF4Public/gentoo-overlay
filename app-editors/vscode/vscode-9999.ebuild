@@ -220,6 +220,10 @@ src_prepare() {
 	# einfo "Disabling signature verification for extensions"
 	# einfo "as it depends on a package from a hidden repository"
 	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
+
+	einfo "Fixing Clipboard API"
+	patch -p1 -i "${FILESDIR}/fix-clipboard-api.patch" || die
+
 }
 
 src_configure() {
