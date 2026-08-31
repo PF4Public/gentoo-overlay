@@ -977,8 +977,8 @@ src_prepare() {
 			electron/patches/node/build_add_gn_build_files.patch || die
 		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
 			electron/patches/node/electron_enable_node_startup_snapshot_generation_in_chromium_s_v8.patch || die
-		sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
-			electron/patches/node/build_enable_perfetto.patch || die
+		# sed -i '/zstd:headers/{s++zstd:zstd_headers+;h};${x;/./{x;q0};x;q1}' \
+		# 	electron/patches/node/build_enable_perfetto.patch || die
 	fi
 
 	declare -A patches=(
