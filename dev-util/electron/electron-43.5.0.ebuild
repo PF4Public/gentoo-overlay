@@ -1026,6 +1026,7 @@ src_prepare() {
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "cherry-pick-4de99209fb4f.patch" ]||
 				[ "$i" = "cherry-pick-a17d5224d83f.patch" ]||
+				[ "$i" = "cherry-pick-311c502e88d9.patch" ]||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
 				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
 				[ "$i" = "desktop_media_list.patch" ]; then
