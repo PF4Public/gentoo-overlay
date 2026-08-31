@@ -220,10 +220,10 @@ src_prepare() {
 	# einfo "Disabling signature verification for extensions"
 	# einfo "as it depends on a package from a hidden repository"
 	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
-	
+
 	einfo "Fixing Clipboard API"
 	patch -p1 -i "${FILESDIR}/fix-clipboard-api.patch" || die
-	
+
 }
 
 src_configure() {
@@ -333,7 +333,7 @@ src_configure() {
 
 src_compile() {
 	if [ -d ".git" ]; then
-	    COMMIT_ID="$(git rev-parse HEAD)"
+	  COMMIT_ID="$(git rev-parse HEAD)"
 	else
 		if [ -z "$CODE_COMMIT_ID" ]; then
 			COMMIT_ID="${PV}"
@@ -370,27 +370,27 @@ src_compile() {
 
 	#TODO --experimental-strip-types until node>=22.18 stabilised
 	if use temp-fix; then
-	node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	else
 	# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-	/usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
+	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
 		if use temp-fix; then
-		node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 	if use reh-web; then
 		if use temp-fix; then
-		node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		else
 		# Real nodejs needed (/usr/bin/node). See https://github.com/microsoft/vscode-l10n/issues/104
-		/usr/bin/node --experimental-strip-types --optimize_for_size node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
+		/usr/bin/node node_modules/gulp/bin/gulp.js vscode-reh-web-linux-${VSCODE_ARCH}-min || die
 		fi
 	fi
 
