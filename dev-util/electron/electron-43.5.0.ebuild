@@ -1054,7 +1054,7 @@ src_prepare() {
 			einfo "$i"
 			# ebegin "$i"
 			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
-				--exclude="*/uv/test/*" --exclude="*.rst" --exclude="*/test/tint/*" \
+				--exclude="*/uv/test/*" --exclude="*.rst" --exclude="test/tint/*" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
