@@ -9,9 +9,7 @@
  import { arch, cpus, freemem, loadavg, platform, release, totalmem, type } from 'os';
  import { promisify } from 'util';
  import { memoize } from '../../../base/common/decorators.js';
-@@ -665,33 +665,56 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
- 
- 	//#region Clipboard
+@@ -997,7 +997,8 @@
  
  	async readClipboardText(windowId: number | undefined, type?: 'selection' | 'clipboard'): Promise<string> {
  		this.logService.trace(`readClipboardText in window ${windowId} with type:`, type);
@@ -21,11 +19,7 @@
  		this.logService.trace(`clipboardText.length :`, clipboardText.length);
  		return clipboardText;
  	}
- 
- 	async triggerPaste(windowId: number | undefined, options?: INativeHostOptions): Promise<void> {
- 		this.logService.trace(`Triggering paste in window ${windowId} with options:`, options);
- 		const window = this.windowById(options?.targetWindowId, windowId);
- 		return window?.win?.webContents.paste() ?? Promise.resolve();
+@@ -1009,31 +1010,74 @@
  	}
  
  	async readImage(): Promise<Uint8Array> {
@@ -35,7 +29,14 @@
 +			const imageType = item.types.find(t => t.startsWith('image/'));
 +			if (imageType) {
 +				const blob = await item.getType(imageType);
-+				return new Uint8Array(await blob.arrayBuffer());
++				const buffer = Buffer.from(await blob.arrayBuffer());
++				// Ensure we return PNG format, matching the previous .toPNG() behavior
++				const image = nativeImage.createFromBuffer(buffer);
++				if (!image.isEmpty()) {
++					return new Uint8Array(image.toPNG());
++				}
++				// Fallback to raw buffer if nativeImage parsing fails
++				return new Uint8Array(buffer);
 +			}
 +		}
 +		return new Uint8Array(0);
@@ -47,9 +48,8 @@
 +		return clipboardToUse.writeText(text);
  	}
  
--	async readClipboardFindText(windowId: number | undefined,): Promise<string> {
+ 	async readClipboardFindText(windowId: number | undefined,): Promise<string> {
 -		return clipboard.readFindText();
-+	async readClipboardFindText(windowId: number | undefined): Promise<string> {
 +		const items = await clipboard.read();
 +		for (const item of items) {
 +			if (item.types.includes('electron application/findtext')) {
