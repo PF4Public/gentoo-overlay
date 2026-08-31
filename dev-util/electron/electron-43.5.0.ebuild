@@ -750,7 +750,7 @@ src_prepare() {
 		#	sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 		#	sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		#fi
-		eapply "${FILESDIR}/misc-fixes.patch" || die
+		eapply "${FILESDIR}/misc-fixes-r00.patch" || die
 		eapply "${FILESDIR}/ozone-detection-fix.patch" || die
 
 		# if use pgo; then
@@ -2097,7 +2097,7 @@ src_install() {
 	doexe "${FILESDIR}/node"
 
 	doexe out/Release/chrome_crashpad_handler
-	
+
 	exeinto "/usr/bin"
 	newexe "${WORKDIR}/electron-launcher.sh" "electron-${PV%%.*}"
 
