@@ -696,7 +696,7 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-fix-rust-2-oxidize-harder.patch"
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-fix-rust-2-oxidize-harder.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
 
 	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
