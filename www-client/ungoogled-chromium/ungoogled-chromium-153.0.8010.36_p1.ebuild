@@ -1377,6 +1377,7 @@ src_prepare() {
 		third_party/highway
 		third_party/hunspell
 		third_party/hyphenation-patterns
+		third_party/iamf_tools
 		third_party/ink/src/ink/brush
 		third_party/ink/src/ink/color
 		third_party/ink/src/ink/geometry
