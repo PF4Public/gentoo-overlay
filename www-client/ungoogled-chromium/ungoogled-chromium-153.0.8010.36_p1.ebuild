@@ -482,6 +482,14 @@ pkg_pretend() {
 		ewarn "Not all patches are applied, let me know if others should be considered too"
 		ewarn
 	fi
+	if use pgo; then
+		eerror
+		eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
+		eerror
+		if [ -z "${NODIE}" ]; then
+			die
+		fi
+	fi
 }
 
 pkg_setup() {
