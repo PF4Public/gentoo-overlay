@@ -455,7 +455,7 @@ src_install() {
     #   "$out/share/metainfo/ai.opencode.desktop.metainfo.xml"
 
 	make_desktop_entry "/usr/bin/opencode-desktop %U" OpenCode \
-		"ai.opencode.desktop" "Development;" 'startupWMClass="OpenCode"'
+		"ai.opencode.desktop" "Development;" 'StartupWMClass=opencode'
 }
 
 pkg_postrm() {
