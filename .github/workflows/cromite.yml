@@ -84,17 +84,18 @@ jobs:
       fail-fast: false
       matrix:
         use:
-          - custom-cflags
-          - vaapi -system-libvpx -system-av1
-          - -official
           - wayland
           - headless -X -wayland
         include:
-          - use: -clang -libcxx
+          - use: -official
             experimental: true
-          - use: clang libcxx
+          - use: -libcxx
             experimental: true
-          - use: system-abseil-cpp system-libvpx system-av1
+          - use:  system-libvpx system-av1
+            experimental: true
+          - use: system-jsoncpp system-abseil-cpp
+            experimental: true
+          - use: bundled-toolchain
             experimental: true
           - use: pgo
             experimental: true
