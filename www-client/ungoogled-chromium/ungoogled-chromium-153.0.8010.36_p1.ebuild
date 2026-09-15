@@ -696,6 +696,9 @@ src_prepare() {
 	local PATCHES=()
 
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-fix-rust-2-oxidize-harder.patch"
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
+
 	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
@@ -710,6 +713,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-151-cbor-fix.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
+		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
