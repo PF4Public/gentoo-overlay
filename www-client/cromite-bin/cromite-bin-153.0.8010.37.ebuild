@@ -65,9 +65,9 @@ RDEPEND="
 	virtual/opengl
 	virtual/ttf-fonts
 	qt6? ( dev-qt/qtbase:6[gui,widgets] )
-	!www-client/chromium:${SLOT}
+	!www-client/chromium
 	!www-client/ungoogled-chromium-bin
-	!www-client/ungoogled-chromium:${SLOT}[-override-data-dir]
+	!www-client/ungoogled-chromium[-override-data-dir]
 "
 
 QA_PREBUILT="*"
