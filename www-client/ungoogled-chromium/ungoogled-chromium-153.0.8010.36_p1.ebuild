@@ -364,6 +364,7 @@ BDEPEND="
 	>=dev-util/bindgen-0.72.1
 	>=dev-build/gn-${GN_MIN_VER}
 	>=dev-lang/go-${GO_MIN_VER}
+	dev-lang/typescript
 	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.2
@@ -715,6 +716,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
 		"${FILESDIR}/chromium-153-fix-devtools.patch"
 		"${FILESDIR}/chromium-153-cbor-fix.patch"
+		"${FILESDIR}/chromium-153-system-typescript.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
@@ -1527,6 +1529,7 @@ src_prepare() {
 		third_party/tflite/src/third_party/xla/xla/tsl/platform
 		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
 		third_party/tflite/src/third_party/xla/xla/tsl/util
+		third_party/typescript
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
