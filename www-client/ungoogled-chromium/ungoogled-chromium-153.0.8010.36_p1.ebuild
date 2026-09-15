@@ -52,7 +52,7 @@ declare -A CHROMIUM_COMMITS=(
 	# ["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
 	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="." # ffmpeg 9
 	# ["-bf6be9310a07b981edf81e0ac9b89dead09be35c"]="." # ffmpeg 9
-	["-c72c7b0971e3e31974b0adea0dac42278e22e3b0"]="third_party/devtools-frontend/src" # need gn >= 2459
+	# ["-c72c7b0971e3e31974b0adea0dac42278e22e3b0"]="third_party/devtools-frontend/src" # need gn >= 2459
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
 #	# ["cd5a0df905a28faa89ff2a4ab44f893f84dc4487"]="net/third_party/quiche/src"
 )
@@ -704,8 +704,8 @@ src_prepare() {
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
 
-	sed -i '/no-lifetime-safety-inference/d' third_party/dawn/src/utils/BUILD.gn || die
-	sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
+	# sed -i '/no-lifetime-safety-inference/d' third_party/dawn/src/utils/BUILD.gn || die
+	# sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
 
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
