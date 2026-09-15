@@ -714,6 +714,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
 		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
+		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
+		"${FILESDIR}/chromium-153-fix-devtools.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
