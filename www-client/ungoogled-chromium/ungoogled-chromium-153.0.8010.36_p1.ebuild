@@ -1529,7 +1529,6 @@ src_prepare() {
 		third_party/tflite/src/third_party/xla/xla/tsl/platform
 		third_party/tflite/src/third_party/xla/xla/tsl/protobuf
 		third_party/tflite/src/third_party/xla/xla/tsl/util
-		third_party/typescript
 		third_party/ukey2
 		third_party/utf
 		third_party/vulkan
