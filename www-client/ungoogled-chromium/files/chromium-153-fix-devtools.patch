@@ -47,8 +47,8 @@ Reviewed-by: Michael Achenbach <machenbach@chromium.org>
 
 diff --git a/scripts/build/ninja/copy.gni b/scripts/build/ninja/copy.gni
 index d6d71a6..a03d647 100644
---- a/scripts/build/ninja/copy.gni
-+++ b/scripts/build/ninja/copy.gni
+--- a/third_party/devtools-frontend/src/scripts/build/ninja/copy.gni
++++ b/third_party/devtools-frontend/src/scripts/build/ninja/copy.gni
 @@ -25,9 +25,6 @@
        string_join(",", sources),
      ]
@@ -61,8 +61,8 @@ index d6d71a6..a03d647 100644
        outputs += [ "$target_gen_dir/$_input" ]
 diff --git a/scripts/build/ninja/devtools_entrypoint.gni b/scripts/build/ninja/devtools_entrypoint.gni
 index 6bee3ef..cedcbb4 100644
---- a/scripts/build/ninja/devtools_entrypoint.gni
-+++ b/scripts/build/ninja/devtools_entrypoint.gni
+--- a/third_party/devtools-frontend/src/scripts/build/ninja/devtools_entrypoint.gni
++++ b/third_party/devtools-frontend/src/scripts/build/ninja/devtools_entrypoint.gni
 @@ -197,9 +186,6 @@
    node_action(target_name) {
      script = "scripts/build/ninja/generate-tsconfig.js"
@@ -75,8 +75,8 @@ index 6bee3ef..cedcbb4 100644
               rebase_path(invoker.entrypoint, root_build_dir),
 diff --git a/scripts/build/ninja/devtools_pre_built.gni b/scripts/build/ninja/devtools_pre_built.gni
 index 1f38b18..3d76a75 100644
---- a/scripts/build/ninja/devtools_pre_built.gni
-+++ b/scripts/build/ninja/devtools_pre_built.gni
+--- a/third_party/devtools-frontend/src/scripts/build/ninja/devtools_pre_built.gni
++++ b/third_party/devtools-frontend/src/scripts/build/ninja/devtools_pre_built.gni
 @@ -17,9 +17,6 @@
  
      public_deps = invoker.deps
@@ -89,8 +89,8 @@ index 1f38b18..3d76a75 100644
  
 diff --git a/scripts/build/typescript/typescript.gni b/scripts/build/typescript/typescript.gni
 index b0d1367..a6f4c04 100644
---- a/scripts/build/typescript/typescript.gni
-+++ b/scripts/build/typescript/typescript.gni
+--- a/third_party/devtools-frontend/src/scripts/build/typescript/typescript.gni
++++ b/third_party/devtools-frontend/src/scripts/build/typescript/typescript.gni
 @@ -212,19 +212,6 @@
      output_files = [ "$target_gen_dir/$target_name-tsconfig.json" ]
  
