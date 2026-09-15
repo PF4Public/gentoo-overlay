@@ -1,22 +1,22 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 # Based on postgresql.eselect
 
 inherit config multilib
 
-DESCRIPTION="Utility to select the default Electron slot"
-VERSION="0.2"
+DESCRIPTION="Utility to select the default electron slot"
+VERSION="0.4"
 
 # We do a lot of things in /usr and it's a bit of a pain to write this
 # constantly.
 USR_PATH="${EROOT%/}/usr"
 
 active_slot() {
-    # ${USR_PATH}/bin/electron is a symlink to the active
-    # slot. See if it's there, then find out where it links to.
+	# ${USR_PATH}/bin/electron is a symlink to the active
+	# slot. See if it's there, then find out where it links to.
 	if [[ -h "${USR_PATH}/bin/electron" ]] ; then
 		canonicalise -m "${USR_PATH}/bin/electron" | \
-			sed -re 's#.*-([1-9][0-9]?)/electron$#\1#'
+			sed -re 's#.*/electron-([0-9]+)(/electron)?$#\1#'
 	else
 		echo "(none)"
 	fi
@@ -45,8 +45,8 @@ get_slots() {
 	local found_slots
 
 	for slot in $(find "${USR_PATH}/$(lib_dir)/" \
-					   -mindepth 1 -maxdepth 1 -type d -name 'electron-*' | \
-						 sed -re 's#.*-([1-9][0-9]?)$#\1#' | sort -n)
+					   -mindepth 1 -maxdepth 1 -type d -name 'electron-*' 2> /dev/null | \
+						 sed -re 's#.*-([0-9]+)$#\1#' | sort -n)
 	do
 		found_slots+=( ${slot} )
 	done
@@ -56,28 +56,21 @@ get_slots() {
 
 ### List Action ###
 describe_list() {
-	echo "List available Electron slots."
+	echo "List available electron slots."
 }
 
 do_list() {
-	if $(is_output_mode brief) ; then
-		echo $(get_slots)
-	else
-		write_list_start "Available Electron slots"
+	local i
+	local slots=( $(get_slots) )
+	local active_slot
+	active_slot=$(active_slot)
 
-		local slot
-		for slot in $(get_slots) ; do
-			case "${slot}" in
-				"$(active_slot)" )
-					write_kv_list_entry \
-						"$(highlight_marker ${slot})";;
-				* )
-					write_kv_list_entry "${slot}";;
-			esac
-		done
-
-		[[ -z "$(get_slots)" ]] && write_warning_msg "No slots available."
-	fi
+	write_list_start "Available electron slots:"
+	for (( i = 0; i < ${#slots[@]}; i++ )); do
+		[[ ${slots[i]} == "${active_slot}" ]] \
+			&& slots[i]=$(highlight_marker "${slots[i]}")
+	done
+	write_numbered_list -m "(none found)" "${slots[@]}"
 }
 
 ### Show Action ###
@@ -86,24 +79,54 @@ describe_show() {
 }
 
 do_show() {
-	echo $(active_slot)
+	local slot
+	slot=$(active_slot)
+
+	write_list_start "Current electron slot:"
+	if [[ ${slot} == "(none)" ]] ; then
+		write_kv_list_entry "(unset)" ""
+	else
+		write_kv_list_entry "${slot}" ""
+	fi
 }
 
 ### Set Action ###
 describe_set() {
-	echo "Create symbolic link for Electron."
+	echo "Set a new electron slot."
+}
+
+describe_set_parameters() {
+	echo "<slot>"
+}
+
+describe_set_options() {
+	echo "slot : Slot version or number from the 'list' action"
 }
 
 do_set() {
 	local slot=$1
+
+	[[ -z ${slot} ]] && die -q "You didn't tell me what to set the slot to"
+	[[ $# -gt 1 ]] && die -q "Too many parameters"
+
+	# A bare number is a slot version; if no such slot is installed,
+	# it's treated as a number from the 'list' action output.
+	if is_number "${slot}" && \
+		[[ ! -d ${USR_PATH}/$(lib_dir)/electron-${slot} ]] ; then
+		local slots=( $(get_slots) )
+		[[ ${slot} -ge 1 && ${slot} -le ${#slots[@]} ]] \
+			|| die -q "Not a valid slot."
+		slot=${slots[slot-1]}
+	fi
 
 	if [[ ! -d ${USR_PATH}/$(lib_dir)/electron-${slot} ]] ; then
 		die -q "Not a valid slot."
 	fi
 
 	# If there's an active slot, unset that one first
-	local active_slot=$(active_slot)
-	if [[ "${active_slot}" != "(none)" ]] ; then
+	local active_slot
+	active_slot=$(active_slot)
+	if [[ "${active_slot}" != "(none)" && "${active_slot}" != "${slot}" ]] ; then
 		echo -ne "Unsetting ${active_slot} as default..."
 		do_unset ${active_slot}
 		echo "done."
@@ -115,14 +138,14 @@ do_set() {
 	local x
 	for x in $(list_libdirs) ; do
 		if [[ -d "${USR_PATH}/${x}/electron-${slot}" ]] ; then
-			ln -sf "${USR_PATH}/${x}/electron-${slot}" "${USR_PATH}/${x}/electron" || \
+			ln -sfn "${USR_PATH}/${x}/electron-${slot}" "${USR_PATH}/${x}/electron" || \
 				die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot} -> ${USR_PATH}/${x}/electron"
 		fi
 	done
 
 	# Link binaries to /usr/bin/
 	if [[ -f "${USR_PATH}/bin/electron-${slot}" ]] ; then
-	        ln -sf "${USR_PATH}/bin/electron-${slot}" "${USR_PATH}/bin/electron" || \
+		ln -sfn "${USR_PATH}/bin/electron-${slot}" "${USR_PATH}/bin/electron" || \
 			die -q "SYMLINK FAILED: ${USR_PATH}/bin/electron-${slot} -> ${USR_PATH}/bin/electron"
 	else
 		die -q "${USR_PATH}/bin/electron-${slot} does not exist"
@@ -139,21 +162,22 @@ describe_unset() {
 # Undo everything done by do_set().
 do_unset() {
 	local slot=$1
+	# with no argument, unset the currently active slot
+	[[ -z ${slot} ]] && slot=$(active_slot)
+	[[ ${slot} == "(none)" ]] && die -q "No active slot to unset"
 	if [[ ${slot} != $(active_slot) ]] ; then
 		echo "Slot already inactive; no work to do."
 		return 0
 	fi
 
-	# Get the file path that the link is pointing to. If it has the string
-	# "electron-${slot}" somewhere in it, then it's a link that this module is
+	# Get the file path that the link is pointing to. If it points to
+	# "electron-${slot}" or inside it, then it's a link that this module is
 	# handling.
 	is_active_slot_link() {
-		if [[ $(canonicalise -m "$1") == *electron-${slot}* ]] ; then
-			return 0 # yes
-		else
-			return 1 # no
-		fi
-    }
+		local path
+		path=$(canonicalise -m "$1")
+		[[ ${path} == *electron-${slot} || ${path} == *electron-${slot}/* ]]
+	}
 
 	# Start with some known locations that are, or will contain, symlinks.
 	local paths=(
@@ -173,7 +197,7 @@ do_unset() {
 		fi
 	done
 
-	local l path
+	local path
 	for path in "${paths[@]}" ; do
 		# If $path is a link that belongs to the active slot, it can be removed
 		# without invoking find.
@@ -190,14 +214,21 @@ describe_update() {
 }
 
 do_update() {
-	local active_slot=$(active_slot)
+	local active_slot
+	active_slot=$(active_slot)
 	local slots=($(get_slots))
+	local slot
 
-	if [[ ${slots[@]} =~ ${active_slot} ]] ; then
-		# If active_slot is in the slots list, set it again as the installation
-		# may have changed.
-		do_set ${active_slot}
-	elif [[ ${#slots[@]} -ne 0 ]] ; then
+	# If active_slot is in the slots list, set it again as the installation
+	# may have changed.
+	for slot in ${slots[@]} ; do
+		if [[ ${slot} == ${active_slot} ]] ; then
+			do_set ${active_slot}
+			return
+		fi
+	done
+
+	if [[ ${#slots[@]} -ne 0 ]] ; then
 		# If $slots is not empty and active_slot is not in the list, set the
 		# highest slot available.
 		do_set ${slots[-1]}
