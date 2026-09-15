@@ -91,7 +91,7 @@ diff --git a/scripts/build/typescript/typescript.gni b/scripts/build/typescript/
 index b0d1367..a6f4c04 100644
 --- a/third_party/devtools-frontend/src/scripts/build/typescript/typescript.gni
 +++ b/third_party/devtools-frontend/src/scripts/build/typescript/typescript.gni
-@@ -212,19 +212,6 @@
+@@ -207,16 +207,6 @@
      output_files = [ "$target_gen_dir/$target_name-tsconfig.json" ]
  
      if (defined(sources)) {
@@ -104,10 +104,7 @@ index b0d1367..a6f4c04 100644
 -                           # TODO: Migrate the files below to TypeScript
 -                           # and remove them from this list.
 -                           "*ahem.js",
--                           "*ARIAProperties.js",
--                           "*SupportedCSSProperties.js",
 -                         ])
--
+ 
        args += [ "--sources" ] + rebase_path(sources, root_build_dir)
  
-       foreach(src, sources) {
