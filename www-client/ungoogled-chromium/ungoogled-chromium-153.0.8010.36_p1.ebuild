@@ -58,7 +58,7 @@ declare -A CHROMIUM_COMMITS=(
 )
 
 LLVM_COMPAT=( 21 22 23 )
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
 PYTHON_REQ_USE="xml(+)"
 RUST_MIN_VER=1.91.0
 RUST_NEEDS_LLVM="yes please"
@@ -710,12 +710,12 @@ src_prepare() {
 	PATCHES+=(
 		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
-		"${FILESDIR}/chromium-151-cbor-fix.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
 		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
 		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
-		"${FILESDIR}/chromium-153-fix-devtools.patch" 
+		"${FILESDIR}/chromium-153-fix-devtools.patch"
+		"${FILESDIR}/chromium-153-cbor-fix.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
