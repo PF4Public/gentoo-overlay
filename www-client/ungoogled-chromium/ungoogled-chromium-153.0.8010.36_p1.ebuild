@@ -487,7 +487,7 @@ pkg_pretend() {
 		eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
 		eerror
 		if [ -z "${NODIE}" ]; then
-			die
+			die "Build will fail with pgo"
 		fi
 	fi
 }
