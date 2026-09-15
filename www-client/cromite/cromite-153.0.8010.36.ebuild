@@ -988,8 +988,8 @@ src_prepare() {
 			ewarn "Skipping ${i}"
 			continue;
 		fi
-		if [ "$i" = "Add-kill-switch-for-unsupported-clangd-flags.patch" ] ||
-			[ "$i" = "Fix-chromium-build-bugs.patch" ]; then
+		if [ "$i" = "Add-kill-switch-for-unsupported-clangd-flags.patch" ]; then
+			# [ "$i" = "Fix-chromium-build-bugs.patch" ]; then
 			ewarn "Skipping ${i}: already applied"
 			continue;
 		fi
@@ -1982,7 +1982,7 @@ src_configure() {
 		"enable_mse_mpeg2ts_stream_parser=$(usex proprietary-codecs true false)"
 		"enable_remoting=false"
 		"enable_reporting=false"
-		# "enable_service_discovery=false"
+		"enable_service_discovery=false"
 		"exclude_unwind_tables=true"
 		"google_api_key=\"\""
 		"google_default_client_id=\"\""
@@ -2289,7 +2289,7 @@ src_install() {
 		# symlink the libffmpeg.so from either ffmpeg-chromium or ffmpeg[chromium].
 		einfo "Creating symlink to libffmpeg.so from $(usex ffmpeg-chromium ffmpeg-chromium ffmpeg[chromium])..."
 		dosym ../chromium/libffmpeg.so$(usex ffmpeg-chromium .${PV%%\.*} "") \
-			/usr/$(get_libdir)/ungoogled-chromium-browser/libffmpeg.so
+			/usr/$(get_libdir)/cromite/libffmpeg.so
 	fi
 
 	(
