@@ -4,8 +4,10 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{11..13} )
+ELECTRON_COMPAT=( 42 )
+ELECTRON_SLOT_DEFAULT="42"
 
-inherit desktop flag-o-matic multilib python-any-r1 xdg-utils
+inherit desktop electron-r1 flag-o-matic multilib python-any-r1 xdg-utils
 
 DESCRIPTION="A glossy Matrix collaboration client for desktop"
 HOMEPAGE="https://element.io/"
@@ -13,9 +15,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 SRC_URI=""
 REPO="https://github.com/element-hq/element-web"
-ELECTRON_SLOT_DEFAULT="42"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-# IUSE="electron-40 electron-41 electron-42 native-modules"
 IUSE="native-modules"
 
 if [[ ${PV} = *9999* ]]; then
@@ -48,22 +48,15 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
-		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
 "
-	# electron-40? ( dev-util/electron:40 )
-	# electron-41? ( dev-util/electron:41 )
-	# electron-42? ( dev-util/electron:42 )
-	# !electron-40? (
-	# !electron-41? (
-	# !electron-42? (
-	# ) ) )
 
-RDEPEND="${COMMON_DEPEND}
+RDEPEND+="
+${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND="
+BDEPEND+="
 	${PYTHON_DEPS}
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
@@ -79,15 +72,6 @@ python_check_deps() {
 #TODO: net-im/element-web -> runtime/buildtime dep
 
 src_unpack() {
-	# if use electron-41; then
-	# 	export ELECTRON_SLOT=41
-	# elif use electron-40; then
-	# 	export ELECTRON_SLOT=40
-	# elif use electron-42; then
-	# 	export ELECTRON_SLOT=42
-	# else
-		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	# fi
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
 		if [ -f "${DISTDIR}/element-web-${PV}.tar.gz" ]; then
