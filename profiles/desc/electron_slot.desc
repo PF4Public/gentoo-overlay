@@ -1,8 +1,0 @@
-# Copyright 1999-2026 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
-# This file contains descriptions of ELECTRON_SLOT USE_EXPAND flags.
-
-42 - Build against the electron 42 slot.
-43 - Build against the electron 43 slot.
-44 - Build against the electron 44 slot.
