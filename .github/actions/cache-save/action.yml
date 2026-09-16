@@ -33,15 +33,7 @@ runs:
         du -shc "${dirs[@]}"
 
     - name: Save cache
-      if: ${{ success() }}
       uses: actions/cache/save@v6
       with:
         path: ${{ steps.paths.outputs.path }}
         key: ${{ github.workflow }}-${{ inputs.digest }}
-
-    - name: Save failed cache
-      if: ${{ failure() }}
-      uses: actions/cache/save@v6
-      with:
-        path: ${{ steps.paths.outputs.path }}
-        key: ${{ github.workflow }}-failed-${{ inputs.digest }}
