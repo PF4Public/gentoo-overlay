@@ -1,0 +1,5 @@
+#!/bin/sh
+base=$(dirname "$(readlink -f "$0")")
+name=${0##*/}
+[ "$name" = dispatcher ] && { echo "dispatcher: should not be called directly" >&2; exit 2; }
+exec "$base/$name" "$@"

@@ -1,0 +1,24 @@
+--- a/cipd
++++ b/cipd
+@@ -93,7 +93,8 @@
+ CIPD_BACKEND="https://chrome-infra-packages.appspot.com"
+ VERSION_FILE="${DEPOT_TOOLS_DIR}/cipd_client_version"
+ 
+-CIPD_ROOT="${DEPOT_TOOLS_DIR}"
++CIPD_ROOT="${DEPOT_TOOLS_CIPD_ROOT:-${XDG_CACHE_HOME:-${HOME}/.cache}/depot_tools}"
++mkdir -p "${CIPD_ROOT}"
+ # value in .cipd_client_root file overrides the default root.
+ CIPD_ROOT_OVERRIDE_FILE="${DEPOT_TOOLS_DIR}/.cipd_client_root"
+ if [ -f "${CIPD_ROOT_OVERRIDE_FILE}" ]; then
+--- a/cipd_bin_setup.sh
++++ b/cipd_bin_setup.sh
+@@ -5,7 +5,8 @@
+ function cipd_bin_setup {
+     local MYPATH="${DEPOT_TOOLS_DIR:-$(dirname "${BASH_SOURCE[0]}")}"
+     local ENSURE="$MYPATH/cipd_manifest.txt"
+-    local ROOT="$MYPATH/.cipd_bin"
++    local ROOT="${DEPOT_TOOLS_CIPD_ROOT:-${XDG_CACHE_HOME:-${HOME}/.cache}/depot_tools}"
++    mkdir -p "${ROOT}"
+ 
+     UNAME="${DEPOT_TOOLS_UNAME_S:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
+     case $UNAME in

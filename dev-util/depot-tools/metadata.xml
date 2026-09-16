@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<bugs-to>https://issues.chromium.org/issues/new?component=1456102</bugs-to>
+		<doc>https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html</doc>
+	</upstream>
+	<use>
+		<flag name="cipd">
+			Expose the CIPD-based tools (bb, cipd, crowbar, dirmd,
+			ensure_bootstrap, git-credential-luci, led, lucicfg, luci,
+			luci-auth, luci-auth-ssh-helper, luci-auth-ssh-plugin,
+			luci_auth_fido2_plugin.py, pinpoint, prpc, rdb,
+			reclientreport) which use Google's CIPD service.
+		</flag>
+	</use>
+	<longdescription>
+		depot_tools is a collection of scripts and tools for building
+		Chromium, including gclient (a meta-checkout tool), git cl (code
+		review), fetch and many more.
+
+		The tools run under the system Python implementation selected
+		via PYTHON_SINGLE_TARGET (or the python_single_target_* USE
+		flags); the upstream CIPD Python bootstrap is replaced. The self-updater is disabled: update the
+		package by emerging a newer version. CIPD-based tools (luci, bb,
+		rdb, dirmd, ...) download their binaries to
+		$XDG_CACHE_HOME/depot_tools on first use.
+	</longdescription>
+</pkgmetadata>

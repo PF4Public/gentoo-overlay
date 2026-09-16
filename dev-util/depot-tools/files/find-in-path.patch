@@ -1,0 +1,11 @@
+--- a/gclient_paths.py
++++ b/gclient_paths.py
+@@ -206,7 +206,7 @@
+     if not env_path:
+         return
+     for bin_dir in env_path.split(os.pathsep):
+-        if bin_dir.rstrip(os.sep).endswith("depot_tools"):
++        if bin_dir.rstrip(os.sep).endswith(("depot_tools", "depot-tools")):
+             # skip depot_tools to avoid calling gn.py infinitely.
+             continue
+         path = os.path.join(bin_dir, name + GetExeSuffix())

@@ -1,0 +1,27 @@
+--- a/fetch.py
++++ b/fetch.py
+@@ -21,6 +21,7 @@
+ import argparse
+ import os
+ import shlex
++import shutil
+ import subprocess
+ import sys
+ 
+@@ -29,7 +30,6 @@
+ import git_common
+ import utils
+ 
+-from distutils import spawn
+ 
+ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+ 
+@@ -82,7 +82,7 @@
+ 
+ class GclientCheckout(Checkout):
+     def run_gclient(self, *cmd, **kwargs):
+-        if not spawn.find_executable("gclient"):
++        if not shutil.which("gclient"):
+             cmd_prefix = (
+                 sys.executable,
+                 os.path.join(SCRIPT_PATH, "gclient.py"),
