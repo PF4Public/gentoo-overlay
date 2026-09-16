@@ -28,6 +28,9 @@ jobs:
         uses: ./.github/actions/cache-restore
         with:
           digest: ${{ steps.setup.outputs.digest }}
+          restore-keys: |
+            ${{ github.workflow }}
+            element-web
 
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
@@ -78,6 +81,9 @@ jobs:
         uses: ./.github/actions/cache-restore
         with:
           digest: ${{ steps.setup.outputs.digest }}
+          restore-keys: |
+            ${{ github.workflow }}
+            element-web
 
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
