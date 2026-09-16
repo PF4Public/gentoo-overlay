@@ -23,6 +23,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
