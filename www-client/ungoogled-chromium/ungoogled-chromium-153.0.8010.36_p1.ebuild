@@ -928,6 +928,7 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
+			"${FILESDIR}/chromium-153-fix-iamf.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
@@ -1007,6 +1008,7 @@ src_prepare() {
 			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
 			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
+			"${BR_PA_PATH}/Protect-keyboard-geometry-on-Android.patch"
 			"${BR_PA_PATH}/Revert-remove-allowscript-content-setting-secondary-url.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch"
@@ -1688,6 +1690,10 @@ src_prepare() {
 	sed -i -e 's|${clang_base_path}/bin/llvm-strip|/bin/true|g' \
 		-e 's|${clang_base_path}/bin/llvm-objcopy|/bin/true|g' \
 		build/linux/strip_binary.gni || die
+
+	#! Fix for a phony target
+	mkdir -p third_party/rust-toolchain/bin
+	touch third_party/rust-toolchain/bin/rustc
 }
 
 src_configure() {
