@@ -5,12 +5,16 @@ on:
     - '**.ebuild'
     - '**.xml'
     - '**Manifest'
+    - 'eclass/**'
+    - 'profiles/**'
     - '!sys-kernel/linux-image/**'
   pull_request:
     paths:
     - '**.ebuild'
     - '**.xml'
     - '**Manifest'
+    - 'eclass/**'
+    - 'profiles/**'
     - '!sys-kernel/linux-image/**'
 
 jobs:
