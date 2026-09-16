@@ -81,17 +81,9 @@ jobs:
         use:
           - 'build-online'
         include:
-          - use: 'electron-39'
+          - use: 'electron_slot_43'
             experimental: true
-          - use: 'electron-40'
-            experimental: true
-          - use: 'electron-41'
-            experimental: true
-          - use: 'electron-42'
-            experimental: true
-          - use: 'electron-43'
-            experimental: true
-          - use: 'electron-44'
+          - use: 'electron_slot_44'
             experimental: true
 
     steps:

@@ -79,9 +79,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - use: 'electron-43'
+          - use: 'electron_slot_43'
             experimental: true
-          - use: 'electron-44'
+          - use: 'electron_slot_44'
             experimental: true
 
     steps:
