@@ -109,6 +109,12 @@ src_compile() {
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
 
+	# electron-builder must not be invoked via `pnpm exec`: in some
+	# containerized environments the bin shim receives cli.js's own path
+	# as an extra argument, rejected by yargs (strict) as "Unknown argument"
+	sed -i 's|pnpm exec electron-builder|node node_modules/electron-builder/cli.js|' \
+		apps/desktop/project.json || die
+
 	# einfo "Removing sentry from dependencies"
 	# sed -i '/@sentry/d' apps/desktop/package.json || die
 	# sed -i '/@sentry/d' apps/desktop/src/electron-main.ts || die
@@ -122,8 +128,9 @@ src_compile() {
 	mkdir "$T/pnpm"
 	pushd "$T/pnpm" > /dev/null || die
 		npm init -y
-		npm install pnpm yarn
+		npm install pnpm yarn || die
 	popd > /dev/null || die
+	einfo "Using node $(node --version) and pnpm $(pnpm --version) ($(command -v pnpm))"
 	pnpm install --no-frozen-lockfile || die
 
 	cd apps/desktop
