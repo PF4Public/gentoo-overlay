@@ -456,6 +456,14 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
+	if use pgo; then
+		eerror
+		eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
+		eerror
+		if [ -z "${NODIE}" ]; then
+			die "Build will fail with pgo"
+		fi
+	fi
 }
 
 pkg_setup() {
@@ -889,6 +897,7 @@ src_prepare() {
 		PATCHES+=(
 			"${FILESDIR}/chromium-141-opus-mp3.patch"
 			"${FILESDIR}/chromium-135-hevc.patch"
+			"${FILESDIR}/chromium-153-fix-iamf.patch"
 		)
 		sed -i "\!AVFMT_FLAG_NOH264PARSE!d" media/filters/ffmpeg_glue.cc || die
 		ewarn "You need to expose \"av_stream_get_first_dts\" in ffmpeg via user patch"
@@ -1524,6 +1533,10 @@ src_prepare() {
 	sed -i -e 's|${clang_base_path}/bin/llvm-strip|/bin/true|g' \
 		-e 's|${clang_base_path}/bin/llvm-objcopy|/bin/true|g' \
 		build/linux/strip_binary.gni || die
+
+	#! Fix for a phony target
+	mkdir -p third_party/rust-toolchain/bin
+	touch third_party/rust-toolchain/bin/rustc
 }
 
 src_configure() {
