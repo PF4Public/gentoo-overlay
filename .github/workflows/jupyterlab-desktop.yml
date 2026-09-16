@@ -12,63 +12,31 @@ jobs:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v47
-
-      - name: Prepare cache dir
-        run: |
-          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
-
-      - name: Calculate the hash of changed files
-        id: hash
-        run: |
-          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
-          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
-
-      - name: Free space on runner
-        run: |
-            sudo rm -rf /usr/share/dotnet
-            sudo rm -rf /usr/local/lib/android
-            sudo rm -rf /opt/ghc
-            sudo rm -rf /opt/hostedtoolcache/CodeQL
+      - name: Free space
+        uses: ./.github/actions/free-space
 
       - name: Restore cache
-        uses: actions/cache/restore@v6
+        uses: ./.github/actions/cache-restore
         with:
-          path: "${{ github.workspace }}/distfiles"
-          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
-          restore-keys: ${{ github.workflow }}
+          digest: ${{ steps.setup.outputs.digest }}
 
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.hash.outputs.modified }}
+            modified: ${{ steps.setup.outputs.modified }}
             tool: ebuild
             action: install
-            params: ' '
+            params: build-online
 
       - name: Save cache
-        uses: actions/cache/save@v6
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
         with:
-          path: |
-            ${{ github.workspace }}/distfiles
-            ${{ github.workspace }}/ccache
-          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
-
-      - name: Save failed cache
-        uses: actions/cache/save@v6
-        if: ${{ failure() }}
-        with:
-          path: |
-            ${{ github.workspace }}/distfiles
-            ${{ github.workspace }}/ccache
-          key: ${{ github.workflow }}-failed-${{ steps.hash.outputs.digest }}
+          digest: ${{ steps.setup.outputs.digest }}
 
   ebuild:
     needs: default
@@ -78,52 +46,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        use:
-          - 'build-online'
         include:
+          - use: '-build-online'
+            experimental: true
           - use: 'electron_slot_43'
             experimental: true
           - use: 'electron_slot_44'
             experimental: true
 
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v47
-
-      - name: Prepare cache dir
-        run: |
-          mkdir -p "${GITHUB_WORKSPACE}/distfiles"
-
-      - name: Calculate the hash of changed files
-        id: hash
-        run: |
-          echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
-          echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
-
-      - name: Free space on runner
-        run: |
-            sudo rm -rf /usr/share/dotnet
-            sudo rm -rf /usr/local/lib/android
-            sudo rm -rf /opt/ghc
-            sudo rm -rf /opt/hostedtoolcache/CodeQL
+      - name: Free space
+        uses: ./.github/actions/free-space
 
       - name: Restore cache
-        uses: actions/cache/restore@v6
+        uses: ./.github/actions/cache-restore
         with:
-          path: "${{ github.workspace }}/distfiles"
-          key: ${{ github.workflow }}-${{ steps.hash.outputs.digest }}
-          restore-keys: ${{ github.workflow }}
+          digest: ${{ steps.setup.outputs.digest }}
 
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.hash.outputs.modified }}
+            modified: ${{ steps.setup.outputs.modified }}
             tool: ebuild
             action: install
             params: ${{ matrix.use }}

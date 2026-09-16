@@ -1,0 +1,39 @@
+name: Setup
+description: Check out the repo, get changed files, prepare cache dirs and calculate their hash
+
+outputs:
+  modified:
+    description: List of changed files
+    value: ${{ steps.hash.outputs.modified }}
+  digest:
+    description: Hash of changed files
+    value: ${{ steps.hash.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check out the repo
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v47
+
+    - name: Prepare cache dir
+      run: |
+        mkdir -p "${GITHUB_WORKSPACE}/distfiles"
+        mkdir -p "${GITHUB_WORKSPACE}/npm-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/yarn-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/pnpm-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/cargo-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/go-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/go-mod-cache"
+        mkdir -p "${GITHUB_WORKSPACE}/ccache"
+
+    - name: Calculate the hash of changed files
+      id: hash
+      run: |
+        echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
+        echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT

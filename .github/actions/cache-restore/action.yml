@@ -1,0 +1,42 @@
+name: Restore cache
+description: Restore the distfiles, npm, yarn, pnpm, cargo, go and ccache directories from the cache
+
+inputs:
+  digest:
+    description: Hash of changed files
+    required: true
+  restore-keys:
+    description: Fallback cache keys
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare cache paths
+      id: paths
+      run: |
+        {
+          echo 'path<<EOF'
+          echo "${GITHUB_WORKSPACE}/distfiles"
+          echo "${GITHUB_WORKSPACE}/npm-cache"
+          echo "${GITHUB_WORKSPACE}/yarn-cache"
+          echo "${GITHUB_WORKSPACE}/pnpm-cache"
+          echo "${GITHUB_WORKSPACE}/cargo-cache"
+          echo "${GITHUB_WORKSPACE}/go-cache"
+          echo "${GITHUB_WORKSPACE}/go-mod-cache"
+          echo "${GITHUB_WORKSPACE}/ccache"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Restore cache
+      uses: actions/cache/restore@v6
+      with:
+        path: ${{ steps.paths.outputs.path }}
+        key: ${{ github.workflow }}-${{ inputs.digest }}
+        restore-keys: ${{ inputs.restore-keys || github.workflow }}
+
+    - name: Show cache usage
+      run: |
+        mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
+        du -shc "${dirs[@]}"

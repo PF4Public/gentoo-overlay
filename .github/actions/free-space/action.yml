@@ -1,0 +1,15 @@
+name: Free space
+description: Free up disk space on the runner and show the remaining space
+
+runs:
+  using: composite
+  steps:
+    - name: Free space on runner
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+    - name: Check free space (before)
+      run: df -h

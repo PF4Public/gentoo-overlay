@@ -1,0 +1,45 @@
+name: Save cache
+description: Save the distfiles, npm, yarn, pnpm, cargo, go and ccache directories to the cache
+
+inputs:
+  digest:
+    description: Hash of changed files
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare cache paths
+      id: paths
+      run: |
+        {
+          echo 'path<<EOF'
+          echo "${GITHUB_WORKSPACE}/distfiles"
+          echo "${GITHUB_WORKSPACE}/npm-cache"
+          echo "${GITHUB_WORKSPACE}/yarn-cache"
+          echo "${GITHUB_WORKSPACE}/pnpm-cache"
+          echo "${GITHUB_WORKSPACE}/cargo-cache"
+          echo "${GITHUB_WORKSPACE}/go-cache"
+          echo "${GITHUB_WORKSPACE}/go-mod-cache"
+          echo "${GITHUB_WORKSPACE}/ccache"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Show cache usage
+      run: |
+        mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
+        du -shc "${dirs[@]}"
+
+    - name: Save cache
+      if: ${{ success() }}
+      uses: actions/cache/save@v6
+      with:
+        path: ${{ steps.paths.outputs.path }}
+        key: ${{ github.workflow }}-${{ inputs.digest }}
+
+    - name: Save failed cache
+      if: ${{ failure() }}
+      uses: actions/cache/save@v6
+      with:
+        path: ${{ steps.paths.outputs.path }}
+        key: ${{ github.workflow }}-failed-${{ inputs.digest }}
