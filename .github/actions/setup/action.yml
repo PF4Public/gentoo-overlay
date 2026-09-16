@@ -28,18 +28,6 @@ runs:
         mkdir -p "${GITHUB_WORKSPACE}/go-mod-cache"
         mkdir -p "${GITHUB_WORKSPACE}/ccache"
 
-    - name: Fix cache dir ownership
-      shell: bash
-      run: |
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/distfiles"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/npm-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/yarn-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/pnpm-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/cargo-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/go-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/go-mod-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/ccache"
-
     - name: Calculate the hash of changed files
       id: hash
       shell: bash

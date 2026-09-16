@@ -12,6 +12,6 @@ runs:
         sudo rm -rf /opt/ghc
         sudo rm -rf /opt/hostedtoolcache/CodeQL
 
-    - name: Check free space (before)
+    - name: Check free space (after cleanup)
       shell: bash
       run: df -h

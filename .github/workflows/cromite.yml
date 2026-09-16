@@ -40,8 +40,12 @@ jobs:
             action: configure
             params: ' '
 
-      - name: Check free space (after)
+      - name: Check free space (after install)
         run: df -h
+
+      - name: Check disk usage
+        run: |
+          du -sh /opt /usr/share /usr/local /opt/* /usr/share/* /usr/local/* 2>/dev/null | sort -rh
 
       - name: Save cache
         if: ${{ always() }}
