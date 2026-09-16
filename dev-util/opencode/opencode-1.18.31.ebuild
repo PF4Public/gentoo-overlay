@@ -349,7 +349,7 @@ src_compile() {
 	mkdir "$T/bun"
 	pushd "$T/bun" > /dev/null || die
 		npm init -y
-		npm install bun
+		npm install bun 
 	popd > /dev/null || die
 
 	bun install --frozen-lockfile --ignore-scripts || die
