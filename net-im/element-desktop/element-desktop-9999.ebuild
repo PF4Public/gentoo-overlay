@@ -131,7 +131,8 @@ src_compile() {
 		pnpm run build:native || die
 	fi
 
-	script -c "pnpm run build" /dev/null || die
+	#* https://github.com/nrwl/nx/issues/22445
+	SHELL=bash script -c "pnpm run build" /dev/null || die
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die
 	# node scripts/copy-res.ts || die
