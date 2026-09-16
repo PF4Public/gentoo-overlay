@@ -121,8 +121,8 @@ src_compile() {
 	# popd > /dev/null || die
 
 	cd apps/web
-	#TODO https://github.com/nrwl/nx/issues/22445
-	script -c "pnpm run build" /dev/null || die
+	#* https://github.com/nrwl/nx/issues/22445
+	SHELL=bash script -c "pnpm run build" /dev/null || die
 	# pnpm run build || die
 	# node module_system/scripts/install.ts || die
 	# sh ./res/css/rethemendex.sh || die
