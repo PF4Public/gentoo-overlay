@@ -3,7 +3,10 @@
 
 EAPI=8
 
-inherit desktop multilib xdg-utils
+ELECTRON_COMPAT=( 42 43 )
+ELECTRON_SLOT_DEFAULT="42"
+
+inherit desktop electron-r1 multilib xdg-utils
 
 DESCRIPTION="JupyterLab desktop application, based on Electron"
 HOMEPAGE="https://jupyter.org/"
@@ -681,9 +684,7 @@ SRC_URI="
 "
 
 REPO="https://github.com/jupyterlab/jupyterlab-desktop"
-ELECTRON_SLOT_DEFAULT="42"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="electron-43"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -709,28 +710,20 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 
 REQUIRED_USE=""
 
-COMMON_DEPEND="
-	electron-43? ( dev-util/electron:43 )
-	!electron-43? (
-		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	)
-"
+COMMON_DEPEND=""
 
-RDEPEND="${COMMON_DEPEND}
+RDEPEND+="
+${COMMON_DEPEND}
 	>=dev-python/jupyterlab-$(ver_cut 1-3)
 "
 
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND=">=net-libs/nodejs-7.6.0"
+BDEPEND+="
+>=net-libs/nodejs-7.6.0"
 
 src_unpack() {
-	if use electron-43; then
-		export ELECTRON_SLOT=43
-	else
-		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
@@ -759,16 +752,6 @@ src_prepare() {
 
 src_configure() {
 	einfo "Installing node_modules"
-	OLD_PATH=$PATH
-
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	# echo "$PATH"
 	npm install corepack
 	node_modules/.bin/yarn config set disable-self-update-check true || die
 	node_modules/.bin/yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
@@ -778,20 +761,9 @@ src_configure() {
 	fi
 	node_modules/.bin/yarn install --frozen-lockfile ${ONLINE_OFFLINE} --no-progress || die
 
-	export PATH=${OLD_PATH}
 }
 
 src_compile() {
-	OLD_PATH=$PATH
-
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	# echo "$PATH"
 	npm install corepack
 	node_modules/.bin/yarn config set disable-self-update-check true || die
 	node_modules/.bin/yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
@@ -816,7 +788,6 @@ src_compile() {
 	einfo "Creating archive"
 	/usr/bin/node node_modules/@electron/asar/bin/asar.js pack ${distdir} ${distdir}/app.asar || die
 
-	export PATH=${OLD_PATH}
 }
 
 src_install() {
