@@ -26,6 +26,12 @@ runs:
           echo 'EOF'
         } >> "$GITHUB_OUTPUT"
 
+    - name: Fix cache dir ownership
+      shell: bash
+      run: |
+        mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
+        sudo chown -R "$(id -u):$(id -g)" "${dirs[@]}"
+
     - name: Show cache usage
       shell: bash
       run: |

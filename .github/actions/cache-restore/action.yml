@@ -40,14 +40,8 @@ runs:
     - name: Fix cache dir ownership
       shell: bash
       run: |
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/distfiles"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/npm-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/yarn-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/pnpm-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/cargo-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/go-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/go-mod-cache"
-        sudo chown -R 250:250 "${GITHUB_WORKSPACE}/ccache"
+        mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
+        sudo chown -R 250:250 "${dirs[@]}"
 
     - name: Show cache usage
       shell: bash
