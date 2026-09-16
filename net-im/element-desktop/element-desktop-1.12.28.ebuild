@@ -131,7 +131,7 @@ src_compile() {
 		pnpm run build:native || die
 	fi
 
-	script -c "pnpm run build" /dev/null || die
+	SHELL=bash script -c "pnpm run build" /dev/null || die
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die
 	# node scripts/copy-res.ts || die
