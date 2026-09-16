@@ -121,7 +121,7 @@ src_compile() {
 	# popd > /dev/null || die
 
 	cd apps/web
-	script -c "pnpm run build" /dev/null || die
+	SHELL=bash script -c "pnpm run build" /dev/null || die
 	# pnpm run build || die
 	# node module_system/scripts/install.ts || die
 	# sh ./res/css/rethemendex.sh || die
