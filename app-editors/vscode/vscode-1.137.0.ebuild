@@ -3,9 +3,11 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
+ELECTRON_COMPAT=( {43,44} )
+ELECTRON_SLOT_DEFAULT="43"
 
-inherit desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
+inherit desktop electron-r1 flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Visual Studio Code - Open Source"
 HOMEPAGE="https://github.com/microsoft/vscode"
@@ -18,17 +20,15 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers electron-44 openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	DOWNLOAD=""
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="43"
 else
 	IUSE+=" +build-online"
-	ELECTRON_SLOT_DEFAULT="43"
 	KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$CODE_COMMIT_ID" ]; then
@@ -51,21 +51,18 @@ COMMON_DEPEND="
 	>=x11-libs/libxkbfile-1.1.0:=
 	virtual/krb5
 	sys-apps/ripgrep
-	electron-44? ( dev-util/electron:44 )
-	!electron-44? (
-		dev-util/electron:${ELECTRON_SLOT_DEFAULT}
-	)
 "
 
 #TODO: oniguruma?
 
-RDEPEND="${COMMON_DEPEND}
+RDEPEND+="
+${COMMON_DEPEND}
 "
 
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND="
+BDEPEND+="
 	${PYTHON_DEPS}
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
@@ -93,11 +90,6 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	if use electron-44; then
-		export ELECTRON_SLOT=44
-	else
-		export ELECTRON_SLOT=$ELECTRON_SLOT_DEFAULT
-	fi
 	if [ -z "$CODE_COMMIT_ID" ]; then
 		if [ -f "${DISTDIR}/${P}.tar.gz" ]; then
 			unpack "${P}".tar.gz || die
@@ -266,18 +258,9 @@ src_configure() {
 
 	einfo "Installing node_modules"
 	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
-	export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
 	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 	export VSCODE_SKIP_PRELAUNCH=1
 	npm config set update-notifier false || die
@@ -302,7 +285,6 @@ src_configure() {
 	# # For webpack >= 5.61.0
 	# sed -i 's/case "sha512"/case "md4"/' node_modules/webpack/lib/util/createHash.js || die
 
-	export PATH=${OLD_PATH}
 
 	# einfo "Restoring vscode-ripgrep"
 	# pushd "node_modules/@vscode" > /dev/null || die
@@ -359,11 +341,6 @@ src_compile() {
 		die "Failed to determine target arch, got '$myarch'."
 	fi
 
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
 	export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
 	#? `exploration`, `insider`, `stable`
 	export VSCODE_QUALITY="stable"
@@ -394,15 +371,9 @@ src_compile() {
 		fi
 	fi
 
-	export PATH=${OLD_PATH}
 }
 
 src_install() {
-	OLD_PATH=$PATH
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:$PATH"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:$PATH"
-	export PATH
 
 	#TODO --experimental-strip-types until node>=22.18 stabilised
 	if use temp-fix; then
@@ -465,7 +436,6 @@ src_install() {
 	doins appdata/*
 
 	popd > /dev/null || die
-	export PATH=${OLD_PATH}
 }
 
 
