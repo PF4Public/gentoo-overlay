@@ -17,6 +17,7 @@ runs:
       uses: tj-actions/changed-files@v47
 
     - name: Prepare cache dir
+      shell: bash
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/distfiles"
         mkdir -p "${GITHUB_WORKSPACE}/npm-cache"
@@ -29,6 +30,7 @@ runs:
 
     - name: Calculate the hash of changed files
       id: hash
+      shell: bash
       run: |
         echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
         echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT

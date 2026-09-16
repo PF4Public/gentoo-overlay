@@ -15,6 +15,7 @@ runs:
   steps:
     - name: Prepare cache paths
       id: paths
+      shell: bash
       run: |
         {
           echo 'path<<EOF'
@@ -37,6 +38,7 @@ runs:
         restore-keys: ${{ inputs.restore-keys || github.workflow }}
 
     - name: Show cache usage
+      shell: bash
       run: |
         mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
         du -shc "${dirs[@]}"

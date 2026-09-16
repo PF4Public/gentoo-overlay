@@ -11,6 +11,7 @@ runs:
   steps:
     - name: Prepare cache paths
       id: paths
+      shell: bash
       run: |
         {
           echo 'path<<EOF'
@@ -26,6 +27,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Show cache usage
+      shell: bash
       run: |
         mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
         du -shc "${dirs[@]}"

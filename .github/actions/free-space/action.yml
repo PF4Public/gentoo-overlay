@@ -5,6 +5,7 @@ runs:
   using: composite
   steps:
     - name: Free space on runner
+      shell: bash
       run: |
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf /usr/local/lib/android
@@ -12,4 +13,5 @@ runs:
         sudo rm -rf /opt/hostedtoolcache/CodeQL
 
     - name: Check free space (before)
+      shell: bash
       run: df -h
