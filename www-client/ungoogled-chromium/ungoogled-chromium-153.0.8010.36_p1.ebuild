@@ -328,6 +328,7 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!override-data-dir? (
 		!www-client/chromium:${SLOT}
+		!www-client/cromite-bin
 		!www-client/cromite:${SLOT}[-override-data-dir]
 	)
 "
