@@ -37,6 +37,13 @@ jobs:
             action: install
             params: ' '
 
+      - name: Check free space (after install)
+        run: df -h
+
+      - name: Check disk usage
+        run: |
+          du -sh /opt /usr/share /usr/local /opt/* /usr/share/* /usr/local/* 2>/dev/null | sort -rh
+
       - name: Save cache
         if: ${{ always() }}
         uses: ./.github/actions/cache-save
