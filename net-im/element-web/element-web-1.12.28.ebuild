@@ -124,7 +124,7 @@ src_compile() {
 	cd apps/web
 	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
-	SHELL=bash script -c "pnpm run build" /dev/null || die
+	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 	# pnpm run build || die
 	# node module_system/scripts/install.ts || die
 	# sh ./res/css/rethemendex.sh || die
