@@ -1,0 +1,74 @@
+name: depot-tools
+on:
+  push:
+    paths:
+    - 'dev-util/depot-tools/*.ebuild'
+  pull_request:
+    paths:
+    - 'dev-util/depot-tools/*.ebuild'
+
+jobs:
+  default:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+        with:
+          digest: ${{ steps.setup.outputs.digest }}
+
+      - name: Install ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ' '
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
+        with:
+          digest: ${{ steps.setup.outputs.digest }}
+
+  ebuild:
+    needs: default
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - cipd
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+        with:
+          digest: ${{ steps.setup.outputs.digest }}
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ${{ matrix.use }}
