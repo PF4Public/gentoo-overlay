@@ -140,7 +140,7 @@ src_compile() {
 	# which electron-builder's beforeBuild hook requires; at runtime the
 	# app loads the webapp from the symlink to /usr/share/element-web.
 	cd ../web
-	SHELL=bash script -c "pnpm run build" /dev/null || die
+	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 	cd ../desktop
 	rm -rf webapp
 	mv ../web/webapp webapp || die
@@ -150,7 +150,7 @@ src_compile() {
 
 	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
-	SHELL=bash script -c "pnpm run build" /dev/null || die
+	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die

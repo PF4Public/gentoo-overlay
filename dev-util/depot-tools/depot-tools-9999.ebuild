@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{11..15} )
 
-inherit python-single-r1 shell-completion
+inherit git-r3 python-single-r1 shell-completion
 
 DESCRIPTION="Collection of scripts and tools for building Chromium"
 HOMEPAGE="
@@ -16,9 +16,9 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="cipd"
 
+EGIT_REPO_URI="https://chromium.googlesource.com/chromium/tools/depot_tools"
+
 if [[ ${PV} == *9999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://chromium.googlesource.com/chromium/tools/depot_tools"
 	EGIT_BRANCH="main"
 else
 	# The version number is the number of commits after the initial commit,
@@ -27,11 +27,11 @@ else
 	#   COMMIT_ID=$(git rev-parse HEAD)
 	#   PV="0.$(( $(git rev-list --count HEAD) - 1 ))"
 	# (e.g. 12572 commits including the initial one -> 0.12571)
-	COMMIT_ID="46afe8bfbb57583700c01d1584e7a49638d586ed"
-	SRC_URI="https://chromium.googlesource.com/chromium/tools/depot_tools/+archive/${COMMIT_ID}.tar.gz -> ${P}.tar.gz"
+	# The commit is fetched via git (not a tarball): the googlesource
+	# +archive endpoint is not byte-stable, so distfiles cannot be
+	# checksummed.
+	EGIT_COMMIT="46afe8bfbb57583700c01d1584e7a49638d586ed"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-	# The archive has no top-level directory.
-	S="${WORKDIR}"
 fi
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

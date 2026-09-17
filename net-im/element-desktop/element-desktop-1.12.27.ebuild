@@ -140,7 +140,7 @@ src_compile() {
 
 	# util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	# (nologin in CI containers); nx requires a pty: https://github.com/nrwl/nx/issues/22445
-	SHELL=bash script -c "pnpm run build" /dev/null || die
+	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die
 	# node scripts/copy-res.ts || die
