@@ -80,6 +80,15 @@ src_prepare() {
 		sed -i -e 's|^\. "\$(type -P python_runner\.sh)"$|. "$(dirname "$0")/python_runner.sh"|' "${f}" || die
 	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git 'type -P python_runner.sh' "${S}")
 
+	# Upstream's vpython3 bootstraps a CIPD-managed Python; Chromium
+	# hooks rely on its CLI (vpython3_common: 'vpython3 -vpython-spec
+	# ... -vpython-tool install'). Enable its 'manually managed
+	# python' bypass mode unconditionally, so that it strips the
+	# vpython-specific flags and execs the selected system
+	# interpreter.
+	sed -i -e 's|^if \[\[ \$VPYTHON_BYPASS.*|if true|' \
+		-e 's|exec "python3"|exec "'${PYTHON}'"|' "${S}/vpython3" || die
+
 	# python_runner.sh picks the interpreter via a PATH lookup for
 	# 'vpython3'. Use the selected system interpreter directly.
 	sed -i -e "s|^vpython3 |\"${PYTHON}\" |" "${S}/python_runner.sh" || die
@@ -136,15 +145,12 @@ src_install() {
 	# working as well.
 	touch "${ED}${libdir}/.disable_auto_update" || die
 
-	# Upstream bootstraps a CIPD-managed Python for the tools; the
-	# tools run on the selected system interpreter instead, so the
-	# in-tree python launchers point at it directly. The links are
-	# relative so the package stays relocatable.
-	# The in-tree launchers link to the selected interpreter; the
-	# relative targets assume it lives in /usr/bin.
+	# python-bin/python3 is the in-tree alias for the selected
+	# interpreter (referenced by tools such as siso); the relative
+	# target assumes the interpreter lives in /usr/bin. vpython3
+	# stays the upstream script, patched above.
 	[[ ${PYTHON} == /usr/bin/* ]] || die "unexpected interpreter location: ${PYTHON}"
 	python_rel="../../../usr/bin/${PYTHON##*/}"
-	ln -sf "${python_rel}" "${ED}${libdir}/vpython3" || die
 	ln -sf "../${python_rel}" "${ED}${libdir}/python-bin/python3" || die
 
 	# Install the bash completions. The git fragments define _git_*
