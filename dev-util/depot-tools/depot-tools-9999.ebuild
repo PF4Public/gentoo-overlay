@@ -14,7 +14,6 @@ HOMEPAGE="
 "
 LICENSE="BSD"
 SLOT="0"
-IUSE="cipd"
 
 # There are no release tarballs and the googlesource +archive endpoint
 # is not byte-stable, so only a live ebuild is provided.
@@ -100,15 +99,6 @@ src_install() {
 	dodoc "${S}"/LICENSE "${S}"/README*.md "${S}"/metrics.README.md
 	dozshcomp "${S}"/zsh-goodies/_gclient
 
-	# crowbar and git-credential-luci are CIPD tools; their docs are
-	# only installed with the cipd USE flag.
-	if ! use cipd; then
-		rm -f "${ED}"/usr/share/man/man1/crowbar.1 \
-			"${ED}"/usr/share/man/man7/depot_tools_gerrit_auth.7 \
-			"${ED}"/usr/share/doc/${PF}/html/crowbar.html \
-			"${ED}"/usr/share/doc/${PF}/html/depot_tools_gerrit_auth.html || die
-	fi
-
 	rm -rf "${S}/.git" "${S}/tests" "${S}/man" "${S}/zsh-goodies" || die
 	rm -f "${S}"/*.bat "${S}"/*.exe "${S}"/README*.md \
 		"${S}"/metrics.README.md "${S}"/LICENSE || die
@@ -175,10 +165,6 @@ src_install() {
 				# collisions. gn.py does not collide, but as the wrapper
 				# twin of gn it stays out of PATH for consistency.
 				;;
-			bb|cipd|crowbar|dirmd|ensure_bootstrap|git-credential-luci|led|lucicfg|luci|luci-auth|luci-auth-ssh-helper|luci-auth-ssh-plugin|luci_auth_fido2_plugin.py|pinpoint|prpc|rdb|reclientreport)
-				# CIPD tools, only exposed with the cipd USE flag.
-				use cipd && dosym "${dispatcher_link}" "/usr/bin/${name}"
-				;;
 			autoninja.py|build_telemetry.py|download_from_google_storage.py|fetch.py|gclient.py|git_cache.py|git_cl.py|git_find_releases.py|git_footers.py|git_freezer.py|git_hyper_blame.py|git_map.py|git_map_branches.py|git_mark_merge_base.py|git_nav_downstream.py|git_new_branch.py|git_number.py|git_rebase_update.py|git_rename_branch.py|git_reparent_branch.py|git_retry.py|git_squash_branch.py|git_squash_branch_tree.py|git_upstream_diff.py|google_java_format.py|metrics_xml_format.py|roll_dep.py|run_in_virtual_path.py|upload_to_google_storage.py)
 				# Implementation twins of the extensionless commands,
 				# which are the entry points.
@@ -199,11 +185,9 @@ src_install() {
 pkg_postinst() {
 	ewarn "The depot_tools self-updater is disabled."
 
-	if use cipd; then
-		ewarn
-		ewarn "CIPD-based tools (bb, luci, luci-auth, rdb, dirmd, crowbar,"
-		ewarn "git-credential-luci, pinpoint, led, lucicfg, prpc, reclientreport)"
-		ewarn "download their binaries to \${XDG_CACHE_HOME:-~/.cache}/depot_tools"
-		ewarn "on first use."
-	fi
+	ewarn
+	ewarn "CIPD-based tools (bb, luci, luci-auth, rdb, dirmd, crowbar,"
+	ewarn "git-credential-luci, pinpoint, led, lucicfg, prpc, reclientreport)"
+	ewarn "download their binaries to \${XDG_CACHE_HOME:-~/.cache}/depot_tools"
+	ewarn "on first use."
 }
