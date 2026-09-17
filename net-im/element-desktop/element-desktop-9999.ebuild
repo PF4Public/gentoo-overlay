@@ -68,8 +68,6 @@ python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
 
-#TODO: net-im/element-web -> runtime/buildtime dep
-
 src_unpack() {
 	if [ -z "$ELEMENT_COMMIT_ID" ]
 	then
@@ -137,8 +135,7 @@ src_compile() {
 	fi
 
 	# Build the web app from the source tree and pack it into webapp.asar,
-	# which electron-builder's beforeBuild hook requires; at runtime the
-	# app loads the webapp from the symlink to /usr/share/element-web.
+	# which electron-builder's beforeBuild hook requires
 	cd ../web
 	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 	cd ../desktop
