@@ -31,9 +31,11 @@
 # - add the exact dependency dev-util/electron:${ELECTRON_SLOT} to
 #   BDEPEND and RDEPEND, without any USE flag conditionals,
 # - automatically set up the build environment (electron PATH, Node
-#   headers in CFLAGS/CPPFLAGS, no binary downloads) around all src_*
-#   phase functions (via portage's pre_/post_ phase hooks), so the
-#   ebuild does not have to do it manually.
+#   headers in CFLAGS/CPPFLAGS, no binary downloads, and ELECTRON_DIST
+#   pointing at the installed runtime so electron-builder can package
+#   against it) around all src_* phase functions (via portage's
+#   pre_/post_ phase hooks), so the ebuild does not have to do it
+#   manually.
 #
 # Slot selection is a USE_EXPAND-style variable: in
 # /etc/portage/package.use (extended syntax), it is written as
@@ -122,6 +124,22 @@ _ELECTRON_R1_ECLASS=1
 #   ${ELECTRON_DEP}
 # "
 # @CODE
+
+# @ECLASS_VARIABLE: ELECTRON_DIST
+# @OUTPUT_VARIABLE
+# @DESCRIPTION:
+# The absolute path of the installed electron runtime for the selected
+# slot (e.g. /usr/lib64/electron-44). Exported by electron-r1_env_setup
+# so that electron-builder-based apps can pass it as
+# --config.electronDist and package against the system runtime instead
+# of downloading the official Electron dist zip (which, together with
+# the --dir target, also avoids the fpm/7zip binary downloads).
+#
+# Example:
+# @CODE
+# electron-builder --dir --publish=never --config.electronDist="${ELECTRON_DIST}"
+# @CODE
+
 _electron_r1_die_usage() {
 	die "
 ${ECLASS}: Set ELECTRON_COMPAT to an array of electron major versions
@@ -179,8 +197,9 @@ unset -f _electron_r1_init _electron_r1_die_usage
 # @DESCRIPTION:
 # Prepare the environment for building against the selected electron slot:
 # prepend the electron runtime and its bundled npm to PATH, add the electron
-# Node headers to CFLAGS and CPPFLAGS, and tell electron and Playwright not
-# to download their own binaries.
+# Node headers to CFLAGS and CPPFLAGS, export ELECTRON_DIST (the installed
+# runtime, for electron-builder's --config.electronDist), and tell electron
+# and Playwright not to download their own binaries.
 #
 # Note: the runtime directory contains a 'node' wrapper script that runs the
 # electron binary with ELECTRON_RUN_AS_NODE=1. It works for most build
@@ -218,6 +237,10 @@ electron-r1_env_setup() {
 
 	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+	# The installed runtime itself; electron-builder can use it as
+	# --config.electronDist instead of downloading the official dist zip.
+	export ELECTRON_DIST="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}"
 }
 
 # @FUNCTION: electron-r1_env_cleanup
