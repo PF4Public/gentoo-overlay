@@ -109,11 +109,9 @@ src_compile() {
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
 
-	# Invoke electron-builder directly rather than via `pnpm exec`: the
-	# pnpm bin shim re-execs through whatever `node` PATH resolves, which
-	# may be the electron runtime's node wrapper whose argv convention
-	# breaks electron-builder's yargs ("Unknown argument").
-	sed -i 's|pnpm exec electron-builder|node node_modules/electron-builder/cli.js|' \
+	# electron-builder must run with the system node: the electron runtime's
+	# node wrapper breaks its yargs ("Unknown argument").
+	sed -i 's|pnpm exec electron-builder|/usr/bin/node node_modules/electron-builder/cli.js|' \
 		apps/desktop/project.json || die
 
 	# einfo "Removing sentry from dependencies"
@@ -138,6 +136,18 @@ src_compile() {
 	if use native-modules; then
 		pnpm run build:native || die
 	fi
+
+	# Build the web app from the source tree and pack it into webapp.asar,
+	# which electron-builder's beforeBuild hook requires; at runtime the
+	# app loads the webapp from the symlink to /usr/share/element-web.
+	cd ../web
+	SHELL=bash script -c "pnpm run build" /dev/null || die
+	cd ../desktop
+	rm -rf webapp
+	mv ../web/webapp webapp || die
+	cp -f ../web/config.sample.json webapp/config.json || die
+	# system node: the electron runtime's node wrapper breaks the asar CLI
+	/usr/bin/node node_modules/@electron/asar/bin/asar.mjs p webapp webapp.asar || die
 
 	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
