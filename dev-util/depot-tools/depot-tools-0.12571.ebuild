@@ -58,7 +58,7 @@ DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}/cipd-cache-root.patch"
-	"${FILESDIR}/fetch-no-distutils.patch"
+	"${FILESDIR}/fetch-no-distutils.patch" 
 	"${FILESDIR}/find-in-path.patch"
 )
 
