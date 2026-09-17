@@ -112,7 +112,13 @@ src_compile() {
 	# electron-builder must not be invoked via `pnpm exec`: in some
 	# containerized environments the bin shim receives cli.js's own path
 	# as an extra argument, rejected by yargs (strict) as "Unknown argument"
-	sed -i 's|pnpm exec electron-builder|node node_modules/electron-builder/cli.js|' \
+	# --dir: build the unpacked app only (src_install consumes
+	# dist/linux-unpacked/resources), so no tar.gz/deb targets and no
+	# 7zip/fpm downloads either.
+	# --publish=never: suppress implicit publishing triggered by CI detection.
+	# --config.electronDist: package against the system electron runtime
+	# (see electron-r1) instead of downloading the Electron dist zip.
+	sed -i "s|pnpm exec electron-builder|node node_modules/electron-builder/cli.js --dir --publish=never --config.electronDist=${ELECTRON_DIST}|" \
 		apps/desktop/project.json || die
 
 	# einfo "Removing sentry from dependencies"
