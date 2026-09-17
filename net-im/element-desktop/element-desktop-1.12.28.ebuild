@@ -109,10 +109,11 @@ src_compile() {
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
 
-	# electron-builder must not be invoked via `pnpm exec`: in some
-	# containerized environments the bin shim receives cli.js's own path
-	# as an extra argument, rejected by yargs (strict) as "Unknown argument"
-	sed -i 's|pnpm exec electron-builder|/usr/bin/node node_modules/electron-builder/cli.js|' \
+	# Invoke electron-builder directly rather than via `pnpm exec`: the
+	# pnpm bin shim re-execs through whatever `node` PATH resolves, which
+	# may be the electron runtime's node wrapper whose argv convention
+	# breaks electron-builder's yargs ("Unknown argument").
+	sed -i 's|pnpm exec electron-builder|node node_modules/electron-builder/cli.js|' \
 		apps/desktop/project.json || die
 
 	# einfo "Removing sentry from dependencies"
