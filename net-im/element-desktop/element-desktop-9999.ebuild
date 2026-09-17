@@ -46,7 +46,6 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
-	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
 "
 
@@ -93,7 +92,7 @@ src_compile() {
 	# export PATH
 	# export CFLAGS="${CFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
 	# export CPPFLAGS="${CPPFLAGS} -I/usr/include/electron-${ELECTRON_SLOT}/node"
-	export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+	# export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 	# yarn config set disable-self-update-check true || die
 	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
 	# # #! Until electron-builder >=22.11.5
@@ -109,9 +108,8 @@ src_compile() {
 	einfo "Removing playwright from dependencies"
 	sed -i '/playwright":/d' apps/desktop/package.json || die
 
-	# electron-builder must not be invoked via `pnpm exec`: in some
-	# containerized environments the bin shim receives cli.js's own path
-	# as an extra argument, rejected by yargs (strict) as "Unknown argument"
+	# electron-builder must run with the system node: the electron runtime's
+	# node wrapper breaks its yargs ("Unknown argument").
 	sed -i 's|pnpm exec electron-builder|/usr/bin/node node_modules/electron-builder/cli.js|' \
 		apps/desktop/project.json || die
 
@@ -137,6 +135,18 @@ src_compile() {
 	if use native-modules; then
 		pnpm run build:native || die
 	fi
+
+	# Build the web app from the source tree and pack it into webapp.asar,
+	# which electron-builder's beforeBuild hook requires; at runtime the
+	# app loads the webapp from the symlink to /usr/share/element-web.
+	cd ../web
+	SHELL=bash script -c "pnpm run build" /dev/null || die
+	cd ../desktop
+	rm -rf webapp
+	mv ../web/webapp webapp || die
+	cp -f ../web/config.sample.json webapp/config.json || die
+	# system node: the electron runtime's node wrapper breaks the asar CLI
+	/usr/bin/node node_modules/@electron/asar/bin/asar.mjs p webapp webapp.asar || die
 
 	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445

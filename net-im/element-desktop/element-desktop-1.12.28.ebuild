@@ -46,7 +46,6 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
-	~net-im/element-web-${PV}
 	native-modules? ( dev-db/sqlcipher )
 "
 
