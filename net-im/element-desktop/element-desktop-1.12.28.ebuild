@@ -138,9 +138,10 @@ src_compile() {
 		pnpm run build:native || die
 	fi
 
-	# util-linux script(1) picks $SHELL, else the calling user's passwd shell
-	# (nologin in CI containers); nx requires a pty: https://github.com/nrwl/nx/issues/22445
+	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
+	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
 	SHELL=bash script -c "pnpm run build" /dev/null || die
+
 	# pnpm install --no-frozen-lockfile || die
 	# ../../node_modules/.bin/tsc || die
 	# node scripts/copy-res.ts || die
