@@ -112,7 +112,7 @@ src_compile() {
 	# electron-builder must not be invoked via `pnpm exec`: in some
 	# containerized environments the bin shim receives cli.js's own path
 	# as an extra argument, rejected by yargs (strict) as "Unknown argument"
-	sed -i 's|pnpm exec electron-builder|node node_modules/electron-builder/cli.js|' \
+	sed -i 's|pnpm exec electron-builder|/usr/bin/node node_modules/electron-builder/cli.js|' \
 		apps/desktop/project.json || die
 
 	# einfo "Removing sentry from dependencies"
