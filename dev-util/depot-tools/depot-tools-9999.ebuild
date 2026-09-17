@@ -16,27 +16,12 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="cipd"
 
+# There are no release tarballs and the googlesource +archive endpoint
+# is not byte-stable, so only a live ebuild is provided.
 EGIT_REPO_URI="https://chromium.googlesource.com/chromium/tools/depot_tools"
-
-if [[ ${PV} == *9999* ]]; then
-	EGIT_BRANCH="main"
-else
-	# The version number is the number of commits after the initial commit,
-	# following the same scheme as dev-build/gn. To bump: clone the repo at
-	# the tip of main, then
-	#   COMMIT_ID=$(git rev-parse HEAD)
-	#   PV="0.$(( $(git rev-list --count HEAD) - 1 ))"
-	# (e.g. 12572 commits including the initial one -> 0.12571)
-	# The commit is fetched via git (not a tarball): the googlesource
-	# +archive endpoint is not byte-stable, so distfiles cannot be
-	# checksummed.
-	EGIT_COMMIT="46afe8bfbb57583700c01d1584e7a49638d586ed"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-fi
+EGIT_BRANCH="main"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-
-RESTRICT="mirror"
 
 # markdown_format.py would additionally need dev-python/mdformat,
 # which is available in GURU.
