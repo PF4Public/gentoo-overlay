@@ -178,9 +178,16 @@ unset -f _electron_r1_init _electron_r1_die_usage
 # @FUNCTION: electron-r1_env_setup
 # @DESCRIPTION:
 # Prepare the environment for building against the selected electron slot:
-# prepend the electron runtime and its bundled npm to PATH, add the electron
-# Node headers to CFLAGS and CPPFLAGS, and tell electron and Playwright not
-# to download their own binaries.
+# expose the electron runtime binary and its bundled npm on PATH, add the
+# electron Node headers to CFLAGS and CPPFLAGS, and tell electron and
+# Playwright not to download their own binaries.
+#
+# Only the electron binary is exposed, not the runtime directory itself:
+# the directory also contains a 'node' wrapper script that runs the electron
+# binary with ELECTRON_RUN_AS_NODE=1. Because of Electron's argv convention
+# (process.argv[1] = the electron binary's path), argv-based CLI tools break
+# when invoked through it (e.g. electron-builder's yargs fails with
+# "Unknown argument").
 #
 # This is called automatically from the pre_<phase> hook of every src_*
 # phase. Call it manually only if the environment is needed somewhere the
@@ -191,9 +198,18 @@ electron-r1_env_setup() {
 		die "${ECLASS}: ELECTRON_SLOT is not set (inherited ${ECLASS} correctly?)"
 
 	_ELECTRON_R1_OLD_PATH=${PATH}
+
+	# Expose only the electron binary itself (see above for why the runtime
+	# directory must not be added to PATH directly).
+	local electron_bin="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron"
+	if [[ -x ${electron_bin} ]]; then
+		mkdir -p "${T}/electron-r1-bin"
+		ln -sf "${electron_bin}" "${T}/electron-r1-bin/electron"
+		PATH="${T}/electron-r1-bin:${PATH}"
+	fi
+
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:${PATH}"
 	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:${PATH}"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:${PATH}"
 	export PATH
 
 	# The modified CFLAGS/CPPFLAGS persist in the ebuild environment across
