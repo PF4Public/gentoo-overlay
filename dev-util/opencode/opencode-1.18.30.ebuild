@@ -362,8 +362,14 @@ src_compile() {
 	pushd "packages/desktop" > /dev/null || die
 		bun run build || die
 		# bun run package || die
-		/usr/bin/node node_modules/.bin/electron-builder --linux --config electron-builder.config.ts
-			# --config.electronDist="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/"
+		# --dir: install only dist/linux-unpacked/resources/app.asar*, so no
+		# AppImage/deb/rpm targets and no appimagetool/fpm downloads either.
+		# --publish=never: the prod/beta config defines publish.github and
+		# CI detection would otherwise trigger implicit publishing.
+		# --config.electronDist: package against the system electron runtime
+		# (see electron-r1) instead of downloading the Electron dist zip.
+		/usr/bin/node node_modules/.bin/electron-builder --linux --dir --publish=never \
+			--config electron-builder.config.ts --config.electronDist=${ELECTRON_DIST}
 	popd > /dev/null || die
 
 	# export NODE_OPTIONS="--max-old-space-size=12192 --heapsnapshot-near-heap-limit=5"
