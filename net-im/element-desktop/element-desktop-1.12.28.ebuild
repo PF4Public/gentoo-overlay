@@ -212,7 +212,7 @@ src_install() {
 	insinto "/usr/$(get_libdir)/element-desktop"
 
 	doins -r dist/linux-unpacked/resources/*
-	dosym ../../share/element-web /usr/$(get_libdir)/element-desktop/webapp
+	# dosym ../../share/element-web /usr/$(get_libdir)/element-desktop/webapp
 
 	exeinto "/usr/$(get_libdir)/element-desktop"
 	cp "${FILESDIR}/read_flags_file" dist/linux-unpacked/resources/element-desktop
