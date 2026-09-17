@@ -109,8 +109,9 @@ src_compile() {
 	mkdir "$T/pnpm"
 	pushd "$T/pnpm" > /dev/null || die
 		npm init -y
-		npm install pnpm
+		npm install pnpm || die
 	popd > /dev/null || die
+	einfo "Using node $(node --version) and pnpm $(pnpm --version) ($(command -v pnpm))"
 	pnpm install || die
 	# --ignore-scripts
 
@@ -121,7 +122,9 @@ src_compile() {
 	# popd > /dev/null || die
 
 	cd apps/web
-	script -c "pnpm run build" /dev/null || die
+	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
+	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
+	SHELL=bash script -c "pnpm run build" /dev/null || die
 	# pnpm run build || die
 	# node module_system/scripts/install.ts || die
 	# sh ./res/css/rethemendex.sh || die
