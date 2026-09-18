@@ -1023,6 +1023,7 @@ src_prepare() {
 	fi
 
 	declare -A skipped_patches=(
+		["cherry-pick-e4b5328067a5.patch"]="due to... reasons..."
 		["cherry-pick-dd8e2822e507.patch"]="due to... reasons..."
 		["cherry-pick-4de99209fb4f.patch"]="due to... reasons..."
 		["cherry-pick-a17d5224d83f.patch"]="due to... reasons..."
@@ -1032,15 +1033,7 @@ src_prepare() {
 		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
 		["desktop_media_list.patch"]="due to... reasons..."
 		# ["cherry-pick-5902d1aa722a.patch"]="no files to patch"
-		# ["regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch"]="no files to patch"
 		# ["cherry-pick-b173791bf402.patch"]="already applied"
-		# ["cherry-pick-be87466afecb.patch"]="already applied"
-		# ["cherry-pick-c0390bcd64ba.patch"]="already applied"
-		# ["cherry-pick-1b69067db7d2.patch"]="already applied"
-		# ["cherry-pick-d513cd2fe668.patch"]="already applied"
-		# ["cherry-pick-dc5e20c4c055.patch"]="already applied"
-		# ["cherry-pick-847b11ad2fa3.patch"]="already applied"
-		# ["cherry-pick-fc79e8cc2dfc.patch"]="already applied"
 	)
 	if use ungoogled; then
 		skipped_patches+=(
