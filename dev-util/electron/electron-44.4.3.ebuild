@@ -1047,13 +1047,15 @@ src_prepare() {
 		["electron/patches/devtools_frontend"]="third_party/devtools-frontend/src"
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/v8"]="v8"
-		# ["electron/patches/angle"]="third_party/angle"
 		["electron/patches/node"]="third_party/electron_node"
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
 		["electron/patches/sqlite"]="third_party/sqlite/src"
+		["electron/patches/angle"]="third_party/angle"
 		# ["electron/patches/dawn"]="third_party/dawn"
-		# ["electron/patches/pdfium"]="third_party/pdfium"
+		["electron/patches/pdfium"]="third_party/pdfium"
+		["electron/patches/libyuv"]="third_party/libyuv"
+		["electron/patches/skia"]="third_party/skia"
 	)
 	for patch_folder in "${!patches[@]}";
 	do
