@@ -112,9 +112,6 @@ src_install() {
 	# cannot point at them directly (that would make $0 resolve to
 	# /usr/bin); they are symlinks to a single dispatcher that
 	# re-execs the tool by its real path, keeping $0 correct.
-	# vpython3 is included: the in-tree shebangs and the gclient GCS
-	# path look it up on the PATH, and it bootstraps the CIPD-managed
-	# Python the whole toolchain runs on.
 	exeinto "${libdir}"
 	doexe "${FILESDIR}/dispatcher"
 
@@ -145,6 +142,13 @@ src_install() {
 			autoninja.py|build_telemetry.py|download_from_google_storage.py|fetch.py|gclient.py|git_cache.py|git_cl.py|git_find_releases.py|git_footers.py|git_freezer.py|git_hyper_blame.py|git_map.py|git_map_branches.py|git_mark_merge_base.py|git_nav_downstream.py|git_new_branch.py|git_number.py|git_rebase_update.py|git_rename_branch.py|git_reparent_branch.py|git_retry.py|git_squash_branch.py|git_squash_branch_tree.py|git_upstream_diff.py|google_java_format.py|metrics_xml_format.py|roll_dep.py|run_in_virtual_path.py|upload_to_google_storage.py)
 				# Implementation twins of the extensionless commands,
 				# which are the entry points.
+				;;
+			vpython3)
+				# Not exposed on the PATH itself: the dispatcher
+				# appends the package dir to PATH for every tool, so
+				# shebangs ('env vpython3') and subprocess lookups
+				# resolve the in-tree copy, which bootstraps the
+				# CIPD-managed Python the toolchain runs on.
 				;;
 			*)
 				dosym "${dispatcher_link}" "/usr/bin/${name}"

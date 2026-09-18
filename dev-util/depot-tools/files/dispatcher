@@ -2,4 +2,9 @@
 base=$(dirname "$(readlink -f "$0")")
 name=${0##*/}
 [ "$name" = dispatcher ] && { echo "dispatcher: should not be called directly" >&2; exit 2; }
+# Make the in-tree tools (notably vpython3) findable by shebangs and
+# subprocess lookups in the tool's process tree. Appended, so entries
+# already on the PATH (e.g. system gn, ninja, black) keep priority.
+PATH="${PATH}${PATH:+:}$base"
+export PATH
 exec "$base/$name" "$@"
