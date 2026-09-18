@@ -100,7 +100,7 @@ SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/d
 # https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz
 
 # Official tarball:
-# https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}${LITE_TARBALL:+-lite}.tar.xz
+# https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz
 
 # https://gitweb.gentoo.org/proj/chromium-tools.git/tree/get-chromium-licences.py @ 145.0.7632.76
 LICENSE="Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Base64 Boost-1.0 CC-BY-3.0 CC-BY-4.0 Clear-BSD FFT2D FTL"
@@ -574,7 +574,10 @@ src_unpack() {
 	## unpack chromium-patches-${PATCH_V}.tar.bz2
 	## Warned you!
 
-	unpack chromium-${PV/_*}-lite.tar.xz
+
+		unpack chromium-${PV/_*}-linux.tar.xz
+		# unpack chromium-${PV/_*}-lite.tar.xz
+
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
 	if use !bundled-toolchain; then
