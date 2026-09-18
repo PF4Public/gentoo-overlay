@@ -1022,6 +1022,32 @@ src_prepare() {
 			electron/patches/node/src_add_perfetto_trace_agent.patch || die
 	fi
 
+	declare -A skipped_patches=(
+		["cherry-pick-dd8e2822e507.patch"]="due to... reasons..."
+		["cherry-pick-4de99209fb4f.patch"]="due to... reasons..."
+		["cherry-pick-a17d5224d83f.patch"]="due to... reasons..."
+		["cherry-pick-d34dbe58b7.patch"]="due to... reasons..."
+		["cherry-pick-b8986b4e67.patch"]="due to... reasons..."
+		["revert_enable_crel_for_arm32_targets.patch"]="due to... reasons..."
+		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
+		["desktop_media_list.patch"]="due to... reasons..."
+		# ["cherry-pick-5902d1aa722a.patch"]="no files to patch"
+		# ["regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch"]="no files to patch"
+		# ["cherry-pick-b173791bf402.patch"]="already applied"
+		# ["cherry-pick-be87466afecb.patch"]="already applied"
+		# ["cherry-pick-c0390bcd64ba.patch"]="already applied"
+		# ["cherry-pick-1b69067db7d2.patch"]="already applied"
+		# ["cherry-pick-d513cd2fe668.patch"]="already applied"
+		# ["cherry-pick-dc5e20c4c055.patch"]="already applied"
+		# ["cherry-pick-847b11ad2fa3.patch"]="already applied"
+		# ["cherry-pick-fc79e8cc2dfc.patch"]="already applied"
+	)
+	if use ungoogled; then
+		skipped_patches+=(
+			["sysroot.patch"]="due to ungoogled."
+			["build_disable_print_content_analysis.patch"]="due to ungoogled."
+		)
+	fi
 	declare -A patches=(
 		["electron/patches/chromium"]="."
 		["electron/patches/boringssl"]="third_party/boringssl/src"
@@ -1048,39 +1074,9 @@ src_prepare() {
 			# 	popd > /dev/null || die
 			# 	continue;
 			# fi
-			# if [ "$i" = "cherry-pick-5902d1aa722a.patch" ] ||
-			# if	[ "$i" = "regexp_add_a_currently_failing_cctest_for_irregexp_reentrancy.patch" ]; then
-			# 	einfo "Skipping ${i}: No files to patch."
-			# 	continue;
-			# fi
-			# if [ "$i" = "cherry-pick-b173791bf402.patch" ] ||
-			# 	[ "$i" = "cherry-pick-be87466afecb.patch" ] ||
-			# 	[ "$i" = "cherry-pick-c0390bcd64ba.patch" ] ||
-			# 	[ "$i" = "cherry-pick-1b69067db7d2.patch" ] ||
-			# 	[ "$i" = "cherry-pick-d513cd2fe668.patch" ] ||
-			# 	[ "$i" = "cherry-pick-dc5e20c4c055.patch" ] ||
-			# 	[ "$i" = "cherry-pick-847b11ad2fa3.patch" ] ||
-			# 	[ "$i" = "cherry-pick-fc79e8cc2dfc.patch" ]; then
-			# 		ewarn "Skipping ${i}: already applied"
-			# 		continue;
-			# fi
-			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
-				[ "$i" = "cherry-pick-4de99209fb4f.patch" ]||
-				[ "$i" = "cherry-pick-a17d5224d83f.patch" ]||
-				[ "$i" = "cherry-pick-d34dbe58b7.patch" ]||
-				[ "$i" = "cherry-pick-b8986b4e67.patch" ]||
-				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
-				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
-				[ "$i" = "desktop_media_list.patch" ]; then
-				ewarn "Skipping ${i} due to... reasons..."
+			if [[ -n "${skipped_patches[$i]+x}" ]]; then
+				ewarn "Skipping ${i} ${skipped_patches[$i]}"
 				continue;
-			fi
-			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
-				if use ungoogled; then
-					ewarn "Skipping ${i} due to ungoogled."
-					continue;
-				fi
 			fi
 			# if [ "$i" = "build_enable_perfetto.patch" ]; then
 			# 	einfo "Git binary patch: ${i}"
