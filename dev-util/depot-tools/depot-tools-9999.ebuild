@@ -14,6 +14,7 @@ HOMEPAGE="
 "
 LICENSE="BSD"
 SLOT="0"
+IUSE="bash-completion zsh-completion"
 
 # There are no release tarballs and the googlesource +archive endpoint
 # is not byte-stable, so only a live ebuild is provided.
@@ -38,13 +39,39 @@ RDEPEND="${PYTHON_DEPS}
 		dev-python/yapf[${PYTHON_USEDEP}]
 	')
 "
+BDEPEND="
+	app-arch/unzip
+"
 DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}/cipd-cache-root.patch"
 	"${FILESDIR}/fetch-no-distutils.patch"
 	"${FILESDIR}/find-in-path.patch"
+	# The gsutil downloaded by gsutil.py caps at Python 3.13, but runs
+	# fine on newer interpreters; the cap blocks gclient's GCS path.
+	"${FILESDIR}/gsutil-python-version.patch"
+	# gsutil.py ran the bundled gsutil via 'vpython3 -vpython-spec
+	# ... --'; run it directly with the current interpreter instead.
+	"${FILESDIR}/gsutil-vpython3-cmd.patch"
 )
+
+src_unpack() {
+	git-r3_src_unpack
+
+	# gsutil.py normally downloads gsutil into external_bin/ at
+	# runtime, which fails on an installed (unwritable) package dir.
+	# Fetch and stage it at build time instead, so that it is
+	# installed as part of the package (and can be patched).
+	local gsutil_ver
+	gsutil_ver=$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' "${S}/gsutil.py") || die
+	[[ ${gsutil_ver} ]] || die "cannot determine gsutil version from ${S}/gsutil.py"
+	wget -q -O "${WORKDIR}/gsutil_${gsutil_ver}.zip" \
+		"https://storage.googleapis.com/pub/gsutil_${gsutil_ver}.zip" || die
+	mkdir -p "${S}/external_bin/gsutil/gsutil_${gsutil_ver}" || die
+	unzip -q "${WORKDIR}/gsutil_${gsutil_ver}.zip" \
+		-d "${S}/external_bin/gsutil/gsutil_${gsutil_ver}" || die
+}
 
 src_prepare() {
 	default
@@ -83,6 +110,14 @@ src_prepare() {
 	while IFS= read -r -d '' f; do
 		sed -i -e "s|\\[\"vpython3\",|[\"${PYTHON}\",|g" "${f}" || die
 	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git --include='*.py' '\["vpython3",' "${S}")
+
+	# The remaining 'vpython3' invocations are built from variables
+	# or shutil.which() lookups; point those at the selected
+	# interpreter as well.
+	while IFS= read -r -d '' f; do
+		sed -i -e "s|\"vpython3\"|\"${PYTHON}\"|g" -e "s|'vpython3'|'${PYTHON}'|g" "${f}" || die
+	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git \
+		--exclude-dir=external_bin --include='*.py' -e '"vpython3"' -e "'vpython3'" "${S}")
 }
 
 src_install() {
@@ -97,7 +132,7 @@ src_install() {
 	doman "${S}"/man/man1/*.1 "${S}"/man/man7/*.7
 	dodoc -r "${S}"/man/html
 	dodoc "${S}"/LICENSE "${S}"/README*.md "${S}"/metrics.README.md
-	dozshcomp "${S}"/zsh-goodies/_gclient
+	use zsh-completion && dozshcomp "${S}"/zsh-goodies/_gclient
 
 	rm -rf "${S}/.git" "${S}/tests" "${S}/man" "${S}/zsh-goodies" || die
 	rm -f "${S}"/*.bat "${S}"/*.exe "${S}"/README*.md \
@@ -120,6 +155,15 @@ src_install() {
 	# working as well.
 	touch "${ED}${libdir}/.disable_auto_update" || die
 
+	# Flag file that makes gsutil.py consider gsutil installed,
+	# preventing a re-download (and re-extraction over the patched
+	# copy) at runtime.
+	local gsutil_ver
+	gsutil_ver=$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' "${S}/gsutil.py") || die
+	[[ ${gsutil_ver} ]] || die "cannot determine gsutil version from ${S}/gsutil.py"
+	echo "This flag file is dropped by gsutil.py" > \
+		"${ED}${libdir}/external_bin/gsutil/gsutil_${gsutil_ver}/gsutil/install.flag" || die
+
 	# python-bin/python3 is the in-tree alias for the selected
 	# interpreter (referenced by tools such as siso); the relative
 	# target assumes the interpreter lives in /usr/bin. vpython3
@@ -131,8 +175,10 @@ src_install() {
 	# Install the bash completions. The git fragments define _git_*
 	# functions which the standard git completion picks up on its own;
 	# they require the git completion from app-shells/bash-completion.
-	dobashcomp "${S}/git_completion.sh" "${S}/git_cl_completion.sh"
-	newbashcomp "${S}/gclient_completion.sh" "gclient"
+	if use bash-completion; then
+		dobashcomp "${S}/git_completion.sh" "${S}/git_cl_completion.sh"
+		newbashcomp "${S}/gclient_completion.sh" "gclient"
+	fi
 
 	# The tools derive their location from $0, so /usr/bin entries
 	# cannot point at them directly (that would make $0 resolve to
