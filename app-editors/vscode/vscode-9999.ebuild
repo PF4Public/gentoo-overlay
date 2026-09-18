@@ -170,6 +170,12 @@ src_prepare() {
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
+	einfo "Diagnostic: report kill signal in tsgo failure message"
+	sed -i -e "s/child.on('exit', code => {/child.on('exit', (code, signal) => {/" \
+		-e "s/exited with code \${code ?? 'unknown'}/exited with code \${code ?? 'unknown'} (signal: \${signal})/" \
+		build/lib/tsgo.ts || die
+	grep -qF 'signal: ${signal}' build/lib/tsgo.ts || ewarn "tsgo diagnostic sed did not match upstream code"
+
 	einfo "Editing product.json"
 	mv product.json product.json.bak || die
 	sed -i '1d' product.json.bak || die
