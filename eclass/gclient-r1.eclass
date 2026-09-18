@@ -85,11 +85,9 @@ esac
 if [[ -z ${_GCLIENT_R1_ECLASS} ]]; then
 _GCLIENT_R1_ECLASS=1
 
-# Added even when the eclass stays dormant; both dependencies are
-# lightweight, so the overhead of an unconditional inherit is negligible.
-BDEPEND+="
+BDEPEND+="gclient? (
 	>=dev-vcs/git-2.46
-	dev-util/depot-tools
+	dev-util/depot-tools )
 "
 
 # @ECLASS_VARIABLE: GCLIENT_STORE_DIR
