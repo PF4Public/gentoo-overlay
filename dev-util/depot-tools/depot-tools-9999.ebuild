@@ -3,9 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..15} )
-
-inherit git-r3 python-single-r1 shell-completion
+inherit git-r3 shell-completion
 
 DESCRIPTION="Collection of scripts and tools for building Chromium"
 HOMEPAGE="
@@ -21,39 +19,14 @@ IUSE="bash-completion zsh-completion"
 EGIT_REPO_URI="https://chromium.googlesource.com/chromium/tools/depot_tools"
 EGIT_BRANCH="main"
 
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-
-# markdown_format.py would additionally need dev-python/mdformat,
-# which is available in GURU.
-RDEPEND="${PYTHON_DEPS}
-	$(python_gen_cond_dep '
-		dev-python/black[${PYTHON_USEDEP}]
-		dev-python/fido2[${PYTHON_USEDEP}]
-		dev-python/httplib2[${PYTHON_USEDEP}]
-		dev-python/isort[${PYTHON_USEDEP}]
-		dev-python/packaging[${PYTHON_USEDEP}]
-		dev-python/pylint[${PYTHON_USEDEP}]
-		dev-python/python-dateutil[${PYTHON_USEDEP}]
-		dev-python/requests[${PYTHON_USEDEP}]
-		dev-python/setuptools[${PYTHON_USEDEP}]
-		dev-python/yapf[${PYTHON_USEDEP}]
-	')
-"
 BDEPEND="
 	app-arch/unzip
 "
-DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}/cipd-cache-root.patch"
 	"${FILESDIR}/fetch-no-distutils.patch"
 	"${FILESDIR}/find-in-path.patch"
-	# The gsutil downloaded by gsutil.py caps at Python 3.13, but runs
-	# fine on newer interpreters; the cap blocks gclient's GCS path.
-	"${FILESDIR}/gsutil-python-version.patch"
-	# gsutil.py ran the bundled gsutil via 'vpython3 -vpython-spec
-	# ... --'; run it directly with the current interpreter instead.
-	"${FILESDIR}/gsutil-vpython3-cmd.patch"
 )
 
 src_unpack() {
@@ -62,7 +35,7 @@ src_unpack() {
 	# gsutil.py normally downloads gsutil into external_bin/ at
 	# runtime, which fails on an installed (unwritable) package dir.
 	# Fetch and stage it at build time instead, so that it is
-	# installed as part of the package (and can be patched).
+	# installed as part of the package.
 	local gsutil_ver
 	gsutil_ver=$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' "${S}/gsutil.py") || die
 	[[ ${gsutil_ver} ]] || die "cannot determine gsutil version from ${S}/gsutil.py"
@@ -76,48 +49,12 @@ src_unpack() {
 src_prepare() {
 	default
 
-	# python_fix_shebang only rewrites shebangs it recognises (python,
-	# python3, python3.X, ...); it would leave the upstream 'vpython3'
-	# shebangs untouched. Rewrite them to 'python3' here so that
-	# python_fix_shebang can later pin them to the selected interpreter.
-	while IFS= read -r -d '' f; do
-		sed -i -e '1s|^#!/usr/bin/env vpython3$|#!/usr/bin/env python3|' "${f}" || die
-	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git '^#!/usr/bin/env vpython3' "${S}")
-
 	# The git-* shims source python_runner.sh via a PATH lookup
 	# (type -P). Point them at the copy installed next to themselves
 	# instead, so python_runner.sh needs no /usr/bin entry of its own.
 	while IFS= read -r -d '' f; do
 		sed -i -e 's|^\. "\$(type -P python_runner\.sh)"$|. "$(dirname "$0")/python_runner.sh"|' "${f}" || die
 	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git 'type -P python_runner.sh' "${S}")
-
-	# Upstream's vpython3 bootstraps a CIPD-managed Python; Chromium
-	# hooks rely on its CLI (vpython3_common: 'vpython3 -vpython-spec
-	# ... -vpython-tool install'). Enable its 'manually managed
-	# python' bypass mode unconditionally, so that it strips the
-	# vpython-specific flags and execs the selected system
-	# interpreter.
-	sed -i -e 's|^if \[\[ \$VPYTHON_BYPASS.*|if true|' \
-		-e 's|exec "python3"|exec "'${PYTHON}'"|' "${S}/vpython3" || die
-
-	# python_runner.sh picks the interpreter via a PATH lookup for
-	# 'vpython3'. Use the selected system interpreter directly.
-	sed -i -e "s|^vpython3 |\"${PYTHON}\" |" "${S}/python_runner.sh" || die
-
-	# The tools re-invoke each other as 'vpython3 <script>' via PATH
-	# lookups. Point those at the selected interpreter instead, which
-	# the package runs on (cf. the shebangs above).
-	while IFS= read -r -d '' f; do
-		sed -i -e "s|\\[\"vpython3\",|[\"${PYTHON}\",|g" "${f}" || die
-	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git --include='*.py' '\["vpython3",' "${S}")
-
-	# The remaining 'vpython3' invocations are built from variables
-	# or shutil.which() lookups; point those at the selected
-	# interpreter as well.
-	while IFS= read -r -d '' f; do
-		sed -i -e "s|\"vpython3\"|\"${PYTHON}\"|g" -e "s|'vpython3'|'${PYTHON}'|g" "${f}" || die
-	done < <(grep --recursive --files-with-matches --null --exclude-dir=.git \
-		--exclude-dir=external_bin --include='*.py' -e '"vpython3"' -e "'vpython3'" "${S}")
 }
 
 src_install() {
@@ -156,21 +93,12 @@ src_install() {
 	touch "${ED}${libdir}/.disable_auto_update" || die
 
 	# Flag file that makes gsutil.py consider gsutil installed,
-	# preventing a re-download (and re-extraction over the patched
-	# copy) at runtime.
+	# preventing a re-download at runtime.
 	local gsutil_ver
 	gsutil_ver=$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' "${S}/gsutil.py") || die
 	[[ ${gsutil_ver} ]] || die "cannot determine gsutil version from ${S}/gsutil.py"
 	echo "This flag file is dropped by gsutil.py" > \
 		"${ED}${libdir}/external_bin/gsutil/gsutil_${gsutil_ver}/gsutil/install.flag" || die
-
-	# python-bin/python3 is the in-tree alias for the selected
-	# interpreter (referenced by tools such as siso); the relative
-	# target assumes the interpreter lives in /usr/bin. vpython3
-	# stays the upstream script, patched above.
-	[[ ${PYTHON} == /usr/bin/* ]] || die "unexpected interpreter location: ${PYTHON}"
-	python_rel="../../../usr/bin/${PYTHON##*/}"
-	ln -sf "../${python_rel}" "${ED}${libdir}/python-bin/python3" || die
 
 	# Install the bash completions. The git fragments define _git_*
 	# functions which the standard git completion picks up on its own;
@@ -184,6 +112,9 @@ src_install() {
 	# cannot point at them directly (that would make $0 resolve to
 	# /usr/bin); they are symlinks to a single dispatcher that
 	# re-execs the tool by its real path, keeping $0 correct.
+	# vpython3 is included: the in-tree shebangs and the gclient GCS
+	# path look it up on the PATH, and it bootstraps the CIPD-managed
+	# Python the whole toolchain runs on.
 	exeinto "${libdir}"
 	doexe "${FILESDIR}/dispatcher"
 
@@ -215,25 +146,18 @@ src_install() {
 				# Implementation twins of the extensionless commands,
 				# which are the entry points.
 				;;
-			vpython3)
-				# The interpreter, not a tool: no /usr/bin entry; the
-				# in-tree launchers point at the actual interpreter.
-				;;
 			*)
 				dosym "${dispatcher_link}" "/usr/bin/${name}"
 				;;
 		esac
 	done < <(find "${S}" -maxdepth 1 -type f -perm -u+x ! -name '*.bat' -printf '%f\n')
-
-	python_fix_shebang "${ED}${libdir}"
 }
 
 pkg_postinst() {
 	ewarn "The depot_tools self-updater is disabled."
 
 	ewarn
-	ewarn "CIPD-based tools (bb, luci, luci-auth, rdb, dirmd, crowbar,"
-	ewarn "git-credential-luci, pinpoint, led, lucicfg, prpc, reclientreport)"
-	ewarn "download their binaries to \${XDG_CACHE_HOME:-~/.cache}/depot_tools"
-	ewarn "on first use."
+	ewarn "On first use, CIPD downloads the infrastructure tools (bb, luci,"
+	ewarn "luci-auth, rdb, ...) and the Python interpreter the vpython3"
+	ewarn "scripts run on into \${XDG_CACHE_HOME:-~/.cache}/depot_tools."
 }
