@@ -1,13 +1,10 @@
 name: Setup
-description: Get changed files, prepare cache dirs and calculate their hash
+description: Get changed files and prepare cache dirs
 
 outputs:
   modified:
     description: List of changed files
-    value: ${{ steps.hash.outputs.modified }}
-  digest:
-    description: Hash of changed files
-    value: ${{ steps.hash.outputs.digest }}
+    value: ${{ steps.files.outputs.modified }}
 
 runs:
   using: composite
@@ -28,9 +25,8 @@ runs:
         mkdir -p "${GITHUB_WORKSPACE}/go-mod-cache"
         mkdir -p "${GITHUB_WORKSPACE}/ccache"
 
-    - name: Calculate the hash of changed files
-      id: hash
+    - name: Prepare modified files' list
+      id: files
       shell: bash
       run: |
-        echo "digest=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | md5sum | cut -f 1 -d ' ' )" >> $GITHUB_OUTPUT
         echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT

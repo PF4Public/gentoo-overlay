@@ -1,11 +1,6 @@
 name: Save cache
 description: Save the distfiles, npm, yarn, pnpm, cargo, go and ccache directories to the cache
 
-inputs:
-  digest:
-    description: Hash of changed files
-    required: true
-
 runs:
   using: composite
   steps:
@@ -38,8 +33,14 @@ runs:
         mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
         du -shc "${dirs[@]}"
 
+    - name: Generate random key suffix
+      id: suffix
+      shell: bash
+      run: |
+        echo "value=$(openssl rand -hex 8)" >> "$GITHUB_OUTPUT"
+
     - name: Save cache
       uses: actions/cache/save@v6
       with:
         path: ${{ steps.paths.outputs.path }}
-        key: ${{ github.workflow }}-${{ inputs.digest }}
+        key: ${{ github.workflow }}-${{ steps.suffix.outputs.value }}

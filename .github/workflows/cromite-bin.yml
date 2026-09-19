@@ -23,8 +23,6 @@ jobs:
 
       - name: Restore cache
         uses: ./.github/actions/cache-restore
-        with:
-          digest: ${{ steps.setup.outputs.digest }}
 
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
@@ -37,8 +35,6 @@ jobs:
       - name: Save cache
         if: ${{ always() }}
         uses: ./.github/actions/cache-save
-        with:
-          digest: ${{ steps.setup.outputs.digest }}
 
   ebuild:
     needs: default
@@ -62,8 +58,6 @@ jobs:
 
       - name: Restore cache
         uses: ./.github/actions/cache-restore
-        with:
-          digest: ${{ steps.setup.outputs.digest }}
 
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master

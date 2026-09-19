@@ -2,9 +2,6 @@ name: Restore cache
 description: Restore the distfiles, npm, yarn, pnpm, cargo, go and ccache directories from the cache
 
 inputs:
-  digest:
-    description: Hash of changed files
-    required: true
   restore-keys:
     description: Fallback cache keys
     required: false
@@ -34,7 +31,7 @@ runs:
       uses: actions/cache/restore@v6
       with:
         path: ${{ steps.paths.outputs.path }}
-        key: ${{ github.workflow }}-${{ inputs.digest }}
+        key: ${{ github.workflow }}
         restore-keys: ${{ inputs.restore-keys || github.workflow }}
 
     - name: Fix cache dir ownership

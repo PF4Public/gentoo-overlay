@@ -24,7 +24,6 @@ jobs:
       - name: Restore cache
         uses: ./.github/actions/cache-restore
         with:
-          digest: ${{ steps.setup.outputs.digest }}
           restore-keys: |
             ${{ github.workflow }}
             element-desktop
@@ -40,8 +39,6 @@ jobs:
       - name: Save cache
         if: ${{ always() }}
         uses: ./.github/actions/cache-save
-        with:
-          digest: ${{ steps.setup.outputs.digest }}
 
   ebuild:
     needs: default
@@ -68,7 +65,6 @@ jobs:
       - name: Restore cache
         uses: ./.github/actions/cache-restore
         with:
-          digest: ${{ steps.setup.outputs.digest }}
           restore-keys: |
             ${{ github.workflow }}
             element-desktop
