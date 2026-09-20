@@ -705,20 +705,22 @@ SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-REQUIRED_USE=""
 
 COMMON_DEPEND=""
 
-RDEPEND+="
-${COMMON_DEPEND}
+RDEPEND="
+	${COMMON_DEPEND}
+	$(electron_gen_dep)
 	>=dev-python/jupyterlab-$(ver_cut 1-3)
 "
 
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND+="
->=net-libs/nodejs-7.6.0"
+BDEPEND="
+	$(electron_gen_dep)
+	>=net-libs/nodejs-7.6.0
+"
 
 src_unpack() {
 	if [ -z "$CODE_COMMIT_ID" ]; then

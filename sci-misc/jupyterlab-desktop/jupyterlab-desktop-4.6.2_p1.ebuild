@@ -708,11 +708,11 @@ SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-REQUIRED_USE=""
 
 COMMON_DEPEND=""
 
-RDEPEND+="
+RDEPEND="
+	$(electron_gen_dep)
 ${COMMON_DEPEND}
 	>=dev-python/jupyterlab-$(ver_cut 1-3)
 "
@@ -720,7 +720,8 @@ ${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND+="
+BDEPEND="
+$(electron_gen_dep)
 >=net-libs/nodejs-7.6.0"
 
 src_unpack() {
