@@ -43,7 +43,6 @@ SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-REQUIRED_USE=""
 
 COMMON_DEPEND="
 	>=app-crypt/libsecret-0.18.8:=
@@ -55,14 +54,16 @@ COMMON_DEPEND="
 
 #TODO: oniguruma?
 
-RDEPEND+="
+RDEPEND="
+	$(electron_gen_dep)
 ${COMMON_DEPEND}
 "
 
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND+="
+BDEPEND="
+	$(electron_gen_dep)
 	${PYTHON_DEPS}
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
