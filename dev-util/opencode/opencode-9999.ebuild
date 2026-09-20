@@ -39,21 +39,22 @@ SRC_URI="${DOWNLOAD}"
 RESTRICT="mirror network-sandbox strip"
 # RESTRICT="mirror build-online? ( network-sandbox )"
 
-REQUIRED_USE=""
 
 COMMON_DEPEND="
 	sys-apps/ripgrep
 "
 
-RDEPEND+="
-${COMMON_DEPEND}
+RDEPEND="
+	${COMMON_DEPEND}
+	$(electron_gen_dep)
 "
 
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND+="
+BDEPEND="
 	${PYTHON_DEPS}
+	$(electron_gen_dep)
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
