@@ -49,14 +49,16 @@ COMMON_DEPEND="
 	native-modules? ( dev-db/sqlcipher )
 "
 
-RDEPEND+="
-${COMMON_DEPEND}
+RDEPEND="
+	${COMMON_DEPEND}
+	$(electron_gen_dep)
 "
 DEPEND="${COMMON_DEPEND}
 "
 
-BDEPEND+="
+BDEPEND="
 	${PYTHON_DEPS}
+	$(electron_gen_dep)
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
