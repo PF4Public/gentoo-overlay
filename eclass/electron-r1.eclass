@@ -22,14 +22,24 @@
 #
 # - declare one USE flag per supported version in IUSE, named
 #   electron_slot_N, but only when ELECTRON_COMPAT has more than one
-#   version (e.g. ELECTRON_COMPAT=( {43,44} ) declares electron_slot_43
-#   and electron_slot_44); with a single version there is nothing to
-#   select, so no flag is declared,
+#   version; the default slot's flag is enabled by default (e.g.
+#   ELECTRON_COMPAT=( {43,44} ) with default 43 declares
+#   +electron_slot_43 and electron_slot_44); with a single version
+#   there is nothing to select, so no flag is declared,
 # - select the slot by reading which electron_slot_N flag is enabled in
 #   USE (falling back to ELECTRON_SLOT_DEFAULT when none is), and export
 #   it as ELECTRON_SLOT,
-# - add the exact dependency dev-util/electron:${ELECTRON_SLOT} to
-#   BDEPEND and RDEPEND, without any USE flag conditionals,
+# - require exactly one electron_slot_N flag to be selected via
+#   REQUIRED_USE, so that when nothing is selected the default slot is
+#   the enabled one, and selecting a different slot in package.use also
+#   disables the default slot's flag,
+# - provide the electron_gen_dep() function, which the ebuild adds to
+#   BDEPEND and RDEPEND; it generates a plain dev-util/electron:N atom
+#   when only one version is supported, or a USE-conditional atom per
+#   supported version otherwise, because the selected slot is not known
+#   when the dependencies are evaluated (portage evaluates the ebuild
+#   before USE is final); since exactly one slot is selected, portage
+#   activates exactly the selected one,
 # - automatically set up the build environment (electron PATH, Node
 #   headers in CFLAGS/CPPFLAGS, no binary downloads, and ELECTRON_DIST
 #   pointing at the installed runtime so electron-builder can package
@@ -39,8 +49,7 @@
 #
 # Slot selection is a USE_EXPAND-style variable: in
 # /etc/portage/package.use (extended syntax), it is written as
-# ELECTRON_SLOT followed by a colon and the value. Only one slot may be
-# selected, e.g.:
+# ELECTRON_SLOT followed by a colon and the value, e.g.:
 #
 # @CODE
 # app-editors/vscode ELECTRON_SLOT: 44
@@ -55,9 +64,12 @@
 # USE_EXPAND="${USE_EXPAND} ELECTRON_SLOT"
 # @CODE
 #
-# Only one slot may be enabled at a time; enabling several of them will
-# die when the ebuild is evaluated. Bumping an electron release within
-# the same major slot does not require any changes to dependent ebuilds.
+# Without registering ELECTRON_SLOT, a slot is selected directly with its
+# flag; since exactly one slot may be enabled (see REQUIRED_USE), the
+# default slot's flag must be disabled at the same time, e.g.
+# 'app-editors/vscode -electron_slot_43 electron_slot_44'. Bumping an
+# electron release within the same major slot does not require any
+# changes to dependent ebuilds.
 #
 # Example:
 # @CODE
@@ -68,8 +80,23 @@
 #
 # IUSE="foo"
 #
-# # BDEPEND and RDEPEND get this automatically (exact slot, no conditionals):
-# #   dev-util/electron:43
+# # (IUSE additionally gets +electron_slot_43 and electron_slot_44, and
+# # REQUIRED_USE gets:
+# #  || ( electron_slot_43 electron_slot_44 )
+# #  ^^ ( electron_slot_43 electron_slot_44 )
+# # )
+#
+# BDEPEND="
+# 	$(electron_gen_dep)
+# "
+# RDEPEND="
+# 	$(electron_gen_dep)
+# "
+#
+# # (electron_gen_dep generates the following for this example:
+# #  electron_slot_43? ( dev-util/electron:43 )
+# #  electron_slot_44? ( dev-util/electron:44 )
+# # )
 #
 # src_compile() {
 #   # ELECTRON_SLOT is exported (43, or 44 with ELECTRON_SLOT: 44)
@@ -109,21 +136,9 @@ _ELECTRON_R1_ECLASS=1
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The selected electron major version. Set and exported by this eclass,
-# available in the DEPEND calculation and in all ebuild phase functions.
-
-# @ECLASS_VARIABLE: ELECTRON_DEP
-# @OUTPUT_VARIABLE
-# @DESCRIPTION:
-# The exact dependency on the selected electron slot. It is already added
-# to BDEPEND and RDEPEND automatically; use it manually only if the
-# dependency is needed somewhere else.
-#
-# Example:
-# @CODE
-# BDEPEND="
-#   ${ELECTRON_DEP}
-# "
-# @CODE
+# available in all ebuild phase functions. When the dependencies are
+# evaluated (the depend phase), the selected slot is not known yet, so
+# the dependencies are declared as conditional atoms (see above).
 
 # @ECLASS_VARIABLE: ELECTRON_DIST
 # @OUTPUT_VARIABLE
@@ -167,7 +182,9 @@ _electron_r1_init() {
 	has "${ELECTRON_SLOT_DEFAULT}" "${slots[@]}" ||
 		die "${ECLASS}: ELECTRON_SLOT_DEFAULT '${ELECTRON_SLOT_DEFAULT}' is not in ELECTRON_COMPAT (${slots[*]})"
 
-	local myslot="" myflag
+	_ELECTRON_R1_SLOTS=( "${slots[@]}" )
+
+	local myslot=""
 	local myuse=" ${USE-} "
 	for myver in "${slots[@]}"; do
 		if [[ ${myuse} == *" electron_slot_${myver} "* ]]; then
@@ -179,19 +196,63 @@ _electron_r1_init() {
 
 	export ELECTRON_SLOT="${myslot:-${ELECTRON_SLOT_DEFAULT}}"
 
-	readonly ELECTRON_DEP="dev-util/electron:${ELECTRON_SLOT}"
-	BDEPEND="${BDEPEND-} ${ELECTRON_DEP}"
-	RDEPEND="${RDEPEND-} ${ELECTRON_DEP}"
-
 	if (( ${#slots[@]} > 1 )); then
+		local myflag myflags=""
 		for myver in "${slots[@]}"; do
 			myflag="electron_slot_${myver}"
-			has "${myflag}" ${IUSE-} || IUSE+=" ${myflag}"
+			if [[ ${myver} == "${ELECTRON_SLOT_DEFAULT}" ]]; then
+				# The default slot is enabled by default; selecting a
+				# different slot disables it (see REQUIRED_USE below).
+				has "${myflag}" ${IUSE-} || IUSE+=" +${myflag}"
+			else
+				has "${myflag}" ${IUSE-} || IUSE+=" ${myflag}"
+			fi
+			myflags+=" ${myflag}"
 		done
+		# Exactly one slot must be selected: '||' enforces at least one
+		# (so disabling the default slot without selecting another is
+		# caught), and '^^' enforces at most one (so selecting a
+		# different slot also requires disabling the default slot's
+		# flag).
+		REQUIRED_USE="${REQUIRED_USE-} || ( ${myflags# } ) ^^ ( ${myflags# } )"
 	fi
 }
 _electron_r1_init
 unset -f _electron_r1_init _electron_r1_die_usage
+
+# @FUNCTION: electron_gen_dep
+# @USAGE:
+# @DESCRIPTION:
+# Generate the dependency on the electron slot(s) the package supports:
+# a plain dev-util/electron:N atom when only one version is supported,
+# or a USE-conditional atom per supported version otherwise. The
+# selected slot is not known when the dependencies are evaluated
+# (portage evaluates the ebuild before USE is final), so portage
+# resolves the conditionals with the final USE; since exactly one slot
+# is selected (see REQUIRED_USE), exactly one atom is active. Add the
+# result to BDEPEND and RDEPEND:
+#
+# @CODE
+# BDEPEND+="
+# 	$(electron_gen_dep)
+# "
+# RDEPEND+="
+# 	$(electron_gen_dep)
+# "
+# @CODE
+electron_gen_dep() {
+	local mydeps=""
+	if (( ${#_ELECTRON_R1_SLOTS[@]} == 1 )); then
+		# A single supported slot is always the selected one.
+		echo "dev-util/electron:${_ELECTRON_R1_SLOTS[0]}"
+		return
+	fi
+	local myver
+	for myver in "${_ELECTRON_R1_SLOTS[@]}"; do
+		mydeps+=" electron_slot_${myver}? ( dev-util/electron:${myver} )"
+	done
+	echo "${mydeps# }"
+}
 
 # @FUNCTION: electron-r1_env_setup
 # @DESCRIPTION:
