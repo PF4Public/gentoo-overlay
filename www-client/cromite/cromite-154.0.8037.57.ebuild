@@ -1314,6 +1314,7 @@ src_prepare() {
 		third_party/openscreen
 		third_party/openscreen/src/third_party/
 		third_party/openscreen/src/third_party/tinycbor/src/src
+		third_party/openxr
 		third_party/ots
 		third_party/pdfium
 		third_party/pdfium/third_party/agg23
