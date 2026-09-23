@@ -1023,6 +1023,7 @@ src_prepare() {
 	fi
 
 	declare -A skipped_patches=(
+		["cherry-pick-315a6ad02de9.patch"]="unrelated"
 		["cherry-pick-4b7f62da7b54.patch"]="unrelated"
 		["cherry-pick-f593e0fb8833.patch"]="fails the build"
 		["cherry-pick-e4b5328067a5.patch"]="due to... reasons..."
