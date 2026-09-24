@@ -1025,6 +1025,7 @@ src_prepare() {
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "cherry-pick-4de99209fb4f.patch" ]||
+				[ "$i" = "cherry-pick-59438747bc13.patch" ]||
 				[ "$i" = "cherry-pick-b94d422a6fdd.patch" ]||
 				[ "$i" = "cherry-pick-5382ed032a48.patch" ]||
 				[ "$i" = "cherry-pick-3a0ed7f623ee.patch" ]||
