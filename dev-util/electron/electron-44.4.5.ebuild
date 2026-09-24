@@ -577,6 +577,8 @@ src_prepare() {
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
 
+	FAILED_PATCHES=()
+
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
 	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
@@ -768,7 +770,7 @@ src_prepare() {
 		sed -i '/ffmpeg_branding/d' build/args/all.gn || die
 		sed -i '/rtc_use_h264/d' build/args/release.gn || die
 
-		use bluetooth || eapply "${FILESDIR}/disable-bluez-electron-r5.patch"
+		use bluetooth || eapply_wrapper "${FILESDIR}/disable-bluez-electron-r5.patch"
 
 		#if use ungoogled; then
 		#	# sed -i '/SecurityStateTabHelper::GetMaliciousContentStatus/Q' "patches/chromium/ssl_security_state_tab_helper.patch" || die
@@ -778,8 +780,8 @@ src_prepare() {
 		#	sed -i '/@@ -38/,+7d' "patches/chromium/refactor_expose_file_system_access_blocklist.patch" || die
 		#	sed -i '/test\/BUILD.gn/Q' "patches/chromium/build_do_not_depend_on_packed_resource_integrity.patch" || die
 		#fi
-		eapply "${FILESDIR}/misc-fixes-r1.patch" || die
-		eapply "${FILESDIR}/ozone-detection-fix.patch" || die
+		eapply_wrapper "${FILESDIR}/misc-fixes-r1.patch"
+		eapply_wrapper "${FILESDIR}/ozone-detection-fix.patch"
 
 		# if use pgo; then
 			python3 script/pgo/download-profiles.py --targets linux-x64,v8-builtins
@@ -813,12 +815,12 @@ src_prepare() {
 			pushd "${CHROMIUM_COMMITS[$i]}" > /dev/null || die
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
-				git apply -R --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
-				git apply --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch" || die
+				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
 		done
@@ -863,7 +865,15 @@ src_prepare() {
 		)
 	fi
 
-	default
+	# Testing all patches when NODIE is defined
+	if [ ! -z "${NODIE}" ]; then
+		for i in "${PATCHES[@]}"; do
+			eapply_wrapper "$i"
+		done
+		nonfatal eapply_user
+	else
+		default
+	fi
 
 	mv "${WORKDIR}/${P}" electron || die
 	mv "${WORKDIR}/${NODE_P}" third_party/electron_node || die
@@ -893,14 +903,14 @@ src_prepare() {
 		third_party/webrtc/rtc_base/BUILD.gn || die
 
 	if use system-abseil-cpp; then
-		eapply "${FILESDIR}/chromium-146-system-abseil.patch"
+		eapply_wrapper "${FILESDIR}/chromium-146-system-abseil.patch"
 
 		#! SFINAE mangling incompatibility between clang and gcc:
 		#! https://github.com/llvm/llvm-project/issues/85656
 		#! gcc: 	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEELi0EEEOT_
 		#! clang:	_ZN4absl12lts_202601074CordC1INSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEETnNSt9enable_ifIXsr3std7is_sameIT_S8_EE5valueEiE4typeELi0EEEOSA_
 		#! So, either this:
-		eapply "${FILESDIR}/chromium-141-system-abseil-cord.patch"
+		eapply_wrapper "${FILESDIR}/chromium-141-system-abseil-cord.patch"
 		#! or build with -fclang-abi-compat=17
 
 		# cp -f /usr/include/absl/base/options.h third_party/abseil-cpp/absl/base/options.h
@@ -997,8 +1007,8 @@ src_prepare() {
 		eend $? || die
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	else
-		eapply "${FILESDIR}/more-locales.patch"
-		eapply "${FILESDIR}/misc-fixes-ung-r5.patch"
+		eapply_wrapper "${FILESDIR}/more-locales.patch"
+		eapply_wrapper "${FILESDIR}/misc-fixes-ung-r5.patch"
 	fi
 
 	# Sanity check esbuild version before we start removing files.
@@ -1094,16 +1104,24 @@ src_prepare() {
 			pushd "${patches[$patch_folder]}" > /dev/null || die
 			einfo "$i"
 			# ebegin "$i"
-			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
+			git_wrapper apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
-				-p1 < "${S}/${patch_folder}/$i" || die
+				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
 		done
 	done
+
+	if [ ! -z "${NODIE}" ] && [[ ${#FAILED_PATCHES[@]} -gt 0 ]]; then
+		eerror "${#FAILED_PATCHES[@]} patch(es) failed to apply:"
+		for p in "${FAILED_PATCHES[@]}"; do
+			eerror "  ${p}"
+		done
+		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
+	fi
 
 	elog "Removing bundled binaries from source tree ..."
 	# Purge bundled ELF files: These are non-portable and will cause issues if used instead of system versions.
@@ -2239,4 +2257,40 @@ pkg_postinst() {
 
 pkg_postrm() {
 	electron-config update
+}
+
+record_failed_patch() {
+	FAILED_PATCHES+=( "$1" )
+}
+
+eapply_wrapper () {
+	if [ ! -z "${NODIE}" ]; then
+		local operand f
+		for operand in "$@"; do
+			if [[ -d "${operand}" ]]; then
+				# eapply bails on the first failing patch in a directory,
+				# so apply each patch individually to test them all and
+				# record every failure
+				for f in "${operand%/}"/*; do
+					case "${f##*/}" in
+						*.patch|*.diff)
+							nonfatal eapply "${f}" || record_failed_patch "${f}"
+							;;
+					esac
+				done
+			else
+				nonfatal eapply "${operand}" || record_failed_patch "${operand}"
+			fi
+		done
+	else
+		eapply "$@"
+	fi
+}
+
+git_wrapper () {
+	if [ ! -z "${NODIE}" ]; then
+		git "$@" || record_failed_patch "${@: -1}"
+	else
+		git "$@" || die
+	fi
 }
