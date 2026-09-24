@@ -1023,6 +1023,7 @@ src_prepare() {
 	fi
 
 	declare -A skipped_patches=(
+		["cherry-pick-65c806562e43.patch"]="unrelated"
 		["cherry-pick-069a204ae813.patch"]="unrelated"
 		["cherry-pick-594bffac95f7.patch"]="unrelated"
 		["cherry-pick-0ee892c1254d.patch"]="unrelated"
