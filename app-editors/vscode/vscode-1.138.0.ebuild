@@ -178,6 +178,8 @@ src_prepare() {
 	grep -qF 'signal: ${signal}' build/lib/tsgo.ts || ewarn "tsgo diagnostic sed did not match upstream code"
 	sed -i 's/for (const line of errorLines) {/for (const line of lines) {/' build/lib/tsgo.ts || die
 	grep -qF 'for (const line of lines) {' build/lib/tsgo.ts || ewarn "tsgo full-output sed did not match upstream code"
+	sed -i "s/child.on('exit', (code, signal) => {/child.on('close', (code, signal) => {/" build/lib/tsgo.ts || die
+	grep -qF "child.on('close', (code, signal)" build/lib/tsgo.ts || ewarn "tsgo close-event sed did not match upstream code"
 
 	einfo "Editing product.json"
 	mv product.json product.json.bak || die
