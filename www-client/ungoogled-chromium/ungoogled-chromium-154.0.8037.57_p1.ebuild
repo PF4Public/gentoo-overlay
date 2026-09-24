@@ -742,6 +742,8 @@ src_prepare() {
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
 
+	FAILED_PATCHES=()
+
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-fix-rust-2-oxidize-harder.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
@@ -935,11 +937,11 @@ src_prepare() {
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
 		done
@@ -1062,7 +1064,7 @@ src_prepare() {
 				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
 				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
 				einfo "Git binary patch: ${i##*/}"
-				git_wrapper apply -p1 < "$i"
+				git_wrapper apply -p1 "$i"
 			else
 				filter_wrapper "$i" --exclude="chrome/android/*"
 			fi
@@ -1137,6 +1139,14 @@ src_prepare() {
 			eapply_wrapper "${DISTDIR}/${PN}-$i.patch"
 		done
 		popd >/dev/null
+	fi
+
+	if [ ! -z "${NODIE}" ] && [[ ${#FAILED_PATCHES[@]} -gt 0 ]]; then
+		eerror "${#FAILED_PATCHES[@]} patch(es) failed to apply:"
+		for p in "${FAILED_PATCHES[@]}"; do
+			eerror "  ${p}"
+		done
+		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
 	fi
 
 	# From here we adapt ungoogled-chromium's patches to our needs
@@ -2658,27 +2668,49 @@ pkg_postinst() {
 	fi
 }
 
+record_failed_patch() {
+	FAILED_PATCHES+=( "$1" )
+}
+
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		nonfatal eapply "$@"
+		local operand f
+		for operand in "$@"; do
+			if [[ -d "${operand}" ]]; then
+				# eapply bails on the first failing patch in a directory,
+				# so apply each patch individually to test them all and
+				# record every failure
+				for f in "${operand%/}"/*; do
+					case "${f##*/}" in
+						*.patch|*.diff)
+							nonfatal eapply "${f}" || record_failed_patch "${f}"
+							;;
+					esac
+				done
+			else
+				nonfatal eapply "${operand}" || record_failed_patch "${operand}"
+			fi
+		done
 	else
 		eapply "$@"
 	fi
 }
 
 git_wrapper () {
+	# The last argument is expected to be the patch file, so failed
+	# patches can be recorded by name in NODIE mode
 	if [ ! -z "${NODIE}" ]; then
-		git "$@"
+		git "$@" || record_failed_patch "${@: -1}"
 	else
 		git "$@" || die
 	fi
 }
 
 filter_wrapper () {
-	einfo "Applying ${i##*/}"
+	einfo "Applying ${1##*/}"
 	#? fuzz factor of 3 is OK?
 	if [ ! -z "${NODIE}" ]; then
-		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1
+		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1 || record_failed_patch "$1"
 	else
 		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1 || die
 	fi
