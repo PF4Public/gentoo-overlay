@@ -437,7 +437,7 @@ src_install() {
 
 	insinto /usr/share/
 	sed -i 's$x-scheme-handler/code-oss$x-scheme-handler/code-oss;x-scheme-handler/vscode$' \
-		applications/*handler.desktop || die
+		applications/*andler.desktop || die
 	sed -i 's$/usr/share/code-oss/code-oss$/usr/bin/code-oss$' applications/*.desktop || die
 	doins -r applications bash-completion pixmaps zsh
 
