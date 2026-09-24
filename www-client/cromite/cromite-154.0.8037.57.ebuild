@@ -676,6 +676,8 @@ src_prepare() {
 	# We'll fill this in as we go. Patches go in chromium-patches.
 	local PATCHES=()
 
+	FAILED_PATCHES=()
+
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-fix-rust-2-oxidize-harder.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
@@ -869,11 +871,11 @@ src_prepare() {
 			if [[ $i = -*  ]]; then
 				einfo "Reverting ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply -R --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			else
 				einfo "Applying ${patch_prefix}-${i/-}.patch"
 				git_wrapper apply --exclude="*unittest.cc" --exclude="DEPS" \
-					-p1 < "${DISTDIR}/${patch_prefix}-${i/-}.patch"
+					-p1 "${DISTDIR}/${patch_prefix}-${i/-}.patch"
 			fi
 			popd > /dev/null || die
 		done
@@ -1019,19 +1021,27 @@ src_prepare() {
 				--exclude="*/current_channel_logo.cc" \
 				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*"
 		else
-			git apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
+			git_wrapper apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
 				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*" \
-				-p1 < "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" || die
+				-p1 "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i"
 		fi
 		# eend $? || die
 	done
 
 	if ! use libcxx ; then
-		eapply "${FILESDIR}/cromite-libstdc++.patch"
+		eapply_wrapper "${FILESDIR}/cromite-libstdc++.patch"
+	fi
+
+	if [ ! -z "${NODIE}" ] && [[ ${#FAILED_PATCHES[@]} -gt 0 ]]; then
+		eerror "${#FAILED_PATCHES[@]} patch(es) failed to apply:"
+		for p in "${FAILED_PATCHES[@]}"; do
+			eerror "  ${p}"
+		done
+		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
 	fi
 
 	# Sanity check esbuild version before we start removing files.
@@ -2467,9 +2477,29 @@ pkg_postinst() {
 	fi
 }
 
+record_failed_patch() {
+	FAILED_PATCHES+=( "$1" )
+}
+
 eapply_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		nonfatal eapply "$@"
+		local operand f
+		for operand in "$@"; do
+			if [[ -d "${operand}" ]]; then
+				# eapply bails on the first failing patch in a directory,
+				# so apply each patch individually to test them all and
+				# record every failure
+				for f in "${operand%/}"/*; do
+					case "${f##*/}" in
+						*.patch|*.diff)
+							nonfatal eapply "${f}" || record_failed_patch "${f}"
+							;;
+					esac
+				done
+			else
+				nonfatal eapply "${operand}" || record_failed_patch "${operand}"
+			fi
+		done
 	else
 		eapply "$@"
 	fi
@@ -2477,17 +2507,17 @@ eapply_wrapper () {
 
 git_wrapper () {
 	if [ ! -z "${NODIE}" ]; then
-		git "$@"
+		git "$@" || record_failed_patch "${@: -1}"
 	else
 		git "$@" || die
 	fi
 }
 
 filter_wrapper () {
-	einfo "Applying ${i##*/}"
+	einfo "Applying ${1##*/}"
 	#? fuzz factor of 3 is OK?
 	if [ ! -z "${NODIE}" ]; then
-		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1
+		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1 || record_failed_patch "$1"
 	else
 		filterdiff -p1 "${@:2}" < "$1" | patch -F 3 -p1 || die
 	fi
