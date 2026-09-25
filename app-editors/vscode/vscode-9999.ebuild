@@ -305,7 +305,7 @@ src_configure() {
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
 		build/lib/getVersion.ts || die
 
-	einfo "Disabling in-place process.execve in the native tsgo launcher"
+	einfo "Disabling in-place process.execve in the native tsgo launcher #516"
 	# A concurrent in-place execve() of the large Go tsgo binary, done in the
 	# node process, intermittently aborts with a silent SIGABRT. The spawn-based
 	# fallback (execFileSync) execs in a fresh child and is unaffected.
