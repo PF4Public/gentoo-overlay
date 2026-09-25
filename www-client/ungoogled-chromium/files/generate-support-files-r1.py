@@ -55,6 +55,7 @@ def main():
         "INSTALLDIR": args.installdir,  # Note: We've patched the installer scripts to automatically append the channel suffix, but we'll use the arg since we bypass all that.
         "MAINTMAIL": "ungoogled-chromium",
         "MENUNAME": f"ungoogled-chromium{menu_suffix}",
+        "PACKAGE": f"ungoogled-chromium-browser{channel_suffix}",
         "DESKTOP_ICON": f"ungoogled-chromium-browser{channel_suffix}",
         "PRODUCTURL": "https://github.com/ungoogled-software/ungoogled-chromium/",
         "PROGNAME": "chrome",
@@ -64,6 +65,7 @@ def main():
         "URI_SCHEME": f"x-scheme-handler/ungoogled-chromium{channel_suffix}",
         "DESKTOP_EXEC": f"ungoogled-chromium-browser{channel_suffix}",
         "STARTUP_WM_CLASS": f"ungoogled-chromium-browser{channel_suffix}",
+        "appstream_screenshot_url": "ungoogled-chromium",
     }
 
     # upstream is currently (M145) converting from upper to lower case
