@@ -171,16 +171,6 @@ src_prepare() {
 	sed -i 's/const sysroot =.*$/const sysroot = false;/' build/gulpfile.vscode.linux.ts || die
 	sed -i 's/const dependencies =.*$/const dependencies = [];/' build/gulpfile.vscode.linux.ts || die
 
-	einfo "Diagnostic: report kill signal + full tsgo output on failure"
-	sed -i -e "s/child.on('exit', code => {/child.on('exit', (code, signal) => {/" \
-		-e "s/exited with code \${code ?? 'unknown'}/exited with code \${code ?? 'unknown'} (signal: \${signal})/" \
-		build/lib/tsgo.ts || die
-	grep -qF 'signal: ${signal}' build/lib/tsgo.ts || ewarn "tsgo diagnostic sed did not match upstream code"
-	sed -i 's/for (const line of errorLines) {/for (const line of lines) {/' build/lib/tsgo.ts || die
-	grep -qF 'for (const line of lines) {' build/lib/tsgo.ts || ewarn "tsgo full-output sed did not match upstream code"
-	sed -i "s/child.on('exit', (code, signal) => {/child.on('close', (code, signal) => {/" build/lib/tsgo.ts || die
-	grep -qF "child.on('close', (code, signal)" build/lib/tsgo.ts || ewarn "tsgo close-event sed did not match upstream code"
-
 	einfo "Editing product.json"
 	mv product.json product.json.bak || die
 	sed -i '1d' product.json.bak || die
@@ -314,6 +304,14 @@ src_configure() {
 	einfo "Editing build/lib/getVersion.js"
 	sed -i '/.*\!version.*/{s++if \(false\)\{+;h};${x;/./{x;q0};x;q1}' \
 		build/lib/getVersion.ts || die
+
+	einfo "Disabling in-place process.execve in the native tsgo launcher"
+	# A concurrent in-place execve() of the large Go tsgo binary, done in the
+	# node process, intermittently aborts with a silent SIGABRT. The spawn-based
+	# fallback (execFileSync) execs in a fresh child and is unaffected.
+	sed -i 's|if (process.platform !== "win32" && typeof process.execve === "function") {|if (false) {|' \
+		node_modules/@typescript/native/lib/tsc.js || die
+	grep -qF 'if (false) {' node_modules/@typescript/native/lib/tsc.js || ewarn "tsgo execve-disable sed did not match"
 
 	# einfo "Copying @vscode/vsce-sign"
 	# cp -r build/node_modules/@vscode/vsce* node_modules/@vscode/ || die

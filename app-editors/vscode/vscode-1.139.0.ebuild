@@ -308,7 +308,7 @@ src_configure() {
 	einfo "Disabling in-place process.execve in the native tsgo launcher"
 	# A concurrent in-place execve() of the large Go tsgo binary, done in the
 	# node process, intermittently aborts with a silent SIGABRT. The spawn-based
-	# fallback (execFileSync) execs in a fresh child and is unaffected
+	# fallback (execFileSync) execs in a fresh child and is unaffected.
 	sed -i 's|if (process.platform !== "win32" && typeof process.execve === "function") {|if (false) {|' \
 		node_modules/@typescript/native/lib/tsc.js || die
 	grep -qF 'if (false) {' node_modules/@typescript/native/lib/tsc.js || ewarn "tsgo execve-disable sed did not match"
