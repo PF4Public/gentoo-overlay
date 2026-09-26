@@ -65,8 +65,11 @@ RUST_NEEDS_LLVM="yes please"
 RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or LLVM) with USE=bundled-toolchain
 RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it to be available.
 
+GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
+GC_CHECKOUT_DIR="${WORKDIR}"
+
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
-inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
+inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gclient-r1
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
@@ -134,6 +137,21 @@ REQUIRED_USE="
 	debug? ( !official )
 	vaapi? ( !system-av1 !system-libvpx )
 "
+
+GC_REVISION="${PV/_*}"
+GC_DEPS_ACTIONS=1
+GC_EXTRA_FLAGS="--ignore-dep-type cipd"
+GC_CUSTOM_VARS="checkout_x64=False checkout_x86=False"
+GC_CUSTOM_DEPS="
+	src/third_party/instrumented_libs=None
+	src/third_party/llvm=None
+	src/third_party/llvm-build=None
+	src/third_party/node/linux=None
+	src/third_party/rust-src=None
+	src/third_party/rust-toolchain=None
+	src/third_party/angle/third_party/VK-GL-CTS=None
+"
+PROPERTIES+=" gclient? ( live )"
 
 UGC_PV="${PV/_p/-}"
 UGC_PF="${PN}-${UGC_PV}"
@@ -377,41 +395,12 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	x11-misc/xdg-utils
+	gclient? ( $(gclient_gen_dep) )
 "
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
 	EBUILD_DEATH_HOOKS+=" chromium_pkg_die";
 fi
-
-# USE=gclient fetches the chromium sources with gclient instead of
-# using the source tarball (see SRC_URI). The tree is synced to the
-# official build tag of this release and the git mirror cache
-# is kept in GCLIENT_STORE_DIR (default ${DISTDIR}/gclient-src).
-#
-# gclient-r1 is inherited unconditionally so that the ebuild's
-# INHERITED metadata stays deterministic (a USE-conditional inherit
-# trips portage's "inherited illegally" QA check); with USE=-gclient
-# it is dormant and src_unpack uses the tarball instead. It must come
-# after the BDEPEND assignment above, since the eclass appends to it.
-GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
-GC_REVISION="${PV/_*}"
-# tag-pinned, so the ebuild is not live
-GC_LIVE=0
-# match the tarball layout: ${WORKDIR}/chromium-${PV/_*}
-GC_CHECKOUT_DIR="${WORKDIR}"
-GC_SOLUTION_NAME="chromium-${PV/_*}"
-# the DEPS hooks bootstrap things the build needs (node, rust crates)
-GC_DEPS_ACTIONS=1
-# the toolchain always comes from the SRC_URI tarballs (bundled-toolchain)
-# or from the system (!bundled-toolchain), so the bundled-clang CIPD dep
-# is never used and can be skipped
-GC_EXTRA_FLAGS="--ignore-dep-type cipd"
-# gclient sync runs during src_unpack, which needs network access. Under
-# FEATURES=network-sandbox portage only grants network in src_unpack to
-# live ebuilds (which is how git-r3 gets it); this ebuild is tag-pinned,
-# so the property is only active in the mode that actually fetches.
-PROPERTIES+=" gclient? ( live )"
-inherit gclient-r1
 
 DISABLE_AUTOFORMATTING="yes"
 DOC_CONTENTS="
@@ -442,7 +431,13 @@ them in Chromium, then add --password-store=basic to CHROMIUM_FLAGS
 in /etc/chromium/default.
 "
 
-S="${WORKDIR}/chromium-${PV/_*}"
+# the gclient solution is checked out to ${WORKDIR}/src, while the
+# source tarball extracts to ${WORKDIR}/chromium-${PV/_*}
+if [[ " ${USE-} " == *" gclient "* ]]; then
+	S="${GC_SOLUTION_DIR}"
+else
+	S="${WORKDIR}/chromium-${PV/_*}"
+fi
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
