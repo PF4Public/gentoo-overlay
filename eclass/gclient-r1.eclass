@@ -19,29 +19,49 @@
 # a similar) tree only fetch the delta. The workspace itself (the
 # checked-out sources) lives in ${WORKDIR} and is cleaned up with it.
 #
-# The ebuild sets the following variables before inheriting this eclass.
-# Setting GC_SOLUTION_URI activates the eclass; without it the eclass
-# stays dormant, which allows inheriting it unconditionally:
+# The ebuild sets the following variables. GC_SOLUTION_URI must be
+# set before inheriting the eclass, which it also activates; without
+# it the eclass stays dormant, which allows inheriting it
+# unconditionally. GC_SOLUTION_NAME and GC_CHECKOUT_DIR are baked
+# into GC_DIR/GC_SOLUTION_DIR at inherit time; the remaining variables
+# are only read at unpack time, so they may be set at any point
+# before src_unpack:
 #
 # - GC_SOLUTION_URI: URL of the main (solution) repository,
 #   e.g. https://chromium.googlesource.com/chromium/src,
 # - GC_SOLUTION_NAME: name of the solution's checkout directory within
 #   the workspace. Defaults to the last component of GC_SOLUTION_URI
-#   (a trailing .git removed),
+#   (a trailing .git removed). Note that gclient resolves the paths of
+#   the DEPS dependencies relative to the workspace root, not to the
+#   solution directory: chromium's DEPS file prefixes all of its keys
+#   with the solution path ('src/...'), so the solution must be named
+#   'src' (the default) for them to check out inside it,
 # - GC_DEPS_FILE: name of the DEPS file in the main repository.
 #   Defaults to DEPS,
 # - GC_REVISION: the git ref (commit, tag or branch) to sync the main
-#   solution to. When unset, the default branch (HEAD) is tracked and
-#   the ebuild is treated as live. A commit hash makes the ebuild
-#   stable,
-# - GC_LIVE: set to 0 to force the ebuild to be stable even when
-#   GC_REVISION is not a commit (the eclass cannot tell a tag from a
-#   branch at parse time),
+#   solution to. When unset, the default branch (HEAD) is tracked; a
+#   commit hash or tag pins the solution,
 # - GC_CLIENT_FILE: path to a ready-made .gclient file to use instead
 #   of the one generated from the variables above. Needed for projects
 #   with multiple solutions or extra .gclient keys (e.g. target_os).
 #   Note that the file's own cache_dir key, if present, takes
-#   precedence over GCLIENT_STORE_DIR.
+#   precedence over GCLIENT_STORE_DIR,
+# - GC_DEPS_ACTIONS: run the DEPS hooks during the sync (skipped by
+#   default),
+# - GC_CUSTOM_VARS: custom variables for the generated .gclient file,
+#   a space-separated list of key=value pairs whose values are written
+#   verbatim (Python literals). They can gate entries of the DEPS file,
+#   e.g. to skip deps that the build does not need,
+# - GC_CUSTOM_DEPS: per-dep overrides for the generated .gclient file;
+#   the value None omits the dep from the sync, i.e. it is neither
+#   checked out nor downloaded, a string overrides its URL,
+# - GC_EXTRA_FLAGS: extra flags for 'gclient sync', e.g. a repeated
+#   --ignore-dep-type to skip an entire dep type.
+#
+# The build dependencies are added to BDEPEND via the function
+# gclient_gen_dep(), guarded by the flag that selects the gclient
+# unpack (the flag cannot be used in the dependency itself, as
+# dependencies are evaluated before USE is resolved).
 #
 # The eclass then:
 #
@@ -58,16 +78,22 @@
 #
 # Note that 'gclient sync' runs during src_unpack and needs network
 # access. Under FEATURES=network-sandbox, portage only grants network
-# in src_unpack to live ebuilds (which is how git-r3 gets it); ebuilds
-# that are otherwise stable can add the live property conditionally,
-# e.g. PROPERTIES+=" myflag? ( live )".
+# in src_unpack to live ebuilds (which is how git-r3 gets it). The
+# eclass does not set the live property itself, as it cannot know
+# which ebuild mode fetches; the ebuild must add it, e.g.
+# PROPERTIES+=" live" for a live ebuild, or conditionally for a
+# dual-mode one, e.g. PROPERTIES+=" gclient? ( live )".
 #
 # Example:
 # @CODE
-# inherit gclient-r1
-#
 # GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
 # GC_REVISION="abcdef1234..."
+#
+# inherit gclient-r1
+#
+# BDEPEND="
+# 	gclient? ( $(gclient_gen_dep) )
+# "
 #
 # S="${GC_SOLUTION_DIR}"
 #
@@ -84,11 +110,6 @@ esac
 
 if [[ -z ${_GCLIENT_R1_ECLASS} ]]; then
 _GCLIENT_R1_ECLASS=1
-
-BDEPEND+="gclient? (
-	>=dev-vcs/git-2.46
-	dev-util/depot-tools )
-"
 
 # @ECLASS_VARIABLE: GCLIENT_STORE_DIR
 # @USER_VARIABLE
@@ -118,6 +139,12 @@ BDEPEND+="gclient? (
 # Name of the solution's checkout directory within the workspace.
 # Defaults to the last component of GC_SOLUTION_URI (a trailing .git
 # removed).
+#
+# gclient resolves the paths of the DEPS dependencies relative to the
+# workspace root, not to the solution directory. Chromium's DEPS file
+# prefixes all of its keys with the solution path ('src/...'), so the
+# solution must keep the name 'src' (its default) for the dependencies
+# to check out inside it.
 
 # @ECLASS_VARIABLE: GC_DEPS_FILE
 # @PRE_INHERIT
@@ -130,20 +157,10 @@ BDEPEND+="gclient? (
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # The git ref (commit, tag or branch) to sync the main solution to.
-# When unset, the default branch (HEAD) is tracked and the ebuild is
-# treated as live. A commit hash makes the ebuild stable.
+# When unset, the default branch (HEAD) is tracked.
 #
 # For a multi-solution workspace (see GC_CLIENT_FILE), use the
 # name@ref form to disambiguate.
-
-# @ECLASS_VARIABLE: GC_LIVE
-# @PRE_INHERIT
-# @DEFAULT_UNSET
-# @DESCRIPTION:
-# Controls the live property of the ebuild. By default the ebuild is
-# live unless GC_REVISION pins a commit. Set to 0 to force the ebuild
-# to be stable, e.g. when GC_REVISION is a tag, which the eclass
-# cannot distinguish from a branch at parse time.
 
 # @ECLASS_VARIABLE: GC_CLIENT_FILE
 # @PRE_INHERIT
@@ -183,8 +200,55 @@ BDEPEND+="gclient? (
 # @PRE_INHERIT
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Extra flags passed to 'gclient sync', e.g. --no-history or
-# --shallow to reduce the checkout size.
+# Extra flags passed to 'gclient sync'. A repeated --ignore-dep-type
+# (git, cipd, gcs) skips an entire dep type; ebuilds that provide the
+# toolchain themselves can skip chromium's bundled-clang CIPD deps
+# that way. Note that --no-history and --shallow are accepted by
+# gclient but currently have no effect.
+
+# @ECLASS_VARIABLE: GC_CUSTOM_VARS
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Custom variables for the generated .gclient file, as a
+# space-separated list of key=value pairs. Each value is written
+# verbatim into the file, i.e. it must be a valid Python literal:
+# False or True for booleans, 42 for a number, 'quoted' for a string.
+#
+# custom_vars can gate entries of the DEPS file, which ebuilds can use
+# to skip deps the build does not need. E.g. chromium's DEPS downloads
+# per-architecture build sysroots for the checkout architectures; an
+# ebuild that builds with use_sysroot=false can skip the host one:
+#
+# @CODE
+# GC_CUSTOM_VARS="checkout_x64=False"
+# @CODE
+
+# @ECLASS_VARIABLE: GC_CUSTOM_DEPS
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Custom dependency overrides for the generated .gclient file, as a
+# space-separated list of name=value pairs. The name is the gclient
+# item name: for git deps it is the key of the solution's DEPS file,
+# for deps of type gcs it is '<key>:<object_name>', since gclient
+# models each object of a gcs dep (e.g. the per-platform tarballs) as
+# a separate item.
+#
+# The value is a Python literal: None omits the item from the sync,
+# i.e. it is neither checked out nor downloaded; a string overrides
+# the item's URL (it may also point at a local path).
+#
+# Note that gcs object names are pinned per release; if they change,
+# the entry silently stops matching, so update them when bumping
+# GC_REVISION.
+#
+# @CODE
+# GC_CUSTOM_DEPS="
+# 	src/third_party/rust-toolchain:Linux_x64/rust-toolchain-....tar.xz=None
+# 	third_party/some-test-suite=None
+# "
+# @CODE
 
 # @ECLASS_VARIABLE: GC_CHECKOUT_DIR
 # @PRE_INHERIT
@@ -250,11 +314,6 @@ _gclient-r1_init() {
 	GC_DIR=${GC_CHECKOUT_DIR}
 	GC_SOLUTION_DIR=${GC_DIR}/${GC_SOLUTION_NAME}
 	export GC_DIR GC_SOLUTION_DIR GCLIENT_STORE_DIR
-
-	# a pinned commit can never become stale; a branch or tag can
-	if [[ ${GC_LIVE} != "0" ]] && ! _gclient-r1_is_commit "${GC_REVISION-}"; then
-		PROPERTIES+=" live"
-	fi
 }
 # Activate the eclass: only ebuilds that set GC_SOLUTION_URI get the
 # gclient unpack; others may inherit this eclass without side effects.
@@ -269,6 +328,25 @@ if [[ -n ${GC_SOLUTION_URI-} ]]; then
 	EXPORT_FUNCTIONS src_unpack
 fi
 unset -f _gclient-r1_init _gclient-r1_die_usage
+
+# @FUNCTION: gclient_gen_dep
+# @USAGE:
+# @DESCRIPTION:
+# Generate the build dependencies of 'gclient sync' (git and
+# dev-util/depot-tools). Ebuilds add the result to their BDEPEND,
+# typically guarded by the flag that selects the gclient unpack:
+#
+# @CODE
+# BDEPEND="
+# 	...
+# 	gclient? ( $(gclient_gen_dep) )
+# "
+# @CODE
+gclient_gen_dep() {
+	printf '%s\n' \
+		">=dev-vcs/git-2.46" \
+		"dev-util/depot-tools"
+}
 
 # @FUNCTION: gclient-sync
 # @DESCRIPTION:
@@ -337,6 +415,34 @@ gclient-sync() {
 			ewarn "sets cache_dir itself."
 		fi
 	else
+		# custom_vars are written verbatim, i.e. they are Python
+		# literals in the generated .gclient file; a None custom_dep
+		# value omits the item, a string one overrides its URL
+		local custom_vars=""
+		local custom_deps=""
+		local kv
+		for kv in ${GC_CUSTOM_VARS-}; do
+			[[ ${kv} == *=* ]] ||
+				die "${ECLASS}: GC_CUSTOM_VARS entry '${kv}' is not key=value"
+			custom_vars+="    '${kv%%=*}' : ${kv#*=},
+"
+		done
+		for kv in ${GC_CUSTOM_DEPS-}; do
+			[[ ${kv} == *=* ]] ||
+				die "${ECLASS}: GC_CUSTOM_DEPS entry '${kv}' is not name=value"
+			case ${kv#*=} in
+				None)
+					# omit the item from the sync
+					custom_deps+="    '${kv%%=*}' : None,
+" ;;
+				"")
+					die "${ECLASS}: GC_CUSTOM_DEPS entry '${kv}' has an empty value; use None to omit the item" ;;
+				*)
+					custom_deps+="    '${kv%%=*}' : '${kv#*=}',
+" ;;
+			esac
+		done
+
 		# cache_dir in the .gclient file takes precedence over git's
 		# global cache.cachepath and $GIT_CACHE_PATH, so the store
 		# location is deterministic
@@ -347,8 +453,9 @@ solutions = [
     "deps_file"   : '${GC_DEPS_FILE}',
     "managed"     : True,
     "custom_deps" : {
-    },
-    "custom_vars": {},
+${custom_deps}    },
+    "custom_vars": {
+${custom_vars}    },
   },
 ]
 cache_dir = '${GCLIENT_STORE_DIR}'
