@@ -53,15 +53,18 @@ UGC_PVR="152.0.7977.82-1"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
+GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
+GC_CHECKOUT_DIR="${WORKDIR}"
+
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
-inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils
+inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gclient-r1
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
 PPC64_HASH="7aae8a84e327fc2078ce1625c9c70bfda77d626f"
 PATCH_V="${CHROMIUM_VERSION%%\.*}"
 COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
-SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz
+SRC_URI="!gclient? ( https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}-lite.tar.xz )
 	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
@@ -91,7 +94,7 @@ SLOT="$(ver_cut 1)/$(ver_cut 2-)"
 KEYWORDS="amd64 ~arm64 ~ppc64 ~x86"
 IUSE_SYSTEM_LIBS="abseil-cpp av1 brotli crc32c double-conversion ffmpeg +harfbuzz icu jsoncpp +libusb libvpx +openh264 openjpeg re2 snappy woff2 +zstd"
 IUSE="+X bindist bluetooth bundled-toolchain cups custom-cflags debug dev-dependencies ffmpeg-chromium gtk4 hangouts kerberos +libcxx nvidia optimize-thinlto optimize-webui pax-kernel pgo"
-IUSE+=" +proprietary-codecs pulseaudio screencast selinux thinlto ungoogled vaapi wayland cpu_flags_ppc_vsx3"
+IUSE+=" +proprietary-codecs pulseaudio screencast selinux thinlto gclient ungoogled vaapi wayland cpu_flags_ppc_vsx3"
 RESTRICT="
 	!bindist? ( bindist )
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
@@ -105,6 +108,21 @@ REQUIRED_USE="
 	x86? ( !thinlto )
 	vaapi? ( !system-av1 !system-libvpx )
 "
+
+GC_REVISION="${CHROMIUM_VERSION}"
+GC_DEPS_ACTIONS=1
+GC_EXTRA_FLAGS="--ignore-dep-type cipd"
+GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False"
+GC_CUSTOM_DEPS="
+	src/third_party/instrumented_libs=None
+	src/third_party/llvm=None
+	src/third_party/llvm-build=None
+	src/third_party/node/linux=None
+	src/third_party/rust-src=None
+	src/third_party/rust-toolchain=None
+	src/third_party/angle/third_party/VK-GL-CTS=None
+"
+PROPERTIES+=" gclient? ( live )"
 
 UGC_URL="https://github.com/ungoogled-software/ungoogled-chromium/archive/"
 
@@ -312,9 +330,16 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	x11-misc/xdg-utils
+	gclient? ( $(gclient_gen_dep) )
 "
 
-S="${WORKDIR}/${CHROMIUM_P}"
+# the gclient solution is checked out to ${WORKDIR}/src, while the
+# source tarball extracts to ${WORKDIR}/${CHROMIUM_P}
+if [[ " ${USE-} " == *" gclient "* ]]; then
+	S="${GC_SOLUTION_DIR}"
+else
+	S="${WORKDIR}/${CHROMIUM_P}"
+fi
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
@@ -481,8 +506,14 @@ src_unpack() {
 #	#unpack chromium-patches-${PATCH_V}.tar.bz2
 #	# Warned you!
 
-	unpack ${CHROMIUM_P}-lite.tar.xz
-	# unpack chromium-${CHROMIUM_VERSION/_*}-linux.tar.xz
+	if use gclient; then
+		# populates the git mirror cache in GCLIENT_STORE_DIR and checks
+		# out the sources to ${GC_SOLUTION_DIR} (= ${S})
+		gclient-r1_src_unpack
+	else
+		unpack ${CHROMIUM_P}-lite.tar.xz
+		# unpack chromium-${CHROMIUM_VERSION/_*}-linux.tar.xz
+	fi
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
 	if use !bundled-toolchain; then
