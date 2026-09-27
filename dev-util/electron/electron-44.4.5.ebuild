@@ -112,15 +112,11 @@ REQUIRED_USE="
 GC_REVISION="${CHROMIUM_VERSION}"
 GC_DEPS_ACTIONS=1
 GC_EXTRA_FLAGS="--ignore-dep-type cipd"
-GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False"
+GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False rust_force_head_revision=True llvm_force_head_revision=True"
+GC_SKIP_DEPS_ACTIONS="rust_tot clang_tot"
 GC_CUSTOM_DEPS="
-	src/third_party/instrumented_libs=None
-	src/third_party/llvm=None
-	src/third_party/llvm-build=None
-	src/third_party/node/linux=None
-	src/third_party/rust-src=None
-	src/third_party/rust-toolchain=None
-	src/third_party/angle/third_party/VK-GL-CTS=None
+	src/third_party/crossbench-web-tests=None
+	src/third_party/angle/third_party/VK-GL-CTS/src=None
 "
 PROPERTIES+=" gclient? ( live )"
 
