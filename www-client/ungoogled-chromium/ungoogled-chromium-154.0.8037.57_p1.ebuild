@@ -141,7 +141,7 @@ REQUIRED_USE="
 GC_REVISION="${PV/_*}"
 GC_DEPS_ACTIONS=1
 GC_EXTRA_FLAGS="--ignore-dep-type cipd"
-GC_CUSTOM_VARS="checkout_x64=False checkout_x86=False"
+GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False"
 GC_CUSTOM_DEPS="
 	src/third_party/instrumented_libs=None
 	src/third_party/llvm=None
