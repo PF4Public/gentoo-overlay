@@ -250,6 +250,24 @@ _GCLIENT_R1_ECLASS=1
 # "
 # @CODE
 
+# @ECLASS_VARIABLE: GC_SKIP_DEPS_ACTIONS
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Names of DEPS actions (hooks) to suppress in the generated .gclient
+# file, as a space-separated list. A custom hook entry matching a DEPS
+# action by name (and carrying no action) replaces it with nothing,
+# i.e. the DEPS action is not run. Use this to disable DEPS actions
+# that a custom_var would otherwise activate, e.g.
+# rust_force_head_revision=True skips chromium's prebuilt rust
+# toolchain deps but activates the 'rust_tot' action, which would
+# build the rust toolchain from source:
+#
+# @CODE
+# GC_CUSTOM_VARS="rust_force_head_revision=True"
+# GC_SKIP_DEPS_ACTIONS="rust_tot"
+# @CODE
+
 # @ECLASS_VARIABLE: GC_CHECKOUT_DIR
 # @PRE_INHERIT
 # @DEFAULT_UNSET
@@ -420,6 +438,7 @@ gclient-sync() {
 		# value omits the item, a string one overrides its URL
 		local custom_vars=""
 		local custom_deps=""
+		local skip_actions=""
 		local kv
 		for kv in ${GC_CUSTOM_VARS-}; do
 			[[ ${kv} == *=* ]] ||
@@ -442,6 +461,17 @@ gclient-sync() {
 " ;;
 			esac
 		done
+		# a custom hook matching a DEPS action by name and carrying no
+		# action replaces it with nothing, i.e. suppresses it
+		for kv in ${GC_SKIP_DEPS_ACTIONS-}; do
+			skip_actions+="      {\"name\" : \"${kv}\"},
+"
+		done
+		if [[ -n ${skip_actions} ]]; then
+			skip_actions="    \"custom_hooks\" : [
+${skip_actions}    ],
+"
+		fi
 
 		# cache_dir in the .gclient file takes precedence over git's
 		# global cache.cachepath and $GIT_CACHE_PATH, so the store
@@ -451,12 +481,11 @@ solutions = [
   { "name"        : '${GC_SOLUTION_NAME}',
     "url"         : '${GC_SOLUTION_URI}',
     "deps_file"   : '${GC_DEPS_FILE}',
-    "managed"     : True,
     "custom_deps" : {
 ${custom_deps}    },
     "custom_vars": {
 ${custom_vars}    },
-  },
+${skip_actions}  },
 ]
 cache_dir = '${GCLIENT_STORE_DIR}'
 EOF
