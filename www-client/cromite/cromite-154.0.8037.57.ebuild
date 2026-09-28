@@ -726,6 +726,11 @@ src_prepare() {
 		"${FILESDIR}/chromium-154-system-typescript.patch"
 		"${FILESDIR}/chromium-154-gn-fixes.patch"
 		"${FILESDIR}/chromium-154-private_verification_tokens.patch"
+		#* Viewport Protection's screen emulation misplaces page-anchored native
+		#* popups (select/date/color pickers); round the screen de-emulation so
+		#* the emulated->screen->emulated round-trip is a fixed point and the
+		#* popup stops drifting toward the top-left corner
+		"${FILESDIR}/chromite-viewport-protection-popup-rounding.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
