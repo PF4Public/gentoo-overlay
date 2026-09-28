@@ -1,0 +1,39 @@
+--- a/third_party/blink/renderer/core/exported/web_page_popup_impl.cc
++++ b/third_party/blink/renderer/core/exported/web_page_popup_impl.cc
+@@ -34,0 +35 @@
++#include "base/numerics/safe_conversions.h"
+@@ -1186,26 +1187,26 @@
+   if (!opener_emulator_scale_) {
+     return;
+   }
+-  screen_rect.set_x(
++  screen_rect.set_x(base::ClampRound(
+       opener_widget_screen_origin_.x() +
+       (screen_rect.x() - opener_original_widget_screen_origin_.x()) /
+-          opener_emulator_scale_);
+-  screen_rect.set_y(
++          opener_emulator_scale_));
++  screen_rect.set_y(base::ClampRound(
+       opener_widget_screen_origin_.y() +
+       (screen_rect.y() - opener_original_widget_screen_origin_.y()) /
+-          opener_emulator_scale_);
++          opener_emulator_scale_));
+ }
+ 
+ void WebPagePopupImpl::EmulatedToScreenRect(gfx::Rect& screen_rect) {
+   if (!opener_emulator_scale_) {
+     return;
+   }
+-  screen_rect.set_x(opener_original_widget_screen_origin_.x() +
++  screen_rect.set_x(base::ClampRound(opener_original_widget_screen_origin_.x() +
+                     (screen_rect.x() - opener_widget_screen_origin_.x()) *
+-                        opener_emulator_scale_);
+-  screen_rect.set_y(opener_original_widget_screen_origin_.y() +
++                        opener_emulator_scale_));
++  screen_rect.set_y(base::ClampRound(opener_original_widget_screen_origin_.y() +
+                     (screen_rect.y() - opener_widget_screen_origin_.y()) *
+-                        opener_emulator_scale_);
++                        opener_emulator_scale_));
+ }
+ 
+ std::unique_ptr<cc::LayerTreeFrameSink>
