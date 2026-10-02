@@ -1035,6 +1035,9 @@ src_prepare() {
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
 				[ "$i" = "cherry-pick-069a204ae813.patch" ]||
+				[ "$i" = "cherry-pick-b280dcea4871.patch" ]||
+				[ "$i" = "cherry-pick-05b44a448820.patch" ]||
+				[ "$i" = "cherry-pick-d3af0ad932ca.patch" ]||
 				[ "$i" = "cherry-pick-d3f0c0ea4955.patch" ]||
 				[ "$i" = "cherry-pick-d6de4fb146a5.patch" ]||
 				[ "$i" = "cherry-pick-65c806562e43.patch" ]||
@@ -1101,6 +1104,7 @@ src_prepare() {
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
+				--exclude="test/mjsunit/es6/classes-subclass-builtins.js" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
