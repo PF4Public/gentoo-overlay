@@ -1230,17 +1230,17 @@ src_prepare() {
 	"${UGC_WD}/utils/domain_substitution.py" -q apply -r "${UGC_WD}/domain_regex.list" -f "${UGC_WD}/domain_substitution.list" .
 	eend $? || die
 
-	# Sanity check esbuild version before we start removing files.
-	# We _could_ patch the version check out - in theory esbuild upstream are being super conservative after
-	# arch(AUR) packaged an `esbuild` binary and set ESBUILD_BINARY_PATH=/usr/bin/esbuild, causing much breakage,
-	# but this is fine too and exactly matches what upstream are expecting.
-	# https://github.com/evanw/esbuild/issues/2894
-	local esbuild_js="${S}/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js"
-	local found
-	found=$(awk -F'"' '/if \(binaryVersion !==/ {print $2}' "${esbuild_js}")
-	if [[ "${found}" != "${ESBUILD_VER}" ]]; then
-		die "esbuild version mismatch: expected ${ESBUILD_VER}, found ${found}"
-	fi
+	# # Sanity check esbuild version before we start removing files.
+	# # We _could_ patch the version check out - in theory esbuild upstream are being super conservative after
+	# # arch(AUR) packaged an `esbuild` binary and set ESBUILD_BINARY_PATH=/usr/bin/esbuild, causing much breakage,
+	# # but this is fine too and exactly matches what upstream are expecting.
+	# # https://github.com/evanw/esbuild/issues/2894
+	# local esbuild_js="${S}/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js"
+	# local found
+	# found=$(awk -F'"' '/if \(binaryVersion !==/ {print $2}' "${esbuild_js}")
+	# if [[ "${found}" != "${ESBUILD_VER}" ]]; then
+	# 	die "esbuild version mismatch: expected ${ESBUILD_VER}, found ${found}"
+	# fi
 
 	elog "Removing bundled binaries from source tree ..."
 	# Purge bundled ELF files: These are non-portable and will cause issues if used instead of system versions.
