@@ -1319,7 +1319,6 @@ src_prepare() {
 		third_party/anonymous_tokens
 		third_party/apple_apsl
 		third_party/axe-core
-		third_party/bidimapper
 		third_party/blink
 		third_party/boringssl
 		third_party/boringssl/src/third_party/fiat
