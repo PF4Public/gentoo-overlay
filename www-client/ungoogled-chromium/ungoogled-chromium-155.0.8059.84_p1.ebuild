@@ -32,7 +32,7 @@ BUNDLED_RUST_VER="b998449636a48e2c4a362809085b600a0174e1f2-2"
 RUST_SHORT_HASH=${BUNDLED_RUST_VER:0:10}-${BUNDLED_RUST_VER##*-}
 NODE_VER="24.12.0"
 GO_MIN_VER="1.25.0"
-ESBUILD_VER="0.28.2"
+ESBUILD_VER="0.25.1"
 ROLLUP_VER="4.57.1" # currently manual.
 
 CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
@@ -504,14 +504,14 @@ pkg_pretend() {
 		ewarn "Not all patches are applied, let me know if others should be considered too"
 		ewarn
 	fi
-	if use pgo; then
-		eerror
-		eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
-		eerror
-		if [ -z "${NODIE}" ]; then
-			die "Build will fail with pgo"
-		fi
-	fi
+	# if use pgo; then
+	# 	eerror
+	# 	eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
+	# 	eerror
+	# 	if [ -z "${NODIE}" ]; then
+	# 		die "Build will fail with pgo"
+	# 	fi
+	# fi
 }
 
 pkg_setup() {
