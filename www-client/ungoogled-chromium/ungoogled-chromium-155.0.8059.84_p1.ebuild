@@ -40,7 +40,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-UGC_COMMIT_ID="9f145d8815e6e50cc4a2537fcac40966d911e027"
+# UGC_COMMIT_ID="c7b4b99027bb6f9f33848fdbee8a319a3ba3b238"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -752,11 +752,11 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r4.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
-		"${FILESDIR}/chromium-153-revert-to-rollup-wasm.patch"
-		"${FILESDIR}/chromium-154-cbor-fix.patch"
-		"${FILESDIR}/chromium-154-system-typescript.patch"
-		"${FILESDIR}/chromium-154-gn-fixes.patch"
-		"${FILESDIR}/chromium-154-private_verification_tokens.patch"
+		"${FILESDIR}/chromium-155-revert-to-rollup-wasm.patch"
+		"${FILESDIR}/chromium-155-cbor-fix.patch"
+		"${FILESDIR}/chromium-155-system-typescript.patch"
+		"${FILESDIR}/chromium-155-gn-fixes.patch"
+		"${FILESDIR}/chromium-155-private_verification_tokens.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
@@ -1911,6 +1911,8 @@ src_configure() {
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
 			"rustc_version=\"${RUST_SLOT}\""
+			"v8_metagen_libclang_so=\"$(get_llvm_prefix)/$(get_libdir)/libclang.so\""
+			# "v8_metagen_libclang_bindings_dir=/usr/lib/python3.14/site-packages/"
 		)
 
 		# Currently disabled, runtime issues with mold
