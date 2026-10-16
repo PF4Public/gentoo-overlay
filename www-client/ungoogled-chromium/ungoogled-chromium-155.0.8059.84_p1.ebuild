@@ -940,7 +940,7 @@ src_prepare() {
 
 	if ! use bluetooth ; then
 		PATCHES+=(
-			"${FILESDIR}/disable-bluez-r7.patch"
+			"${FILESDIR}/disable-bluez-r8.patch"
 		)
 	fi
 
