@@ -1910,7 +1910,7 @@ src_configure() {
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
 			"rustc_version=\"${RUST_SLOT}\""
-			"v8_metagen_libclang_so=\"$(get_llvm_prefix)/$(get_libdir)/libclang.so\""
+			# "v8_metagen_libclang_so=\"$(get_llvm_prefix)/$(get_libdir)/libclang.so\""
 			# "v8_metagen_libclang_bindings_dir=/usr/lib/python3.14/site-packages/"
 		)
 
