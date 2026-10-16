@@ -752,7 +752,7 @@ src_prepare() {
 		"${FILESDIR}/restore-x86-r4.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
-		"${FILESDIR}/chromium-155-revert-to-rollup-wasm.patch"
+		# "${FILESDIR}/chromium-155-revert-to-rollup-wasm.patch"
 		"${FILESDIR}/chromium-155-cbor-fix.patch"
 		"${FILESDIR}/chromium-155-system-typescript.patch"
 		"${FILESDIR}/chromium-155-gn-fixes.patch"
