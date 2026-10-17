@@ -756,6 +756,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-155-cbor-fix.patch"
 		"${FILESDIR}/chromium-155-system-typescript.patch"
 		"${FILESDIR}/chromium-155-gn-fixes.patch"
+		"${FILESDIR}/chromium-155-metagen-libclang.patch"
 		"${FILESDIR}/chromium-155-private_verification_tokens.patch"
 	)
 
@@ -1910,8 +1911,17 @@ src_configure() {
 			"rust_bindgen_root=\"${EPREFIX}/usr/\""
 			"rust_sysroot_absolute=\"$(get_rust_prefix)\""
 			"rustc_version=\"${RUST_SLOT}\""
-			# "v8_metagen_libclang_so=\"$(get_llvm_prefix)/$(get_libdir)/libclang.so\""
-			# "v8_metagen_libclang_bindings_dir=/usr/lib/python3.14/site-packages/"
+			# From M155 the v8 metagen harvest parses headers with libclang.
+			# The prebuilt third_party/llvm-libclang package is pruned by
+			# bin-finder.py, so point it at the system libclang and the
+			# dev-python/clang cindex bindings of the build's python.
+			"v8_metagen_libclang_so=\"$(get_llvm_prefix)/$(get_libdir)/libclang.so\""
+			"v8_metagen_libclang_bindings_dir=\"$(python_get_sitedir)\""
+			# Gentoo's resource dir is /usr/lib/clang/<slot>, which the
+			# $clang_base_path/lib/clang/$clang_version formula cannot express.
+			"v8_metagen_clang_resource_dir=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}\""
+			# Track the system clang, not the pinned bundled one.
+			"clang_version=\"${LLVM_SLOT}\""
 		)
 
 		# Currently disabled, runtime issues with mold

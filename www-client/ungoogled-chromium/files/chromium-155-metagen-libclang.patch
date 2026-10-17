@@ -1,0 +1,29 @@
+--- a/v8/BUILD.gn
++++ b/v8/BUILD.gn
+@@ -59,6 +59,13 @@
+   v8_metagen_libclang_so = ""
+   v8_metagen_libclang_bindings_dir = ""
+ 
++  # Override for the clang resource dir (the dir holding
++  # include/{stddef.h,stdarg.h,...}). Defaults to
++  # "$clang_base_path/lib/clang/$clang_version", which assumes the bundled
++  # toolchain layout. Distros whose clang installs its resource dir
++  # elsewhere (e.g. Gentoo) can point this at their own resource dir.
++  v8_metagen_clang_resource_dir = ""
++
+   # Dynamically set an additional dependency from v8/custom_deps.
+   v8_custom_deps = ""
+ 
+@@ -2485,7 +2492,11 @@
+ 
+   # The clang toolchain's resource dir contains builting headers
+   # include/{stddef.h,stdarg.h,...}.
+-  _metagen_clang_resource_dir = "$clang_base_path/lib/clang/$clang_version"
++  if (v8_metagen_clang_resource_dir == "") {
++    _metagen_clang_resource_dir = "$clang_base_path/lib/clang/$clang_version"
++  } else {
++    _metagen_clang_resource_dir = v8_metagen_clang_resource_dir
++  }
+   _metagen_flags_target = ":v8_base_without_compiler"
+   _metagen_flags_target_ninja =
+       get_label_info(_metagen_flags_target, "target_out_dir") +
