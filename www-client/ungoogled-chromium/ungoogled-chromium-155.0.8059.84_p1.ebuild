@@ -1018,6 +1018,13 @@ src_prepare() {
 			> "${BR_PA_PATH}/JIT-site-settings.patch1"
 		mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
 
+		#TODO remove after cromite update
+		filterdiff -p1 "${BR_PA_PATH}/Viewport-Protection-flag.patch" --exclude="third_party/blink/public/common/widget/device_emulation_params.h" \
+			> "${BR_PA_PATH}/Viewport-Protection-flag.patch1"
+		mv -f "${BR_PA_PATH}/Viewport-Protection-flag.patch1" "${BR_PA_PATH}/Viewport-Protection-flag.patch"
+		eapply_wrapper "${FILESDIR}/chromite-viewport-protection-fix.patch"
+		#TODO remove after cromite update
+
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"

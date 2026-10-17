@@ -1,0 +1,22 @@
+--- a/third_party/blink/public/common/widget/device_emulation_params.h
++++ b/third_party/blink/public/common/widget/device_emulation_params.h
+@@ -21,6 +21,9 @@ namespace blink {
+ struct DeviceEmulationParams {
+   mojom::EmulatedScreenType screen_type = mojom::EmulatedScreenType::kDesktop;
+ 
++  // Forces screen recalculation the same way as mobile
++  bool force_mobile_calc = false;
++
+   // Emulated screen size. Typically full / physical size of the device screen
+   // in DIP. Empty size means using default value: original one for kDesktop
+   // screen position, equal to |view_size| for kMobile.
+@@ -87,7 +87,8 @@
+          a.device_posture == b.device_posture &&
+          a.force_android_overlay_scrollbar ==
+              b.force_android_overlay_scrollbar &&
+-         a.force_viewport_meta == b.force_viewport_meta;
++         a.force_viewport_meta == b.force_viewport_meta &&
++         a.force_mobile_calc == b.force_mobile_calc;
+ }
+ 
+ }  // namespace blink
