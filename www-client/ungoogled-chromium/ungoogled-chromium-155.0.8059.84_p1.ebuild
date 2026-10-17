@@ -33,7 +33,7 @@ RUST_SHORT_HASH=${BUNDLED_RUST_VER:0:10}-${BUNDLED_RUST_VER##*-}
 NODE_VER="24.12.0"
 GO_MIN_VER="1.25.0"
 ESBUILD_VER="0.25.1"
-ROLLUP_VER="4.57.1" # currently manual.
+# ROLLUP_VER="4.57.1" # currently manual.
 
 CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
 	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
@@ -78,7 +78,6 @@ PATCH_V="152"
 # PATCH_V="${PV%%\.*}"
 COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
 SRC_URI="!gclient? ( https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/chromium-${PV/_*}-linux.tar.xz )
-	https://deps.gentoo.zip/www-client/chromium/rollup-wasm-node-${ROLLUP_VER}.tgz
 	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
 		https://codeberg.org/selfisekai/copium/archive/${COPIUM_COMMIT}.tar.gz
@@ -662,9 +661,9 @@ src_unpack() {
 		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
 
-	# This is a dirty hack, but we need rollup to build successfully and it's proving to be challenging
-	# to build locally due to deps
-	unpack rollup-wasm-node-${ROLLUP_VER}.tgz
+	# # This is a dirty hack, but we need rollup to build successfully and it's proving to be challenging
+	# # to build locally due to deps
+	# unpack rollup-wasm-node-${ROLLUP_VER}.tgz
 
 	if use cromite; then
 		unpack cromite-${CROMITE_COMMIT_ID}.tar.gz
@@ -894,12 +893,12 @@ src_prepare() {
 
 	fi
 
-	# Do this before we apply patches since (e.g.) ppc64 needs to patch rollup and it's easier in ${S}
-	einfo "Moving rollup wasm-node package into place ..."
-	mkdir -p third_party/devtools-frontend/src/node_modules/@rollup/wasm-node ||
-		die "Failed to create node_modules/@rollup/wasm-node"
-	mv "${WORKDIR}"/package/* third_party/devtools-frontend/src/node_modules/@rollup/wasm-node ||
-		die "Failed to move rollup package"
+	# # Do this before we apply patches since (e.g.) ppc64 needs to patch rollup and it's easier in ${S}
+	# einfo "Moving rollup wasm-node package into place ..."
+	# mkdir -p third_party/devtools-frontend/src/node_modules/@rollup/wasm-node ||
+	# 	die "Failed to create node_modules/@rollup/wasm-node"
+	# mv "${WORKDIR}"/package/* third_party/devtools-frontend/src/node_modules/@rollup/wasm-node ||
+	# 	die "Failed to move rollup package"
 
 	if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 		# for i in "${CHROMIUM_COMMITS[@]}"; do
@@ -1155,8 +1154,6 @@ src_prepare() {
 	local ugc_unneeded=(
 		# GN bootstrap
 		extra/debian/gn/parallel
-		# following Gentoo's Chromium
-		core/ungoogled-chromium/build-with-wasm-rollup
 	)
 
 	if use cromite ; then
