@@ -16,8 +16,9 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="test" # tests require more work, but chromium needs esbuild already.
 
 src_unpack() {
-	go-module_src_unpack
+	# vendor must exist before go-module_src_unpack, or it runs `ego mod verify` (network)
 	tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
+	go-module_src_unpack
 }
 
 src_compile() {
