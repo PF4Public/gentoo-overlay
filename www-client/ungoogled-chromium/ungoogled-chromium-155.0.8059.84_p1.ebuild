@@ -360,6 +360,7 @@ BDEPEND="
 	${PYTHON_DEPS}
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
+		dev-python/clang[${PYTHON_USEDEP}]
 	')
 	>=app-arch/gzip-1.7
 	!headless? (
@@ -436,6 +437,7 @@ fi
 
 python_check_deps() {
 	python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/clang[${PYTHON_USEDEP}]"
 }
 
 pre_build_checks() {
