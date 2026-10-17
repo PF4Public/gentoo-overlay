@@ -1060,6 +1060,9 @@ src_prepare() {
 	fi
 
 	declare -A skipped_patches=(
+		["cherry-pick-0f8885e487bd.patch"]="doesn't apply"
+		["cherry-pick-ffa67bc6b5b0.patch"]="doesn't apply"
+		["cherry-pick-007113ee5866.patch"]="doesn't apply"
 		["cherry-pick-05b44a448820.patch"]="doesn't apply"
 		["cherry-pick-d3af0ad932ca.patch"]="doesn't apply"
 		["cherry-pick-282c8b95af83.patch"]="doesn't apply"
