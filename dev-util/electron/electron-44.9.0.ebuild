@@ -1092,6 +1092,7 @@ src_prepare() {
 		skipped_patches+=(
 			["sysroot.patch"]="due to ungoogled."
 			["build_disable_print_content_analysis.patch"]="due to ungoogled."
+			["cherry-pick-6a2ce41c631e.patch"]="due to ungoogled."
 		)
 	fi
 	declare -A patches=(
