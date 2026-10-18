@@ -16,14 +16,14 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="test" # tests require more work, but chromium needs esbuild already.
 
 src_unpack() {
-	# vendor must exist before go-module_src_unpack, or it runs `ego mod verify` (network)
+	# vendor must exist before go-module_src_unpack, or it runs `go mod verify` (network)
 	tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
 	go-module_src_unpack
 }
 
 src_compile() {
 	# Build using vendored dependencies instead of Makefile
-	ego build -mod=vendor -v -ldflags="-s -w" ./cmd/esbuild
+	go build -mod=vendor -v -ldflags="-s -w" ./cmd/esbuild
 }
 
 src_install() {
@@ -31,5 +31,5 @@ src_install() {
 }
 
 src_test() {
-	ego test -mod=vendor -v -ldflags="-s -w" ./cmd/esbuild
+	go test -mod=vendor -v -ldflags="-s -w" ./cmd/esbuild
 }
