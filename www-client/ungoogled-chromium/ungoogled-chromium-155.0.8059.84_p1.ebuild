@@ -23,7 +23,7 @@ EAPI=8
 # using an external CI system that we have some control over, in case
 # issues pop up again with official tarball generation.
 
-GN_MIN_VER=0.2562 # metagen's `gn desc` and the 155 tree need a recent gn; 0.2374 misbehaves
+GN_MIN_VER=0.2562 # exactly this version
 # chromium-tools/get-chromium-toolchain-strings.py (or just use Chromicler)
 # Node for M145+ should be 24.12.0 but that's not packaged in Gentoo yet. See #969145
 TEST_FONT="9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9"
@@ -377,7 +377,7 @@ BDEPEND="
 		${RUST_DEPEND}
 	)
 	>=dev-util/bindgen-0.72.1
-	>=dev-build/gn-${GN_MIN_VER}
+	=dev-build/gn-${GN_MIN_VER}
 	>=dev-lang/go-${GO_MIN_VER}
 	dev-lang/typescript
 	app-alternatives/ninja
