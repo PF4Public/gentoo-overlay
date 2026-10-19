@@ -33,7 +33,7 @@ RUST_SHORT_HASH=${BUNDLED_RUST_VER:0:10}-${BUNDLED_RUST_VER##*-}
 NODE_VER="24.12.0"
 GO_MIN_VER="1.25.0"
 ESBUILD_VER="0.28.2"
-# ROLLUP_VER="4.57.1" # currently manual.
+CHROMIUM_TARBALL="lite" # lite / linux
 
 CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
 	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
@@ -77,8 +77,7 @@ PPC64_HASH="7aae8a84e327fc2078ce1625c9c70bfda77d626f"
 PATCH_V="152"
 # PATCH_V="${PV%%\.*}"
 COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
-SRC_URI="!gclient? ( https://commondatastorage.googleapis.com/chromium-browser-official/chromium-${PV/_*}-lite.tar.xz )
-	https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
+SRC_URI="https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	!bundled-toolchain? (
 		https://codeberg.org/selfisekai/copium/archive/${COPIUM_COMMIT}.tar.gz
 			-> chromium-patches-copium-${COPIUM_COMMIT:0:10}.tar.gz
@@ -161,6 +160,15 @@ else
 fi
 
 SRC_URI+="${UGC_URL}
+"
+
+CHROMIUM_TARBALL_FILE="chromium-${PV/_*}-${CHROMIUM_TARBALL}.tar.xz"
+if [[ ${CHROMIUM_TARBALL} == "linux" ]]; then
+	CHROMIUM_TARBALL_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV/_*}/${CHROMIUM_TARBALL_FILE}"
+else
+	CHROMIUM_TARBALL_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_TARBALL_FILE}"
+fi
+SRC_URI+="!gclient? ( ${CHROMIUM_TARBALL_URI} )
 "
 
 if [ ! -z "${UGC_PR_COMMITS[*]}" ]; then
@@ -629,8 +637,8 @@ src_unpack() {
 		# out the sources to ${GC_SOLUTION_DIR} (= ${S})
 		gclient-r1_src_unpack
 	else
-		# unpack chromium-${PV/_*}-linux.tar.xz
-		unpack chromium-${PV/_*}-lite.tar.xz
+		# unpack chromium-${PV/_*}-${CHROMIUM_TARBALL}.tar.xz (lite or linux)
+		unpack "${CHROMIUM_TARBALL_FILE}"
 	fi
 	unpack chromium-patches-${PATCH_V}.tar.bz2
 	# These should only be required when we're not using the official toolchain
@@ -1024,7 +1032,7 @@ src_prepare() {
 		filterdiff -p1 "${BR_PA_PATH}/Viewport-Protection-flag.patch" --exclude="third_party/blink/public/common/widget/device_emulation_params.h" \
 			> "${BR_PA_PATH}/Viewport-Protection-flag.patch1"
 		mv -f "${BR_PA_PATH}/Viewport-Protection-flag.patch1" "${BR_PA_PATH}/Viewport-Protection-flag.patch"
-		eapply_wrapper "${FILESDIR}/chromite-viewport-protection-fix.patch"
+		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-fix-r1.patch"
 		#TODO remove after cromite update
 
 		BROMITE_PATCHES=(
@@ -1034,7 +1042,7 @@ src_prepare() {
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
 			"${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
 			"${BR_PA_PATH}/Enable-StrictOriginIsolation-and-SitePerProcess.patch"
-			"${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
+			# "${BR_PA_PATH}/Disable-requests-for-single-word-Omnibar-searches.patch"
 			"${BR_PA_PATH}/Reduce-HTTP-headers-in-DoH-requests-to-bare-minimum.patch"
 			"${BR_PA_PATH}/Client-hints-overrides.patch"
 			"${BR_PA_PATH}/Disable-idle-detection.patch"
