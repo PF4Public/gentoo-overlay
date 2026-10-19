@@ -1,5 +1,5 @@
---- a/electron/shell/browser/electron_browser_client.cc
-+++ b/electron/shell/browser/electron_browser_client.cc
+--- a/shell/browser/electron_browser_client.cc
++++ b/shell/browser/electron_browser_client.cc
 @@ -1419,9 +1419,7 @@ void ElectronBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
      factories->emplace(content::kChromeUIScheme,
                         content::CreateWebUIURLLoaderFactory(
