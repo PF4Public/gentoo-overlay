@@ -29,7 +29,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 # UGC_COMMIT_ID="59657a38437d11520a68618008eb825721319b9e"
 
 declare -A CHROMIUM_COMMITS=(
-	# ["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
+	["7767cccfee47e42ca30da74cf6d84b80537462f1"]="."
 	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="."
 	["-c72c7b0971e3e31974b0adea0dac42278e22e3b0"]="third_party/devtools-frontend/src" # need gn >= 2459
 #	# ["-37c28a19804e47a68eabf3cf882a310689fc325b"]="." #disable style check for cromite
