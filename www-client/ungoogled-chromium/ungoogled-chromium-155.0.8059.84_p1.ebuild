@@ -377,7 +377,7 @@ BDEPEND="
 		${RUST_DEPEND}
 	)
 	>=dev-util/bindgen-0.72.1
-	=dev-build/gn-${GN_MIN_VER}
+	~dev-build/gn-${GN_MIN_VER}
 	>=dev-lang/go-${GO_MIN_VER}
 	dev-lang/typescript
 	app-alternatives/ninja
