@@ -755,11 +755,11 @@ src_prepare() {
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-152-unbundle-minizip-undo-unicode.patch"
 		# "${FILESDIR}/chromium-155-revert-to-rollup-wasm.patch"
-		# "${FILESDIR}/chromium-155-gn-fixes.patch"
 		"${FILESDIR}/chromium-155-metagen-libclang.patch"
 		"${FILESDIR}/chromium-156-private_verification_tokens.patch"
 		"${FILESDIR}/chromium-156-system-typescript.patch"
 		"${FILESDIR}/chromium-156-cbor-fix.patch"
+		"${FILESDIR}/chromium-156-gn-fixes.patch"
 		"${FILESDIR}/cr156-compiler.patch"
 	)
 
