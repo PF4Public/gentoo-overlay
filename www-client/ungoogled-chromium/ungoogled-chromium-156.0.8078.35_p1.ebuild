@@ -739,7 +739,7 @@ src_prepare() {
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
 	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-fix-rust-2-oxidize-harder.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/toolchain/cr152-compiler.patch"
+	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-compiler.patch"
 
 	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
