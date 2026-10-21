@@ -1099,6 +1099,7 @@ src_prepare() {
 			["sysroot.patch"]="due to ungoogled."
 			["build_disable_print_content_analysis.patch"]="due to ungoogled."
 			["cherry-pick-6a2ce41c631e.patch"]="due to ungoogled."
+			["cherry-pick-2ed13d0826b0.patch"]="due to ungoogled."
 		)
 	fi
 	declare -A patches=(
