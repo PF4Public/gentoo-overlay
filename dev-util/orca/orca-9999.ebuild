@@ -82,13 +82,6 @@ src_prepare() {
 	if ! use wayland; then
 		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard.patch" || die
 	fi
-
-	# asarUnpack lists every forked child entry by its flat out/main/ path, but
-	# for profile-state it only globbed the nested modules, leaving the forked
-	# writer/backup worker entries packed in app.asar. Their ELECTRON_RUN_AS_NODE
-	# fork is plain node and cannot read the asar, so profile persistence fails
-	# to start ("could not start profile persistence"). Unpack them (0003).
-	patch -p1 -i "${FILESDIR}/0003-unpack-profile-state-worker-entries.patch" || die
 }
 
 src_compile() {
@@ -166,6 +159,9 @@ src_install() {
 	insinto "${mydir}"
 	doins -r dist/linux-unpacked/resources/* || die
 
+	# Pin process.resourcesPath to the install dir at runtime; see the file.
+	doins "${FILESDIR}/resources-path-override.cjs" || die
+
 	# The Wayland helper is staged via extraResources into resources/bin; make
 	# sure it is executable (upstream's finalize hook would have chmod'd it).
 	if use wayland; then
@@ -178,7 +174,7 @@ src_install() {
 	cp "${FILESDIR}/read_flags_file" "${ED}${launcher}" || die
 	sed -i "s|@ELECTRON@|orca|" "${ED}${launcher}" || die
 	echo "ELECTRON_FORCE_IS_PACKAGED=1 \"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron\" \
-${mydir}/app.asar \"\${flags[@]}\" \"\$@\"" >> "${ED}${launcher}"
+--require \"${mydir}/resources-path-override.cjs\" ${mydir}/app.asar \"\${flags[@]}\" \"\$@\"" >> "${ED}${launcher}"
 	fperms 0755 "${launcher}"
 	dosym "../$(get_libdir)/orca/orca-ide" /usr/bin/orca-ide
 
