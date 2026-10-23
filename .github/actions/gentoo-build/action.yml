@@ -1,0 +1,125 @@
+name: Gentoo build
+description: >-
+  Build a package in the gentoo container: restore the cache and build state,
+  apply the USE flags, run the timeout-bounded emerge, then save the state and
+  package/upload the release artifact. The job only reports 'status'.
+
+inputs:
+  atom:
+    description: Package atom to build (e.g. dev-util/electron)
+    required: true
+  use:
+    description: USE flags (and USE_EXPAND settings) to apply for the atom
+    required: true
+  src-dir:
+    description: Absolute path inside the gentoo container that contains the out/ dir
+    required: true
+  cache-key:
+    description: distfiles/ccache cache key
+    required: true
+  build-timeout:
+    description: Per-job build window for the emerge (e.g. 280m)
+    required: true
+  job:
+    description: Build job number (1..6); state is restored from job-1 and saved as job
+    required: true
+    type: number
+
+outputs:
+  status:
+    description: Build status - complete or timeout
+    value: ${{ steps.build.outputs.status }}
+
+runs:
+  using: composite
+  steps:
+    - name: Restore cache
+      uses: ./.github/actions/cache-restore
+      with:
+        key: ${{ inputs.cache-key }}
+
+    - name: Gentoo setup
+      uses: ./.github/actions/gentoo-setup
+
+    - name: Apply USE flags
+      shell: bash
+      run: |
+        set -euo pipefail
+        docker exec -e ATOM="${{ inputs.atom }}" -e USE="${{ inputs.use }}" gentoo \
+          bash -c 'printf "%s %s\n" "$ATOM" "$USE" >> /etc/portage/package.use'
+        docker exec gentoo bash -c 'tail -1 /etc/portage/package.use'
+
+    - name: Compute artifact names
+      id: names
+      shell: bash
+      run: |
+        n=${{ inputs.job }}
+        echo "restore=state-$((n - 1))" >> "$GITHUB_OUTPUT"
+        echo "save=state-$n" >> "$GITHUB_OUTPUT"
+        echo "log=build-log-$n" >> "$GITHUB_OUTPUT"
+
+    - name: Restore build state
+      uses: ./.github/actions/state-restore
+      with:
+        name: ${{ steps.names.outputs.restore }}
+        src-dir: ${{ inputs.src-dir }}
+
+    - name: Build
+      id: build
+      timeout-minutes: 280
+      run: |
+        set -uo pipefail
+        status="timeout"
+        timeout ${{ inputs.build-timeout }} docker exec gentoo \
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} > build.log 2>&1
+        rc=$?
+        tail -40 build.log
+        if [[ $rc -eq 0 ]]; then
+          status="complete"
+        elif [[ $rc -ne 124 ]]; then
+          # hard failure, leave the workdir for the failure dump
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          exit 1
+        fi
+        # timeout: kill lingering build processes, the next job resumes
+        docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
+        sleep 5
+        echo "status=${status}" >> "$GITHUB_OUTPUT"
+
+    - name: Upload build log
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.names.outputs.log }}
+        path: build.log
+        retention-days: 3
+
+    - name: Save build state
+      if: failure() || steps.build.outputs.status == 'timeout'
+      uses: ./.github/actions/state-save
+      with:
+        name: ${{ steps.names.outputs.save }}
+        src-dir: ${{ inputs.src-dir }}
+
+    - name: Package release artifact
+      if: steps.build.outputs.status == 'complete'
+      run: |
+        set -euo pipefail
+        mkdir -p release
+        docker exec -e ATOM="${{ inputs.atom }}" -w / gentoo \
+          bash -c 'qlist -ev "$ATOM" | sed "s|^/||" | tar -cjf /workspace/release/x86-64.tar.bz2 -T -'
+        docker exec gentoo du -sh /workspace/release/x86-64.tar.bz2
+
+    - name: Upload release artifact
+      if: steps.build.outputs.status == 'complete'
+      uses: actions/upload-artifact@v7
+      with:
+        name: release
+        path: release/x86-64.tar.bz2
+        retention-days: 30
+
+    - name: Save cache
+      if: always()
+      uses: ./.github/actions/cache-save
+      with:
+        key: ${{ inputs.cache-key }}

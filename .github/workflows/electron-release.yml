@@ -1,0 +1,488 @@
+name: electron-release
+on:
+  push:
+    tags:
+    - 'electron/*'
+
+env:
+  # ------------------------------------------------------------------
+  # Build configuration, edit these to change how releases are built.
+  # ------------------------------------------------------------------
+  # USE flags for the build. Flags the ebuild does not define are
+  # automatically filtered out by the resolve job.
+  BUILD_USE: >-
+    -suid optimize-webui -system-av1 -system-ffmpeg -system-harfbuzz
+    -system-icu -system-jsoncpp -system-libevent -system-libusb
+    -system-openh264 -system-png -system-re2 -system-snappy -system-libvpx
+    -system-openjpeg -system-zstd -qt5 -qt6 -hevc convert-dict pulseaudio
+    vaapi optimize-thinlto thinlto widevine enable-driver -wayland
+  # Extra USE flags, kept separate so pgo can be toggled with one line
+  # (pgo roughly doubles the build time).
+  BUILD_USE_EXTRA: "pgo"
+  # LLVM_SLOT for llvm-r1, the CI container only has the binhost default
+  BUILD_LLVM_SLOT: "23"
+
+  # distfiles/ccache cache key, must match the plain workflow name so the
+  # caches are shared between the CI and release workflows
+  CACHE_KEY: electron
+
+  # per-job build window, the jobs are chained until the build completes
+  # (6 jobs x ~5h ~= 29h of build time)
+  BUILD_TIMEOUT: "280m"
+
+jobs:
+  resolve:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    outputs:
+      pv: ${{ steps.env.outputs.pv }}
+      atom: ${{ steps.env.outputs.atom }}
+      use: ${{ steps.env.outputs.use }}
+      src-dir: ${{ steps.env.outputs.src-dir }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Resolve version and USE flags
+        id: env
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          pv="${TAG#*/}"
+          ebuild="dev-util/electron/electron-${pv}.ebuild"
+          if [[ ! -f "$ebuild" ]]; then
+            echo "::error::no ebuild found at ${ebuild}, the tag does not match a version"
+            exit 1
+          fi
+
+          # the workdir source dir the build state (out/) lives in, the
+          # electron ebuild checks out chromium-${CHROMIUM_VERSION}
+          cver=$(sed -nE 's/^CHROMIUM_VERSION="([^"]+)".*/\1/p' "$ebuild" | head -1)
+          if [[ -z "$cver" ]]; then
+            echo "::error::could not parse CHROMIUM_VERSION from ${ebuild}"
+            exit 1
+          fi
+          src_dir="/var/tmp/portage/dev-util/electron-${pv}/work/chromium-${cver}"
+
+          # intersect the requested USE flags with what the ebuild defines
+          # (IUSE, IUSE+= and IUSE_SYSTEM_LIBS expanded to system-*)
+          defined=$(awk '
+            /^IUSE[+]?=/ {
+              line = $0
+              sub(/^IUSE[+]?=[" ]*/, "", line)
+              gsub(/"/, "", line)
+              n = split(line, f, /[ +]/)
+              for (i = 1; i <= n; i++) {
+                if (f[i] == "") continue
+                sub(/^\+/, "", f[i])
+                print f[i]
+              }
+            }
+            /^IUSE_SYSTEM_LIBS=/ {
+              line = $0
+              sub(/^IUSE_SYSTEM_LIBS=[" ]*/, "", line)
+              gsub(/"/, "", line)
+              n = split(line, f, /[ +]/)
+              for (i = 1; i <= n; i++) {
+                if (f[i] == "") continue
+                sub(/^\+/, "", f[i])
+                print "system-" f[i]
+              }
+            }
+          ' "$ebuild" | sort -u)
+
+          use=""
+          for flag in ${BUILD_USE} ${BUILD_USE_EXTRA}; do
+            base=${flag#+}
+            base=${base#-}
+            if grep -qx "$base" <<< "$defined"; then
+              use+="${flag} "
+            else
+              echo "filtering out flag not defined by the ebuild: ${flag}"
+            fi
+          done
+          use="${use% } LLVM_SLOT: ${BUILD_LLVM_SLOT}"
+
+          echo "pv=${pv}" >> "$GITHUB_OUTPUT"
+          echo "atom=dev-util/electron" >> "$GITHUB_OUTPUT"
+          echo "use=${use}" >> "$GITHUB_OUTPUT"
+          echo "src-dir=${src_dir}" >> "$GITHUB_OUTPUT"
+          echo "build with USE: ${use}"
+
+  build-1:
+    needs: resolve
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 1
+
+  build-2:
+    needs: [resolve, build-1]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-1.result == 'success' &&
+      needs.build-1.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 2
+
+  build-3:
+    needs: [resolve, build-2]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-2.result == 'success' &&
+      needs.build-2.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 3
+
+  build-4:
+    needs: [resolve, build-3]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-3.result == 'success' &&
+      needs.build-3.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 4
+
+  build-5:
+    needs: [resolve, build-4]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-4.result == 'success' &&
+      needs.build-4.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 5
+
+  build-6:
+    needs: [resolve, build-5]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-5.result == 'success' &&
+      needs.build-5.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          cache-key: ${{ env.CACHE_KEY }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 6
+
+  publish:
+    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6]
+    if: always() && github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check build results
+        id: check
+        env:
+          B1: ${{ needs.build-1.result }}
+          B2: ${{ needs.build-2.result }}
+          B3: ${{ needs.build-3.result }}
+          B4: ${{ needs.build-4.result }}
+          B5: ${{ needs.build-5.result }}
+          B6: ${{ needs.build-6.result }}
+          S1: ${{ needs.build-1.outputs.status }}
+          S2: ${{ needs.build-2.outputs.status }}
+          S3: ${{ needs.build-3.outputs.status }}
+          S4: ${{ needs.build-4.outputs.status }}
+          S5: ${{ needs.build-5.outputs.status }}
+          S6: ${{ needs.build-6.outputs.status }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            eval "r=\$B${i}"
+            if [[ "$r" == "failure" ]]; then
+              echo "outcome=build-failed" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          for i in 1 2 3 4 5 6; do
+            eval "s=\$S${i}"
+            if [[ "$s" == "complete" ]]; then
+              echo "outcome=complete" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          # all jobs ran out of time without a hard failure
+          echo "outcome=exhausted" >> "$GITHUB_OUTPUT"
+
+      - name: Delete trigger tag
+        if: steps.check.outputs.outcome != 'complete'
+        run: |
+          git push origin --delete "refs/tags/${{ github.ref_name }}"
+
+      - name: Fail
+        if: steps.check.outputs.outcome != 'complete'
+        run: |
+          echo "the build failed or ran out of steps, the trigger tag was deleted"
+          exit 1
+
+      - name: Download release
+        if: steps.check.outputs.outcome == 'complete'
+        uses: actions/download-artifact@v8
+        with:
+          name: release
+          path: release/
+
+      - name: Create release
+        if: steps.check.outputs.outcome == 'complete'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ needs.resolve.outputs.pv }}" \
+            --notes "electron ${needs.resolve.outputs.pv}, built by the ${GITHUB_SHA:0:7} release workflow" \
+            release/x86-64.tar.bz2
+
+      - name: Bump -bin ebuild
+        if: steps.check.outputs.outcome == 'complete'
+        run: |
+          set -euo pipefail
+          dir="dev-util/electron-bin"
+          pn="electron-bin"
+          pv="${{ needs.resolve.outputs.pv }}"
+          target="${dir}/${pn}-${pv}.ebuild"
+
+          # create the ebuild from the latest existing version if it does not exist yet
+          if [[ ! -f "$target" ]]; then
+            template=$(ls -1 "${dir}"/${pn}-*.ebuild | grep -v "/${pn}-${pv}\.ebuild$" | sort -V | tail -1)
+            cp "$template" "$target"
+          fi
+          # point the download at this release (idempotent)
+          sed -E -i "s|^[[:space:]]*DL_URL=.*|DL_URL=\"https://github.com/PF4Public/gentoo-overlay/releases/download/\${PV}\"|" "$target"
+
+          # manifest entries (manifest2 format)
+          manifest="${dir}/Manifest"
+          [[ -f "$manifest" ]] || : > "$manifest"
+          fname="${pn}-${pv}.ebuild"
+          if ! grep -q "^EBUILD ${fname//./\\.} " "$manifest"; then
+            b2=$(b2sum "$target" | awk '{print $1}')
+            s5=$(sha512sum "$target" | awk '{print $1}')
+            sz=$(stat -c%s "$target")
+            echo "EBUILD ${fname} ${sz} BLAKE2B ${b2} SHA512 ${s5}" >> "$manifest"
+          fi
+          dname="${pn}-${pv}-x86-64.tar.bz2"
+          if ! grep -q "^DIST ${dname//./\\.} " "$manifest"; then
+            b2=$(b2sum release/x86-64.tar.bz2 | awk '{print $1}')
+            s5=$(sha512sum release/x86-64.tar.bz2 | awk '{print $1}')
+            sz=$(stat -c%s release/x86-64.tar.bz2)
+            echo "DIST ${dname} ${sz} BLAKE2B ${b2} SHA512 ${s5}" >> "$manifest"
+          fi
+          git status --short
+
+      - name: Commit and push
+        if: steps.check.outputs.outcome == 'complete'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dev-util/electron-bin/
+          git commit -m "dev-util/electron-bin: ${{ needs.resolve.outputs.pv }}"
+          git push origin HEAD:master || {
+            git pull --rebase origin master
+            git push origin HEAD:master
+          }
+
+  dump-failures:
+    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      (needs.build-1.result == 'failure' ||
+       needs.build-2.result == 'failure' ||
+       needs.build-3.result == 'failure' ||
+       needs.build-4.result == 'failure' ||
+       needs.build-5.result == 'failure' ||
+       needs.build-6.result == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Find failed build job
+        id: failed
+        env:
+          B1: ${{ needs.build-1.result }}
+          B2: ${{ needs.build-2.result }}
+          B3: ${{ needs.build-3.result }}
+          B4: ${{ needs.build-4.result }}
+          B5: ${{ needs.build-5.result }}
+          B6: ${{ needs.build-6.result }}
+        run: |
+          set -euo pipefail
+          for i in 6 5 4 3 2 1; do
+            eval "r=\$B${i}"
+            if [[ "$r" == "failure" ]]; then
+              echo "idx=${i}" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+        with:
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="${{ needs.resolve.outputs.use }}" gentoo \
+            bash -c 'printf "%s %s\n" "$ATOM" "$USE" >> /etc/portage/package.use'
+
+      - name: Restore build state
+        uses: ./.github/actions/state-restore
+        with:
+          name: state-${{ steps.failed.outputs.idx }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+
+      - name: Dump all failed build steps
+        timeout-minutes: 150
+        run: |
+          set -uo pipefail
+          # -k0 makes every ninja/make invocation keep going past its errors,
+          # so the log contains all failed steps
+          timeout 145m docker exec gentoo \
+            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ needs.resolve.outputs.atom }} > dump.log 2>&1 || true
+          tail -200 dump.log
+          docker exec gentoo ccache -s || true
+
+      - name: Upload failure log
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-log
+          path: dump.log
+          retention-days: 30

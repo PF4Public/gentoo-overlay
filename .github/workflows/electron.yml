@@ -85,3 +85,62 @@ jobs:
             tool: ebuild
             action: configure
             params: ${{ matrix.use }}
+
+  build:
+    # When a commit requests a test build (its message is "<cat>/<pn>: build",
+    # e.g. "dev-util/electron: build"), create the electron/<pv> tag the
+    # electron-release workflow is triggered by - the version is taken from the
+    # changed ebuild file - so the build can be verified before it is stabilised.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Tag build ebuilds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PN: electron
+          PKGDIR: dev-util/electron
+        run: |
+          set -euo pipefail
+
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          if [[ "${before}" =~ ^0+$ ]] || ! git cat-file -e "${before}" 2>/dev/null; then
+            commits=("${after}")
+          else
+            mapfile -t commits < <(git rev-list "${before}..${after}")
+            [[ ${#commits[@]} -gt 0 ]] || commits=("${after}")
+          fi
+
+          for sha in "${commits[@]}"; do
+            # build commits are "<cat>/<pn>: build"; the version is extracted
+            # from the changed ebuild file below, not from the message
+            if ! git log -1 --format=%s "${sha}" | grep -qiE '\bbuild\b'; then
+              continue
+            fi
+            while IFS= read -r file; do
+              [[ -n "${file}" ]] || continue
+              # skip ebuilds that don't exist at this commit (e.g. deleted older versions)
+              git cat-file -e "${sha}:${file}" 2>/dev/null || continue
+              pv="$(basename "${file}" .ebuild)"
+              pv="${pv##*-}"
+              if [[ "${pv}" == *9999* ]]; then
+                echo "skipping live version ${pv}"
+                continue
+              fi
+              tag="${PN}/${pv}"
+              if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+                echo "tag ${tag} already exists, skipping"
+                continue
+              fi
+              git tag -a "${tag}" "${sha}" -m "${PN} ${pv} release (build in ${sha})"
+              git push origin "${tag}"
+              echo "created tag ${tag} at ${sha}"
+            done < <(git show --name-only --format= "${sha}" -- "${PKGDIR}" | grep '\.ebuild$' || true)
+          done

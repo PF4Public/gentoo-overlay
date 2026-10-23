@@ -1,0 +1,192 @@
+name: Save state
+description: >-
+  Compress the build state (the out/ dir) inside the gentoo container and
+  upload it as chunked artifacts for the next build job to restore
+
+inputs:
+  name:
+    description: Unique artifact name prefix for this save (e.g. state-3)
+    required: true
+  src-dir:
+    description: Absolute path inside the gentoo container that contains the out/ dir
+    required: true
+  member:
+    description: Dir to archive within src-dir
+    required: false
+    default: 'out'
+
+runs:
+  using: composite
+  steps:
+    # 20 slots x 1900 MiB zstd ~= 38 GiB compressed max (~90 GiB raw out/ dir)
+    # If the state ever outgrows this, raise the slot count here and in
+    # the matching state-restore action.
+    - name: Compress and split
+      id: pack
+      shell: bash
+      run: |
+        set -uo pipefail
+        if ! docker exec gentoo test -d "${{ inputs.src-dir }}/${{ inputs.member }}"; then
+          echo "Nothing to save, ${{ inputs.src-dir }}/${{ inputs.member }} does not exist"
+          echo "has-state=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        docker exec gentoo du -sh "${{ inputs.src-dir }}/${{ inputs.member }}"
+        docker exec gentoo bash -c "cd '${{ inputs.src-dir }}' && tar -cf - '${{ inputs.member }}' | zstd -q -T0 -1 -o /tmp/state.zst"
+        docker cp gentoo:/tmp/state.zst "${GITHUB_WORKSPACE}/state.zst"
+        docker exec gentoo rm -f /tmp/state.zst
+
+        mkdir -p "${GITHUB_WORKSPACE}/state-chunks"
+        sha256sum "${GITHUB_WORKSPACE}/state.zst" | awk '{print $1}' > "${GITHUB_WORKSPACE}/state-chunks/sha256"
+        split -b 1900m -a 2 "${GITHUB_WORKSPACE}/state.zst" "${GITHUB_WORKSPACE}/state-chunks/${{ inputs.name }}-"
+        rm -f "${GITHUB_WORKSPACE}/state.zst"
+
+        n=$(ls -1 "${GITHUB_WORKSPACE}/state-chunks" | grep -c "^${{ inputs.name }}-" || true)
+        echo "state chunks: $n"
+        du -sh "${GITHUB_WORKSPACE}/state-chunks"
+        if [[ $n -gt 20 ]]; then
+          echo "ERROR: state produced $n chunks, more than the 20 slot limit" >&2
+          exit 1
+        fi
+        echo "has-state=true" >> "$GITHUB_OUTPUT"
+
+    - name: Upload state chunk 00
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-00')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-00
+        path: state-chunks/${{ inputs.name }}-00
+        retention-days: 3
+    - name: Upload state chunk 01
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-01')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-01
+        path: state-chunks/${{ inputs.name }}-01
+        retention-days: 3
+    - name: Upload state chunk 02
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-02')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-02
+        path: state-chunks/${{ inputs.name }}-02
+        retention-days: 3
+    - name: Upload state chunk 03
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-03')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-03
+        path: state-chunks/${{ inputs.name }}-03
+        retention-days: 3
+    - name: Upload state chunk 04
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-04')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-04
+        path: state-chunks/${{ inputs.name }}-04
+        retention-days: 3
+    - name: Upload state chunk 05
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-05')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-05
+        path: state-chunks/${{ inputs.name }}-05
+        retention-days: 3
+    - name: Upload state chunk 06
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-06')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-06
+        path: state-chunks/${{ inputs.name }}-06
+        retention-days: 3
+    - name: Upload state chunk 07
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-07')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-07
+        path: state-chunks/${{ inputs.name }}-07
+        retention-days: 3
+    - name: Upload state chunk 08
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-08')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-08
+        path: state-chunks/${{ inputs.name }}-08
+        retention-days: 3
+    - name: Upload state chunk 09
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-09')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-09
+        path: state-chunks/${{ inputs.name }}-09
+        retention-days: 3
+    - name: Upload state chunk 10
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-10')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-10
+        path: state-chunks/${{ inputs.name }}-10
+        retention-days: 3
+    - name: Upload state chunk 11
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-11')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-11
+        path: state-chunks/${{ inputs.name }}-11
+        retention-days: 3
+    - name: Upload state chunk 12
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-12')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-12
+        path: state-chunks/${{ inputs.name }}-12
+        retention-days: 3
+    - name: Upload state chunk 13
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-13')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-13
+        path: state-chunks/${{ inputs.name }}-13
+        retention-days: 3
+    - name: Upload state chunk 14
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-14')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-14
+        path: state-chunks/${{ inputs.name }}-14
+        retention-days: 3
+    - name: Upload state chunk 15
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-15')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-15
+        path: state-chunks/${{ inputs.name }}-15
+        retention-days: 3
+    - name: Upload state chunk 16
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-16')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-16
+        path: state-chunks/${{ inputs.name }}-16
+        retention-days: 3
+    - name: Upload state chunk 17
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-17')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-17
+        path: state-chunks/${{ inputs.name }}-17
+        retention-days: 3
+    - name: Upload state chunk 18
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-18')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-18
+        path: state-chunks/${{ inputs.name }}-18
+        retention-days: 3
+    - name: Upload state chunk 19
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-19')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-19
+        path: state-chunks/${{ inputs.name }}-19
+        retention-days: 3

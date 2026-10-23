@@ -1,0 +1,161 @@
+name: Restore state
+description: >-
+  Download the chunked state artifacts from a previous build job and extract
+  the out/ dir back into the gentoo container
+
+inputs:
+  name:
+    description: Artifact name prefix to restore (e.g. state-3)
+    required: true
+  src-dir:
+    description: Absolute path inside the gentoo container to extract into (must exist)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # must match the slot count of the state-save action
+    - name: Download state chunk 00
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-00
+        path: state-chunks/
+    - name: Download state chunk 01
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-01
+        path: state-chunks/
+    - name: Download state chunk 02
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-02
+        path: state-chunks/
+    - name: Download state chunk 03
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-03
+        path: state-chunks/
+    - name: Download state chunk 04
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-04
+        path: state-chunks/
+    - name: Download state chunk 05
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-05
+        path: state-chunks/
+    - name: Download state chunk 06
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-06
+        path: state-chunks/
+    - name: Download state chunk 07
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-07
+        path: state-chunks/
+    - name: Download state chunk 08
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-08
+        path: state-chunks/
+    - name: Download state chunk 09
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-09
+        path: state-chunks/
+    - name: Download state chunk 10
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-10
+        path: state-chunks/
+    - name: Download state chunk 11
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-11
+        path: state-chunks/
+    - name: Download state chunk 12
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-12
+        path: state-chunks/
+    - name: Download state chunk 13
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-13
+        path: state-chunks/
+    - name: Download state chunk 14
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-14
+        path: state-chunks/
+    - name: Download state chunk 15
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-15
+        path: state-chunks/
+    - name: Download state chunk 16
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-16
+        path: state-chunks/
+    - name: Download state chunk 17
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-17
+        path: state-chunks/
+    - name: Download state chunk 18
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-18
+        path: state-chunks/
+    - name: Download state chunk 19
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.name }}-19
+        path: state-chunks/
+
+    - name: Reassemble and extract
+      shell: bash
+      run: |
+        set -uo pipefail
+        mkdir -p "${GITHUB_WORKSPACE}/state-chunks"
+        cd "${GITHUB_WORKSPACE}/state-chunks"
+
+        mapfile -t files < <(ls -1 ${{ inputs.name }}-* 2>/dev/null | sort)
+        if [[ ${#files[@]} -eq 0 ]]; then
+          echo "No state chunks present, starting without build state"
+          exit 0
+        fi
+
+        cat "${files[@]}" | sha256sum | awk '{print $1}' > actual.sha
+        if ! cmp -s actual.sha sha256; then
+          echo "ERROR: state checksum mismatch, not restoring corrupted state" >&2
+          exit 1
+        fi
+        echo "Extracting build state from ${#files[@]} chunks"
+        command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null
+        cat "${files[@]}" | zstd -d -q | docker exec -i gentoo tar -xpf - -C "${{ inputs.src-dir }}"
+        docker exec gentoo du -sh "${{ inputs.src-dir }}/out"
+        rm -rf "${GITHUB_WORKSPACE}/state-chunks"

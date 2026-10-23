@@ -1,6 +1,12 @@
 name: Save cache
 description: Save the distfiles, npm, yarn, pnpm, cargo, go and ccache directories to the cache
 
+inputs:
+  key:
+    description: Cache key to save under (defaults to workflow name plus random suffix)
+    required: false
+    default: ''
+
 runs:
   using: composite
   steps:
@@ -11,6 +17,7 @@ runs:
         {
           echo 'path<<EOF'
           echo "${GITHUB_WORKSPACE}/distfiles"
+          echo "${GITHUB_WORKSPACE}/binpkgs"
           echo "${GITHUB_WORKSPACE}/npm-cache"
           echo "${GITHUB_WORKSPACE}/yarn-cache"
           echo "${GITHUB_WORKSPACE}/pnpm-cache"
@@ -43,4 +50,4 @@ runs:
       uses: actions/cache/save@v6
       with:
         path: ${{ steps.paths.outputs.path }}
-        key: ${{ github.workflow }}-${{ steps.suffix.outputs.value }}
+        key: ${{ inputs.key || format('{0}-{1}', github.workflow, steps.suffix.outputs.value) }}

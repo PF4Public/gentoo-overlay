@@ -2,6 +2,10 @@ name: Restore cache
 description: Restore the distfiles, npm, yarn, pnpm, cargo, go and ccache directories from the cache
 
 inputs:
+  key:
+    description: Primary cache key (defaults to the workflow name)
+    required: false
+    default: ''
   restore-keys:
     description: Fallback cache keys
     required: false
@@ -17,6 +21,7 @@ runs:
         {
           echo 'path<<EOF'
           echo "${GITHUB_WORKSPACE}/distfiles"
+          echo "${GITHUB_WORKSPACE}/binpkgs"
           echo "${GITHUB_WORKSPACE}/npm-cache"
           echo "${GITHUB_WORKSPACE}/yarn-cache"
           echo "${GITHUB_WORKSPACE}/pnpm-cache"
@@ -31,13 +36,14 @@ runs:
       uses: actions/cache/restore@v6
       with:
         path: ${{ steps.paths.outputs.path }}
-        key: ${{ github.workflow }}
-        restore-keys: ${{ inputs.restore-keys || github.workflow }}
+        key: ${{ inputs.key || github.workflow }}
+        restore-keys: ${{ inputs.restore-keys || inputs.key || github.workflow }}
 
     - name: Fix cache dir ownership
       shell: bash
       run: |
         mapfile -t dirs <<< "${{ steps.paths.outputs.path }}"
+        mkdir -p "${dirs[@]}"
         sudo chown -R 250:250 "${dirs[@]}"
 
     - name: Show cache usage

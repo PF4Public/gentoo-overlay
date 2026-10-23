@@ -1,0 +1,66 @@
+name: Gentoo setup
+description: Build and start the Gentoo stage3+portage build container
+
+runs:
+  using: composite
+  steps:
+    # Build a stage3 image carrying a fresh, pre-synced portage tree (see the Dockerfile)
+    - name: Build build image
+      shell: bash
+      run: |
+        docker build -t gentoo-build "${GITHUB_ACTION_PATH}"
+
+    - name: Start container
+      shell: bash
+      run: |
+        docker run -d --name gentoo \
+          -v "${GITHUB_WORKSPACE}:/workspace" \
+          gentoo-build \
+          sleep infinity
+        docker exec gentoo bash -c 'uname -a; emerge --version | head -1'
+
+    - name: Configure portage
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        printf '%s\n' \
+          'ACCEPT_KEYWORDS="~amd64"' \
+          'BINPKG_DEST_DIR="/workspace/binpkgs"' \
+          'CCACHE_DIR="/workspace/ccache"' \
+          'CCACHE_MAXSIZE="6G"' \
+          'DISTDIR="/workspace/distfiles"' \
+          'FEATURES="${FEATURES} ccache getbinpkg binpkg keepwork -network-sandbox"' \
+          'MAKEOPTS="-j5 -l10"' \
+          'NINJAOPTS="-k0 -j5 -l10"' \
+          | docker exec -i gentoo bash -c 'cat >> /etc/portage/make.conf'
+
+        if ! docker exec gentoo bash -c 'grep -q "distfiles.gentoo.org" /etc/portage/binrepos.conf 2>/dev/null'; then
+          printf '%s\n' \
+            '[gentoo-binhost]' \
+            'sync-uri = "https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64/"' \
+            'layout = "portage-2.2"' \
+            | docker exec -i gentoo bash -c 'cat > /etc/portage/binrepos.conf'
+        fi
+
+        printf '%s\n' \
+          '[pf4public]' \
+          'location = "/workspace"' \
+          'priority = "-1000"' \
+          'auto-sync = "false"' \
+          | docker exec -i gentoo bash -c 'cat > /etc/portage/repos.conf/github.conf'
+
+        docker exec gentoo bash -c 'emerge --info | head -8'
+
+    - name: Install build prerequisites
+      shell: bash
+      run: |
+        docker exec gentoo emerge --getbinpkg -v1 \
+          dev-ccache/ccache app-portage/getuto dev-vcs/git app-arch/zstd \
+          sec-keys/openpgp-keys-gentoo-release
+
+    - name: GPG keys for the binhost
+      shell: bash
+      run: |
+        docker exec gentoo getuto -v || \
+          echo "::warning::getuto failed, binhost signatures will not be verified"
