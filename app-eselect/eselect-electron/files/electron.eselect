@@ -5,151 +5,164 @@
 inherit config multilib
 
 DESCRIPTION="Utility to select the default electron slot"
-VERSION="0.4"
+VERSION="0.5"
 
 # We do a lot of things in /usr and it's a bit of a pain to write this
 # constantly.
 USR_PATH="${EROOT%/}/usr"
+# Prebuilt electron runtimes (dev-util/electron-bin) live in /opt. Each one
+# also installs a /usr/bin/electron-bin-<major> entry point (a symlink into
+# /opt), mirroring dev-lang/rust-bin's /usr/bin/rustc-bin-<ver> helper
+# symlinks, so both source (/usr) and prebuilt (/opt) runtimes can be listed
+# and selected.
+OPT_PATH="${EROOT%/}/opt"
 
-active_slot() {
-	# ${USR_PATH}/bin/electron is a symlink to the active
-	# slot. See if it's there, then find out where it links to.
+# A "selection" is the /usr/bin entry point it maps to:
+#   source   -> electron-<major>      runtime in /usr/$(get_libdir)/electron-<major>
+#   prebuilt -> electron-bin-<major>  runtime in /opt/electron-<major>
+
+# The runtime directory backing a selection.
+runtime_dir() {
+	local entry=$1
+	if [[ ${entry} == electron-bin-* ]]; then
+		echo "${OPT_PATH}/electron-${entry#electron-bin-}"
+	else
+		echo "${USR_PATH}/$(get_libdir)/electron-${entry#electron-}"
+	fi
+}
+
+# The active selection: whatever /usr/bin/electron points at. We create
+# relative /usr/bin/electron symlinks (just the entry name), so the link
+# target is the entry; take the basename to also accept absolute links.
+active_entry() {
 	if [[ -h "${USR_PATH}/bin/electron" ]] ; then
-		canonicalise -m "${USR_PATH}/bin/electron" | \
-			sed -re 's#.*/electron-([0-9]+)(/electron)?$#\1#'
+		local link
+		link=$(readlink "${USR_PATH}/bin/electron")
+		echo "${link##*/}"
 	else
 		echo "(none)"
 	fi
 }
 
-lib_dir() {
-	local lib_list=$(list_libdirs)
-	if [[ ${lib_list} =~ .*lib64.* && \
-		-n $(ls -d ${USR_PATH}/lib64/electron-* 2> /dev/null) ]] ; then
-		echo "lib64"
-	elif [[ ${lib_list} =~ .*lib32.* && \
-		-n $(ls -d ${USR_PATH}/lib32/electron-* 2> /dev/null) ]] ; then
-		echo "lib32"
-	elif [[ ${lib_list} =~ .*libx32.* && \
-		-n $(ls -d ${USR_PATH}/libx32/electron-* 2> /dev/null) ]] ; then
-		echo "libx32"
-	else
-		echo "lib"
-	fi
-}
+# All available selections, sorted by major version; for the same major the
+# prebuilt (bin) entry is listed first, mirroring eselect rust.
+get_entries() {
+	local major
+	local majors
+	local entries
 
-### Get Slots Function ###
-# Find all available slots in the preferred lib_dir() and return them.
-get_slots() {
-	local slot
-	local found_slots
+	majors=$( {
+		find "${USR_PATH}/$(get_libdir)/" -mindepth 1 -maxdepth 1 -type d -name 'electron-*' 2> /dev/null
+		find "${OPT_PATH}/"                -mindepth 1 -maxdepth 1 -type d -name 'electron-*' 2> /dev/null
+	} | sed -re 's#.*-([0-9]+)$#\1#' | sort -n | uniq )
 
-	for slot in $(find "${USR_PATH}/$(lib_dir)/" \
-					   -mindepth 1 -maxdepth 1 -type d -name 'electron-*' 2> /dev/null | \
-						 sed -re 's#.*-([0-9]+)$#\1#' | sort -n)
-	do
-		found_slots+=( ${slot} )
+	for major in ${majors} ; do
+		if [[ -d "${OPT_PATH}/electron-${major}" ]] ; then
+			entries+=( "electron-bin-${major}" )
+		fi
+		if [[ -d "${USR_PATH}/$(get_libdir)/electron-${major}" ]] ; then
+			entries+=( "electron-${major}" )
+		fi
 	done
 
-	echo ${found_slots[@]}
+	echo ${entries[@]}
 }
 
 ### List Action ###
 describe_list() {
-	echo "List available electron slots."
+	echo "List available electron versions."
 }
 
 do_list() {
 	local i
-	local slots=( $(get_slots) )
-	local active_slot
-	active_slot=$(active_slot)
+	local entries=( $(get_entries) )
+	local active
+	active=$(active_entry)
 
-	write_list_start "Available electron slots:"
-	for (( i = 0; i < ${#slots[@]}; i++ )); do
-		[[ ${slots[i]} == "${active_slot}" ]] \
-			&& slots[i]=$(highlight_marker "${slots[i]}")
+	write_list_start "Available electron versions:"
+	for (( i = 0; i < ${#entries[@]}; i++ )) ; do
+		[[ ${entries[i]} == "${active}" ]] && entries[i]=$(highlight_marker "${entries[i]}")
 	done
-	write_numbered_list -m "(none found)" "${slots[@]}"
+	write_numbered_list -m "(none found)" "${entries[@]}"
 }
 
 ### Show Action ###
 describe_show() {
-	echo "Show which slot is currently active."
+	echo "Show which electron version is currently active."
 }
 
 do_show() {
-	local slot
-	slot=$(active_slot)
+	local active
+	active=$(active_entry)
 
-	write_list_start "Current electron slot:"
-	if [[ ${slot} == "(none)" ]] ; then
+	write_list_start "Current electron selection:"
+	if [[ ${active} == "(none)" ]] ; then
 		write_kv_list_entry "(unset)" ""
 	else
-		write_kv_list_entry "${slot}" ""
+		write_kv_list_entry "${active}" "$(runtime_dir "${active}")"
 	fi
 }
 
 ### Set Action ###
 describe_set() {
-	echo "Set a new electron slot."
+	echo "Set a new electron version."
 }
 
 describe_set_parameters() {
-	echo "<slot>"
+	echo "<selection>"
 }
 
 describe_set_options() {
-	echo "slot : Slot version or number from the 'list' action"
+	echo "selection : number from the 'list' action, a major version, or an entry"
+	echo "            name (electron-<major> / electron-bin-<major>)"
 }
 
 do_set() {
-	local slot=$1
+	local entry=${1-}
 
-	[[ -z ${slot} ]] && die -q "You didn't tell me what to set the slot to"
+	[[ -z ${entry} ]] && die -q "You didn't tell me what to set the version to"
 	[[ $# -gt 1 ]] && die -q "Too many parameters"
 
-	# A bare number is a slot version; if no such slot is installed,
-	# it's treated as a number from the 'list' action output.
-	if is_number "${slot}" && \
-		[[ ! -d ${USR_PATH}/$(lib_dir)/electron-${slot} ]] ; then
-		local slots=( $(get_slots) )
-		[[ ${slot} -ge 1 && ${slot} -le ${#slots[@]} ]] \
-			|| die -q "Not a valid slot."
-		slot=${slots[slot-1]}
+	# A bare number is a 'list' action index; if that is out of range it is
+	# treated as a major version (electron-<n> source, else electron-bin-<n>).
+	# Otherwise it is taken as an entry name verbatim.
+	if is_number "${entry}" ; then
+		local entries=( $(get_entries) )
+		if [[ ${entry} -ge 1 && ${entry} -le ${#entries[@]} ]] ; then
+			entry=${entries[entry-1]}
+		elif [[ -d ${USR_PATH}/$(get_libdir)/electron-${entry} ]] ; then
+			entry="electron-${entry}"
+		elif [[ -d ${OPT_PATH}/electron-${entry} ]] ; then
+			entry="electron-bin-${entry}"
+		else
+			die -q "Not a valid selection."
+		fi
 	fi
 
-	if [[ ! -d ${USR_PATH}/$(lib_dir)/electron-${slot} ]] ; then
-		die -q "Not a valid slot."
-	fi
+	# Validate: the /usr/bin entry point and its runtime must both exist.
+	local runtime
+	runtime=$(runtime_dir "${entry}")
+	[[ -e ${USR_PATH}/bin/${entry} ]] || die -q "Not a valid selection: ${entry}"
+	[[ -d ${runtime} ]] || die -q "Runtime ${runtime} not found for ${entry}"
 
-	# If there's an active slot, unset that one first
-	local active_slot
-	active_slot=$(active_slot)
-	if [[ "${active_slot}" != "(none)" && "${active_slot}" != "${slot}" ]] ; then
-		echo -ne "Unsetting ${active_slot} as default..."
-		do_unset ${active_slot}
+	# If there's an active selection, unset that one first
+	local active
+	active=$(active_entry)
+	if [[ "${active}" != "(none)" && "${active}" != "${entry}" ]] ; then
+		echo -ne "Unsetting ${active} as default..."
+		do_unset "${active}"
 		echo "done."
 	fi
 
-	echo -ne "Setting ${slot} as the default..."
+	echo -ne "Setting ${entry} as the default..."
 
-	# Link modules to /usr/lib{,32,64}/
-	local x
-	for x in $(list_libdirs) ; do
-		if [[ -d "${USR_PATH}/${x}/electron-${slot}" ]] ; then
-			ln -sfn "${USR_PATH}/${x}/electron-${slot}" "${USR_PATH}/${x}/electron" || \
-				die -q "SYMLINK FAILED: ${USR_PATH}/${x}/electron-${slot} -> ${USR_PATH}/${x}/electron"
-		fi
-	done
+	# Point the libdir 'electron' symlink at the selected runtime dir
+	ln -sfn "${runtime}" "${USR_PATH}/$(get_libdir)/electron" || \
+		die -q "SYMLINK FAILED: ${runtime} -> ${USR_PATH}/$(get_libdir)/electron"
 
-	# Link binaries to /usr/bin/
-	if [[ -f "${USR_PATH}/bin/electron-${slot}" ]] ; then
-		ln -sfn "${USR_PATH}/bin/electron-${slot}" "${USR_PATH}/bin/electron" || \
-			die -q "SYMLINK FAILED: ${USR_PATH}/bin/electron-${slot} -> ${USR_PATH}/bin/electron"
-	else
-		die -q "${USR_PATH}/bin/electron-${slot} does not exist"
-	fi
+	# Point /usr/bin/electron at the selected entry point (relative link)
+	ln -sfn "${entry}" "${USR_PATH}/bin/electron" || \
+		die -q "SYMLINK FAILED: ${entry} -> ${USR_PATH}/bin/electron"
 
 	echo "success!"
 }
@@ -161,51 +174,34 @@ describe_unset() {
 
 # Undo everything done by do_set().
 do_unset() {
-	local slot=$1
-	# with no argument, unset the currently active slot
-	[[ -z ${slot} ]] && slot=$(active_slot)
-	[[ ${slot} == "(none)" ]] && die -q "No active slot to unset"
-	if [[ ${slot} != $(active_slot) ]] ; then
-		echo "Slot already inactive; no work to do."
+	local entry=${1-}
+	# with no argument, unset the currently active selection
+	[[ -z ${entry} ]] && entry=$(active_entry)
+	[[ ${entry} == "(none)" ]] && die -q "No active selection to unset"
+	if [[ ${entry} != $(active_entry) ]] ; then
+		echo "Selection already inactive; no work to do."
 		return 0
 	fi
 
-	# Get the file path that the link is pointing to. If it points to
-	# "electron-${slot}" or inside it, then it's a link that this module is
-	# handling.
-	is_active_slot_link() {
-		local path
-		path=$(canonicalise -m "$1")
-		[[ ${path} == *electron-${slot} || ${path} == *electron-${slot}/* ]]
-	}
+	local runtime
+	runtime=$(runtime_dir "${entry}")
 
-	# Start with some known locations that are, or will contain, symlinks.
-	local paths=(
-		"${USR_PATH}/bin/electron"
-	)
+	local bin_link="${USR_PATH}/bin/electron"
+	local lib_link="${USR_PATH}/$(get_libdir)/electron"
 
-	local lib
-	for lib in $(list_libdirs) ; do
-		# If $libdir is a symlink, it will point to a real lib directory that
-		# will be or has been added in this loop.
-		[[ -h "${USR_PATH}/${lib}" ]] && continue
-
-		# If the $libdir/electron symlink exists, then there are certainly
-		# others within that same directory that must be cleaned up.
-		if [[ -h "${USR_PATH}/${lib}/electron" ]] ; then
-			paths+=( "${USR_PATH}/${lib}/electron" )
+	# /usr/bin/electron -> <entry>
+	if [[ -h ${bin_link} ]] ; then
+		local base
+		base=$(readlink "${bin_link}")
+		if [[ ${base##*/} == "${entry}" ]] ; then
+			rm "${bin_link}" || write_warning_msg "Couldn't remove: ${bin_link}"
 		fi
-	done
+	fi
 
-	local path
-	for path in "${paths[@]}" ; do
-		# If $path is a link that belongs to the active slot, it can be removed
-		# without invoking find.
-		if [[ -h "${path}" ]] && is_active_slot_link "${path}" ; then
-			rm "${path}" || write_warning_msg "Couldn't remove: ${path}"
-			continue
-		fi
-	done
+	# /usr/$(get_libdir)/electron -> <runtime>
+	if [[ -h ${lib_link} && $(readlink "${lib_link}") == "${runtime}" ]] ; then
+		rm "${lib_link}" || write_warning_msg "Couldn't remove: ${lib_link}"
+	fi
 }
 
 ### Update Action ###
@@ -214,28 +210,28 @@ describe_update() {
 }
 
 do_update() {
-	local active_slot
-	active_slot=$(active_slot)
-	local slots=($(get_slots))
-	local slot
+	local active
+	active=$(active_entry)
+	local entries=( $(get_entries) )
+	local entry
 
-	# If active_slot is in the slots list, set it again as the installation
+	# If active is in the entries list, set it again as the installation
 	# may have changed.
-	for slot in ${slots[@]} ; do
-		if [[ ${slot} == ${active_slot} ]] ; then
-			do_set ${active_slot}
+	for entry in ${entries[@]} ; do
+		if [[ ${entry} == ${active} ]] ; then
+			do_set "${active}"
 			return
 		fi
 	done
 
-	if [[ ${#slots[@]} -ne 0 ]] ; then
-		# If $slots is not empty and active_slot is not in the list, set the
-		# highest slot available.
-		do_set ${slots[-1]}
-	elif [[ ${active_slot} != "(none)" ]] ; then
-		# If slots is empty, but active_slot still has a value, an unset must
+	if [[ ${#entries[@]} -ne 0 ]] ; then
+		# If $entries is not empty and active is not in the list, set the
+		# highest version available.
+		do_set "${entries[-1]}"
+	elif [[ ${active} != "(none)" ]] ; then
+		# If entries is empty, but active still has a value, an unset must
 		# happen as the links are now pointing to nothing.
-		do_unset ${active_slot}
+		do_unset "${active}"
 	else
 		echo "Apparently, I have nothing to do."
 	fi
