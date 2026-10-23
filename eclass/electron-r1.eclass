@@ -144,8 +144,9 @@ _ELECTRON_R1_ECLASS=1
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The absolute path of the installed electron runtime for the selected
-# slot (e.g. /usr/lib64/electron-44). Exported by electron-r1_env_setup
-# so that electron-builder-based apps can pass it as
+# slot (e.g. /usr/lib64/electron-44 from dev-util/electron, or
+# /opt/electron-44 from dev-util/electron-bin). Exported by
+# electron-r1_env_setup so that electron-builder-based apps can pass it as
 # --config.electronDist and package against the system runtime instead
 # of downloading the official Electron dist zip (which, together with
 # the --dir target, also avoids the fpm/7zip binary downloads).
@@ -254,13 +255,62 @@ electron_gen_dep() {
 	echo "${mydeps# }"
 }
 
+# @FUNCTION: _electron_r1_locate
+# @DESCRIPTION:
+# Locate the installed electron runtime for the selected slot and set
+# _ELECTRON_R1_DIST (the runtime directory) and _ELECTRON_R1_NODE_INCLUDE
+# (the directory holding the bundled Node headers, for -I). The runtime may
+# be provided by dev-util/electron (installed under
+# /usr/$(get_libdir)/electron-<slot>) or by dev-util/electron-bin
+# (installed under /opt/electron-<slot>). Following the rust eclass, the
+# installed package is detected with has_version and the source build is
+# preferred when both are installed: if effort was put into building it we
+# should use it.
+_electron_r1_locate() {
+	# ELECTRON_SLOT is fixed for the build, so cache the result (and thus
+	# only report the discovered runtimes once)
+	[[ -n ${_ELECTRON_R1_DIST-} ]] && return
+
+	local mylibdir="/usr/$(get_libdir)"
+	local src_dir="${mylibdir}/electron-${ELECTRON_SLOT}"
+	local bin_dir="/opt/electron-${ELECTRON_SLOT}"
+	local _src=0 _bin=0 _type
+
+	if has_version -b "dev-util/electron:${ELECTRON_SLOT}"; then
+		_src=1
+		einfo "electron-r1: found source electron in ${src_dir}"
+	fi
+	if has_version -b "dev-util/electron-bin:${ELECTRON_SLOT}"; then
+		_bin=1
+		einfo "electron-r1: found bin electron in ${bin_dir}"
+	fi
+
+	# Following the rust eclass, prefer the source build when both are
+	# installed: if effort was put into building it we should use it.
+	if (( _src )); then
+		_type="source"
+		_ELECTRON_R1_DIST="${src_dir}"
+		_ELECTRON_R1_NODE_INCLUDE="/usr/include/electron-${ELECTRON_SLOT}/node"
+	elif (( _bin )); then
+		_type="bin"
+		_ELECTRON_R1_DIST="${bin_dir}"
+		_ELECTRON_R1_NODE_INCLUDE="${bin_dir}/include/node"
+	else
+		die "${ECLASS}: neither dev-util/electron nor dev-util/electron-bin for slot ${ELECTRON_SLOT} is installed; is the electron dependency satisfied?"
+	fi
+	einfo "electron-r1: using ${_type} electron: ${_ELECTRON_R1_DIST}"
+}
+
 # @FUNCTION: electron-r1_env_setup
 # @DESCRIPTION:
 # Prepare the environment for building against the selected electron slot:
-# prepend the electron runtime and its bundled npm to PATH, add the electron
-# Node headers to CFLAGS and CPPFLAGS, export ELECTRON_DIST (the installed
-# runtime, for electron-builder's --config.electronDist), and tell electron
-# and Playwright not to download their own binaries.
+# locate the installed runtime (in /usr/$(get_libdir)/electron-<slot> from
+# dev-util/electron, or /opt/electron-<slot> from dev-util/electron-bin; the
+# source build is preferred when both are installed), prepend the electron
+# runtime and its bundled npm to PATH, add the electron Node headers to
+# CFLAGS and CPPFLAGS, export ELECTRON_DIST (the installed runtime, for
+# electron-builder's --config.electronDist), and tell electron and Playwright
+# not to download their own binaries.
 #
 # Note: the runtime directory contains a 'node' wrapper script that runs the
 # electron binary with ELECTRON_RUN_AS_NODE=1. It works for most build
@@ -277,15 +327,17 @@ electron-r1_env_setup() {
 	[[ -n ${ELECTRON_SLOT-} ]] ||
 		die "${ECLASS}: ELECTRON_SLOT is not set (inherited ${ECLASS} correctly?)"
 
+	_electron_r1_locate
+
 	_ELECTRON_R1_OLD_PATH=${PATH}
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin/node-gyp-bin:${PATH}"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/node_modules/npm/bin:${PATH}"
-	PATH="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}:${PATH}"
+	PATH="${_ELECTRON_R1_DIST}/node_modules/npm/bin/node-gyp-bin:${PATH}"
+	PATH="${_ELECTRON_R1_DIST}/node_modules/npm/bin:${PATH}"
+	PATH="${_ELECTRON_R1_DIST}:${PATH}"
 	export PATH
 
 	# The modified CFLAGS/CPPFLAGS persist in the ebuild environment across
 	# phases, so add the header path only once.
-	local mynode="-I/usr/include/electron-${ELECTRON_SLOT}/node"
+	local mynode="-I${_ELECTRON_R1_NODE_INCLUDE}"
 	case " ${CFLAGS-} " in
 		*" ${mynode} "*) ;;
 		*) CFLAGS="${CFLAGS-} ${mynode}" ;;
@@ -301,7 +353,7 @@ electron-r1_env_setup() {
 
 	# The installed runtime itself; electron-builder can use it as
 	# --config.electronDist instead of downloading the official dist zip.
-	export ELECTRON_DIST="/usr/$(get_libdir)/electron-${ELECTRON_SLOT}"
+	export ELECTRON_DIST="${_ELECTRON_R1_DIST}"
 }
 
 # @FUNCTION: electron-r1_env_cleanup
