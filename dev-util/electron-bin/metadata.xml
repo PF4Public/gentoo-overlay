@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">electron/electron</remote-id>
+		<bugs-to>https://github.com/electron/electron/issues</bugs-to>
+		<doc>https://www.electronjs.org/docs</doc>
+	</upstream>
+	<longdescription>
+		Prebuilt binaries of dev-util/electron, built by the
+		electron-release workflow of this overlay. The version
+		always matches the corresponding dev-util/electron ebuild.
+	</longdescription>
+</pkgmetadata>
