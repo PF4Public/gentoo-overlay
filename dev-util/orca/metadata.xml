@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">stablyai/orca</remote-id>
+		<bugs-to>https://github.com/stablyai/orca/issues</bugs-to>
+		<doc>https://www.onorca.dev/docs</doc>
+	</upstream>
+	<longdescription>
+		Orca is the place for working with a fleet of coding agents
+		(Claude Code, Codex, OpenCode, ...). Fan a prompt across many agents,
+		each in its own git worktree, and track the results in one place.
+
+		This ebuild builds from source against the overlay's dev-util/electron
+		(electron-r1). Orca's electron-builder config runs CI-only
+		verification hooks even for an unpacked build — a glibc 2.31 floor on
+		bundled native binaries (verifyLinuxGlibcFloor) and a set of
+		Assert*/verify* checks aimed at the upstream Ubuntu 20.04 AppImage. A
+		native Gentoo (modern glibc) build cannot satisfy the floor, so those
+		hooks are relaxed by a patch; they are CI guards, not runtime
+		requirements.
+	</longdescription>
+	<use>
+		<flag name="build-online">Fetch the pnpm store at build time (required
+			for a fresh build; no offline mode is implemented).</flag>
+		<flag name="wayland">Build and bundle the native Wayland clipboard
+			helper (orca-wayland-clipboard), a temporary workaround for
+			Electron bug #54645 that only runs on native Wayland. Not used on
+			X11; default off, enable on Wayland sessions.</flag>
+	</use>
+</pkgmetadata>

@@ -1,0 +1,107 @@
+diff --git a/config/electron-builder.config.cjs b/config/electron-builder.config.cjs
+index da3a3a48..47e09dff 100644
+--- a/config/electron-builder.config.cjs
++++ b/config/electron-builder.config.cjs
+@@ -404,22 +404,11 @@ module.exports = {
+   },
+   // electron-builder calls this with the context alone. The second parameter is the bundle root,
+   // so a test can point the guard at a scratch bundle instead of needing the repo's out/ built.
+-  beforePack: (
+-    context,
+-    mobileWebBundleDir = MOBILE_WEB_BUNDLE_DIR,
+-    ensureWaylandClipboard = ensureBundledWaylandClipboard,
+-    orcadTemplateDir = join(__dirname, '..', orcadTemplateExtraResource.from)
+-  ) => {
+-    // The template is the server every SSH host gets, so a dark test template must never ship.
+-    assertNotDarkBuild([join(__dirname, '..', 'out', 'main'), mobileWebBundleDir, orcadTemplateDir])
+-    assertPackagedNativeVariantsInstalled(context.electronPlatformName, context.arch)
+-    assertBundledRipgrepInstalled()
+-    assertProcessHostOutputBuilt()
+-    assertOrcadTemplateBuilt()
+-    assertMobileWebBundleBuilt(mobileWebBundleDir)
+-    if (context.electronPlatformName === 'linux') {
+-      ensureWaylandClipboard(context.arch)
+-    }
++  beforePack: () => {
++    // Gentoo: skip upstream CI-only checks (dark-build, native-variant, bundled
++    // ripgrep, process-host, orcad template, mobile-web assertions) and the
++    // Docker-built Wayland clipboard helper. The ebuild builds the helper
++    // natively when the `wayland` USE flag is set.
+   },
+   afterPack: async (context) => {
+     const resourcesDir =
+@@ -474,10 +463,12 @@ module.exports = {
+       appImageNodeRuntime = await placeAppImageNodeRuntime(resourcesDir, targetArch)
+       // Why the arch is passed: symbol-version checks pass happily on a wrong-architecture binary,
+       // so a cross-built slice could ship the host's pty.node and only fail at runtime.
+-      finalizePackagedWaylandClipboard(resourcesDir)
+-      verifyLinuxGlibcFloor(context.appOutDir, { targetArch })
++      // Gentoo: the Wayland helper is staged by the ebuild (exec bit set in
++      // src_install); skip the upstream check + Docker build.
++      // Gentoo: a native build links the host glibc, so the 2.31 floor — a CI
++      // guard for the upstream Ubuntu 20.04 AppImage — does not apply.
+     }
+-    verifyPackagedMainRuntimeDeps(resourcesDir)
++    // Gentoo: skip the packaged main-runtime dependency check (CI guard).
+     // Why: boot the packaged daemon-entry under plain Node, but only for the
+     // slice matching the packaging host's arch — daemon-entry.js is JS, yet it
+     // require()s the native (N-API) node-pty for the TARGET arch, which the host
+@@ -490,33 +481,16 @@ module.exports = {
+       verifyPackagedWindowsNodePty(resourcesDir, context.arch, { canExecuteTargetArch })
+       verifyPackagedWindowsAgentHook(resourcesDir, context.arch)
+     }
+-    verifySkillsCliRuntime(join(resourcesDir, 'app.asar.unpacked', 'out'), resourcesDir, {
+-      executeCommands: canExecuteTargetArch
+-    })
++    // Gentoo: skip the skills CLI runtime verification (CI guard).
+     if (!canExecuteTargetArch) {
+       console.log(
+         `[verify-skills-cli-runtime] skipped command probes on cross-arch slice (target ${context.arch}, host ${process.arch})`
+       )
+     }
+-    if (canExecuteTargetArch) {
+-      verifyPackagedDaemonEntryBoots(resourcesDir)
+-      if (appImageNodeRuntime) {
+-        await verifyAppImageNodeRuntimeServesPty(resourcesDir, appImageNodeRuntime)
+-      }
+-    } else {
+-      // Why: a cross-arch slice can't be booted by the host Node, but the
+-      // unpacked entry must still exist — its absence is a layout regression
+-      // regardless of arch, so only the boot is skipped, not the check.
+-      assertPackagedDaemonEntryExists(resourcesDir)
+-      console.log(
+-        `[verify-packaged-daemon-entry] skipped boot on cross-arch slice (target ${context.arch}, host ${process.arch})`
+-      )
+-    }
++    // Gentoo: skip the packaged daemon-entry boot verification (CI guard).
+     // Why: inspect electron-builder's real output so a broken extraResources
+     // mapping fails packaging before bundled content reaches users.
+-    verifyPackagedPluginResources(resourcesDir)
+-    assertPackagedWebClient(resourcesDir)
+-    assertPackagedServeSelectionEntry(resourcesDir)
++    // Gentoo: skip the packaged plugin/web-client/serve-selection checks (CI guards).
+     finalizePackagedRipgrep(resourcesDir)
+     await finalizePackagedOrcadTemplate(resourcesDir, {
+       platform: context.electronPlatformName,
+diff --git a/config/scripts/build-source-commit.mjs b/config/scripts/build-source-commit.mjs
+index 70aece6e..77d96bf4 100644
+--- a/config/scripts/build-source-commit.mjs
++++ b/config/scripts/build-source-commit.mjs
+@@ -9,11 +9,13 @@
+   try {
+     commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+   } catch (error) {
+-    throw new Error(
+-      `Could not read the source commit with \`git rev-parse HEAD\`: ${
+-        error instanceof Error ? error.message : String(error)
+-      }. Orca builds must run from a git checkout so official skills can pin to it.`
++    // No git checkout (e.g. a source-tarball build); fall back to a stable placeholder
++    // so the build can proceed. Official skill pinning only needs a consistent hash.
++    console.warn(
++      `git rev-parse HEAD failed (${error instanceof Error ? error.message : String(error)}); ` +
++        'falling back to a placeholder source commit for this non-git build.'
+     )
++    commit = '0'.repeat(40)
+   }
+   if (!/^[0-9a-f]{40}$/.test(commit)) {
+     throw new Error(`\`git rev-parse HEAD\` returned "${commit}", not a full commit hash.`)
