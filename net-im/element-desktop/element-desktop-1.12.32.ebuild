@@ -16,16 +16,15 @@ SLOT="0"
 SRC_URI=""
 REPO="https://github.com/element-hq/element-web"
 #ELEMENT_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="native-modules"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 	EGIT_BRANCH="develop"
 	DOWNLOAD=""
-	IUSE+=" +build-online"
+	IUSE="+build-online"
 else
-	IUSE+=" +build-online"
+	IUSE="+build-online"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	DOWNLOAD="${REPO}/archive/"
 	if [ -z "$ELEMENT_COMMIT_ID" ]
@@ -41,19 +40,9 @@ fi
 SRC_URI+="${DOWNLOAD}"
 
 RESTRICT="mirror build-online? ( network-sandbox )"
-REQUIRED_USE="
-	native-modules? ( build-online )
-"
-
-COMMON_DEPEND="
-	native-modules? ( dev-db/sqlcipher )
-"
 
 RDEPEND="
-	${COMMON_DEPEND}
 	$(electron_gen_dep)
-"
-DEPEND="${COMMON_DEPEND}
 "
 
 BDEPEND="
@@ -62,7 +51,6 @@ BDEPEND="
 	$(python_gen_any_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
-	native-modules? ( || ( dev-lang/rust dev-lang/rust-bin )  )
 	net-libs/nodejs
 "
 
@@ -137,14 +125,9 @@ src_compile() {
 	einfo "Using node $(node --version) and pnpm $(pnpm --version) ($(command -v pnpm))"
 	pnpm install --no-frozen-lockfile || die
 
-	cd apps/desktop
-	if use native-modules; then
-		pnpm run build:native || die
-	fi
-
 	# Build the web app from the source tree and pack it into webapp.asar,
 	# which electron-builder's beforeBuild hook requires
-	cd ../web
+	cd apps/web
 	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true script -c "pnpm run build" /dev/null || die
 	cd ../desktop
 	rm -rf webapp
