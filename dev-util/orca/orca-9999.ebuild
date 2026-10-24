@@ -194,7 +194,11 @@ src_install() {
 	fperms 0755 "${launcher}"
 	dosym "../$(get_libdir)/orca/orca-ide" /usr/bin/orca-ide
 
-	newicon resources/build/icon.png orca-ide.png
+	# Install into the hicolor theme with an explicit size: a bare newicon
+	# lands in /usr/share/pixmaps, which is never indexed into the
+	# icon-theme cache, so gtk_icon_theme_has_icon() fails and daemons like
+	# xfce4-notifyd fall back to their default icon for notifications.
+	newicon -s 1024 resources/build/icon.png orca-ide.png
 	make_desktop_entry "/usr/bin/orca-ide %U" Orca "orca-ide" "Utility" \
 		"StartupWMClass=orca"
 }
