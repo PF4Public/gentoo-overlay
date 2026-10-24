@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">voidmind-io/voidllm</remote-id>
+		<bugs-to>https://github.com/voidmind-io/voidllm/issues</bugs-to>
+		<doc>https://github.com/voidmind-io/voidllm/blob/main/docs/index.md</doc>
+	</upstream>
+</pkgmetadata>
