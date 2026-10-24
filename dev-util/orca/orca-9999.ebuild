@@ -179,8 +179,9 @@ src_install() {
 
 	# The Wayland helper is staged via extraResources into resources/bin; make
 	# sure it is executable (upstream's finalize hook would have chmod'd it).
+	# fperms is relative to the image root, so include ${mydir}.
 	if use wayland; then
-		fperms 0755 "bin/orca-wayland-clipboard" || die
+		fperms 0755 "${mydir}/bin/orca-wayland-clipboard" || die
 	fi
 
 	# Launcher: run the app.asar with the selected system electron slot,
