@@ -70,10 +70,10 @@ runs:
       run: |
         set -uo pipefail
         status="timeout"
+        # stream to the job log too, the build is otherwise silent for hours
         timeout ${{ inputs.build-timeout }} docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} > build.log 2>&1
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log
         rc=$?
-        tail -40 build.log
         if [[ $rc -eq 0 ]]; then
           status="complete"
         elif [[ $rc -ne 124 ]]; then
