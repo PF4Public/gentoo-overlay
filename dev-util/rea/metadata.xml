@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">morluto/rea</remote-id>
+		<bugs-to>https://github.com/morluto/rea/issues</bugs-to>
+		<doc>https://rea.tools</doc>
+	</upstream>
+	<use>
+		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
+	</use>
+</pkgmetadata>
