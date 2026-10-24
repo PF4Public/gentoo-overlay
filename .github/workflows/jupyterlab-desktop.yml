@@ -50,9 +50,9 @@ jobs:
         include:
           - use: '-build-online'
             experimental: true
-          - use: 'electron_slot_43'
+          - use: 'electron_slot_43 -electron_slot_44'
             experimental: true
-          - use: 'electron_slot_44'
+          - use: '-electron_slot_43 electron_slot_44'
             experimental: true
 
     steps:
