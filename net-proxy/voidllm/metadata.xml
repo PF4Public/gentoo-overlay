@@ -9,4 +9,7 @@
 		<bugs-to>https://github.com/voidmind-io/voidllm/issues</bugs-to>
 		<doc>https://github.com/voidmind-io/voidllm/blob/main/docs/index.md</doc>
 	</upstream>
+	<use>
+		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
+	</use>
 </pkgmetadata>

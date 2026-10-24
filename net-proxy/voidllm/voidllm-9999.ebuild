@@ -20,7 +20,13 @@ LICENSE="BUSL-1.1"
 # Dependent licenses
 LICENSE+=" Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
-RESTRICT="test"
+
+# build-online: the build downloads npm packages for the UI (and Go
+# modules in the live case) over the network. Default on, like
+# element-desktop, because an offline build is not implemented.
+IUSE="+build-online"
+
+RESTRICT="mirror test build-online? ( network-sandbox )"
 
 BDEPEND="
 	acct-group/voidllm
