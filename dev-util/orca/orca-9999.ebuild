@@ -226,10 +226,15 @@ src_install() {
 	# x11-themes/hicolor-icon-theme (0.17) stops at 512x512, so the 256 copy
 	# is what actually resolves for menus and notification daemons like
 	# xfce4-notifyd; the 1024 one is for systems with a newer index.theme.
+	# The desktop entry must reference the icon by absolute path: a themed
+	# name "orca-ide" is looked up with context-shortening fallbacks
+	# (orca-ide -> orca), and themes like Faenza ship an "orca" icon (the
+	# screen reader), which wins over hicolor for menus and notifications.
 	newicon resources/build/icon.png orca-ide.png
 	newicon -s 256 resources/icon.png orca-ide.png
 	newicon -s 1024 resources/build/icon.png orca-ide.png
-	make_desktop_entry "/usr/bin/orca-ide %U" Orca "orca-ide" "Development" \
+	make_desktop_entry "/usr/bin/orca-ide %U" Orca \
+		"/usr/share/pixmaps/orca-ide.png" "Development" \
 		"StartupWMClass=orca"
 }
 
