@@ -1,0 +1,23 @@
+#!/sbin/openrc-run
+# Copyright 1999-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Privacy-first LLM proxy and AI gateway"
+
+pidfile="/run/${RC_SVCNAME}.pid"
+
+command="/usr/bin/voidllm"
+command_args="${command_args:--config /etc/voidllm/voidllm.yaml}"
+command_dir="/var/lib/voidllm"
+command_background="true"
+start_stop_daemon_args="--user voidllm --group voidllm \
+	--stdout /var/log/voidllm/voidllm.log \
+	--stderr /var/log/voidllm/voidllm.log"
+
+# Optional environment file for secrets (VOIDLLM_ADMIN_KEY,
+# VOIDLLM_ENCRYPTION_KEY, ...); the config file interpolates ${VAR}.
+[ -f /etc/voidllm/env ] && . /etc/voidllm/env
+
+depend() {
+	need net
+}

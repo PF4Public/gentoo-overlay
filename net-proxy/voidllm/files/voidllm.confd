@@ -1,0 +1,6 @@
+# Configuration file for the voidllm init script.
+#
+# The proxy reads /etc/voidllm/voidllm.yaml — create it from the installed
+# /etc/voidllm/voidllm.yaml.example.
+
+command_args="-config /etc/voidllm/voidllm.yaml"

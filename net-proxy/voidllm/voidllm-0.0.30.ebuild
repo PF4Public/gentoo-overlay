@@ -3,30 +3,49 @@
 
 EAPI=8
 
-inherit go-module
+inherit go-module openrc
+
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/voidmind-io/voidllm.git"
+	SRC_URI=""
+else
+	SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm64"
+fi
 
 DESCRIPTION="Privacy-first LLM proxy and AI gateway"
 HOMEPAGE="https://voidllm.ai https://github.com/voidmind-io/voidllm"
-SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BUSL-1.1"
 # Dependent licenses
 LICENSE+=" Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64"
 RESTRICT="test"
 
 BDEPEND="
+	acct-group/voidllm
+	acct-user/voidllm
 	>=dev-lang/go-1.26.4
 	>=dev-util/node-20.19
+"
+
+RDEPEND="
+	acct-group/voidllm
+	acct-user/voidllm
 "
 
 DOCS=( CHANGELOG.md README.md )
 
 src_unpack() {
-	# vendor must exist before go-module_src_unpack, or it runs `go mod verify` (network)
-	tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
-	go-module_src_unpack
+	if [[ ${PV} = *9999* ]]; then
+		git-r3_src_unpack
+		go-module_live_vendor
+	else
+		# vendor must exist before go-module_src_unpack, or it runs `go mod verify` (network)
+		tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
+		go-module_src_unpack
+	fi
 }
 
 src_compile() {
@@ -46,4 +65,14 @@ src_compile() {
 src_install() {
 	dobin bin/${PN}
 	einstalldocs
+
+	newinitd "${FILESDIR}"/voidllm.initd ${PN}
+	newconfd "${FILESDIR}"/voidllm.confd ${PN}
+
+	insinto /etc/${PN}
+	doins voidllm.yaml.example
+	newins "${FILESDIR}"/voidllm.env.example env.example
+
+	dodir /var/log/${PN}
+	fowners voidllm:voidllm /var/log/${PN}
 }
