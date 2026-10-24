@@ -1050,7 +1050,7 @@ src_prepare() {
 		sed -i '/packed_resources_integrity_header/d' chrome/test/BUILD.gn || die
 	else
 		eapply_wrapper "${FILESDIR}/more-locales.patch"
-		eapply_wrapper "${FILESDIR}/misc-fixes-ung-r5.patch"
+		eapply_wrapper "${FILESDIR}/misc-fixes-ung-r6.patch"
 	fi
 
 	# Sanity check esbuild version before we start removing files.
