@@ -2557,7 +2557,7 @@ src_install() {
 	doins out/Release/ungoogled-chromium-browser${browser_suffix}.xml
 
 	# Install AppStream metadata
-	insinto /usr/share/appdata
+	insinto /usr/share/metainfo
 	doins out/Release/ungoogled-chromium-browser${browser_suffix}.appdata.xml
 
 	# Install manpage; bug #684550
