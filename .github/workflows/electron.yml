@@ -109,6 +109,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           before="${{ github.event.before }}"
           after="${{ github.sha }}"
           if [[ "${before}" =~ ^0+$ ]] || ! git cat-file -e "${before}" 2>/dev/null; then
