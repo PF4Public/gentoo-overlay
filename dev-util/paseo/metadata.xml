@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">getpaseo/paseo</remote-id>
+		<bugs-to>https://github.com/getpaseo/paseo/issues</bugs-to>
+		<doc>https://paseo.sh/docs</doc>
+	</upstream>
+	<use>
+		<flag name="build-online">Fetch the npm packages at build time
+			(required for a fresh build; no offline mode is implemented).</flag>
+	</use>
+</pkgmetadata>
