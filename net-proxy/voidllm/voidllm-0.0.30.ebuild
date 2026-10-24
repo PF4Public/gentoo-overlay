@@ -3,12 +3,11 @@
 
 EAPI=8
 
-inherit go-module openrc
+inherit go-module
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/voidmind-io/voidllm.git"
-	SRC_URI=""
 else
 	SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm64"
@@ -66,8 +65,13 @@ src_install() {
 	dobin bin/${PN}
 	einstalldocs
 
-	newinitd "${FILESDIR}"/voidllm.initd ${PN}
-	newconfd "${FILESDIR}"/voidllm.confd ${PN}
+	# installed directly (no openrc eclass in the synced portage tree)
+	insinto /etc/init.d
+	doins "${FILESDIR}"/voidllm.initd
+	fperms 0755 /etc/init.d/${PN}
+
+	insinto /etc/conf.d
+	newins "${FILESDIR}"/voidllm.confd ${PN}
 
 	insinto /etc/${PN}
 	doins voidllm.yaml.example
