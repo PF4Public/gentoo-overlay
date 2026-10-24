@@ -1,0 +1,84 @@
+name: paseo
+on:
+  push:
+    paths:
+    - 'dev-util/paseo/*.ebuild'
+  pull_request:
+    paths:
+    - 'dev-util/paseo/*.ebuild'
+
+jobs:
+  default:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ' '
+
+      - name: Check free space (after install)
+        run: df -h
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
+
+  ebuild:
+    needs: default
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - use: 'electron_slot_43 -electron_slot_44'
+            experimental: true
+          - use: '-electron_slot_43 electron_slot_44'
+            experimental: true
+          # Offline build is not implemented (the npm registry needs network).
+          - use: '-build-online'
+            experimental: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: install
+            params: ${{ matrix.use }}
