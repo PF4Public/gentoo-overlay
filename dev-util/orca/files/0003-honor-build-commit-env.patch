@@ -1,18 +1,16 @@
 diff --git a/config/scripts/build-source-commit.mjs b/config/scripts/build-source-commit.mjs
-index 70aece6..3c90456 100644
+index 70aece6..e680be0 100644
 --- a/config/scripts/build-source-commit.mjs
 +++ b/config/scripts/build-source-commit.mjs
-@@ -5,6 +5,15 @@ import { execFileSync } from 'node:child_process'
+@@ -5,6 +5,13 @@ import { execFileSync } from 'node:child_process'
   * skills an Orca build installs are the ones it bundles on every release channel.
   */
  export function resolveBuildSourceCommit() {
 +  // A build system compiling from a source archive (no git checkout) can pin the
-+  // release commit explicitly via ORCA_BUILD_COMMIT; prefer it over the local HEAD.
++  // source ref (a tag or branch) explicitly via ORCA_BUILD_COMMIT; prefer it over
++  // the local HEAD so skill installs clone a ref that exists on the remote.
 +  const pinned = (process.env.ORCA_BUILD_COMMIT || '').trim()
 +  if (pinned) {
-+    if (!/^[0-9a-f]{40}$/.test(pinned)) {
-+      throw new Error(`ORCA_BUILD_COMMIT "${pinned}" is not a full commit hash.`)
-+    }
 +    return pinned
 +  }
    let commit = ''

@@ -91,15 +91,14 @@ src_prepare() {
 }
 
 src_compile() {
-	# Pin the source commit (0003 makes the build honor this) so the app's skill
-	# installs resolve to this build. Live (9999) builds run from a git checkout
-	# and track HEAD, so the pin follows each update; release tarballs have no
-	# git checkout and pin the tag commit explicitly.
+	# Pin the source ref (0003 makes the build honor this) so the app's skill
+	# installs clone a ref that exists on the remote: the live (9999) build uses
+	# the main branch, releases the version tag (v${PV}), which points at the exact
+	# commit the build was made from. A bare commit SHA cannot be git-cloned.
 	if [[ ${PV} = *9999* ]]; then
-		ORCA_BUILD_COMMIT=$(git -C "${S}" rev-parse HEAD) || die "9999 build: could not read the source commit"
-		export ORCA_BUILD_COMMIT
+		export ORCA_BUILD_COMMIT=main
 	else
-		export ORCA_BUILD_COMMIT=071747853f5995ee233b36751613f09a60007c2b
+		export ORCA_BUILD_COMMIT="v${PV}"
 	fi
 
 	# The overlay has no dev-util/pnpm; install it from npm into the build
