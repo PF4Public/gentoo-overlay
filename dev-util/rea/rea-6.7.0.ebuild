@@ -82,6 +82,8 @@ src_install() {
 	doins -r node_modules
 	doins package.json
 	doins -r "${staging}"/*
+	fperms 0755 "/usr/$(get_libdir)/rea-agents/install.sh"
+	fperms 0755 "/usr/$(get_libdir)/rea-agents/scripts/rea.mjs"
 
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
