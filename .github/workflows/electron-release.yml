@@ -3,6 +3,9 @@ on:
   push:
     tags:
     - 'electron/*'
+  # the build workflow pushes tags via GITHUB_TOKEN, which does not auto-trigger
+  # other workflows, so it also dispatches this run explicitly (gh workflow run)
+  workflow_dispatch:
 
 env:
   # ------------------------------------------------------------------

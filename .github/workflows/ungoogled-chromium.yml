@@ -107,6 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -116,6 +117,7 @@ jobs:
       - name: Tag build ebuilds
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PN: ungoogled-chromium
           PKGDIR: www-client/ungoogled-chromium
         run: |
@@ -156,6 +158,10 @@ jobs:
               fi
               git tag -a "${tag}" "${sha}" -m "${PN} ${pv} release (build in ${sha})"
               git push origin "${tag}"
+              # GITHUB_TOKEN pushes do not trigger other workflows, so dispatch
+              # the release explicitly; --ref checks out the tag so the release
+              # resolves this version
+              gh workflow run ungoogled-chromium-release.yml --ref "${tag}"
               echo "created tag ${tag} at ${sha}"
             done < <(git show --name-only --format= "${sha}" -- "${PKGDIR}" | grep '\.ebuild$' || true)
           done
