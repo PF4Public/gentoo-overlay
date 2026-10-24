@@ -82,9 +82,25 @@ src_prepare() {
 	if ! use wayland; then
 		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard.patch" || die
 	fi
+
+	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);
+	# src_compile pins the source commit (git HEAD for this live build, tracking
+	# each update) so the app's skill installs resolve to this build.
+	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env.patch" || die
 }
 
 src_compile() {
+	# Pin the source commit (0003 makes the build honor this) so the app's skill
+	# installs resolve to this build. Live (9999) builds run from a git checkout
+	# and track HEAD, so the pin follows each update; release tarballs have no
+	# git checkout and pin the tag commit explicitly.
+	if [[ ${PV} = *9999* ]]; then
+		ORCA_BUILD_COMMIT=$(git -C "${S}" rev-parse HEAD) || die "9999 build: could not read the source commit"
+		export ORCA_BUILD_COMMIT
+	else
+		export ORCA_BUILD_COMMIT=071747853f5995ee233b36751613f09a60007c2b
+	fi
+
 	# The overlay has no dev-util/pnpm; install it from npm into the build
 	# sandbox, mirroring the opencode/element approach.
 	einfo "Installing node_modules"
