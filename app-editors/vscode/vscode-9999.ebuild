@@ -421,6 +421,14 @@ src_install() {
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
+	fperms +x ${VSCODE_HOME}/out/vs/base/node/ps.sh
+	fperms +x ${VSCODE_HOME}/out/vs/base/node/terminateProcess.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/git-editor.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/git-editor-empty.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/askpass-empty.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/ssh-askpass.sh
+	fperms +x ${VSCODE_HOME}/extensions/git/dist/ssh-askpass-empty.sh
 	fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/@vscode/ripgrep-universal/bin/linux-${VSCODE_ARCH}/rg
 	# fperms +x ${VSCODE_HOME}/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 
