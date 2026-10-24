@@ -106,7 +106,17 @@ jobs:
               echo "filtering out flag not defined by the ebuild: ${flag}"
             fi
           done
-          use="${use% } llvm_slot_${BUILD_LLVM_SLOT}"
+          # select exactly one llvm-r1 slot: llvm-r1 defaults one on and
+          # REQUIRED_USE is exactly-one-of, so turn the others off too
+          slot_flags=""
+          for slot in $(sed -nE 's/^LLVM_COMPAT=\(\s*([0-9 ]+)\s*\).*/\1/p' "$ebuild" | head -1); do
+            if [[ "$slot" == "${BUILD_LLVM_SLOT}" ]]; then
+              slot_flags+=" llvm_slot_${slot}"
+            else
+              slot_flags+=" -llvm_slot_${slot}"
+            fi
+          done
+          use="${use% }${slot_flags}"
 
           echo "pv=${pv}" >> "$GITHUB_OUTPUT"
           echo "atom=dev-util/electron" >> "$GITHUB_OUTPUT"
