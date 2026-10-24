@@ -65,13 +65,8 @@ src_install() {
 	dobin bin/${PN}
 	einstalldocs
 
-	# installed directly (no openrc eclass in the synced portage tree)
-	insinto /etc/init.d
-	doins "${FILESDIR}"/voidllm.initd
-	fperms 0755 /etc/init.d/${PN}
-
-	insinto /etc/conf.d
-	newins "${FILESDIR}"/voidllm.confd ${PN}
+	newinitd "${FILESDIR}"/voidllm.initd ${PN}
+	newconfd "${FILESDIR}"/voidllm.confd ${PN}
 
 	insinto /etc/${PN}
 	doins voidllm.yaml.example
