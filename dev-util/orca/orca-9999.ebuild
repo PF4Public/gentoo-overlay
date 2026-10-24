@@ -47,7 +47,7 @@ DEPEND="
 RDEPEND="
 	$(electron_gen_dep)
 	app-crypt/libsecret
-	app-text/ripgrep
+	sys-apps/ripgrep
 	dev-python/pygobject:3
 	sys-apps/util-linux
 	wayland? ( dev-libs/wayland x11-libs/gtk+ )
