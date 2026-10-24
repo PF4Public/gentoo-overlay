@@ -220,12 +220,16 @@ src_install() {
 	# slot to that probe name so the CLI finds the runtime.
 	dosym "electron-${ELECTRON_SLOT}/electron" /usr/$(get_libdir)/orca-ide
 
-	# Install into the hicolor theme with an explicit size: a bare newicon
-	# lands in /usr/share/pixmaps, which is never indexed into the
-	# icon-theme cache, so gtk_icon_theme_has_icon() fails and daemons like
-	# xfce4-notifyd fall back to their default icon for notifications.
+	# Icons: keep the legacy pixmaps copy (tools that only search that dir),
+	# plus hicolor copies for the icon-theme cache. GTK only looks in
+	# directories declared in the theme's index.theme, and
+	# x11-themes/hicolor-icon-theme (0.17) stops at 512x512, so the 256 copy
+	# is what actually resolves for menus and notification daemons like
+	# xfce4-notifyd; the 1024 one is for systems with a newer index.theme.
+	newicon resources/build/icon.png orca-ide.png
+	newicon -s 256 resources/icon.png orca-ide.png
 	newicon -s 1024 resources/build/icon.png orca-ide.png
-	make_desktop_entry "/usr/bin/orca-ide %U" Orca "orca-ide" "Utility" \
+	make_desktop_entry "/usr/bin/orca-ide %U" Orca "orca-ide" "Development" \
 		"StartupWMClass=orca"
 }
 
