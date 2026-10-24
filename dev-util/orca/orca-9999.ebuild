@@ -47,6 +47,7 @@ DEPEND="
 RDEPEND="
 	$(electron_gen_dep)
 	app-crypt/libsecret
+	app-text/ripgrep
 	dev-python/pygobject:3
 	sys-apps/util-linux
 	wayland? ( dev-libs/wayland x11-libs/gtk+ )
@@ -177,9 +178,27 @@ src_install() {
 	# Pin process.resourcesPath to the install dir at runtime; see the file.
 	doins "${FILESDIR}/resources-path-override.cjs" || die
 
+	# doins strips exec bits, so restore the ones electron-builder's afterPack
+	# hooks set in dist/ (chmodUnixCliLaunchers, the agent-browser chmod,
+	# placeAppImageNodeRuntime). fperms is relative to the image root, so
+	# include ${mydir}.
+	local arch
+	[[ ${CHOST} == *aarch64* ]] && arch=arm64 || arch=x64
+	fperms 0755 "${mydir}/bin/orca-ide" || die
+	fperms 0755 "${mydir}/agent-browser-linux-${arch}" || die
+	fperms 0755 "${mydir}/node-runtime/bin/node" || die
+
+	# The app resolves rg as <resourcesPath>/ripgrep/<os>-<arch>/rg and never
+	# falls back to a PATH rg in a packaged install, so the bundled
+	# multi-platform set becomes a shim to the system ripgrep.
+	rm -rf "${ED}${mydir}/ripgrep" || die
+	local rgshim="${ED}${mydir}/ripgrep/linux-${arch}/rg"
+	mkdir -p "$(dirname "${rgshim}")" || die
+	printf '#!/bin/sh\nexec /usr/bin/rg "$@"\n' > "${rgshim}" || die
+	fperms 0755 "${mydir}/ripgrep/linux-${arch}/rg"
+
 	# The Wayland helper is staged via extraResources into resources/bin; make
 	# sure it is executable (upstream's finalize hook would have chmod'd it).
-	# fperms is relative to the image root, so include ${mydir}.
 	if use wayland; then
 		fperms 0755 "${mydir}/bin/orca-wayland-clipboard" || die
 	fi
@@ -193,6 +212,13 @@ src_install() {
 --require \"${mydir}/resources-path-override.cjs\" ${mydir}/app.asar \"\${flags[@]}\" \"\$@\"" >> "${ED}${launcher}"
 	fperms 0755 "${launcher}"
 	dosym "../$(get_libdir)/orca/orca-ide" /usr/bin/orca-ide
+
+	# bin/orca-ide (the CLI the app's CliInstaller shim execs) resolves the
+	# electron runtime by probing the parent of the install dir for an
+	# executable named orca-ide/orca/Orca (upstream layout: the renamed
+	# electron binary sits beside resources/). Bridge the system electron
+	# slot to that probe name so the CLI finds the runtime.
+	dosym "electron-${ELECTRON_SLOT}/electron" /usr/$(get_libdir)/orca-ide
 
 	# Install into the hicolor theme with an explicit size: a bare newicon
 	# lands in /usr/share/pixmaps, which is never indexed into the
