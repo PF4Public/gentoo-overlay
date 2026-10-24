@@ -106,7 +106,7 @@ jobs:
               echo "filtering out flag not defined by the ebuild: ${flag}"
             fi
           done
-          use="${use% } LLVM_SLOT: ${BUILD_LLVM_SLOT}"
+          use="${use% } llvm_slot_${BUILD_LLVM_SLOT}"
 
           echo "pv=${pv}" >> "$GITHUB_OUTPUT"
           echo "atom=dev-util/electron" >> "$GITHUB_OUTPUT"
@@ -464,7 +464,7 @@ jobs:
         run: |
           set -euo pipefail
           docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="${{ needs.resolve.outputs.use }}" gentoo \
-            bash -c 'printf "%s %s\n" "$ATOM" "$USE" >> /etc/portage/package.use'
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
 
       - name: Restore build state
         uses: ./.github/actions/state-restore
