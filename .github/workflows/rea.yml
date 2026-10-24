@@ -1,6 +1,8 @@
 name: rea
 on:
   push:
+    branches:
+    - master
     paths:
     - 'dev-util/rea/*.ebuild'
   pull_request:
