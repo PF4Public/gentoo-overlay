@@ -64,11 +64,10 @@ src_install() {
 	# only ship the runtime dependencies, not the development toolchain
 	npm prune --omit=dev --no-audit --no-fund
 
-	# mirror the npm package layout (the files list in package.json)
-	insinto "/usr/$(get_libdir)/rea-agents"
-	doins -r node_modules
-	doins package.json
-	local files file
+	# doins installs files by basename only, so stage the npm package
+	# layout (the files list in package.json) to keep subdirectories
+	local staging="${T}/rea-pkg" files file
+	mkdir "${staging}"
 	files=$(node -p "JSON.parse(require('node:fs').readFileSync('package.json','utf8')).files.join('\n')") || die
 	while IFS= read -r file; do
 		# the Windows-only native artifact is built at release time
@@ -76,8 +75,13 @@ src_install() {
 			native/windows/*) continue ;;
 		esac
 		[[ -e ${file} ]] || die "missing npm package file: ${file}"
-		doins -r "${file}"
+		cp -r --parents "${file}" "${staging}" || die
 	done <<< "${files}"
+
+	insinto "/usr/$(get_libdir)/rea-agents"
+	doins -r node_modules
+	doins package.json
+	doins -r "${staging}"/*
 
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
