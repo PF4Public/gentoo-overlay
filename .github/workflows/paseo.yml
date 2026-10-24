@@ -1,6 +1,8 @@
 name: paseo
 on:
   push:
+    branches:
+    - master
     paths:
     - 'dev-util/paseo/*.ebuild'
   pull_request:
