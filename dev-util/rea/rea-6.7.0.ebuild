@@ -47,7 +47,16 @@ DOCS=(
 src_compile() {
 	# the prepare script installs husky git hooks; ${S} is not a repository
 	local -x HUSKY=0
+	# upstream pins exact node versions with engine-strict; use the system node
+	local -x npm_config_engine_strict=false
 	npm ci --no-progress --no-audit --no-fund
+	# npm >= 11.16 gates package lifecycle scripts, so fetch frida's
+	# prebuild explicitly; the frida integration is optional upstream
+	if [[ -d node_modules/frida ]]; then
+		PATH="${S}/node_modules/.bin:${PATH}" \
+			node node_modules/frida/scripts/install.js || \
+			ewarn "frida prebuild download failed; the frida integration will be unavailable"
+	fi
 	npm run build:cached
 }
 
@@ -57,19 +66,18 @@ src_install() {
 
 	# mirror the npm package layout (the files list in package.json)
 	insinto "/usr/$(get_libdir)/rea-agents"
-	doins -r bridge/android bridge/ghidra bridge/process bridge/pwntools
-	doins -r dist licenses node_modules skills
-	doins -r third_party/evmole third_party/pwndbg third_party/pwntools third_party/wabt
-	doins DISCLAIMER.md README.md THIRD_PARTY_NOTICES.md LICENSE install.sh package.json
-	doins bridge/cutter/rea_bridge.py bridge/hopper_bridge.py bridge/mitmproxy/capture.py
-	doins bridge/native/NativeUIChildren.swift bridge/native/NativeUIValues.swift \
-		bridge/native/ReaNativeUI.swift bridge/native/rea_lldb_tracer.py
-	doins bridge/pwndbg/core_context.py bridge/pwndbg/launch.py bridge/pwndbg/launch_impl.py
-	doins scripts/electron-active-hook-boundaries.cjs scripts/electron-active-hook.cjs \
-		scripts/hopper-demo-x11.py scripts/prepack.mjs scripts/prepare.mjs \
-		scripts/rea-android-workspace-guardian.mjs scripts/rea.mjs \
-		scripts/verify-windows-native-artifact.mjs
-	doins scripts/lib/cli-process-environment.mjs
+	doins -r node_modules
+	doins package.json
+	local files file
+	files=$(node -p "JSON.parse(require('node:fs').readFileSync('package.json','utf8')).files.join('\n')") || die
+	while IFS= read -r file; do
+		# the Windows-only native artifact is built at release time
+		case ${file} in
+			native/windows/*) continue ;;
+		esac
+		[[ -e ${file} ]] || die "missing npm package file: ${file}"
+		doins -r "${file}"
+	done <<< "${files}"
 
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea
 	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
