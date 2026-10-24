@@ -63,7 +63,7 @@ runs:
       shell: bash
       run: |
         docker exec gentoo emerge --getbinpkg -v1 \
-          dev-ccache/ccache app-portage/getuto dev-vcs/git app-arch/zstd \
+          dev-util/ccache app-portage/getuto dev-vcs/git app-arch/zstd \
           sec-keys/openpgp-keys-gentoo-release
 
     - name: GPG keys for the binhost
