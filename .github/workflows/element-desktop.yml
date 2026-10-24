@@ -51,6 +51,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        use:
+          - 'build-online'
         include:
           - use: '-build-online'
             experimental: true
