@@ -26,7 +26,7 @@ BDEPEND="
 	acct-group/voidllm
 	acct-user/voidllm
 	>=dev-lang/go-1.26.4
-	>=dev-util/node-20.19
+	>=net-libs/nodejs-20.19[npm]
 "
 
 RDEPEND="
