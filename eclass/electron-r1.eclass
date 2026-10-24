@@ -256,6 +256,7 @@ electron_gen_dep() {
 }
 
 # @FUNCTION: _electron_r1_locate
+# @INTERNAL
 # @DESCRIPTION:
 # Locate the installed electron runtime for the selected slot and set
 # _ELECTRON_R1_DIST (the runtime directory) and _ELECTRON_R1_NODE_INCLUDE
