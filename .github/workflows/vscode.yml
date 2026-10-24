@@ -1,6 +1,8 @@
 name: vscode
 on:
   push:
+    branches:
+    - master
     paths:
     - 'app-editors/vscode/*.ebuild'
   pull_request:

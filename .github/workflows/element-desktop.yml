@@ -1,6 +1,8 @@
 name: element-desktop
 on:
   push:
+    branches:
+    - master
     paths:
     - 'net-im/element-desktop/*.ebuild'
   pull_request:

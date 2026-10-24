@@ -1,6 +1,8 @@
 name: electron
 on:
   push:
+    branches:
+    - master
     paths:
     - 'dev-util/electron/*.ebuild'
   pull_request:

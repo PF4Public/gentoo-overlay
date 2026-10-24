@@ -1,6 +1,8 @@
 name: orca
 on:
   push:
+    branches:
+    - master
     paths:
     - 'dev-util/orca/*.ebuild'
   pull_request:

@@ -1,6 +1,8 @@
 name: jupyterlab-desktop
 on:
   push:
+    branches:
+    - master
     paths:
     - 'sci-misc/jupyterlab-desktop/*.ebuild'
   pull_request:

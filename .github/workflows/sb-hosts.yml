@@ -1,6 +1,8 @@
 name: sb-hosts
 on:
   push:
+    branches:
+    - master
     paths:
     - 'net-misc/sb-hosts/*.ebuild'
   pull_request:

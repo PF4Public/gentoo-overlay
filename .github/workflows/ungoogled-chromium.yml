@@ -1,6 +1,8 @@
 name: ungoogled-chromium
 on:
   push:
+    branches:
+    - master
     paths:
     - 'www-client/ungoogled-chromium/*.ebuild'
   pull_request:

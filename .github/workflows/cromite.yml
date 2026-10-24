@@ -1,6 +1,8 @@
 name: cromite
 on:
   push:
+    branches:
+    - master
     paths:
     - 'www-client/cromite/*.ebuild'
   pull_request:

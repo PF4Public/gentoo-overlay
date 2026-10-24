@@ -1,6 +1,8 @@
 name: gb-chroot
 on:
   push:
+    branches:
+    - master
     paths:
     - 'app-admin/gb-chroot/*.ebuild'
   pull_request:

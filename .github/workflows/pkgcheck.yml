@@ -1,6 +1,8 @@
 name: pkgcheck
 on:
   push:
+    branches:
+    - master
     paths:
     - '**.ebuild'
     - '**.xml'

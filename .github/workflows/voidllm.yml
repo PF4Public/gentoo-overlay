@@ -1,6 +1,8 @@
 name: voidllm
 on:
   push:
+    branches:
+    - master
     paths:
     - 'net-proxy/voidllm/*.ebuild'
   pull_request:

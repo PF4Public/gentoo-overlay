@@ -1,6 +1,8 @@
 name: depot-tools
 on:
   push:
+    branches:
+    - master
     paths:
     - 'dev-util/depot-tools/*.ebuild'
   pull_request:
