@@ -9,8 +9,8 @@
 # name the portage image
 FROM gentoo/portage:latest AS portage
 
-# based on the stage3 image
-FROM gentoo/stage3:amd64-systemd
+# based on the stage3 image (openrc, not the systemd variant)
+FROM gentoo/stage3:amd64-openrc
 
 # copy the entire portage volume in
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo

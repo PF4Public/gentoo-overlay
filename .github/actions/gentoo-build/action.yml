@@ -45,9 +45,9 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
+        # package.use may be a directory of drop-ins; append to a drop-in in that case
         docker exec -e ATOM="${{ inputs.atom }}" -e USE="${{ inputs.use }}" gentoo \
-          bash -c 'printf "%s %s\n" "$ATOM" "$USE" >> /etc/portage/package.use'
-        docker exec gentoo bash -c 'tail -1 /etc/portage/package.use'
+          bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
 
     - name: Compute artifact names
       id: names

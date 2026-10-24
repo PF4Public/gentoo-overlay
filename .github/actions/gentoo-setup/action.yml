@@ -35,12 +35,14 @@ runs:
           'NINJAOPTS="-k0 -j5 -l10"' \
           | docker exec -i gentoo bash -c 'cat >> /etc/portage/make.conf'
 
-        if ! docker exec gentoo bash -c 'grep -q "distfiles.gentoo.org" /etc/portage/binrepos.conf 2>/dev/null'; then
+        # binrepos.conf is a directory of drop-in .conf files in stage3, so add
+        # the binhost as a drop-in unless one already points at the CDN
+        if ! docker exec gentoo bash -c 'grep -rq "distfiles.gentoo.org" /etc/portage/binrepos.conf 2>/dev/null'; then
           printf '%s\n' \
             '[gentoo-binhost]' \
             'sync-uri = "https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64/"' \
             'layout = "portage-2.2"' \
-            | docker exec -i gentoo bash -c 'cat > /etc/portage/binrepos.conf'
+            | docker exec -i gentoo bash -c 'cat > /etc/portage/binrepos.conf/gentoo-binhost.conf'
         fi
 
         printf '%s\n' \
