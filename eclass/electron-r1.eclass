@@ -34,8 +34,13 @@
 #   the enabled one, and selecting a different slot in package.use also
 #   disables the default slot's flag,
 # - provide the electron_gen_dep() function, which the ebuild adds to
-#   BDEPEND and RDEPEND; it generates a plain dev-util/electron:N atom
-#   when only one version is supported, or a USE-conditional atom per
+#   BDEPEND and RDEPEND; it generates a
+#   || ( dev-util/electron-bin:N dev-util/electron:N ) atom per
+#   supported slot (the prebuilt runtime first, so on a system where
+#   neither is installed portage picks the prebuilt one; portage keeps
+#   whichever of the two is already installed, and the build
+#   environment prefers the source runtime when both are installed),
+#   plain when only one version is supported, or USE-conditional per
 #   supported version otherwise, because the selected slot is not known
 #   when the dependencies are evaluated (portage evaluates the ebuild
 #   before USE is final); since exactly one slot is selected, portage
@@ -94,8 +99,8 @@
 # "
 #
 # # (electron_gen_dep generates the following for this example:
-# #  electron_slot_43? ( dev-util/electron:43 )
-# #  electron_slot_44? ( dev-util/electron:44 )
+# #  electron_slot_43? ( || ( dev-util/electron-bin:43 dev-util/electron:43 ) )
+# #  electron_slot_44? ( || ( dev-util/electron-bin:44 dev-util/electron:44 ) )
 # # )
 #
 # src_compile() {
@@ -225,13 +230,17 @@ unset -f _electron_r1_init _electron_r1_die_usage
 # @USAGE:
 # @DESCRIPTION:
 # Generate the dependency on the electron slot(s) the package supports:
-# a plain dev-util/electron:N atom when only one version is supported,
-# or a USE-conditional atom per supported version otherwise. The
-# selected slot is not known when the dependencies are evaluated
-# (portage evaluates the ebuild before USE is final), so portage
-# resolves the conditionals with the final USE; since exactly one slot
-# is selected (see REQUIRED_USE), exactly one atom is active. Add the
-# result to BDEPEND and RDEPEND:
+# a plain || ( dev-util/electron-bin:N dev-util/electron:N ) atom when
+# only one version is supported, or a USE-conditional atom per
+# supported version otherwise. The prebuilt runtime is listed first so
+# that on a system where neither is installed portage picks it; portage
+# keeps whichever of the two is already installed, and the build
+# environment (_electron_r1_locate) prefers the source runtime when
+# both are installed. The selected slot is not known when the
+# dependencies are evaluated (portage evaluates the ebuild before USE
+# is final), so portage resolves the conditionals with the final USE;
+# since exactly one slot is selected (see REQUIRED_USE), exactly one
+# atom is active. Add the result to BDEPEND and RDEPEND:
 #
 # @CODE
 # BDEPEND+="
@@ -245,12 +254,12 @@ electron_gen_dep() {
 	local mydeps=""
 	if (( ${#_ELECTRON_R1_SLOTS[@]} == 1 )); then
 		# A single supported slot is always the selected one.
-		echo "dev-util/electron:${_ELECTRON_R1_SLOTS[0]}"
+		echo "|| ( dev-util/electron-bin:${_ELECTRON_R1_SLOTS[0]} dev-util/electron:${_ELECTRON_R1_SLOTS[0]} )"
 		return
 	fi
 	local myver
 	for myver in "${_ELECTRON_R1_SLOTS[@]}"; do
-		mydeps+=" electron_slot_${myver}? ( dev-util/electron:${myver} )"
+		mydeps+=" electron_slot_${myver}? ( || ( dev-util/electron-bin:${myver} dev-util/electron:${myver} ) )"
 	done
 	echo "${mydeps# }"
 }
