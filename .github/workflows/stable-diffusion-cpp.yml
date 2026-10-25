@@ -1,0 +1,74 @@
+name: stable-diffusion-cpp
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - 'sci-misc/stable-diffusion-cpp/*.ebuild'
+  pull_request:
+    paths:
+    - 'sci-misc/stable-diffusion-cpp/*.ebuild'
+
+jobs:
+  default:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: compile
+            params: ' '
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
+
+  ebuild:
+    needs: default
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        use:
+          - '-webp'
+          - 'openblas'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.modified }}
+            tool: ebuild
+            action: compile
+            params: ${{ matrix.use }}
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
