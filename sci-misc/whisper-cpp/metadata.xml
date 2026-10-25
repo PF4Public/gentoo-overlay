@@ -18,13 +18,14 @@
 		(CUDA, Vulkan, OpenCL) in addition to the CPU backend.
 	</longdescription>
 	<use>
-		<flag name="blas">Use OpenBLAS as the BLAS backend (GGML_BLAS)</flag>
 		<flag name="cuda">Enable the NVIDIA CUDA backend (GGML_CUDA)</flag>
 		<flag name="ffmpeg">Link the examples against FFmpeg to decode more audio formats</flag>
+		<flag name="openblas">Use OpenBLAS as the BLAS backend (GGML_BLAS)</flag>
 		<flag name="opencl">Enable the OpenCL backend (GGML_OPENCL)</flag>
 		<flag name="openmp">Use OpenMP for threading (GGML_OPENMP)</flag>
 		<flag name="rpc">Enable the RPC backend to distribute layers across machines (GGML_RPC)</flag>
 		<flag name="sdl">Build the SDL2-based examples whisper-stream, whisper-command, whisper-lsp and wchess</flag>
+		<flag name="system-ggml">Link against the installed sci-ml/ggml instead of the bundled copy; the CPU ISA set and the backends are then selected by ggml's own USE flags</flag>
 		<flag name="vulkan">Enable the Vulkan backend (GGML_VULKAN)</flag>
 	</use>
 </pkgmetadata>
