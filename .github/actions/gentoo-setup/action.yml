@@ -33,8 +33,7 @@ runs:
 
         # the official binhost binaries are built with the desktop profile
         # (its USE carries X, gtk, qt6, ...), so build with it to match
-        docker exec gentoo bash -c \
-          'ln -sf /usr/portage/profiles/default/linux/amd64/23.0/desktop /etc/portage/make.profile'
+        docker exec gentoo eselect profile set default/linux/amd64/23.0/desktop
 
         printf '%s\n' \
           'ACCEPT_KEYWORDS="amd64"' \
