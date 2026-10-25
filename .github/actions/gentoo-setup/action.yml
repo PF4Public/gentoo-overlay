@@ -41,6 +41,7 @@ runs:
           'CCACHE_DIR="/workspace/ccache"' \
           'CCACHE_MAXSIZE="6G"' \
           'DISTDIR="/workspace/distfiles"' \
+          'EMERGE_DEFAULT_OPTS="--nospinner --jobs 2"' \
           'FEATURES="${FEATURES} ccache getbinpkg buildpkg keepwork -network-sandbox"' \
           'MAKEOPTS="-j5 -l10"' \
           'NINJAOPTS="-k0 -j5 -l10"' \
