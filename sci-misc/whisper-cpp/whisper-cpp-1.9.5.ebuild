@@ -54,7 +54,7 @@ unset X86_CPU_FLAGS CPU_FLAGS
 # USE flags, and the bundled-build dependencies are dropped
 COMMON_DEPEND="
 	ffmpeg? ( media-video/ffmpeg )
-	sdl? ( >=sys-libs/sdl2-2.0 )
+	sdl? ( >=media-libs/libsdl2-2.0 )
 	system-ggml? ( >=sci-ml/ggml-0.26:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?] )
 	!system-ggml? (
 		cuda? ( dev-util/nvidia-cuda-toolkit:= )
@@ -66,7 +66,7 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	!system-ggml? (
-		opencl? ( dev-libs/opencl-headers )
+		opencl? ( dev-util/opencl-headers )
 		vulkan? (
 			dev-util/spirv-headers
 			dev-util/vulkan-headers
@@ -76,7 +76,7 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	!system-ggml? (
-		openblas? ( dev-util/pkgconfig )
+		openblas? ( dev-util/pkgconf )
 		opencl? ( ${PYTHON_DEPS} )
 		vulkan? (
 			dev-util/spirv-headers
