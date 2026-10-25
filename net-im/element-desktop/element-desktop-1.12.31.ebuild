@@ -4,7 +4,7 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{11..15} )
-ELECTRON_COMPAT=( {43,44} )
+ELECTRON_COMPAT=( {43,44,45} )
 ELECTRON_SLOT_DEFAULT="43"
 
 inherit desktop electron-r1 flag-o-matic multilib python-any-r1 xdg-utils
