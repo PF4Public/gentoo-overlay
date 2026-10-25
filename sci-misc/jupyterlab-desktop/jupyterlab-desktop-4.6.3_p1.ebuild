@@ -3,7 +3,7 @@
 
 EAPI=8
 
-ELECTRON_COMPAT=( {43,44} )
+ELECTRON_COMPAT=( {43,44,45} )
 ELECTRON_SLOT_DEFAULT="43"
 
 inherit desktop electron-r1 multilib xdg-utils
