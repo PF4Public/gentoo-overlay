@@ -164,7 +164,6 @@ src_configure() {
 		-DCMAKE_INSTALL_RPATH="\$ORIGIN/../$(get_libdir)/${MY_PN};\$ORIGIN"
 
 		-DGGML_NATIVE=OFF
-		-DGGML_CCACHE=OFF
 		-DGGML_LTO="$(tc-is-lto && echo ON || echo OFF)"
 		-DGGML_OPENMP=$(usex openmp)
 		-DGGML_RPC=$(usex rpc)
