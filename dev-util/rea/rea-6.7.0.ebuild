@@ -78,13 +78,14 @@ src_install() {
 		cp -r --parents "${file}" "${staging}" || die
 	done <<< "${files}"
 
-	insinto "/usr/$(get_libdir)/rea-agents"
+	# standard npm global prefix layout, like npm install --global
+	insinto "/usr/$(get_libdir)/node_modules/rea-agents"
 	doins -r node_modules
 	doins package.json
 	doins -r "${staging}"/*
-	fperms 0755 "/usr/$(get_libdir)/rea-agents/install.sh"
-	fperms 0755 "/usr/$(get_libdir)/rea-agents/scripts/rea.mjs"
+	fperms 0755 "/usr/$(get_libdir)/node_modules/rea-agents/install.sh"
+	fperms 0755 "/usr/$(get_libdir)/node_modules/rea-agents/scripts/rea.mjs"
 
-	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea
-	dosym "../$(get_libdir)/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
+	dosym "../$(get_libdir)/node_modules/rea-agents/scripts/rea.mjs" /usr/bin/rea
+	dosym "../$(get_libdir)/node_modules/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
 }
