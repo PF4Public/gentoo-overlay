@@ -1093,7 +1093,6 @@ src_prepare() {
 		["electron/patches/ffmpeg"]="third_party/ffmpeg"
 		["electron/patches/v8"]="v8"
 		["electron/patches/node"]="third_party/electron_node"
-		["electron/patches/nan"]="third_party/nan"
 		["electron/patches/libaddressinput"]="third_party/libaddressinput/src"
 		["electron/patches/perfetto"]="third_party/perfetto"
 		["electron/patches/webrtc"]="third_party/webrtc"
