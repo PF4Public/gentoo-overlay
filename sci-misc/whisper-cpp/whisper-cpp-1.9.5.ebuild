@@ -53,7 +53,7 @@ unset X86_CPU_FLAGS CPU_FLAGS
 # with system-ggml the backend flags are mapped onto sci-ml/ggml's own
 # USE flags, and the bundled-build dependencies are dropped
 COMMON_DEPEND="
-	ffmpeg? ( media-libs/ffmpeg )
+	ffmpeg? ( media-video/ffmpeg )
 	sdl? ( >=sys-libs/sdl2-2.0 )
 	system-ggml? ( >=sci-ml/ggml-0.26:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?] )
 	!system-ggml? (
