@@ -35,16 +35,16 @@ X86_CPU_FLAGS=(
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 
-IUSE="cuda examples hip openblas opencl +openmp +openssl rpc vulkan webui ${CPU_FLAGS[*]}"
+# build-online: the live webui build downloads the npm registry over the
+# network; the release webui uses a prebuilt distfile, so the flag is a
+# no-op there (kept so both ebuilds build with the same flag set)
+IUSE="build-online cuda examples hip openblas opencl +openmp +openssl rpc vulkan webui ${CPU_FLAGS[*]}"
 
 unset X86_CPU_FLAGS CPU_FLAGS
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
-	# build-online: the webui build downloads the npm registry over the
-	# network. Default off: without webui the build is fully offline.
-	IUSE+=" build-online"
 	REQUIRED_USE="webui? ( build-online )"
 	RESTRICT="mirror build-online? ( network-sandbox )"
 	BDEPEND_EXTRA="webui? ( >=net-libs/nodejs-22[npm] )"

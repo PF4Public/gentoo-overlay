@@ -9,7 +9,7 @@
 		<bugs-to>https://github.com/ggml-org/llama.cpp/issues</bugs-to>
 	</upstream>
 	<use>
-		<flag name="build-online">Allow the build to download the npm registry (live ebuild only, needed by the webui flag)</flag>
+		<flag name="build-online">Allow the build to download the npm registry (needed by the webui flag in the live ebuild)</flag>
 		<flag name="cuda">Enable the NVIDIA CUDA GPU backend</flag>
 		<flag name="examples">Build the example programs</flag>
 		<flag name="hip">Enable the AMD ROCm/HIP GPU backend</flag>

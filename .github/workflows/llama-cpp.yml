@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - use: 'webui'
+          - use: 'webui build-online'
             experimental: true
           - use: 'rpc'
             experimental: true
