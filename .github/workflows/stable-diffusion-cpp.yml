@@ -5,9 +5,12 @@ on:
     - master
     paths:
     - 'sci-misc/stable-diffusion-cpp/*.ebuild'
+    - '.github/workflows/stable-diffusion-cpp.yml'
   pull_request:
     paths:
     - 'sci-misc/stable-diffusion-cpp/*.ebuild'
+    - '.github/workflows/stable-diffusion-cpp.yml'
+  workflow_dispatch:
 
 jobs:
   default:
