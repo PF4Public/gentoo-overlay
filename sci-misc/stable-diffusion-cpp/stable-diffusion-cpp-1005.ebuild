@@ -8,6 +8,7 @@ inherit cmake cuda
 REPO="https://github.com/leejet/stable-diffusion.cpp"
 GGML_REPO="https://github.com/leejet/ggml"
 MY_PN="stable-diffusion.cpp"
+# upstream publishes master-NNN-sha snapshot tags (no semver); PV is snapshot N
 MY_TAG="master-${PV}-ea209db"
 # ggml is a git submodule pin (leejet's patched ggml fork), not a release tag
 GGML_REV="a5915eb0e47adef21c3f25b889a008925ea838c2"
