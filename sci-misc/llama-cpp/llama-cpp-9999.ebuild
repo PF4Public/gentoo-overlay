@@ -94,10 +94,6 @@ BDEPEND="
 
 unset BDEPEND_EXTRA
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-llvm-23.patch
-)
-
 python_check_deps() {
 	if use opencl; then
 		python_is_python3
@@ -128,6 +124,17 @@ pkg_setup() {
 src_prepare() {
 	use cuda && cuda_src_prepare
 	cmake_src_prepare
+
+	# the AMDGPU bf16 ext_vector_type fix for LLVM 23; applied with hip only,
+	# so a drift in ggml-cuda cannot break the other backends. The RDNA part
+	# is already fixed upstream, hence the CDNA-only patch for the live tree.
+	if use hip; then
+		if [[ ${PV} = *9999* ]]; then
+			eapply "${FILESDIR}/${PN}-cdna-bf16.patch"
+		else
+			eapply "${FILESDIR}/${PN}-llvm-23.patch"
+		fi
+	fi
 
 	# the release webui ships as a prebuilt distfile; place it in the source
 	# tree so CMake embeds it without building it with nodejs
