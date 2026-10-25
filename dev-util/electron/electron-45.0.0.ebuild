@@ -29,7 +29,6 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 # UGC_COMMIT_ID="59657a38437d11520a68618008eb825721319b9e"
 
 declare -A CHROMIUM_COMMITS=(
-	["7767cccfee47e42ca30da74cf6d84b80537462f1"]="."
 	["-cf94ed446320d35c8613ed9b3ffb6e6a61bfcb5f"]="." # ffmpeg 9
 	["-162dc276a85b4f7d353adbe312d05d8e7a4c28e3"]="." # ffmpeg 9 as well
 #	# ["-c72c7b0971e3e31974b0adea0dac42278e22e3b0"]="third_party/devtools-frontend/src" # need gn >= 2459
@@ -824,7 +823,6 @@ src_prepare() {
 		#fi
 		eapply_wrapper "${FILESDIR}/misc-fixes-r1.patch"
 		eapply_wrapper "${FILESDIR}/ozone-detection-fix.patch"
-		eapply_wrapper "${FILESDIR}/electron-44-fix.patch"
 
 		# if use pgo; then
 			python3 script/pgo/download-profiles.py --targets linux-x64,v8-builtins
