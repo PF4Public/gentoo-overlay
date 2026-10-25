@@ -43,150 +43,177 @@ runs:
 
         n=$(ls -1 "${GITHUB_WORKSPACE}/state-chunks" | grep -c "^${{ inputs.name }}-" || true)
         echo "state chunks: $n"
+        ls -l "${GITHUB_WORKSPACE}/state-chunks"
         du -sh "${GITHUB_WORKSPACE}/state-chunks"
         if [[ $n -gt 20 ]]; then
           echo "ERROR: state produced $n chunks, more than the 20 slot limit" >&2
           exit 1
         fi
+        ls -1 "${GITHUB_WORKSPACE}/state-chunks" | grep "^${{ inputs.name }}-" | sort > "${GITHUB_WORKSPACE}/state-chunks/manifest"
         echo "has-state=true" >> "$GITHUB_OUTPUT"
 
+    # Upload via a glob (directory traversal) rather than a literal file path:
+    # a literal path silently no-ops when the file is gone, the glob at least
+    # exercises the action's normal directory code path.
     - name: Upload state chunk 00
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-00')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-00')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-00
-        path: state-chunks/${{ inputs.name }}-00
+        name: ${ inputs.name }-00
+        path: state-chunks/${ inputs.name }-00*
         retention-days: 3
     - name: Upload state chunk 01
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-01')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-01')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-01
-        path: state-chunks/${{ inputs.name }}-01
+        name: ${ inputs.name }-01
+        path: state-chunks/${ inputs.name }-01*
         retention-days: 3
     - name: Upload state chunk 02
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-02')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-02')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-02
-        path: state-chunks/${{ inputs.name }}-02
+        name: ${ inputs.name }-02
+        path: state-chunks/${ inputs.name }-02*
         retention-days: 3
     - name: Upload state chunk 03
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-03')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-03')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-03
-        path: state-chunks/${{ inputs.name }}-03
+        name: ${ inputs.name }-03
+        path: state-chunks/${ inputs.name }-03*
         retention-days: 3
     - name: Upload state chunk 04
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-04')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-04')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-04
-        path: state-chunks/${{ inputs.name }}-04
+        name: ${ inputs.name }-04
+        path: state-chunks/${ inputs.name }-04*
         retention-days: 3
     - name: Upload state chunk 05
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-05')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-05')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-05
-        path: state-chunks/${{ inputs.name }}-05
+        name: ${ inputs.name }-05
+        path: state-chunks/${ inputs.name }-05*
         retention-days: 3
     - name: Upload state chunk 06
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-06')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-06')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-06
-        path: state-chunks/${{ inputs.name }}-06
+        name: ${ inputs.name }-06
+        path: state-chunks/${ inputs.name }-06*
         retention-days: 3
     - name: Upload state chunk 07
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-07')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-07')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-07
-        path: state-chunks/${{ inputs.name }}-07
+        name: ${ inputs.name }-07
+        path: state-chunks/${ inputs.name }-07*
         retention-days: 3
     - name: Upload state chunk 08
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-08')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-08')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-08
-        path: state-chunks/${{ inputs.name }}-08
+        name: ${ inputs.name }-08
+        path: state-chunks/${ inputs.name }-08*
         retention-days: 3
     - name: Upload state chunk 09
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-09')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-09')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-09
-        path: state-chunks/${{ inputs.name }}-09
+        name: ${ inputs.name }-09
+        path: state-chunks/${ inputs.name }-09*
         retention-days: 3
     - name: Upload state chunk 10
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-10')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-10')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-10
-        path: state-chunks/${{ inputs.name }}-10
+        name: ${ inputs.name }-10
+        path: state-chunks/${ inputs.name }-10*
         retention-days: 3
     - name: Upload state chunk 11
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-11')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-11')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-11
-        path: state-chunks/${{ inputs.name }}-11
+        name: ${ inputs.name }-11
+        path: state-chunks/${ inputs.name }-11*
         retention-days: 3
     - name: Upload state chunk 12
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-12')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-12')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-12
-        path: state-chunks/${{ inputs.name }}-12
+        name: ${ inputs.name }-12
+        path: state-chunks/${ inputs.name }-12*
         retention-days: 3
     - name: Upload state chunk 13
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-13')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-13')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-13
-        path: state-chunks/${{ inputs.name }}-13
+        name: ${ inputs.name }-13
+        path: state-chunks/${ inputs.name }-13*
         retention-days: 3
     - name: Upload state chunk 14
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-14')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-14')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-14
-        path: state-chunks/${{ inputs.name }}-14
+        name: ${ inputs.name }-14
+        path: state-chunks/${ inputs.name }-14*
         retention-days: 3
     - name: Upload state chunk 15
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-15')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-15')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-15
-        path: state-chunks/${{ inputs.name }}-15
+        name: ${ inputs.name }-15
+        path: state-chunks/${ inputs.name }-15*
         retention-days: 3
     - name: Upload state chunk 16
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-16')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-16')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-16
-        path: state-chunks/${{ inputs.name }}-16
+        name: ${ inputs.name }-16
+        path: state-chunks/${ inputs.name }-16*
         retention-days: 3
     - name: Upload state chunk 17
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-17')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-17')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-17
-        path: state-chunks/${{ inputs.name }}-17
+        name: ${ inputs.name }-17
+        path: state-chunks/${ inputs.name }-17*
         retention-days: 3
     - name: Upload state chunk 18
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-18')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-18')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-18
-        path: state-chunks/${{ inputs.name }}-18
+        name: ${ inputs.name }-18
+        path: state-chunks/${ inputs.name }-18*
         retention-days: 3
     - name: Upload state chunk 19
-      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-19')
+      if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-19')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.name }}-19
-        path: state-chunks/${{ inputs.name }}-19
+        name: ${ inputs.name }-19
+        path: state-chunks/${ inputs.name }-19*
         retention-days: 3
+    # fail loudly if a chunk was packed but did not end up as a run artifact
+    - name: Verify state chunks
+      if: steps.pack.outputs.has-state == 'true'
+      shell: bash
+      run: |
+        set -uo pipefail
+        mapfile -t want < "${GITHUB_WORKSPACE}/state-chunks/manifest"
+        got=$(gh api "repos/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${{ inputs.name }}-" | sort || true)
+        echo "packed: $(wc -l < "${GITHUB_WORKSPACE}/state-chunks/manifest") chunks"
+        echo "uploaded: $(echo "$got" | grep -c . || true) chunks"
+        ls -l "${GITHUB_WORKSPACE}/state-chunks"
+        missing=0
+        for name in "${want[@]}"; do
+          if ! grep -qx "$name" <<< "$got"; then
+            echo "ERROR: chunk $name is missing from the run artifacts" >&2
+            missing=1
+          fi
+        done
+        if [[ $missing -ne 0 ]]; then
+          exit 1
+        fi
+        echo "all state chunks verified"

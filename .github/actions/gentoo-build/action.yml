@@ -76,10 +76,11 @@ runs:
         # fail fast on unsatisfiable deps/keywords instead of hours into the build;
         # -p mode cannot write the autounmask changes it reports ("... changes are
         # necessary to proceed"), so treat those as a warning - the real build
-        # writes them via --autounmask-write
+        # writes them via --autounmask-write; the || keeps the rc in a conditional
+        # context, so the -e wrapper does not abort the step before it can be handled
+        rc=0
         timeout 15m docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }} 2>&1 | tee dry-run.log
-        rc=$?
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }} 2>&1 | tee dry-run.log || rc=$?
         if [[ $rc -ne 0 ]]; then
           if grep -q "changes are necessary to proceed" dry-run.log; then
             echo "::warning::dry run reports necessary USE/keyword changes, the build will autounmask them"
@@ -94,10 +95,12 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        # stream to the job log too, the build is otherwise silent for hours
+        # stream to the job log too, the build is otherwise silent for hours;
+        # the || keeps the rc in a conditional context, so the -e wrapper does
+        # not abort the step on a timeout before it can be handled
+        rc=0
         timeout ${{ inputs.build-timeout }} docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log
-        rc=$?
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log || rc=$?
         if [[ $rc -eq 0 ]]; then
           status="complete"
         elif [[ $rc -eq 124 ]]; then
