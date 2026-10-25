@@ -73,9 +73,21 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        # fail fast on unsatisfiable deps/keywords instead of hours into the build
+        # fail fast on unsatisfiable deps/keywords instead of hours into the build;
+        # -p mode cannot write the autounmask changes it reports ("... changes are
+        # necessary to proceed"), so treat those as a warning - the real build
+        # writes them via --autounmask-write
         timeout 15m docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }}
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }} 2>&1 | tee dry-run.log
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+          if grep -q "changes are necessary to proceed" dry-run.log; then
+            echo "::warning::dry run reports necessary USE/keyword changes, the build will autounmask them"
+          else
+            echo "dependency resolution failed" >&2
+            exit 1
+          fi
+        fi
 
     - name: Build
       id: build

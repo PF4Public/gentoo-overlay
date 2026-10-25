@@ -31,6 +31,11 @@ runs:
       run: |
         set -euo pipefail
 
+        # the official binhost binaries are built with the desktop profile
+        # (its USE carries X, gtk, qt6, ...), so build with it to match
+        docker exec gentoo bash -c \
+          'ln -sf /usr/portage/profiles/default/linux/amd64/23.0/desktop /etc/portage/make.profile'
+
         printf '%s\n' \
           'ACCEPT_KEYWORDS="amd64"' \
           'BINPKG_DEST_DIR="/workspace/binpkgs"' \
