@@ -13,6 +13,9 @@
 		<flag name="cuda">Enable the NVIDIA CUDA GPU backend</flag>
 		<flag name="openblas">Enable the OpenBLAS backend</flag>
 		<flag name="opencl">Enable the OpenCL backend</flag>
+		<flag name="openmp">Use OpenMP in the CPU backend</flag>
+		<flag name="rpc">Enable the RPC backend for distributed inference</flag>
+		<flag name="system-ggml">Link against the installed sci-ml/ggml instead of the bundled fork; the CPU ISA set and the backends are then selected by ggml's own USE flags (the fork extensions are not available)</flag>
 		<flag name="vulkan">Enable the Vulkan backend</flag>
 		<flag name="webp">Enable WebP image I/O via system media-libs/libwebp</flag>
 		<flag name="webm">Enable WebM video output via system media-libs/libwebm (requires webp)</flag>
