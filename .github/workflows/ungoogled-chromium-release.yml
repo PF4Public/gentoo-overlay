@@ -38,9 +38,10 @@ env:
     dev-lang/rust ~amd64
     dev-lang/rust-bin ~amd64
 
-  # distfiles/ccache cache key, must match the plain workflow name so the
-  # caches are shared between the CI and release workflows
-  CACHE_KEY: ungoogled-chromium
+  # prefix for the deps artifacts (distfiles, binpkgs, ccache, ...); the
+  # release workflows do not use the actions cache (ref-scoped), the deps
+  # are passed between jobs and release runs as chunked artifacts
+  DEPS_PREFIX: ungoogled-chromium
 
   # per-job build window, the jobs are chained until the build completes
   # (6 jobs x ~5h ~= 29h of build time)
@@ -155,7 +156,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 1
 
@@ -186,7 +187,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 2
 
@@ -217,7 +218,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 3
 
@@ -248,7 +249,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 4
 
@@ -279,7 +280,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 5
 
@@ -310,7 +311,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
-          cache-key: ${{ env.CACHE_KEY }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 6
 
@@ -361,7 +362,12 @@ jobs:
       - name: Delete trigger tag
         if: steps.check.outputs.outcome != 'complete'
         run: |
-          git push origin --delete "refs/tags/${{ github.ref_name }}"
+          # a re-pointed or already deleted tag is no business of this run
+          if git ls-remote --exit-code origin "refs/tags/${{ github.ref_name }}" > /dev/null; then
+            git push origin --delete "refs/tags/${{ github.ref_name }}"
+          else
+            echo "tag no longer exists on the remote, nothing to delete"
+          fi
 
       - name: Fail
         if: steps.check.outputs.outcome != 'complete'
@@ -474,10 +480,10 @@ jobs:
       - name: Free space
         uses: ./.github/actions/free-space
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
         with:
-          key: ${{ env.CACHE_KEY }}
+          prefix: ${{ env.DEPS_PREFIX }}
 
       - name: Gentoo setup
         uses: ./.github/actions/gentoo-setup

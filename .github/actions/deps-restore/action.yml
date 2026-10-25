@@ -1,0 +1,190 @@
+name: Restore deps
+description: >-
+  Download the chunked deps artifacts (the same run first, then the newest
+  set from any earlier run), verify the sha256 and extract the dep dirs
+  back into the workspace
+
+inputs:
+  prefix:
+    description: Artifact name prefix, e.g. electron (-> electron-deps-00)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # 20 slots, must match the slot count of the deps-save action;
+    # download-artifact only sees this run's artifacts
+    - name: Download deps chunk 00
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-00
+        path: deps-chunks/
+    - name: Download deps chunk 01
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-01
+        path: deps-chunks/
+    - name: Download deps chunk 02
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-02
+        path: deps-chunks/
+    - name: Download deps chunk 03
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-03
+        path: deps-chunks/
+    - name: Download deps chunk 04
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-04
+        path: deps-chunks/
+    - name: Download deps chunk 05
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-05
+        path: deps-chunks/
+    - name: Download deps chunk 06
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-06
+        path: deps-chunks/
+    - name: Download deps chunk 07
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-07
+        path: deps-chunks/
+    - name: Download deps chunk 08
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-08
+        path: deps-chunks/
+    - name: Download deps chunk 09
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-09
+        path: deps-chunks/
+    - name: Download deps chunk 10
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-10
+        path: deps-chunks/
+    - name: Download deps chunk 11
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-11
+        path: deps-chunks/
+    - name: Download deps chunk 12
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-12
+        path: deps-chunks/
+    - name: Download deps chunk 13
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-13
+        path: deps-chunks/
+    - name: Download deps chunk 14
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-14
+        path: deps-chunks/
+    - name: Download deps chunk 15
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-15
+        path: deps-chunks/
+    - name: Download deps chunk 16
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-16
+        path: deps-chunks/
+    - name: Download deps chunk 17
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-17
+        path: deps-chunks/
+    - name: Download deps chunk 18
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-18
+        path: deps-chunks/
+    - name: Download deps chunk 19
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${ inputs.prefix }-deps-19
+        path: deps-chunks/
+    - name: Reassemble and extract
+      shell: bash
+      run: |
+        set -uo pipefail
+        p="${{ inputs.prefix }}"
+        cd "${GITHUB_WORKSPACE}"
+
+        fetch_meta() {
+          local id
+          id=$(gh api "repos/${GITHUB_REPO}/actions/artifacts?per_page=100" --jq ".artifacts[] | select(.name == \"${p}-deps-meta\") | .id" | head -1)
+          [[ -n "$id" ]] || return 1
+          local url
+          url=$(gh api "repos/${GITHUB_REPO}/actions/artifacts/$id/zip" -i --jq '.location')
+          curl -sfL "$url" -o /tmp/meta.zip
+          rm -rf /tmp/meta-extract && mkdir -p /tmp/meta-extract
+          unzip -o -q /tmp/meta.zip -d /tmp/meta-extract
+          rm -f /tmp/meta.zip
+          cat "/tmp/meta-extract/${p}-deps-sha256"
+        }
+
+        mapfile -t local < <(ls -1 deps-chunks/ 2>/dev/null | grep "^${p}-deps-" || true)
+        if [[ ${#local[@]} -gt 0 ]]; then
+          # this run produced a set, the meta must be in this run too
+          echo "restoring ${#local[@]} chunk(s) from this run"
+          sha256=$(fetch_meta) || { echo "ERROR: chunks but no meta in this run" >&2; exit 1; }
+        else
+          # no set in this run, fall back to the newest one from any run
+          sha256=$(fetch_meta) || { echo "No deps set found, starting cold"; exit 0; }
+          echo "restoring the newest deps set from an earlier run"
+          mkdir -p deps-chunks
+          names=$(gh api "repos/${GITHUB_REPO}/actions/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | grep -v -- "-meta$")
+          for name in $names; do
+            id=$(gh api "repos/${GITHUB_REPO}/actions/artifacts?name=$name&per_page=1" --jq '.artifacts[0].id')
+            url=$(gh api "repos/${GITHUB_REPO}/actions/artifacts/$id/zip" -i --jq '.location')
+            curl -sfL "$url" -o /tmp/chunk.zip
+            unzip -o -q /tmp/chunk.zip -d deps-chunks/
+            rm -f /tmp/chunk.zip
+          done
+        fi
+
+        mapfile -t files < <(ls -1 deps-chunks/ | grep "^${p}-deps-" | sort)
+        actual=$(cat "deps-chunks/${p}-deps-"* | sha256sum | awk '{print $1}')
+        if [[ "$actual" != "$sha256" ]]; then
+          echo "ERROR: deps checksum mismatch, not restoring corrupted deps" >&2
+          exit 1
+        fi
+        echo "Extracting deps set from ${#files[@]} chunk(s)"
+        command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null
+        cat "deps-chunks/${p}-deps-"* | zstd -d -q | tar -xf - -C "${GITHUB_WORKSPACE}"
+
+        for d in distfiles binpkgs npm-cache yarn-cache pnpm-cache cargo-cache go-cache go-mod-cache ccache; do
+          [[ -d "${GITHUB_WORKSPACE}/$d" ]] && sudo chown -R 250:250 "${GITHUB_WORKSPACE}/$d"
+        done
+        du -shc "${GITHUB_WORKSPACE}"/distfiles "${GITHUB_WORKSPACE}"/binpkgs "${GITHUB_WORKSPACE}"/ccache 2>/dev/null || true

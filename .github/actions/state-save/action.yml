@@ -36,8 +36,8 @@ runs:
         docker cp gentoo:/tmp/state.zst "${GITHUB_WORKSPACE}/state.zst"
         docker exec gentoo rm -f /tmp/state.zst
 
-        mkdir -p "${GITHUB_WORKSPACE}/state-chunks"
-        sha256sum "${GITHUB_WORKSPACE}/state.zst" | awk '{print $1}' > "${GITHUB_WORKSPACE}/state-chunks/sha256"
+        mkdir -p "${GITHUB_WORKSPACE}/state-chunks" "${GITHUB_WORKSPACE}/meta"
+        sha256sum "${GITHUB_WORKSPACE}/state.zst" | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${{ inputs.name }}-sha256"
         split -b 1900m -a 2 "${GITHUB_WORKSPACE}/state.zst" "${GITHUB_WORKSPACE}/state-chunks/${{ inputs.name }}-"
         rm -f "${GITHUB_WORKSPACE}/state.zst"
 
@@ -55,6 +55,15 @@ runs:
     # Upload via a glob (directory traversal) rather than a literal file path:
     # a literal path silently no-ops when the file is gone, the glob at least
     # exercises the action's normal directory code path.
+    # the meta carries the expected sha256, the restore side verifies against it
+    - name: Upload meta
+      if: steps.pack.outputs.has-state == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-meta
+        path: meta/${{ inputs.name }}-sha256*
+        retention-days: 3
+
     - name: Upload state chunk 00
       if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${ inputs.name }-00')
       uses: actions/upload-artifact@v7

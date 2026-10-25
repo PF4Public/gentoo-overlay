@@ -1,8 +1,9 @@
 name: Gentoo build
 description: >-
-  Build a package in the gentoo container: restore the cache and build state,
-  apply the USE flags, run the timeout-bounded emerge, then save the state and
-  package/upload the release artifact. The job only reports 'status'.
+  Build a package in the gentoo container: restore the deps and build state,
+  apply the USE flags, run the timeout-bounded emerge, then save the state,
+  package/upload the release artifact and save the deps. The job only reports
+  'status'.
 
 inputs:
   atom:
@@ -14,8 +15,8 @@ inputs:
   src-dir:
     description: Absolute path inside the gentoo container that contains the out/ dir
     required: true
-  cache-key:
-    description: distfiles/ccache cache key
+  deps-prefix:
+    description: deps artifact name prefix (e.g. electron)
     required: true
   build-timeout:
     description: Per-job build window for the emerge (e.g. 280m)
@@ -36,10 +37,10 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Restore cache
-      uses: ./.github/actions/cache-restore
+    - name: Restore deps
+      uses: ./.github/actions/deps-restore
       with:
-        key: ${{ inputs.cache-key }}
+        prefix: ${{ inputs.deps-prefix }}
 
     - name: Gentoo setup
       uses: ./.github/actions/gentoo-setup
@@ -151,8 +152,8 @@ runs:
         path: release/x86-64.tar.bz2
         retention-days: 30
 
-    - name: Save cache
+    - name: Save deps
       if: always()
-      uses: ./.github/actions/cache-save
+      uses: ./.github/actions/deps-save
       with:
-        key: ${{ inputs.cache-key }}
+        prefix: ${{ inputs.deps-prefix }}

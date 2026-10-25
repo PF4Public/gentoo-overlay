@@ -1,0 +1,253 @@
+name: Save deps
+description: >-
+  Pack the workspace dep dirs (distfiles, binpkgs, ccache, ...) into chunked
+  artifacts. Artifact names are fixed, so every release run feeds the next
+  one: superseded sets (any run) are deleted before the upload.
+
+inputs:
+  prefix:
+    description: Artifact name prefix, e.g. electron (-> electron-deps-00)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # only the newest deps set is useful, drop every older one
+    - name: Delete superseded deps artifacts
+      shell: bash
+      run: |
+        set -uo pipefail
+        ids=$(gh api "repos/${GITHUB_REPO}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.name | startswith("${{ inputs.prefix }}-deps-")) | .id' || true)
+        for id in $ids; do
+          echo "deleting superseded artifact $id"
+          gh api -X DELETE "repos/${GITHUB_REPO}/actions/artifacts/$id" || true
+        done
+
+    # 20 slots x 1900 MiB zstd ~= 38 GiB compressed max
+    - name: Pack and split
+      id: pack
+      shell: bash
+      run: |
+        set -uo pipefail
+        p="${{ inputs.prefix }}"
+        dirs=()
+        for d in distfiles binpkgs npm-cache yarn-cache pnpm-cache cargo-cache go-cache go-mod-cache ccache; do
+          if [[ -d "${GITHUB_WORKSPACE}/$d" ]] && [[ -n "$(ls -A "${GITHUB_WORKSPACE}/$d" 2>/dev/null)" ]]; then
+            dirs+=("$d")
+          fi
+        done
+        if [[ ${#dirs[@]} -eq 0 ]]; then
+          echo "Nothing to save"
+          echo "has-deps=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo "packing: ${dirs[*]}"
+        sudo du -shc "${dirs[@]/#/${GITHUB_WORKSPACE}\//}"
+        # ccache holds 0600 entries, pack as root
+        sudo tar -cf - -C "${GITHUB_WORKSPACE}" "${dirs[@]}" | zstd -q -T0 -1 -o /tmp/deps.zst
+        mkdir -p "${GITHUB_WORKSPACE}/deps-chunks" "${GITHUB_WORKSPACE}/meta"
+        sha256sum /tmp/deps.zst | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256"
+        split -b 1900m -a 2 /tmp/deps.zst "${GITHUB_WORKSPACE}/deps-chunks/${p}-deps-"
+        rm -f /tmp/deps.zst
+
+        n=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep -c "^${p}-deps-" || true)
+        echo "deps chunks: $n"
+        ls -l "${GITHUB_WORKSPACE}/deps-chunks"
+        du -sh "${GITHUB_WORKSPACE}/deps-chunks"
+        if [[ $n -gt 20 ]]; then
+          echo "ERROR: deps produced $n chunks, more than the 20 slot limit" >&2
+          exit 1
+        fi
+        echo "has-deps=true" >> "$GITHUB_OUTPUT"
+
+    # the meta carries the expected sha256, the restore side verifies against it
+    - name: Upload meta
+      if: steps.pack.outputs.has-deps == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.prefix }}-deps-meta
+        path: meta/${{ inputs.prefix }}-deps-sha256*
+        retention-days: 90
+        overwrite: true
+
+    - name: Upload deps chunk 00
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-00')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-00
+        path: deps-chunks/${ inputs.prefix }-deps-00*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 01
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-01')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-01
+        path: deps-chunks/${ inputs.prefix }-deps-01*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 02
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-02')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-02
+        path: deps-chunks/${ inputs.prefix }-deps-02*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 03
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-03')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-03
+        path: deps-chunks/${ inputs.prefix }-deps-03*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 04
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-04')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-04
+        path: deps-chunks/${ inputs.prefix }-deps-04*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 05
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-05')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-05
+        path: deps-chunks/${ inputs.prefix }-deps-05*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 06
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-06')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-06
+        path: deps-chunks/${ inputs.prefix }-deps-06*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 07
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-07')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-07
+        path: deps-chunks/${ inputs.prefix }-deps-07*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 08
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-08')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-08
+        path: deps-chunks/${ inputs.prefix }-deps-08*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 09
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-09')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-09
+        path: deps-chunks/${ inputs.prefix }-deps-09*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 10
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-10')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-10
+        path: deps-chunks/${ inputs.prefix }-deps-10*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 11
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-11')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-11
+        path: deps-chunks/${ inputs.prefix }-deps-11*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 12
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-12')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-12
+        path: deps-chunks/${ inputs.prefix }-deps-12*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 13
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-13')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-13
+        path: deps-chunks/${ inputs.prefix }-deps-13*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 14
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-14')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-14
+        path: deps-chunks/${ inputs.prefix }-deps-14*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 15
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-15')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-15
+        path: deps-chunks/${ inputs.prefix }-deps-15*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 16
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-16')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-16
+        path: deps-chunks/${ inputs.prefix }-deps-16*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 17
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-17')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-17
+        path: deps-chunks/${ inputs.prefix }-deps-17*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 18
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-18')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-18
+        path: deps-chunks/${ inputs.prefix }-deps-18*
+        retention-days: 90
+        overwrite: true
+    - name: Upload deps chunk 19
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-19')
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${ inputs.prefix }-deps-19
+        path: deps-chunks/${ inputs.prefix }-deps-19*
+        retention-days: 90
+        overwrite: true
+    # fail loudly if a chunk was packed but did not end up as a run artifact
+    - name: Verify deps chunks
+      if: steps.pack.outputs.has-deps == 'true'
+      shell: bash
+      run: |
+        set -uo pipefail
+        p="${{ inputs.prefix }}"
+        want=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep "^${p}-deps-" | sort)
+        got=$(gh api "repos/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
+        echo "packed:"; echo "$want"
+        echo "uploaded:"; echo "$got"
+        ls -l "${GITHUB_WORKSPACE}/deps-chunks"
+        missing=0
+        for name in $want; do
+          if ! grep -qx "$name" <<< "$got"; then
+            echo "ERROR: chunk $name is missing from the run artifacts" >&2
+            missing=1
+          fi
+        done
+        [[ $missing -eq 0 ]] || exit 1
+        echo "all deps chunks verified"
