@@ -88,7 +88,7 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	!system-ggml? (
-		opencl? ( dev-libs/opencl-headers )
+		opencl? ( dev-util/opencl-headers )
 		vulkan? (
 			dev-util/spirv-headers
 			dev-util/vulkan-headers
