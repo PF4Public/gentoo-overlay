@@ -31,9 +31,13 @@ jobs:
         id: ebuilds
         shell: bash
         run: |
-          list="${{ steps.setup.outputs.modified }}"
-          if ! grep -q '\.ebuild' <<< "$list"; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+          else
+            list="${{ steps.setup.outputs.modified }}"
+            if ! grep -q '\.ebuild' <<< "$list"; then
+              list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+            fi
           fi
           echo "list=${list}" >> "$GITHUB_OUTPUT"
 
@@ -80,9 +84,13 @@ jobs:
         id: ebuilds
         shell: bash
         run: |
-          list="${{ steps.setup.outputs.modified }}"
-          if ! grep -q '\.ebuild' <<< "$list"; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+          else
+            list="${{ steps.setup.outputs.modified }}"
+            if ! grep -q '\.ebuild' <<< "$list"; then
+              list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+            fi
           fi
           echo "list=${list}" >> "$GITHUB_OUTPUT"
 
