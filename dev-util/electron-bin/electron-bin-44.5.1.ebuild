@@ -19,6 +19,7 @@ KEYWORDS="amd64"
 RESTRICT="mirror"
 
 RDEPEND="
+	app-eselect/eselect-electron
 	app-arch/bzip2:=
 	dev-libs/expat:=
 	net-misc/curl[ssl]
@@ -98,4 +99,12 @@ src_install() {
 	# and electron-config symlinks /usr/bin/electron to it when selected.
 	dosym "../../opt/electron-${mymajor}/electron" \
 		"/usr/bin/electron-bin-${mymajor}"
+}
+
+pkg_postinst() {
+	electron-config update
+}
+
+pkg_postrm() {
+	electron-config update
 }
