@@ -5,9 +5,12 @@ on:
     - master
     paths:
     - 'sci-misc/whisper-cpp/*.ebuild'
+    - '.github/workflows/whisper-cpp.yml'
   pull_request:
     paths:
     - 'sci-misc/whisper-cpp/*.ebuild'
+    - '.github/workflows/whisper-cpp.yml'
+  workflow_dispatch:
 
 jobs:
   default:
@@ -23,13 +26,24 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
+      # no changed ebuilds (workflow edit or manual dispatch): build all of them
+      - name: Resolve ebuild list
+        id: ebuilds
+        shell: bash
+        run: |
+          list="${{ steps.setup.outputs.modified }}"
+          if ! grep -q '\.ebuild' <<< "$list"; then
+            list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+          fi
+          echo "list=${list}" >> "$GITHUB_OUTPUT"
+
       - name: Restore cache
         uses: ./.github/actions/cache-restore
 
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.setup.outputs.modified }}
+            modified: ${{ steps.ebuilds.outputs.list }}
             tool: ebuild
             action: install
             params: ' '
@@ -61,13 +75,24 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
+      # no changed ebuilds (workflow edit or manual dispatch): build all of them
+      - name: Resolve ebuild list
+        id: ebuilds
+        shell: bash
+        run: |
+          list="${{ steps.setup.outputs.modified }}"
+          if ! grep -q '\.ebuild' <<< "$list"; then
+            list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
+          fi
+          echo "list=${list}" >> "$GITHUB_OUTPUT"
+
       - name: Restore cache
         uses: ./.github/actions/cache-restore
 
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.setup.outputs.modified }}
+            modified: ${{ steps.ebuilds.outputs.list }}
             tool: ebuild
             action: install
             params: ${{ matrix.use }}
