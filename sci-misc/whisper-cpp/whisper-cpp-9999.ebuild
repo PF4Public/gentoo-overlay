@@ -14,6 +14,8 @@ if [[ ${PV} = *9999* ]]; then
 else
 	SRC_URI="https://github.com/ggml-org/whisper.cpp/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm64"
+	# the tarball extracts to whisper.cpp-${PV}, not ${P}
+	S="${WORKDIR}/whisper.cpp-${PV}"
 	WHISPER_BUILD_IS_DEV=OFF
 fi
 
