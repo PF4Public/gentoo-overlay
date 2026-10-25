@@ -42,18 +42,14 @@ jobs:
     needs: default
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - use: 'blas'
-          - use: 'ffmpeg'
-          - use: 'sdl'
-          - use: 'opencl rpc'
-          - use: 'vulkan'
-          - use: 'cuda'
-            experimental: true
+        # the gentoo-docker-action runs 'ebuild install' without resolving
+        # dependencies, so only test flags whose packages are in the base image
+        use:
+          - 'ffmpeg'
+          - 'sdl'
 
     steps:
       - name: Checkout
