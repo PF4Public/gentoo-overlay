@@ -5,14 +5,19 @@ on:
     - master
     paths:
     - 'sci-misc/llama-cpp/*.ebuild'
+    - 'sci-misc/llama-cpp/files/**'
   pull_request:
     paths:
     - 'sci-misc/llama-cpp/*.ebuild'
+    - 'sci-misc/llama-cpp/files/**'
 
 jobs:
-  default:
+  filter:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.setup.outputs.build }}
+      ebuilds: ${{ steps.setup.outputs.ebuilds }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -23,13 +28,29 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
+  default:
+    needs: filter
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+
       - name: Restore cache
         uses: ./.github/actions/cache-restore
 
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.setup.outputs.modified }}
+            modified: ${{ steps.setup.outputs.ebuilds }}
             tool: ebuild
             action: compile
             params: ' '
@@ -39,8 +60,8 @@ jobs:
         uses: ./.github/actions/cache-save
 
   ebuild:
-    needs: default
-    if: github.repository == 'PF4Public/gentoo-overlay'
+    needs: [filter, default]
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental || false }}
     strategy:
@@ -61,6 +82,8 @@ jobs:
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
 
       - name: Restore cache
         uses: ./.github/actions/cache-restore
@@ -68,7 +91,7 @@ jobs:
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.setup.outputs.modified }}
+            modified: ${{ steps.setup.outputs.ebuilds }}
             tool: ebuild
             action: compile
             params: ${{ matrix.use }}

@@ -1,16 +1,33 @@
 name: Setup
-description: Get changed files and prepare cache dirs
+description: Get changed files, resolve them to the ebuilds to build, prepare cache dirs
+
+inputs:
+  ebuilds:
+    description: >-
+      Pre-resolved space-separated ebuild list. When set, the changed-files
+      detection is skipped and the list is passed through.
+    default: ''
 
 outputs:
   modified:
-    description: List of changed files
+    description: List of changed files (deleted ebuilds excluded)
     value: ${{ steps.files.outputs.modified }}
+  ebuilds:
+    description: >-
+      Space-separated ebuilds to build - the ones changed directly, the ones
+      referencing a changed file, or (if nothing references the file) the
+      last two ebuilds of the package
+    value: ${{ steps.files.outputs.ebuilds }}
+  build:
+    description: Whether there is anything to build
+    value: ${{ steps.files.outputs.build }}
 
 runs:
   using: composite
   steps:
     - name: Get changed files
       id: changed-files
+      if: ${{ inputs.ebuilds == '' }}
       uses: tj-actions/changed-files@v47
 
     - name: Prepare cache dir
@@ -29,4 +46,44 @@ runs:
       id: files
       shell: bash
       run: |
-        echo "modified=$( echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ' )" >> $GITHUB_OUTPUT
+        if [[ -n "${{ inputs.ebuilds }}" ]]; then
+          # the list was already resolved (by the filter job), pass it through
+          modified=""
+          ebuilds="${{ inputs.ebuilds }}"
+        else
+          all="${{ steps.changed-files.outputs.all_changed_files }}"
+
+          # a deleted ebuild can no longer be built - drop it from the list;
+          # other deletions (files/, ...) stay, they still drive the resolution
+          for d in ${{ steps.changed-files.outputs.all_deleted_files }}; do
+            case "$d" in
+              *.ebuild) all=$(printf '%s\n' "$all" | grep -vxF "$d" || true) ;;
+            esac
+          done
+          modified=$(echo "$all" | tr '\n' ' ')
+
+          # resolve the ebuilds to build:
+          # - ebuilds changed directly
+          # - ebuilds referencing a changed non-ebuild file (the basename is
+          #   grepped in the package dir; for a deleted file the reference
+          #   still lives in the ebuild, so a dangling one fails the build)
+          # - a file nothing references falls back to the last two ebuilds
+          #   of the package (9999 + newest release)
+          ebuilds=$(printf '%s\n' "$all" | grep -E '\.ebuild$' || true)
+          while IFS= read -r f; do
+            [[ -n "$f" ]] || continue
+            pkg=$(echo "$f" | cut -d/ -f1-2)
+            name=$(basename "$f")
+            if [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] \
+               && refs=$(grep -lP "(?<![A-Za-z0-9._-])${name//./\\.}" "${pkg}"/*.ebuild 2>/dev/null); then
+              ebuilds+=$'\n'"${refs}"
+              continue
+            fi
+            ebuilds+=$'\n'"$(ls "${pkg}"/*.ebuild 2>/dev/null | sort -V | tail -2)"
+          done <<< "$(printf '%s\n' "$all" | grep -vE '\.ebuild$' || true)"
+        fi
+        ebuilds=$(echo "$ebuilds" | tr ' ' '\n' | grep -E '^[^ ]+\.ebuild$' | sort -du | tr '\n' ' ')
+        ebuilds="${ebuilds% }"
+        echo "modified=${modified}" >> $GITHUB_OUTPUT
+        echo "ebuilds=${ebuilds}" >> $GITHUB_OUTPUT
+        echo "build=$( [[ -n "$ebuilds" ]] && echo true || echo false )" >> $GITHUB_OUTPUT

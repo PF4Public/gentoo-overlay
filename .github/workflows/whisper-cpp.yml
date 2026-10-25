@@ -5,17 +5,19 @@ on:
     - master
     paths:
     - 'sci-misc/whisper-cpp/*.ebuild'
-    - '.github/workflows/whisper-cpp.yml'
+    - 'sci-misc/whisper-cpp/files/**'
   pull_request:
     paths:
     - 'sci-misc/whisper-cpp/*.ebuild'
-    - '.github/workflows/whisper-cpp.yml'
-  workflow_dispatch:
+    - 'sci-misc/whisper-cpp/files/**'
 
 jobs:
-  default:
+  filter:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.setup.outputs.build }}
+      ebuilds: ${{ steps.setup.outputs.ebuilds }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -26,20 +28,21 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
-      # no changed ebuilds (workflow edit or manual dispatch): build all of them
-      - name: Resolve ebuild list
-        id: ebuilds
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
-          else
-            list="${{ steps.setup.outputs.modified }}"
-            if ! grep -q '\.ebuild' <<< "$list"; then
-              list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
-            fi
-          fi
-          echo "list=${list}" >> "$GITHUB_OUTPUT"
+  default:
+    needs: filter
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
 
       - name: Restore cache
         uses: ./.github/actions/cache-restore
@@ -47,7 +50,7 @@ jobs:
       - name: Install ${{ github.workflow }} with default USE-flags
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.ebuilds.outputs.list }}
+            modified: ${{ steps.setup.outputs.ebuilds }}
             tool: ebuild
             action: install
             params: ' '
@@ -57,8 +60,8 @@ jobs:
         uses: ./.github/actions/cache-save
 
   ebuild:
-    needs: default
-    if: github.repository == 'PF4Public/gentoo-overlay'
+    needs: [filter, default]
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -78,21 +81,8 @@ jobs:
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
-
-      # no changed ebuilds (workflow edit or manual dispatch): build all of them
-      - name: Resolve ebuild list
-        id: ebuilds
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
-          else
-            list="${{ steps.setup.outputs.modified }}"
-            if ! grep -q '\.ebuild' <<< "$list"; then
-              list="sci-misc/whisper-cpp/whisper-cpp-1.9.5.ebuild sci-misc/whisper-cpp/whisper-cpp-9999.ebuild"
-            fi
-          fi
-          echo "list=${list}" >> "$GITHUB_OUTPUT"
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
 
       - name: Restore cache
         uses: ./.github/actions/cache-restore
@@ -100,7 +90,7 @@ jobs:
       - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
         uses: pf4public/gentoo-docker-action@master
         with:
-            modified: ${{ steps.ebuilds.outputs.list }}
+            modified: ${{ steps.setup.outputs.ebuilds }}
             tool: ebuild
             action: install
             params: ${{ matrix.use }}
