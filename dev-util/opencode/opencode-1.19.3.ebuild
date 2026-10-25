@@ -65,6 +65,18 @@ python_check_deps() {
 		python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
 }
 
+src_prepare() {
+	default
+
+	# Electron 44 removed the legacy clipboard surface (readImage, the
+	# object-argument write(data)), which breaks image paste on the 44/45
+	# slots and the bundled electron-context-menu's copy-link/image/video-
+	# address items. The patch makes the read-clipboard-image handler speak
+	# whichever surface the runtime exposes and shims the legacy
+	# write({ bookmark, text }) calls into ClipboardItem writes (ipc.ts).
+	patch -p1 -i "${FILESDIR}/electron-clipboard-compat.patch" || die
+}
+
 # pkg_pretend() {
 # 	einfo
 # 	einfo "Should the build fail with JS/heap OOM errors"

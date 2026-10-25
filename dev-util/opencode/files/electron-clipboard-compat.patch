@@ -1,0 +1,87 @@
+--- a/packages/desktop/src/main/ipc.ts
++++ b/packages/desktop/src/main/ipc.ts
+@@ -1,7 +1,7 @@
+ import { execFile } from "node:child_process"
+ import { stat } from "node:fs/promises"
+ import { basename, join } from "node:path"
+-import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from "electron"
++import { app, BrowserWindow, clipboard, ClipboardItem, dialog, ipcMain, shell } from "electron"
+ import type { IpcMainEvent, IpcMainInvokeEvent } from "electron"
+ import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
+ import { parseDesktopNativeBundle, type DesktopNativeBundle } from "@opencode-ai/app/i18n/desktop-native"
+@@ -25,6 +25,32 @@
+ import { createDesktopDraftStore } from "./draft-store"
+ import { nativeT } from "./native-translations"
+ 
++// Electron 44 removed the legacy clipboard surface (readImage, readBuffer,
++// writeBuffer, and the object-argument write(data)). Some bundled
++// dependencies (electron-context-menu) still call the legacy
++// write({ bookmark, text }) shape, so translate it to a ClipboardItem.
++function installLegacyClipboardCompat() {
++  const target = clipboard as {
++    readImage?: unknown
++    write: (...args: unknown[]) => unknown
++  }
++  if (typeof target.readImage === "function") return
++  const write = target.write.bind(clipboard)
++  target.write = (arg: unknown) => {
++    if (arg && typeof arg === "object" && !Array.isArray(arg)) {
++      const data = arg as { text?: string; html?: string }
++      const item = new ClipboardItem({
++        ...(data.text ? { "text/plain": data.text } : {}),
++        ...(data.html ? { "text/html": new Blob([data.html]) } : {}),
++      })
++      return write([item])
++    }
++    return write(arg)
++  }
++}
++
++installLegacyClipboardCompat()
++
+ const pickerFilters = (ext?: string[]) => {
+   if (!ext || ext.length === 0) return undefined
+   return [{ name: nativeT("desktop.dialog.files"), extensions: ext }]
+@@ -235,12 +261,36 @@
+     return true
+   })
+ 
+-  ipcMain.handle("read-clipboard-image", () => {
+-    const image = clipboard.readImage()
+-    if (image.isEmpty()) return null
+-    const buffer = image.toPNG().buffer
+-    const size = image.getSize()
+-    return { buffer, width: size.width, height: size.height }
++  ipcMain.handle("read-clipboard-image", async () => {
++    const target = clipboard as {
++      readImage?: () => {
++        isEmpty: () => boolean
++        toPNG: () => Buffer
++        getSize: () => { width: number; height: number }
++      }
++      read?: () => Promise<{ types: string[]; getType: (type: string) => Promise<Blob> }[]>
++    }
++    if (typeof target.readImage === "function") {
++      const image = target.readImage()
++      if (image.isEmpty()) return null
++      const buffer = image.toPNG().buffer
++      const size = image.getSize()
++      return { buffer, width: size.width, height: size.height }
++    }
++    const items = (await target.read?.()) ?? []
++    for (const item of items) {
++      const imageType = item.types.find((type: string) => type.startsWith("image/"))
++      if (!imageType) continue
++      const buffer = Buffer.from(await (await item.getType(imageType)).arrayBuffer())
++      let width = 0
++      let height = 0
++      if (buffer.length > 24 && buffer.subarray(12, 16).toString("ascii") === "IHDR") {
++        width = buffer.readUInt32BE(16)
++        height = buffer.readUInt32BE(20)
++      }
++      return { buffer, width, height }
++    }
++    return null
+   })
+ 
+   ipcMain.handle("get-window-id", (event: IpcMainInvokeEvent) => {
