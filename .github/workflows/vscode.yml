@@ -59,9 +59,11 @@ jobs:
             experimental: true
           - use: 'reh reh-web'
             experimental: true
-          - use: '-temp-fix electron_slot_43 -electron_slot_44'
+          - use: '-temp-fix electron_slot_43 -electron_slot_44 -electron_slot_45'
             experimental: true
-          - use: '-temp-fix -electron_slot_43 electron_slot_44'
+          - use: '-temp-fix -electron_slot_43 electron_slot_44 -electron_slot_45'
+            experimental: true
+          - use: '-temp-fix -electron_slot_43 -electron_slot_44 electron_slot_45'
             experimental: true
 
     steps:
