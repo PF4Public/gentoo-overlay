@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">ggml-org/ggml</remote-id>
+		<bugs-to>https://github.com/ggml-org/ggml/issues</bugs-to>
+	</upstream>
+	<longdescription>
+		ggml is a library for performing tensor operations used by the
+		ggml-org projects (llama.cpp, whisper.cpp, ...). This ebuild is an
+		overlay of sci-ml/ggml::gentoo that adds the openblas, opencl and
+		rpc backend flags.
+	</longdescription>
+	<use>
+		<flag name="cuda">Enable the NVIDIA CUDA GPU backend</flag>
+		<flag name="openblas">Enable the OpenBLAS backend (GGML_BLAS)</flag>
+		<flag name="opencl">Enable the OpenCL backend</flag>
+		<flag name="openmp">Use OpenMP in the CPU backend</flag>
+		<flag name="rocm">Enable the AMD ROCm/HIP GPU backend</flag>
+		<flag name="rpc">Enable the RPC backend for distributed inference</flag>
+		<flag name="vulkan">Enable the Vulkan backend</flag>
+	</use>
+</pkgmetadata>
