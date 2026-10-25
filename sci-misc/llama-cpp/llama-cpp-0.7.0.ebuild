@@ -35,7 +35,7 @@ X86_CPU_FLAGS=(
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 
-IUSE="cuda examples hip openblas opencl +openmp +openssl rpc vulkan webui ${CPU_FLAGS[*]}"
+IUSE="cuda examples hip openblas opencl +openmp +openssl rpc system-ggml vulkan webui ${CPU_FLAGS[*]}"
 
 unset X86_CPU_FLAGS CPU_FLAGS
 
@@ -45,7 +45,7 @@ if [[ ${PV} = *9999* ]]; then
 	# build-online: the webui build downloads the npm registry over the
 	# network. Default off: without webui the build is fully offline.
 	IUSE+=" build-online"
-	REQUIRED_USE="webui? ( build-online )"
+	REQUIRED_USE+=" webui? ( build-online )"
 	RESTRICT="mirror build-online? ( network-sandbox )"
 	BDEPEND_EXTRA="webui? ( >=net-libs/nodejs-22[npm] )"
 	LLAMA_IS_DEV=ON
@@ -65,37 +65,49 @@ else
 	LLAMA_IS_DEV=OFF
 fi
 
+# with system-ggml the backend flags are mapped onto sci-ml/ggml's own
+# USE flags, and the bundled-build dependencies are dropped
 COMMON_DEPEND="
-	cuda? ( dev-util/nvidia-cuda-toolkit:= )
-	hip? (
-		>=dev-util/hip-${ROCM_VERSION}:=
-		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
-		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
-	)
-	openblas? ( sci-libs/openblas:= )
-	opencl? ( dev-libs/opencl-icd-loader )
-	openmp? ( llvm-runtimes/openmp:= )
 	openssl? ( dev-libs/openssl:= )
-	vulkan? ( media-libs/vulkan-loader )
+	system-ggml? (
+		>=sci-ml/ggml-0.27:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?]
+		hip? ( sci-ml/ggml[rocm] )
+	)
+	!system-ggml? (
+		cuda? ( dev-util/nvidia-cuda-toolkit:= )
+		hip? (
+			>=dev-util/hip-${ROCM_VERSION}:=
+			>=sci-libs/hipBLAS-${ROCM_VERSION}:=
+			>=sci-libs/rocBLAS-${ROCM_VERSION}:=
+		)
+		openblas? ( sci-libs/openblas:= )
+		opencl? ( dev-libs/opencl-icd-loader )
+		openmp? ( llvm-runtimes/openmp:= )
+		vulkan? ( media-libs/vulkan-loader )
+	)
 "
 DEPEND="${COMMON_DEPEND}
-	opencl? ( dev-libs/opencl-headers )
-	vulkan? (
-		dev-util/spirv-headers
-		dev-util/vulkan-headers
+	!system-ggml? (
+		opencl? ( dev-libs/opencl-headers )
+		vulkan? (
+			dev-util/spirv-headers
+			dev-util/vulkan-headers
+		)
 	)
 "
 RDEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	${BDEPEND_EXTRA}
-	opencl? ( ${PYTHON_DEPS} )
-	vulkan? ( media-libs/shaderc )
+	!system-ggml? (
+		opencl? ( ${PYTHON_DEPS} )
+		vulkan? ( media-libs/shaderc )
+	)
 "
 
 unset BDEPEND_EXTRA
 
 python_check_deps() {
-	if use opencl; then
+	if use opencl && ! use system-ggml; then
 		python_is_python3
 	fi
 }
@@ -114,7 +126,7 @@ pkg_setup() {
 		fi
 	fi
 
-	if use opencl; then
+	if use opencl && ! use system-ggml; then
 		python-any-r1_pkg_setup
 	fi
 
@@ -122,13 +134,13 @@ pkg_setup() {
 }
 
 src_prepare() {
-	use cuda && cuda_src_prepare
+	use cuda && ! use system-ggml && cuda_src_prepare
 	cmake_src_prepare
 
 	# the AMDGPU bf16 ext_vector_type fix for LLVM 23; applied with hip only,
 	# so a drift in ggml-cuda cannot break the other backends. The RDNA part
 	# is already fixed upstream, hence the CDNA-only patch for the live tree.
-	if use hip; then
+	if use hip && ! use system-ggml; then
 		if [[ ${PV} = *9999* ]]; then
 			eapply "${FILESDIR}/${PN}-cdna-bf16.patch"
 		else
@@ -157,57 +169,64 @@ src_configure() {
 		-DLLAMA_USE_PREBUILT_UI=OFF
 		-DLLAMA_TESTS_INSTALL=OFF
 		-DLLAMA_OPENSSL=$(usex openssl)
+		-DLLAMA_USE_SYSTEM_GGML=$(usex system-ggml)
 
 		# avoid clashing with sci-ml/ggml
 		-DCMAKE_INSTALL_INCLUDEDIR="include/${MY_PN}"
 		-DCMAKE_INSTALL_LIBDIR="$(get_libdir)/${MY_PN}"
 		-DCMAKE_INSTALL_RPATH="\$ORIGIN/../$(get_libdir)/${MY_PN};\$ORIGIN"
-
-		-DGGML_NATIVE=OFF
-		-DGGML_LTO="$(tc-is-lto && echo ON || echo OFF)"
-		-DGGML_OPENMP=$(usex openmp)
-		-DGGML_RPC=$(usex rpc)
-		-DGGML_CUDA=$(usex cuda)
-		-DGGML_HIP=$(usex hip)
-		-DGGML_VULKAN=$(usex vulkan)
-		-DGGML_OPENCL=$(usex opencl)
-
-		# CPU ISA flags
-		-DGGML_SSE42=$(usex cpu_flags_x86_sse4_2)
-		-DGGML_AVX=$(usex cpu_flags_x86_avx)
-		-DGGML_AVX_VNNI=$(usex cpu_flags_x86_avx_vnni)
-		-DGGML_AVX2=$(usex cpu_flags_x86_avx2)
-		-DGGML_BMI2=$(usex cpu_flags_x86_bmi2)
-		-DGGML_AVX512=$(usex cpu_flags_x86_avx512f)
-		-DGGML_AVX512_VBMI=$(usex cpu_flags_x86_avx512vbmi)
-		-DGGML_AVX512_VNNI=$(usex cpu_flags_x86_avx512_vnni)
-		-DGGML_AVX512_BF16=$(usex cpu_flags_x86_avx512_bf16)
-		-DGGML_FMA=$(usex cpu_flags_x86_fma3)
-		-DGGML_F16C=$(usex cpu_flags_x86_f16c)
-		-DGGML_AMX_TILE=$(usex cpu_flags_x86_amx_tile)
-		-DGGML_AMX_INT8=$(usex cpu_flags_x86_amx_int8)
-		-DGGML_AMX_BF16=$(usex cpu_flags_x86_amx_bf16)
 	)
 
-	if use openblas; then
-		mycmakeargs+=( -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS )
-	fi
-
-	if use cuda; then
-		local -x CUDAHOSTCXX="$(cuda_gccdir)"
-		cuda_add_sandbox
-		addpredict "/dev/char/"
-	fi
-
-	if use hip; then
-		rocm_use_clang
+	if ! use system-ggml; then
+		# build the bundled ggml; with system-ggml the CPU ISA set and the
+		# backends are selected by sci-ml/ggml's own USE flags
 		mycmakeargs+=(
-			-DGPU_TARGETS="$(get_amdgpu_flags)"
-			-DCMAKE_HIP_FLAGS="${CXXFLAGS}"
-			# cmake.eclass clears per-build-type flags for C/CXX only;
-			# drop CMake's "-O2 -g -DNDEBUG" for HIP
-			"-DCMAKE_HIP_FLAGS_${CMAKE_BUILD_TYPE^^}="
+			-DGGML_NATIVE=OFF
+			-DGGML_LTO="$(tc-is-lto && echo ON || echo OFF)"
+			-DGGML_OPENMP=$(usex openmp)
+			-DGGML_RPC=$(usex rpc)
+			-DGGML_CUDA=$(usex cuda)
+			-DGGML_HIP=$(usex hip)
+			-DGGML_VULKAN=$(usex vulkan)
+			-DGGML_OPENCL=$(usex opencl)
+
+			# CPU ISA flags
+			-DGGML_SSE42=$(usex cpu_flags_x86_sse4_2)
+			-DGGML_AVX=$(usex cpu_flags_x86_avx)
+			-DGGML_AVX_VNNI=$(usex cpu_flags_x86_avx_vnni)
+			-DGGML_AVX2=$(usex cpu_flags_x86_avx2)
+			-DGGML_BMI2=$(usex cpu_flags_x86_bmi2)
+			-DGGML_AVX512=$(usex cpu_flags_x86_avx512f)
+			-DGGML_AVX512_VBMI=$(usex cpu_flags_x86_avx512vbmi)
+			-DGGML_AVX512_VNNI=$(usex cpu_flags_x86_avx512_vnni)
+			-DGGML_AVX512_BF16=$(usex cpu_flags_x86_avx512_bf16)
+			-DGGML_FMA=$(usex cpu_flags_x86_fma3)
+			-DGGML_F16C=$(usex cpu_flags_x86_f16c)
+			-DGGML_AMX_TILE=$(usex cpu_flags_x86_amx_tile)
+			-DGGML_AMX_INT8=$(usex cpu_flags_x86_amx_int8)
+			-DGGML_AMX_BF16=$(usex cpu_flags_x86_amx_bf16)
 		)
+
+		if use openblas; then
+			mycmakeargs+=( -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS )
+		fi
+
+		if use cuda; then
+			local -x CUDAHOSTCXX="$(cuda_gccdir)"
+			cuda_add_sandbox
+			addpredict "/dev/char/"
+		fi
+
+		if use hip; then
+			rocm_use_clang
+			mycmakeargs+=(
+				-DGPU_TARGETS="$(get_amdgpu_flags)"
+				-DCMAKE_HIP_FLAGS="${CXXFLAGS}"
+				# cmake.eclass clears per-build-type flags for C/CXX only;
+				# drop CMake's "-O2 -g -DNDEBUG" for HIP
+				"-DCMAKE_HIP_FLAGS_${CMAKE_BUILD_TYPE^^}="
+			)
+		fi
 	fi
 
 	cmake_src_configure

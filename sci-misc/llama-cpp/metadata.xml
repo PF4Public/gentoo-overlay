@@ -18,6 +18,7 @@
 		<flag name="openmp">Use OpenMP in the CPU backend</flag>
 		<flag name="openssl">Use OpenSSL for HTTPS model downloads</flag>
 		<flag name="rpc">Enable the RPC backend for distributed inference</flag>
+		<flag name="system-ggml">Link against the installed sci-ml/ggml instead of the bundled copy; the CPU ISA set and the backends are then selected by ggml's own USE flags</flag>
 		<flag name="vulkan">Enable the Vulkan backend</flag>
 		<flag name="webui">Embed the prebuilt web UI in llama-server</flag>
 	</use>
