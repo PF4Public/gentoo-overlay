@@ -24,10 +24,13 @@ inputs:
     description: Build job number (1..6); state is restored from job-1 and saved as job
     required: true
     type: number
+  accept-keywords:
+    description: package.accept_keywords lines to write in the container (see gentoo-setup)
+    required: false
 
 outputs:
   status:
-    description: Build status - complete or timeout
+    description: Build status - complete, timeout or failed
     value: ${{ steps.build.outputs.status }}
 
 runs:
@@ -40,6 +43,8 @@ runs:
 
     - name: Gentoo setup
       uses: ./.github/actions/gentoo-setup
+      with:
+        accept-keywords: ${{ inputs.accept-keywords }}
 
     - name: Apply USE flags
       shell: bash
@@ -77,22 +82,26 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        status="timeout"
         # stream to the job log too, the build is otherwise silent for hours
         timeout ${{ inputs.build-timeout }} docker exec gentoo \
           emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log
         rc=$?
         if [[ $rc -eq 0 ]]; then
           status="complete"
-        elif [[ $rc -ne 124 ]]; then
-          # hard failure, leave the workdir for the failure dump
-          echo "status=${status}" >> "$GITHUB_OUTPUT"
+        elif [[ $rc -eq 124 ]]; then
+          status="timeout"
+        else
+          status="failed"
+        fi
+        echo "status=${status}" >> "$GITHUB_OUTPUT"
+        if [[ $status == "failed" ]]; then
           exit 1
         fi
-        # timeout: kill lingering build processes, the next job resumes
-        docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-        sleep 5
-        echo "status=${status}" >> "$GITHUB_OUTPUT"
+        if [[ $status == "timeout" ]]; then
+          # kill lingering build processes, the next job resumes
+          docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
+          sleep 5
+        fi
 
     - name: Upload build log
       if: failure() && hashFiles('build.log')

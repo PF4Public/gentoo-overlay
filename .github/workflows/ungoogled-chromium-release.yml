@@ -25,6 +25,19 @@ env:
   # LLVM_SLOT for llvm-r1, the CI container only has the binhost default
   BUILD_LLVM_SLOT: "23"
 
+  # ~amd64 keywords the build needs on top of the stable ACCEPT_KEYWORDS:
+  # the release ebuild itself, plus the toolchain that is only available as
+  # testing (LLVM 23 in both its llvm-core and llvm-runtimes halves, Rust,
+  # and the gn/esbuild versions the ebuild requires); one line per atom
+  ACCEPT_KEYWORDS_LIST: |
+    www-client/ungoogled-chromium ~amd64
+    llvm-core/* ~amd64
+    llvm-runtimes/* ~amd64
+    dev-build/gn ~amd64
+    dev-util/esbuild ~amd64
+    dev-lang/rust ~amd64
+    dev-lang/rust-bin ~amd64
+
   # distfiles/ccache cache key, must match the plain workflow name so the
   # caches are shared between the CI and release workflows
   CACHE_KEY: ungoogled-chromium
@@ -113,7 +126,7 @@ jobs:
           use="${use% }${slot_flags}"
 
           echo "pv=${pv}" >> "$GITHUB_OUTPUT"
-          echo "atom=www-client/ungoogled-chromium" >> "$GITHUB_OUTPUT"
+          echo "atom==www-client/ungoogled-chromium-${pv}" >> "$GITHUB_OUTPUT"
           echo "use=${use}" >> "$GITHUB_OUTPUT"
           echo "src-dir=${src_dir}" >> "$GITHUB_OUTPUT"
           echo "build with USE: ${use}"
@@ -139,6 +152,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -169,6 +183,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -199,6 +214,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -229,6 +245,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -259,6 +276,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -289,6 +307,7 @@ jobs:
         uses: ./.github/actions/gentoo-build
         with:
           atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           cache-key: ${{ env.CACHE_KEY }}
@@ -462,6 +481,8 @@ jobs:
 
       - name: Gentoo setup
         uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
 
       - name: Apply USE flags
         shell: bash
