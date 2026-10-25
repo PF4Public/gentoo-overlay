@@ -3,9 +3,11 @@
 
 EAPI=8
 
+PYTHON_COMPAT=( python3_{12..15} )
+
 ROCM_VERSION="7.2"
 
-inherit cmake cuda rocm toolchain-funcs flag-o-matic
+inherit cmake cuda python-any-r1 rocm toolchain-funcs flag-o-matic
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -60,7 +62,7 @@ COMMON_DEPEND="
 	)
 "
 DEPEND="${COMMON_DEPEND}
-	opencl? ( dev-libs/opencl-headers )
+	opencl? ( dev-util/opencl-headers )
 	vulkan? (
 		dev-util/spirv-headers
 		dev-util/vulkan-headers
@@ -68,8 +70,8 @@ DEPEND="${COMMON_DEPEND}
 "
 RDEPEND="${COMMON_DEPEND}"
 BDEPEND="
-	openblas? ( dev-util/pkgconfig )
-	opencl? ( virtual/python )
+	openblas? ( dev-util/pkgconf )
+	opencl? ( ${PYTHON_DEPS} )
 	vulkan? ( media-libs/shaderc )
 "
 
