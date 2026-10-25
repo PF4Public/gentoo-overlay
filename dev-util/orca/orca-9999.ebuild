@@ -88,6 +88,15 @@ src_prepare() {
 	# src_compile pins the source commit (git HEAD for this live build, tracking
 	# each update) so the app's skill installs resolve to this build.
 	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env.patch" || die
+
+	# Electron 44 removed the legacy clipboard surface (availableFormats,
+	# readBuffer, readImage, writeImage, writeBuffer, the 'selection' argument
+	# to readText/writeText) in favor of the async W3C ClipboardItem API, which
+	# breaks paste on the 44/45 slots (upstream pins electron 43). 0004 routes
+	# the main-process clipboard callers through a compat module that speaks
+	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
+	# path degrades to a reported failure on 44+.
+	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api.patch" || die
 }
 
 src_compile() {

@@ -1,0 +1,451 @@
+diff -ruN a/src/main/window/clipboard-compat.ts b/src/main/window/clipboard-compat.ts
+--- a/src/main/window/clipboard-compat.ts	1970-01-01 01:00:00.000000000 +0100
++++ b/src/main/window/clipboard-compat.ts	2026-10-25 03:37:06.469787961 +0100
+@@ -0,0 +1,181 @@
++import * as Electron from 'electron'
++import type { NativeImage } from 'electron'
++
++// The Electron 43 clipboard surface is the synchronous legacy API:
++// availableFormats, readBuffer, readImage, writeImage, writeBuffer, and the
++// 'selection' argument to readText/writeText. Electron 44 replaced it with
++// the W3C ClipboardItem surface (async read/write/has, clipboard.selection)
++// and removed the legacy methods, so a paste that probes the clipboard throws
++// on the 44/45 runtimes. This module presents one async interface over
++// whichever surface the running runtime exposes, so the clipboard callers
++// stay version-agnostic.
++type LegacyClipboard = {
++  availableFormats: () => string[]
++  has: (format: string) => boolean
++  readBuffer: (format: string) => Buffer
++  readImage: () => NativeImage
++  writeImage: (image: NativeImage) => void
++  readText: (type?: string) => string
++  writeText: (text: string, type?: string) => void
++}
++
++type ClipboardItemLike = {
++  types: string[]
++  getType: (type: string) => Promise<Blob>
++}
++type ModernClipboard = {
++  has: (format: string) => Promise<boolean>
++  read: () => Promise<ClipboardItemLike[]>
++  write: (items: unknown[]) => Promise<void>
++  readText: () => string
++  writeText: (text: string) => void
++  selection?: ModernClipboard
++}
++
++const legacy =
++  typeof (Electron.clipboard as { availableFormats?: unknown }).availableFormats === 'function'
++
++const legacyClipboard = Electron.clipboard as unknown as LegacyClipboard
++const modernClipboard = Electron.clipboard as unknown as ModernClipboard
++
++// Electron 44+ wraps raw platform format names (win32 FileNameW /
++// "Shell IDList Array", mac public.png / NSFilenamesPboardType, ...) under
++// this MIME in clipboard.read() results and accepts it in has() and write().
++const osFormat = (format: string) => `electron application/osclipboard;format="${format}"`
++
++async function readModernItems(): Promise<ClipboardItemLike[]> {
++  return modernClipboard.read()
++}
++
++export type ClipboardReader = {
++  formats: () => Promise<string[]>
++  readBuffer: (formats: string | readonly string[]) => Promise<Buffer>
++  has: (format: string) => Promise<boolean>
++}
++
++/** All format names on the clipboard (legacy names on 43, MIMEs on 44+). */
++export async function clipboardFormats(): Promise<string[]> {
++  if (legacy) {
++    return legacyClipboard.availableFormats()
++  }
++  const formats: string[] = []
++  for (const item of await readModernItems()) {
++    for (const type of item.types) {
++      if (!formats.includes(type)) {
++        formats.push(type)
++      }
++    }
++  }
++  return formats
++}
++
++/** Raw bytes of the first listed format present on the clipboard, else empty. */
++export async function readClipboardBuffer(
++  formats: string | readonly string[]
++): Promise<Buffer> {
++  const candidates = Array.isArray(formats) ? formats : [formats]
++  if (legacy) {
++    for (const format of candidates) {
++      const buffer = legacyClipboard.readBuffer(format)
++      if (buffer.byteLength > 0) {
++        return buffer
++      }
++    }
++    return Buffer.alloc(0)
++  }
++  const items = await readModernItems()
++  for (const candidate of candidates) {
++    for (const item of items) {
++      const type = [candidate, osFormat(candidate)].find((entry) => item.types.includes(entry))
++      if (!type) {
++        continue
++      }
++      const buffer = Buffer.from(await (await item.getType(type)).arrayBuffer())
++      if (buffer.byteLength > 0) {
++        return buffer
++      }
++    }
++  }
++  return Buffer.alloc(0)
++}
++
++export async function readClipboardImage(): Promise<NativeImage> {
++  if (legacy) {
++    return legacyClipboard.readImage()
++  }
++  for (const item of await readModernItems()) {
++    const type = item.types.find((entry) => entry.startsWith('image/'))
++    if (!type) {
++      continue
++    }
++    const buffer = Buffer.from(await (await item.getType(type)).arrayBuffer())
++    const image = Electron.nativeImage.createFromBuffer(buffer)
++    if (!image.isEmpty()) {
++      return image
++    }
++  }
++  return Electron.nativeImage.createEmpty()
++}
++
++export async function hasClipboardFormat(format: string): Promise<boolean> {
++  if (legacy) {
++    return legacyClipboard.has(format)
++  }
++  if (await modernClipboard.has(format)) {
++    return true
++  }
++  return modernClipboard.has(osFormat(format))
++}
++
++export async function writeClipboardImage(image: NativeImage): Promise<void> {
++  if (legacy) {
++    legacyClipboard.writeImage(image)
++    return
++  }
++  const png = image.toPNG()
++  if (png.byteLength === 0) {
++    return
++  }
++  const ClipboardItemCtor = (
++    Electron as unknown as {
++      ClipboardItem?: new (data: Record<string, Blob>) => unknown
++    }
++  ).ClipboardItem
++  if (!ClipboardItemCtor) {
++    throw new Error('ClipboardItem is unavailable on this Electron runtime')
++  }
++  // Why cast: Buffer is a BlobPart at runtime, but newer @types/node type its
++  // backing array as ArrayBufferLike, which the DOM Blob constructor rejects.
++  await modernClipboard.write([
++    new ClipboardItemCtor({
++      'image/png': new Blob([png as unknown as BlobPart], { type: 'image/png' })
++    })
++  ])
++}
++
++// The selection clipboard falls back to the main one where the runtime has
++// no selection (only Linux exposes clipboard.selection).
++function selectionClipboard(): ModernClipboard {
++  return modernClipboard.selection ?? modernClipboard
++}
++
++export function readSelectionText(): string {
++  if (legacy) {
++    return legacyClipboard.readText('selection')
++  }
++  return selectionClipboard().readText()
++}
++
++export function writeSelectionText(text: string): void {
++  if (legacy) {
++    legacyClipboard.writeText(text, 'selection')
++    return
++  }
++  selectionClipboard().writeText(text)
++}
++
++export const clipboardReader: ClipboardReader = {
++  formats: clipboardFormats,
++  readBuffer: readClipboardBuffer,
++  has: hasClipboardFormat
++}
+diff -ruN a/src/main/window/clipboard-copied-file-paths.ts b/src/main/window/clipboard-copied-file-paths.ts
+--- a/src/main/window/clipboard-copied-file-paths.ts	2026-10-25 03:24:17.129707177 +0100
++++ b/src/main/window/clipboard-copied-file-paths.ts	2026-10-25 03:28:00.933799265 +0100
+@@ -1,7 +1,9 @@
+ import { fileURLToPath } from 'node:url'
+ import { readWindowsCopiedFilePath } from './clipboard-windows-image-file'
+ 
+-type ClipboardFormatReader = { readBuffer: (format: string) => Buffer }
++type ClipboardFormatReader = {
++  readBuffer: (formats: string | readonly string[]) => Promise<Buffer>
++}
+ 
+ const FILE_LIST_MAX_BYTES = 256 * 1024
+ const XML_ENTITIES: Record<string, string> = {
+@@ -12,8 +14,11 @@
+   quot: '"'
+ }
+ 
+-function readBoundedText(clipboard: ClipboardFormatReader, format: string): string {
+-  const buffer = clipboard.readBuffer(format)
++async function readBoundedText(
++  clipboard: ClipboardFormatReader,
++  formats: string | readonly string[]
++): Promise<string> {
++  const buffer = await clipboard.readBuffer(formats)
+   return buffer.byteLength <= FILE_LIST_MAX_BYTES ? buffer.toString('utf8') : ''
+ }
+ 
+@@ -42,21 +47,22 @@
+   return paths
+ }
+ 
+-function readMacCopiedFilePaths(clipboard: ClipboardFormatReader): string[] {
++async function readMacCopiedFilePaths(clipboard: ClipboardFormatReader): Promise<string[]> {
+   // Finder's legacy filenames plist lists every copied file; public.file-url holds only the first.
+-  const plist = readBoundedText(clipboard, 'NSFilenamesPboardType')
++  const plist = await readBoundedText(clipboard, 'NSFilenamesPboardType')
+   const listed = Array.from(plist.matchAll(/<string>([^<]*)<\/string>/g), (match) =>
+     decodeXmlText(match[1])
+   )
+   if (listed.length > 0) {
+     return listed
+   }
+-  const url = readBoundedText(clipboard, 'public.file-url').trim()
++  // Electron 44+ surfaces the macOS file URL under the standard text/uri-list MIME.
++  const url = (await readBoundedText(clipboard, ['public.file-url', 'text/uri-list'])).trim()
+   return url ? filePathsFromUrls([url]) : []
+ }
+ 
+-function readLinuxCopiedFilePaths(clipboard: ClipboardFormatReader): string[] {
+-  const urls = readBoundedText(clipboard, 'text/uri-list')
++async function readLinuxCopiedFilePaths(clipboard: ClipboardFormatReader): Promise<string[]> {
++  const urls = (await readBoundedText(clipboard, 'text/uri-list'))
+     .split(/\r\n|\r|\n/)
+     .map((line) => line.trim())
+     .filter((line) => line && !line.startsWith('#'))
+@@ -67,22 +73,22 @@
+  * Paths of the files a file manager copied, so a paste can tell the text that
+  * labels them from prompt text. A list it cannot read in full comes back empty.
+  */
+-export function readClipboardCopiedFilePaths(
++export async function readClipboardCopiedFilePaths(
+   clipboard: ClipboardFormatReader,
+   platform: NodeJS.Platform = process.platform
+-): string[] {
++): Promise<string[]> {
+   try {
+     if (platform === 'darwin') {
+-      return readMacCopiedFilePaths(clipboard)
++      return await readMacCopiedFilePaths(clipboard)
+     }
+     if (platform === 'win32') {
+       const filePath = readWindowsCopiedFilePath({
+-        fileNameW: clipboard.readBuffer('FileNameW'),
+-        shellIdListArray: clipboard.readBuffer('Shell IDList Array')
++        fileNameW: await clipboard.readBuffer('FileNameW'),
++        shellIdListArray: await clipboard.readBuffer('Shell IDList Array')
+       })
+       return filePath ? [filePath] : []
+     }
+-    return readLinuxCopiedFilePaths(clipboard)
++    return await readLinuxCopiedFilePaths(clipboard)
+   } catch {
+     return []
+   }
+diff -ruN a/src/main/window/clipboard-image-source.ts b/src/main/window/clipboard-image-source.ts
+--- a/src/main/window/clipboard-image-source.ts	2026-10-25 03:24:26.411602726 +0100
++++ b/src/main/window/clipboard-image-source.ts	2026-10-25 03:27:10.509800310 +0100
+@@ -1,15 +1,10 @@
+ import { clipboardFormatsIncludeImage } from '../../shared/clipboard-image'
++import type { ClipboardReader } from './clipboard-compat'
+ import {
+   readWindowsCopiedImageFilePath,
+   type WindowsClipboardFileFormats
+ } from './clipboard-windows-image-file'
+ 
+-type ClipboardImageReader = {
+-  availableFormats: () => string[]
+-  readBuffer: (format: string) => Buffer
+-  has: (format: string) => boolean
+-}
+-
+ // macOS image data beside a file URL can be omitted from availableFormats().
+ const MAC_PASTEBOARD_IMAGE_TYPES = ['public.png', 'public.tiff'] as const
+ 
+@@ -18,22 +13,25 @@
+   | { kind: 'windows-file'; windowsFileFormats: WindowsClipboardFileFormats }
+ 
+ /** Select image sources without decoding pixels or reading a copied file. */
+-export function readClipboardImageSource(
+-  clipboard: ClipboardImageReader,
++export async function readClipboardImageSource(
++  clipboard: ClipboardReader,
+   platform: NodeJS.Platform = process.platform
+-): ClipboardImageSource | null {
++): Promise<ClipboardImageSource | null> {
+   const formats =
+     platform === 'win32'
+       ? {
+-          fileNameW: clipboard.readBuffer('FileNameW'),
+-          shellIdListArray: clipboard.readBuffer('Shell IDList Array')
++          fileNameW: await clipboard.readBuffer('FileNameW'),
++          shellIdListArray: await clipboard.readBuffer('Shell IDList Array')
+         }
+       : null
+   const windowsFileFormats = formats && readWindowsCopiedImageFilePath(formats) ? formats : null
+-  if (clipboardFormatsIncludeImage(clipboard.availableFormats())) {
++  if (clipboardFormatsIncludeImage(await clipboard.formats())) {
+     return { kind: 'native', windowsFileFormats }
+   }
+-  if (platform === 'darwin' && MAC_PASTEBOARD_IMAGE_TYPES.some((type) => clipboard.has(type))) {
++  const macImageTypes = await Promise.all(
++    MAC_PASTEBOARD_IMAGE_TYPES.map((type) => clipboard.has(type))
++  )
++  if (platform === 'darwin' && macImageTypes.some(Boolean)) {
+     return { kind: 'native', windowsFileFormats: null }
+   }
+   return windowsFileFormats ? { kind: 'windows-file', windowsFileFormats } : null
+diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboard-ipc-handlers.ts
+--- a/src/main/window/clipboard-ipc-handlers.ts	2026-10-25 03:24:17.133002913 +0100
++++ b/src/main/window/clipboard-ipc-handlers.ts	2026-10-25 03:39:49.837784576 +0100
+@@ -45,6 +45,12 @@
+ import { readClipboardCopiedFilePaths } from './clipboard-copied-file-paths'
+ import { buildClipboardImageThumbnail } from './clipboard-image-thumbnail'
+ import { readClipboardNativeImage } from './clipboard-native-image'
++import {
++  clipboardReader,
++  readSelectionText,
++  writeClipboardImage,
++  writeSelectionText
++} from './clipboard-compat'
+ import { publishClipboardText } from './clipboard-text-publisher'
+ import { isDashboardPopoutRenderer } from './dashboard-popout-window'
+ import { restoreNativeChatPastes } from './native-chat-paste-files'
+@@ -133,7 +139,7 @@
+     'clipboard:readSelectionText',
+     async (event, options?: ReadClipboardTextOptions) => {
+       assertTrustedClipboardSender(event)
+-      return assertClipboardTextWithinLimitWithYield(clipboard.readText('selection'), options)
++      return assertClipboardTextWithinLimitWithYield(readSelectionText(), options)
+     }
+   )
+   ipcMain.handle('clipboard:restoreNativeChatPastes', (event, paths: unknown) => {
+@@ -142,23 +148,26 @@
+   })
+   // Why: an unanswered paste reads as a dropped paste, so the composer probes
+   // the clipboard in memory before the (slower) save lands.
+-  ipcMain.handle('clipboard:readImageThumbnail', (event): ClipboardImageThumbnail | null => {
+-    assertTrustedClipboardSender(event)
+-    try {
+-      return buildClipboardImageThumbnail(readClipboardNativeImage())
+-    } catch {
+-      // The save call reports rejected source data; the preview is best effort.
+-      return null
++  ipcMain.handle(
++    'clipboard:readImageThumbnail',
++    async (event): Promise<ClipboardImageThumbnail | null> => {
++      assertTrustedClipboardSender(event)
++      try {
++        return buildClipboardImageThumbnail(await readClipboardNativeImage())
++      } catch {
++        // The save call reports rejected source data; the preview is best effort.
++        return null
++      }
+     }
+-  })
+-  ipcMain.handle('clipboard:hasImage', (event): boolean => {
++  )
++  ipcMain.handle('clipboard:hasImage', async (event): Promise<boolean> => {
+     assertTrustedClipboardSender(event)
+-    return readClipboardImageSource(clipboard) !== null
++    return (await readClipboardImageSource(clipboardReader)) !== null
+   })
+   // Why: a file-manager copy also carries the files' names as text, which a paste must not type.
+-  ipcMain.handle('clipboard:readFilePaths', (event): string[] => {
++  ipcMain.handle('clipboard:readFilePaths', async (event): Promise<string[]> => {
+     assertTrustedClipboardSender(event)
+-    return readClipboardCopiedFilePaths(clipboard)
++    return readClipboardCopiedFilePaths(clipboardReader)
+   })
+   // Why: terminals need to detect clipboard images to support tools like Claude
+   // Code that accept image input via paste. Writes the clipboard image to a
+@@ -167,11 +176,11 @@
+     'clipboard:saveImageAsTempFile',
+     async (event, args?: SaveClipboardImageAsTempFileArgs) => {
+       assertTrustedClipboardSender(event)
+-      const source = readClipboardImageSource(clipboard)
++      const source = await readClipboardImageSource(clipboardReader)
+       if (!source) {
+         return null
+       }
+-      const image = readClipboardNativeImage()
++      const image = await readClipboardNativeImage()
+       if (image.isEmpty()) {
+         if (!source.windowsFileFormats) {
+           return null
+@@ -233,12 +242,9 @@
+   })
+   ipcMain.handle('clipboard:writeSelectionText', async (event, text: string) => {
+     assertTrustedClipboardSender(event)
+-    return clipboard.writeText(
+-      await assertClipboardTextWriteWithinLimitWithYield(text),
+-      'selection'
+-    )
++    writeSelectionText(await assertClipboardTextWriteWithinLimitWithYield(text))
+   })
+-  ipcMain.handle('clipboard:writeImage', (event, dataUrl: string) => {
++  ipcMain.handle('clipboard:writeImage', async (event, dataUrl: string) => {
+     assertTrustedClipboardSender(event)
+     // Why: only accept validated PNG data URIs to prevent writing arbitrary
+     // data to the clipboard. The renderer already validates the prefix, but
+@@ -272,7 +278,7 @@
+     } catch {
+       return
+     }
+-    clipboard.writeImage(image)
++    await writeClipboardImage(image)
+   })
+ }
+ 
+diff -ruN a/src/main/window/clipboard-native-image.ts b/src/main/window/clipboard-native-image.ts
+--- a/src/main/window/clipboard-native-image.ts	2026-10-25 03:24:17.125347153 +0100
++++ b/src/main/window/clipboard-native-image.ts	2026-10-25 03:27:20.853800095 +0100
+@@ -1,17 +1,18 @@
+-import { clipboard, nativeImage, type NativeImage } from 'electron'
++import { nativeImage, type NativeImage } from 'electron'
+ import {
+   assertClipboardImageByteLengthWithinLimit,
+   assertClipboardImageDimensionsWithinLimit
+ } from '../../shared/clipboard-image'
+ import { readRasterImageDimensions } from '../../shared/raster-image-dimensions'
++import { readClipboardBuffer, readClipboardImage } from './clipboard-compat'
+ 
+-export function readClipboardNativeImage(): NativeImage {
+-  const image = clipboard.readImage()
++export async function readClipboardNativeImage(): Promise<NativeImage> {
++  const image = await readClipboardImage()
+   if (!image.isEmpty() || process.platform !== 'darwin') {
+     return image
+   }
+   // CleanShot can store JPEG bytes as public.png, which readImage decodes as PNG only.
+-  const buffer = clipboard.readBuffer('public.png')
++  const buffer = await readClipboardBuffer(['public.png', 'image/png'])
+   if (buffer.length === 0) {
+     return image
+   }
