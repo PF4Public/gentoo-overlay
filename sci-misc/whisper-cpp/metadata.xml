@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">ggml-org/whisper.cpp</remote-id>
+		<bugs-to>https://github.com/ggml-org/whisper.cpp/issues</bugs-to>
+	</upstream>
+	<longdescription>
+		whisper.cpp is a port of OpenAI's Whisper automatic speech recognition
+		(ASR) model to plain C/C++, built on top of the vendored ggml tensor
+		library. It provides the C APIs libwhisper and libparakeet (Parakeet
+		TDT), the command line tools whisper-cli, whisper-bench,
+		whisper-quantize, whisper-server, whisper-vad-speech-segments,
+		parakeet-cli and parakeet-quantize, and optional GPU backends
+		(CUDA, Vulkan, OpenCL) in addition to the CPU backend.
+	</longdescription>
+	<use>
+		<flag name="blas">Use OpenBLAS as the BLAS backend (GGML_BLAS)</flag>
+		<flag name="cuda">Enable the NVIDIA CUDA backend (GGML_CUDA)</flag>
+		<flag name="ffmpeg">Link the examples against FFmpeg to decode more audio formats</flag>
+		<flag name="opencl">Enable the OpenCL backend (GGML_OPENCL)</flag>
+		<flag name="openmp">Use OpenMP for threading (GGML_OPENMP)</flag>
+		<flag name="rpc">Enable the RPC backend to distribute layers across machines (GGML_RPC)</flag>
+		<flag name="sdl">Build the SDL2-based examples whisper-stream, whisper-command, whisper-lsp and wchess</flag>
+		<flag name="vulkan">Enable the Vulkan backend (GGML_VULKAN)</flag>
+	</use>
+</pkgmetadata>
