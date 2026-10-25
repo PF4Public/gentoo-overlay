@@ -64,6 +64,14 @@ runs:
         name: ${{ steps.names.outputs.restore }}
         src-dir: ${{ inputs.src-dir }}
 
+    - name: Check dependency resolution (dry run)
+      shell: bash
+      run: |
+        set -uo pipefail
+        # fail fast on unsatisfiable deps/keywords instead of hours into the build
+        timeout 15m docker exec gentoo \
+          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }}
+
     - name: Build
       id: build
       shell: bash
@@ -87,7 +95,7 @@ runs:
         echo "status=${status}" >> "$GITHUB_OUTPUT"
 
     - name: Upload build log
-      if: failure()
+      if: failure() && hashFiles('build.log')
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.names.outputs.log }}

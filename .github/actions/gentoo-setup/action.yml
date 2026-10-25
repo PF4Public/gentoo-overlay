@@ -25,15 +25,27 @@ runs:
         set -euo pipefail
 
         printf '%s\n' \
-          'ACCEPT_KEYWORDS="~amd64"' \
+          'ACCEPT_KEYWORDS="amd64"' \
           'BINPKG_DEST_DIR="/workspace/binpkgs"' \
           'CCACHE_DIR="/workspace/ccache"' \
           'CCACHE_MAXSIZE="6G"' \
           'DISTDIR="/workspace/distfiles"' \
-          'FEATURES="${FEATURES} ccache getbinpkg binpkg keepwork -network-sandbox"' \
+          'FEATURES="${FEATURES} ccache getbinpkg buildpkg keepwork -network-sandbox"' \
           'MAKEOPTS="-j5 -l10"' \
           'NINJAOPTS="-k0 -j5 -l10"' \
           | docker exec -i gentoo bash -c 'cat >> /etc/portage/make.conf'
+
+        # the official binhost only carries stable ebuilds, so build with stable
+        # keywords to maximize binpkg hits; accept our own overlay packages and
+        # the testing-only toolchain (LLVM 23, Rust) explicitly
+        docker exec gentoo bash -c '
+          f=/etc/portage/package.accept_keywords
+          if [[ -d "$f" ]]; then
+            printf "%s\n" "dev-util/electron ~amd64" "www-client/ungoogled-chromium ~amd64" "www-client/cromite ~amd64" "llvm-core/* ~amd64" "dev-lang/rust ~amd64" "dev-lang/rust-bin ~amd64" > "$f/ci-build.conf"
+          else
+            printf "%s\n" "dev-util/electron ~amd64" "www-client/ungoogled-chromium ~amd64" "www-client/cromite ~amd64" "llvm-core/* ~amd64" "dev-lang/rust ~amd64" "dev-lang/rust-bin ~amd64" >> "$f"
+          fi
+        '
 
         # binrepos.conf and repos.conf may be a file or a directory of drop-ins
         # depending on the stage3, so handle both for each
