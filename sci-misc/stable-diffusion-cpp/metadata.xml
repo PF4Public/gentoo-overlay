@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">leejet/stable-diffusion.cpp</remote-id>
+		<bugs-to>https://github.com/leejet/stable-diffusion.cpp/issues</bugs-to>
+		<doc>https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md</doc>
+	</upstream>
+	<use>
+		<flag name="cuda">Enable the NVIDIA CUDA GPU backend</flag>
+		<flag name="openblas">Enable the OpenBLAS backend</flag>
+		<flag name="opencl">Enable the OpenCL backend</flag>
+		<flag name="vulkan">Enable the Vulkan backend</flag>
+		<flag name="webp">Enable WebP image I/O via system media-libs/libwebp</flag>
+		<flag name="webm">Enable WebM video output via system media-libs/libwebm (requires webp)</flag>
+	</use>
+</pkgmetadata>
