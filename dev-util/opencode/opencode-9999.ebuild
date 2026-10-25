@@ -74,7 +74,18 @@ src_prepare() {
 	# address items. The patch makes the read-clipboard-image handler speak
 	# whichever surface the runtime exposes and shims the legacy
 	# write({ bookmark, text }) calls into ClipboardItem writes (ipc.ts).
-	patch -p1 -i "${FILESDIR}/electron-clipboard-compat.patch" || die
+	#
+	# Check if the patch still applies: upstream main has since moved to
+	# the new ClipboardItem API (files/index.ts) and electron-context-menu
+	# 5.0.0, so it no longer applies as of 2026-10-25. Re-check on every
+	# update: if it applies again, legacy usage is back and the patch must
+	# be kept; if it does not, verify the new API is still used before
+	# dropping it.
+	if patch -p1 --dry-run -i "${FILESDIR}/electron-clipboard-compat.patch" >/dev/null 2>&1; then
+		patch -p1 -i "${FILESDIR}/electron-clipboard-compat.patch" || die
+	else
+		ewarn "electron-clipboard-compat.patch no longer applies; check that upstream still avoids the legacy clipboard surface"
+	fi
 }
 
 # pkg_pretend() {
