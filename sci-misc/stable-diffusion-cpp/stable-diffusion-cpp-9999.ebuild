@@ -3,7 +3,9 @@
 
 EAPI=8
 
-inherit cmake cuda toolchain-funcs
+PYTHON_COMPAT=( python3_{12..15} )
+
+inherit cmake cuda python-any-r1 toolchain-funcs
 
 REPO="https://github.com/leejet/stable-diffusion.cpp"
 GGML_REPO="https://github.com/leejet/ggml"
@@ -75,7 +77,7 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	!system-ggml? (
-		opencl? ( dev-libs/opencl-headers )
+		opencl? ( dev-util/opencl-headers )
 		vulkan? (
 			dev-util/spirv-headers
 			dev-util/vulkan-headers
@@ -85,7 +87,7 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	!system-ggml? (
-		opencl? ( virtual/python )
+		opencl? ( ${PYTHON_DEPS} )
 		vulkan? ( media-libs/shaderc )
 	)
 "
