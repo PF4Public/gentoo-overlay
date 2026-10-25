@@ -62,6 +62,7 @@ DOCS=( AUTHORS CONTRIBUTING.md README.md )
 
 src_prepare() {
 	default
+	cmake_src_prepare
 	# examples/talk-llama FetchContents llama.cpp v0.6.0 from github at
 	# build time, which we do not want in a portage build
 	eapply "${FILESDIR}"/0001-examples-drop-talk-llama.patch
