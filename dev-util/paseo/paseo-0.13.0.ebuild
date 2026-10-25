@@ -4,7 +4,7 @@
 EAPI=8
 
 # Must be set BEFORE inherit (electron-r1 reads them at inherit time):
-ELECTRON_COMPAT=( {43,44} )
+ELECTRON_COMPAT=( {43,44,45} )
 ELECTRON_SLOT_DEFAULT="44"
 
 inherit desktop electron-r1 xdg-utils
