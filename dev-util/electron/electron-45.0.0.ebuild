@@ -328,6 +328,7 @@ BDEPEND="
 	sys-apps/hwdata
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
+	dev-util/vulkan-headers
 	virtual/pkgconfig
 	x11-misc/xdg-utils
 	gclient? ( $(gclient_gen_dep) )
