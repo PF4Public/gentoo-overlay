@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<longdescription>
+		Kuna is an agent-first decompiler, designed to be refined by other
+		agents. It is written in Rust and was originally ported from Ghidra.
+		The SLEIGH processor specs are compiled at build time and embedded
+		into the single self-contained binary, so no separate specs install
+		is needed.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">Noelo-Lab/kuna</remote-id>
+		<bugs-to>https://github.com/Noelo-Lab/kuna/issues</bugs-to>
+		<doc>https://kuna.noelo.org/</doc>
+	</upstream>
+</pkgmetadata>
