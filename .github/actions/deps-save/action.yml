@@ -17,10 +17,10 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        ids=$(gh api "repos/${GITHUB_REPO}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.name | startswith("${{ inputs.prefix }}-deps-")) | .id' || true)
+        ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.name | startswith("${{ inputs.prefix }}-deps-")) | .id' || true)
         for id in $ids; do
           echo "deleting superseded artifact $id"
-          gh api -X DELETE "repos/${GITHUB_REPO}/actions/artifacts/$id" || true
+          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
         done
 
     # 20 slots x 1900 MiB zstd ~= 38 GiB compressed max
@@ -239,7 +239,7 @@ runs:
         set -uo pipefail
         p="${{ inputs.prefix }}"
         want=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep "^${p}-deps-" | sort)
-        got=$(gh api "repos/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
+        got=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
         echo "packed:"; echo "$want"
         echo "uploaded:"; echo "$got"
         ls -l "${GITHUB_WORKSPACE}/deps-chunks"

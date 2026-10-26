@@ -212,7 +212,7 @@ runs:
       run: |
         set -uo pipefail
         mapfile -t want < "${GITHUB_WORKSPACE}/state-chunks/manifest"
-        got=$(gh api "repos/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${{ inputs.name }}-" | sort || true)
+        got=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${{ inputs.name }}-" | sort || true)
         echo "packed: $(wc -l < "${GITHUB_WORKSPACE}/state-chunks/manifest") chunks"
         echo "uploaded: $(echo "$got" | grep -c . || true) chunks"
         ls -l "${GITHUB_WORKSPACE}/state-chunks"
