@@ -145,6 +145,23 @@ src_configure() {
 		mycmakeargs+=(
 			-DCMAKE_CUDA_FLAGS="${NVCCFLAGS}"
 		)
+
+		# CUDA_ARCHITECTURES: restrict the CUDA compute capabilities that are
+		# actually built (the NVIDIA equivalent of AMDGPU_TARGETS, which the
+		# rocm USE flag uses via get_amdgpu_flags). Unset -> ggml builds its
+		# full default set (75/80/86/89/90/120a/121a), which is slow. Set it
+		# to your GPU's compute capability to skip unused targets.
+		#
+		# Find yours: nvidia-smi --query-gpu=compute_cap --format=csv,noheader
+		#   Common: 20xx=75 30xx=86 40xx=89 A100=80 H100=90
+		# Suffixes:
+		#   75          PTX + SASS (device code for that arch)
+		#   75-real     SASS only (fastest for that exact GPU, no JIT)
+		#   75-virtual  PTX only (JIT to binary on first run)
+		# Multiple archs are ; separated, e.g. CUDA_ARCHITECTURES="75-real;80-real"
+		if [[ -n ${CUDA_ARCHITECTURES} ]]; then
+			mycmakeargs+=( -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES}" )
+		fi
 	fi
 
 	if use rocm; then
