@@ -18,121 +18,121 @@ runs:
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-00
+        name: ${{ inputs.prefix }}-deps-00
         path: deps-chunks/
     - name: Download deps chunk 01
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-01
+        name: ${{ inputs.prefix }}-deps-01
         path: deps-chunks/
     - name: Download deps chunk 02
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-02
+        name: ${{ inputs.prefix }}-deps-02
         path: deps-chunks/
     - name: Download deps chunk 03
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-03
+        name: ${{ inputs.prefix }}-deps-03
         path: deps-chunks/
     - name: Download deps chunk 04
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-04
+        name: ${{ inputs.prefix }}-deps-04
         path: deps-chunks/
     - name: Download deps chunk 05
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-05
+        name: ${{ inputs.prefix }}-deps-05
         path: deps-chunks/
     - name: Download deps chunk 06
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-06
+        name: ${{ inputs.prefix }}-deps-06
         path: deps-chunks/
     - name: Download deps chunk 07
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-07
+        name: ${{ inputs.prefix }}-deps-07
         path: deps-chunks/
     - name: Download deps chunk 08
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-08
+        name: ${{ inputs.prefix }}-deps-08
         path: deps-chunks/
     - name: Download deps chunk 09
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-09
+        name: ${{ inputs.prefix }}-deps-09
         path: deps-chunks/
     - name: Download deps chunk 10
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-10
+        name: ${{ inputs.prefix }}-deps-10
         path: deps-chunks/
     - name: Download deps chunk 11
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-11
+        name: ${{ inputs.prefix }}-deps-11
         path: deps-chunks/
     - name: Download deps chunk 12
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-12
+        name: ${{ inputs.prefix }}-deps-12
         path: deps-chunks/
     - name: Download deps chunk 13
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-13
+        name: ${{ inputs.prefix }}-deps-13
         path: deps-chunks/
     - name: Download deps chunk 14
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-14
+        name: ${{ inputs.prefix }}-deps-14
         path: deps-chunks/
     - name: Download deps chunk 15
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-15
+        name: ${{ inputs.prefix }}-deps-15
         path: deps-chunks/
     - name: Download deps chunk 16
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-16
+        name: ${{ inputs.prefix }}-deps-16
         path: deps-chunks/
     - name: Download deps chunk 17
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-17
+        name: ${{ inputs.prefix }}-deps-17
         path: deps-chunks/
     - name: Download deps chunk 18
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-18
+        name: ${{ inputs.prefix }}-deps-18
         path: deps-chunks/
     - name: Download deps chunk 19
       continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${ inputs.prefix }-deps-19
+        name: ${{ inputs.prefix }}-deps-19
         path: deps-chunks/
     - name: Reassemble and extract
       shell: bash

@@ -47,7 +47,7 @@ runs:
         sudo tar -cf - -C "${GITHUB_WORKSPACE}" "${dirs[@]}" | zstd -q -T0 -1 -o /tmp/deps.zst
         mkdir -p "${GITHUB_WORKSPACE}/deps-chunks" "${GITHUB_WORKSPACE}/meta"
         sha256sum /tmp/deps.zst | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256"
-        split -b 1900m -a 2 /tmp/deps.zst "${GITHUB_WORKSPACE}/deps-chunks/${p}-deps-"
+        split -b 1900m -d -a 2 /tmp/deps.zst "${GITHUB_WORKSPACE}/deps-chunks/${p}-deps-"
         rm -f /tmp/deps.zst
 
         n=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep -c "^${p}-deps-" || true)
@@ -71,163 +71,163 @@ runs:
         overwrite: true
 
     - name: Upload deps chunk 00
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-00')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-00')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-00
-        path: deps-chunks/${ inputs.prefix }-deps-00*
+        name: ${{ inputs.prefix }}-deps-00
+        path: deps-chunks/${{ inputs.prefix }}-deps-00*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 01
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-01')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-01')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-01
-        path: deps-chunks/${ inputs.prefix }-deps-01*
+        name: ${{ inputs.prefix }}-deps-01
+        path: deps-chunks/${{ inputs.prefix }}-deps-01*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 02
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-02')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-02')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-02
-        path: deps-chunks/${ inputs.prefix }-deps-02*
+        name: ${{ inputs.prefix }}-deps-02
+        path: deps-chunks/${{ inputs.prefix }}-deps-02*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 03
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-03')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-03')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-03
-        path: deps-chunks/${ inputs.prefix }-deps-03*
+        name: ${{ inputs.prefix }}-deps-03
+        path: deps-chunks/${{ inputs.prefix }}-deps-03*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 04
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-04')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-04')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-04
-        path: deps-chunks/${ inputs.prefix }-deps-04*
+        name: ${{ inputs.prefix }}-deps-04
+        path: deps-chunks/${{ inputs.prefix }}-deps-04*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 05
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-05')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-05')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-05
-        path: deps-chunks/${ inputs.prefix }-deps-05*
+        name: ${{ inputs.prefix }}-deps-05
+        path: deps-chunks/${{ inputs.prefix }}-deps-05*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 06
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-06')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-06')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-06
-        path: deps-chunks/${ inputs.prefix }-deps-06*
+        name: ${{ inputs.prefix }}-deps-06
+        path: deps-chunks/${{ inputs.prefix }}-deps-06*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 07
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-07')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-07')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-07
-        path: deps-chunks/${ inputs.prefix }-deps-07*
+        name: ${{ inputs.prefix }}-deps-07
+        path: deps-chunks/${{ inputs.prefix }}-deps-07*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 08
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-08')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-08')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-08
-        path: deps-chunks/${ inputs.prefix }-deps-08*
+        name: ${{ inputs.prefix }}-deps-08
+        path: deps-chunks/${{ inputs.prefix }}-deps-08*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 09
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-09')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-09')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-09
-        path: deps-chunks/${ inputs.prefix }-deps-09*
+        name: ${{ inputs.prefix }}-deps-09
+        path: deps-chunks/${{ inputs.prefix }}-deps-09*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 10
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-10')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-10')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-10
-        path: deps-chunks/${ inputs.prefix }-deps-10*
+        name: ${{ inputs.prefix }}-deps-10
+        path: deps-chunks/${{ inputs.prefix }}-deps-10*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 11
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-11')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-11')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-11
-        path: deps-chunks/${ inputs.prefix }-deps-11*
+        name: ${{ inputs.prefix }}-deps-11
+        path: deps-chunks/${{ inputs.prefix }}-deps-11*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 12
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-12')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-12')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-12
-        path: deps-chunks/${ inputs.prefix }-deps-12*
+        name: ${{ inputs.prefix }}-deps-12
+        path: deps-chunks/${{ inputs.prefix }}-deps-12*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 13
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-13')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-13')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-13
-        path: deps-chunks/${ inputs.prefix }-deps-13*
+        name: ${{ inputs.prefix }}-deps-13
+        path: deps-chunks/${{ inputs.prefix }}-deps-13*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 14
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-14')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-14')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-14
-        path: deps-chunks/${ inputs.prefix }-deps-14*
+        name: ${{ inputs.prefix }}-deps-14
+        path: deps-chunks/${{ inputs.prefix }}-deps-14*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 15
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-15')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-15')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-15
-        path: deps-chunks/${ inputs.prefix }-deps-15*
+        name: ${{ inputs.prefix }}-deps-15
+        path: deps-chunks/${{ inputs.prefix }}-deps-15*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 16
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-16')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-16')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-16
-        path: deps-chunks/${ inputs.prefix }-deps-16*
+        name: ${{ inputs.prefix }}-deps-16
+        path: deps-chunks/${{ inputs.prefix }}-deps-16*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 17
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-17')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-17')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-17
-        path: deps-chunks/${ inputs.prefix }-deps-17*
+        name: ${{ inputs.prefix }}-deps-17
+        path: deps-chunks/${{ inputs.prefix }}-deps-17*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 18
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-18')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-18')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-18
-        path: deps-chunks/${ inputs.prefix }-deps-18*
+        name: ${{ inputs.prefix }}-deps-18
+        path: deps-chunks/${{ inputs.prefix }}-deps-18*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 19
-      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${ inputs.prefix }-deps-19')
+      if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-19')
       uses: actions/upload-artifact@v7
       with:
-        name: ${ inputs.prefix }-deps-19
-        path: deps-chunks/${ inputs.prefix }-deps-19*
+        name: ${{ inputs.prefix }}-deps-19
+        path: deps-chunks/${{ inputs.prefix }}-deps-19*
         retention-days: 90
         overwrite: true
     # fail loudly if a chunk was packed but did not end up as a run artifact
