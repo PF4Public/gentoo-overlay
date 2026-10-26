@@ -81,10 +81,10 @@ pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
 
 	if use cuda && [[ -z ${CUDA_ARCHITECTURES} ]]; then
-		einfo "CUDA_ARCHITECTURES is unset, so ggml builds its full default set of"
-		einfo "CUDA compute capabilities (75/80/86/89/90/120a/121a), which is slow."
+		einfo "CUDA_ARCHITECTURES wasn't set, so ggml builds its full default set of"
+		einfo "CUDA compute capabilities (75/80/86/89/90/120a/121a)."
 		einfo "Set it to your GPU's compute capability to skip unused targets, e.g."
-		einfo 'CUDA_ARCHITECTURES="75-real" (several are ; separated: "75-real;80-real").'
+		einfo 'CUDA_ARCHITECTURES="75-real" (several are separated with ";": "75-real;80-real")'
 		einfo "  find: nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
 		einfo "  suffixes: 75 (PTX+SASS), 75-real (SASS only), 75-virtual (PTX only)"
 	fi
