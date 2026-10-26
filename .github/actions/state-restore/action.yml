@@ -162,7 +162,7 @@ runs:
         if [[ ${#local[@]} -gt 0 ]]; then
           # this run produced a set, the meta must be in this run too
           echo "restoring ${#local[@]} chunk(s) from this run"
-          sha256=$(fetch_meta) || { echo "ERROR: chunks but no meta in this run" >&2; exit 1; }
+          sha256=$(fetch_meta) || { echo "local chunks but no meta (incomplete save), starting cold" >&2; exit 0; }
         else
           # no set in this run, fall back to the newest one from any run
           sha256=$(fetch_meta) || { echo "No state set found, starting without build state"; exit 0; }
@@ -180,8 +180,10 @@ runs:
         mapfile -t files < <(ls -1 state-chunks/ | grep "^${p}-" | sort)
         actual=$(cat state-chunks/${p}-* | sha256sum | awk '{print $1}')
         if [[ "$actual" != "$sha256" ]]; then
-          echo "ERROR: state checksum mismatch, not restoring corrupted state" >&2
-          exit 1
+          # corrupted or incomplete set: skip it rather than kill the build,
+          # the next save supersedes it
+          echo "WARNING: state checksum mismatch, not restoring, starting cold" >&2
+          exit 0
         fi
         echo "Extracting build state from ${#files[@]} chunk(s)"
         command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null

@@ -55,15 +55,6 @@ runs:
     # Upload via a glob (directory traversal) rather than a literal file path:
     # a literal path silently no-ops when the file is gone, the glob at least
     # exercises the action's normal directory code path.
-    # the meta carries the expected sha256, the restore side verifies against it
-    - name: Upload meta
-      if: steps.pack.outputs.has-state == 'true'
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ inputs.name }}-meta
-        path: meta/${{ inputs.name }}-sha256*
-        retention-days: 3
-
     - name: Upload state chunk 00
       if: steps.pack.outputs.has-state == 'true' && hashFiles('state-chunks/${{ inputs.name }}-00')
       uses: actions/upload-artifact@v7
@@ -203,6 +194,16 @@ runs:
       with:
         name: ${{ inputs.name }}-19
         path: state-chunks/${{ inputs.name }}-19*
+        retention-days: 3
+    # the meta carries the expected sha256, the restore side verifies against it;
+    # upload it only after all chunks, so a partial upload never leaves a meta
+    # without chunks (an orphaned meta would poison the next restore)
+    - name: Upload meta
+      if: steps.pack.outputs.has-state == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.name }}-meta
+        path: meta/${{ inputs.name }}-sha256*
         retention-days: 3
     # fail loudly if a chunk was packed but did not end up as a run artifact
     - name: Verify state chunks

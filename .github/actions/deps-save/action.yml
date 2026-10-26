@@ -60,16 +60,6 @@ runs:
         fi
         echo "has-deps=true" >> "$GITHUB_OUTPUT"
 
-    # the meta carries the expected sha256, the restore side verifies against it
-    - name: Upload meta
-      if: steps.pack.outputs.has-deps == 'true'
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ inputs.prefix }}-deps-meta
-        path: meta/${{ inputs.prefix }}-deps-sha256*
-        retention-days: 90
-        overwrite: true
-
     - name: Upload deps chunk 00
       if: steps.pack.outputs.has-deps == 'true' && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-00')
       uses: actions/upload-artifact@v7
@@ -228,6 +218,17 @@ runs:
       with:
         name: ${{ inputs.prefix }}-deps-19
         path: deps-chunks/${{ inputs.prefix }}-deps-19*
+        retention-days: 90
+        overwrite: true
+    # the meta carries the expected sha256, the restore side verifies against it;
+    # upload it only after all chunks, so a partial upload never leaves a meta
+    # without chunks (an orphaned meta would poison the next restore)
+    - name: Upload meta
+      if: steps.pack.outputs.has-deps == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.prefix }}-deps-meta
+        path: meta/${{ inputs.prefix }}-deps-sha256*
         retention-days: 90
         overwrite: true
     # fail loudly if a chunk was packed but did not end up as a run artifact

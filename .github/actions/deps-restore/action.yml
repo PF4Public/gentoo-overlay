@@ -158,7 +158,7 @@ runs:
         if [[ ${#local[@]} -gt 0 ]]; then
           # this run produced a set, the meta must be in this run too
           echo "restoring ${#local[@]} chunk(s) from this run"
-          sha256=$(fetch_meta) || { echo "ERROR: chunks but no meta in this run" >&2; exit 1; }
+          sha256=$(fetch_meta) || { echo "local chunks but no meta (incomplete save), starting cold" >&2; exit 0; }
         else
           # no set in this run, fall back to the newest one from any run
           sha256=$(fetch_meta) || { echo "No deps set found, starting cold"; exit 0; }
@@ -177,8 +177,10 @@ runs:
         mapfile -t files < <(ls -1 deps-chunks/ | grep "^${p}-deps-" | sort)
         actual=$(cat "deps-chunks/${p}-deps-"* | sha256sum | awk '{print $1}')
         if [[ "$actual" != "$sha256" ]]; then
-          echo "ERROR: deps checksum mismatch, not restoring corrupted deps" >&2
-          exit 1
+          # corrupted or incomplete set: skip it rather than kill the build,
+          # the next save supersedes it
+          echo "WARNING: deps checksum mismatch, not restoring, starting cold" >&2
+          exit 0
         fi
         echo "Extracting deps set from ${#files[@]} chunk(s)"
         command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null
