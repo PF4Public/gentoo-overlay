@@ -45,7 +45,7 @@ env:
 
   # per-job build window, the jobs are chained until the build completes
   # (6 jobs x ~5h ~= 29h of build time)
-  BUILD_TIMEOUT: "5m"
+  BUILD_TIMEOUT: "280m"
 
 jobs:
   resolve:
