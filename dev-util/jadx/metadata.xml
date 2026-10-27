@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">skylot/jadx</remote-id>
+		<bugs-to>https://github.com/skylot/jadx/issues</bugs-to>
+		<doc>https://github.com/skylot/jadx#usage</doc>
+	</upstream>
+	<use>
+		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
+	</use>
+</pkgmetadata>
