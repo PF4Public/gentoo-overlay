@@ -146,9 +146,11 @@ runs:
         p="${{ inputs.name }}"
         cd "${GITHUB_WORKSPACE}"
 
+        # name-filtered query: an unfiltered list is a 100-item newest-first
+        # window and this repo shares artifacts with other workflows
         fetch_meta() {
           local id
-          id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq ".artifacts[] | select(.name == \"${p}-meta\") | .id" | head -1)
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${p}-meta&per_page=100" --jq '.artifacts[0].id // empty')
           [[ -n "$id" ]] || return 1
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > /tmp/meta.zip
           rm -rf /tmp/meta-extract && mkdir -p /tmp/meta-extract
@@ -167,9 +169,10 @@ runs:
           # no set in this run, fall back to the newest one from any run
           sha256=$(fetch_meta) || { echo "No state set found, starting without build state"; exit 0; }
           echo "restoring the newest state set from an earlier run"
-          names=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-" | grep -v -- "-meta$")
-          for name in $names; do
-            id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=1" --jq '.artifacts[0].id')
+          # enumerate the 20 slot names directly instead of listing artifacts
+          for name in $(seq -w 0 19 | sed "s/^/${p}-/"); do
+            id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=1" --jq '.artifacts[0].id // empty')
+            [[ -n "$id" ]] || continue
             gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > /tmp/chunk.zip
             unzip -o -q /tmp/chunk.zip -d state-chunks/
             rm -f /tmp/chunk.zip
@@ -186,6 +189,9 @@ runs:
         fi
         echo "Extracting build state from ${#files[@]} chunk(s)"
         command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null
+        # portage creates this work dir when the build starts, which has not
+        # happened yet, so create it for the extraction
+        docker exec gentoo mkdir -p "${{ inputs.src-dir }}"
         cat state-chunks/${p}-* | zstd -d -q | docker exec -i gentoo tar -xpf - -C "${{ inputs.src-dir }}"
         docker exec gentoo du -sh "${{ inputs.src-dir }}/out"
         rm -rf "${GITHUB_WORKSPACE}/state-chunks"

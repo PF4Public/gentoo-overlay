@@ -19,10 +19,15 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.name | startswith("${{ inputs.prefix }}-deps-")) | .id' || true)
-        for id in $ids; do
-          echo "deleting superseded artifact $id"
-          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
+        p="${{ inputs.prefix }}"
+        # query each slot name directly; an unfiltered list is a 100-item
+        # newest-first window and would miss sets in a busy repo
+        for name in "${p}-deps-meta" $(seq -w 0 19 | sed "s/^/${p}-deps-/"); do
+          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=100" --jq '.artifacts[].id' || true)
+          for id in $ids; do
+            echo "deleting superseded artifact $id ($name)"
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
+          done
         done
 
     # 20 slots x 1900 MiB zstd ~= 38 GiB compressed max
