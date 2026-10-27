@@ -207,6 +207,8 @@ runs:
         retention-days: 3
     # fail loudly if a chunk was packed but did not end up as a run artifact
     - name: Verify state chunks
+      env:
+        GH_TOKEN: ${{ github.token }}
       if: steps.pack.outputs.has-state == 'true'
       shell: bash
       run: |

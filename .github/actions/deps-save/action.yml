@@ -14,6 +14,8 @@ runs:
   steps:
     # only the newest deps set is useful, drop every older one
     - name: Delete superseded deps artifacts
+      env:
+        GH_TOKEN: ${{ github.token }}
       shell: bash
       run: |
         set -uo pipefail
@@ -233,6 +235,8 @@ runs:
         overwrite: true
     # fail loudly if a chunk was packed but did not end up as a run artifact
     - name: Verify deps chunks
+      env:
+        GH_TOKEN: ${{ github.token }}
       if: steps.pack.outputs.has-deps == 'true'
       shell: bash
       run: |

@@ -138,6 +138,8 @@ runs:
         name: ${{ inputs.name }}-19
         path: state-chunks/
     - name: Reassemble and extract
+      env:
+        GH_TOKEN: ${{ github.token }}
       shell: bash
       run: |
         set -uo pipefail

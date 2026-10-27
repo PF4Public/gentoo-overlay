@@ -135,6 +135,8 @@ runs:
         name: ${{ inputs.prefix }}-deps-19
         path: deps-chunks/
     - name: Reassemble and extract
+      env:
+        GH_TOKEN: ${{ github.token }}
       shell: bash
       run: |
         set -uo pipefail
