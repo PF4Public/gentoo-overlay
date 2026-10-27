@@ -53,9 +53,13 @@ src_install() {
 	java-pkg_dolauncher "jadx" --main "jadx.cli.JadxCLI"
 	java-pkg_dolauncher "jadx-gui" --main "jadx.gui.JadxGUI"
 
+	local logo="jadx-gui/src/main/resources/logos/jadx-logo"
+	newicon -s 16 "${logo}-16px.png" "${PN}.png"
+	newicon -s 32 "${logo}-32px.png" "${PN}.png"
+	newicon -s 48 "${logo}-48px.png" "${PN}.png"
 	# the logo is 252px, too big for a 256x256 hicolor entry: install it
 	# as a scalable icon instead
-	newicon "jadx-gui/src/main/resources/logos/jadx-logo.png" "${PN}"
+	newicon "${logo}.png" "${PN}.png"
 	domenu "contrib/jadx-gui.desktop"
 
 	einstalldocs
