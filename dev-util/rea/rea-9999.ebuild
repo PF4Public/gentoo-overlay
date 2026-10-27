@@ -3,6 +3,8 @@
 
 EAPI=8
 
+inherit optfeature
+
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/morluto/rea.git"
@@ -88,4 +90,10 @@ src_install() {
 
 	dosym "../$(get_libdir)/node_modules/rea-agents/scripts/rea.mjs" /usr/bin/rea
 	dosym "../$(get_libdir)/node_modules/rea-agents/scripts/rea.mjs" /usr/bin/rea-agents
+}
+
+pkg_postinst() {
+	optfeature "Android APK decompilation" dev-util/jadx
+	optfeature "decompiler support" dev-util/kuna
+	optfeature "native binary analysis" dev-util/ghidra
 }
