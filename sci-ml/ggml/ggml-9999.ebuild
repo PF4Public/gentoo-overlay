@@ -98,8 +98,11 @@ src_prepare() {
 	cmake_src_prepare
 
 	if use cuda; then
+		# filter-lto must precede cuda_src_prepare: cuda_sanitize bakes CXXFLAGS
+		# into NVCCFLAGS via --compiler-options, so -flto must be gone by then.
+		# bug 983121
+		filter-lto
 		cuda_src_prepare
-		filter-lto #bug 983121
 	fi
 }
 
