@@ -150,9 +150,7 @@ runs:
           local id
           id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq ".artifacts[] | select(.name == \"${p}-meta\") | .id" | head -1)
           [[ -n "$id" ]] || return 1
-          local url
-          url=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" -i --jq '.location')
-          curl -sfL "$url" -o /tmp/meta.zip
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > /tmp/meta.zip
           rm -rf /tmp/meta-extract && mkdir -p /tmp/meta-extract
           unzip -o -q /tmp/meta.zip -d /tmp/meta-extract
           rm -f /tmp/meta.zip
@@ -172,8 +170,7 @@ runs:
           names=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-" | grep -v -- "-meta$")
           for name in $names; do
             id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=1" --jq '.artifacts[0].id')
-            url=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" -i --jq '.location')
-            curl -sfL "$url" -o /tmp/chunk.zip
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > /tmp/chunk.zip
             unzip -o -q /tmp/chunk.zip -d state-chunks/
             rm -f /tmp/chunk.zip
           done
