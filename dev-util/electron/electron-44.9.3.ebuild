@@ -1993,6 +1993,8 @@ src_configure() {
 		"ozone_platform_x11=$(usex X true false)"
 		"ozone_platform=\"$(usex wayland wayland x11)\""
 		"rtc_use_pipewire=$(usex screencast true false)"
+		# As above - link directly instead of dlopening
+		"rtc_link_pipewire=$(usex screencast true false)"
 		"use_cups=$(usex cups true false)"
 		"use_kerberos=$(usex kerberos true false)"
 		"use_pulseaudio=$(usex pulseaudio true false)"
