@@ -75,7 +75,8 @@ BDEPEND="
 	vulkan? ( media-libs/shaderc )
 "
 
-PATCHES=( "${FILESDIR}/${PN}-llvm-23.patch" )
+# the RDNA part of the LLVM 23 fix is upstream now, master only needs the CDNA part
+PATCHES=( "${FILESDIR}/${PN}-llvm-23-cdna.patch" )
 
 pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
