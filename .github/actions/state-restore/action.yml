@@ -193,5 +193,9 @@ runs:
         # happened yet, so create it for the extraction
         docker exec gentoo mkdir -p "${{ inputs.src-dir }}"
         cat state-chunks/${p}-* | zstd -d -q | docker exec -i gentoo tar -xpf - -C "${{ inputs.src-dir }}"
+        # the ebuild build runs as the portage user (250), not root: hand
+        # over the restored tree, otherwise src_unpack dies with
+        # permission denied on the root-owned work dir
+        docker exec gentoo chown -R 250:250 "$(dirname "${{ inputs.src-dir }}")"
         docker exec gentoo du -sh "${{ inputs.src-dir }}/out"
         rm -rf "${GITHUB_WORKSPACE}/state-chunks"

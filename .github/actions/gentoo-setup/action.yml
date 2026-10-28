@@ -37,6 +37,7 @@ runs:
 
         printf '%s\n' \
           'ACCEPT_KEYWORDS="amd64"' \
+          'PKGDIR="/workspace/binpkgs"' \
           'BINPKG_DEST_DIR="/workspace/binpkgs"' \
           'CCACHE_DIR="/workspace/ccache"' \
           'CCACHE_MAXSIZE="6G"' \
