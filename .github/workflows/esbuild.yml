@@ -1,0 +1,60 @@
+name: esbuild
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - 'dev-util/esbuild/*.ebuild'
+    - 'dev-util/esbuild/files/**'
+  pull_request:
+    paths:
+    - 'dev-util/esbuild/*.ebuild'
+    - 'dev-util/esbuild/files/**'
+
+jobs:
+  filter:
+    if: github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.setup.outputs.build }}
+      ebuilds: ${{ steps.setup.outputs.ebuilds }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+
+  default:
+    needs: filter
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with default USE-flags
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.ebuilds }}
+            tool: ebuild
+            action: compile
+            params: ' '
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
