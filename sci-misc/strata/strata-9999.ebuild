@@ -60,7 +60,9 @@ BDEPEND="
 	dev-util/wget
 "
 
-PATCHES=( "${FILESDIR}/strata-system-ggml.patch" )
+# the live tree's CMakeLists drifts from the released one, so the patch is
+# separate from strata-0.2.7's (both add STRATA_SYSTEM_GGML)
+PATCHES=( "${FILESDIR}/strata-9999-system-ggml.patch" )
 
 pkg_pretend() {
 	if use cuda && [[ -z ${CUDA_ARCHITECTURES} ]]; then
