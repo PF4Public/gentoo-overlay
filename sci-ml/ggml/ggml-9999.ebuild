@@ -98,6 +98,12 @@ pkg_setup() {
 src_prepare() {
 	cmake_src_prepare
 
+	# GGML_MAX_NAME is an ABI constant (ggml_tensor has name[GGML_MAX_NAME]
+	# before further fields). Build the whole package at 160, the value
+	# downstream consumers (stable-diffusion-cpp, strata) require, so the
+	# library and the installed header stay consistent.
+	sed -i -E 's/^(\#[[:space:]]+define[[:space:]]+GGML_MAX_NAME[[:space:]]+)[0-9]+/\1160/' "${S}/include/ggml.h"
+
 	if use cuda; then
 		# filter-lto must precede cuda_src_prepare: cuda_sanitize bakes CXXFLAGS
 		# into NVCCFLAGS via --compiler-options, so -flto must be gone by then.
