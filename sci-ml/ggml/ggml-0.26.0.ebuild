@@ -155,3 +155,12 @@ src_configure() {
 
 	cmake_src_configure
 }
+
+src_install() {
+	cmake_src_install
+
+	# the internal headers and sources, for packages that compile parts of
+	# ggml themselves (sci-misc/strata with system-ggml)
+	insinto "/usr/$(get_libdir)/ggml-${PV}/ggml"
+	doins -r src include
+}
