@@ -163,8 +163,10 @@ jobs:
 
           for sha in "${commits[@]}"; do
             # build commits are "<cat>/<pn>: build"; the version is extracted
-            # from the changed ebuild file below, not from the message
-            if ! git log -1 --format=%s "${sha}" | grep -qiE '\bbuild\b'; then
+            # from the changed ebuild file below, not from the message. Match
+            # only the first line: with our blank-line-free messages %s returns
+            # the whole message, so a "build" in the body would fire this
+            if ! git log -1 --format=%B "${sha}" | head -n 1 | grep -qiE '\bbuild\b'; then
               continue
             fi
             while IFS= read -r file; do
