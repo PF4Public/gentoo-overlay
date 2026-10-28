@@ -1,0 +1,130 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -137,6 +137,7 @@
+ # #2027: defined here, before the GPU section reads it to register the native-expert tests (it was defined at the
+ # native-experts section far below, so a first configure registered four tests fewer than the second)
+ option(STRATA_NATIVE_EXPERTS "Native (IQ) expert support through ggml-cpu" ON)
++option(STRATA_SYSTEM_GGML "Link the installed ggml libraries (sci-ml/ggml) instead of building the pinned source" OFF)
+ 
+ if(STRATA_BUILD_CONVERSATION_TESTS)
+   enable_testing()
+@@ -1836,58 +1837,71 @@
+   message(FATAL_ERROR "STRATA_ORCA_Q4KS_MMQ requires STRATA_NATIVE_EXPERTS=ON for GGML sources")
+ endif()
+ if(STRATA_NATIVE_EXPERTS)
+-  enable_language(C)
+-  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+-  set(GGML_STATIC ON CACHE BOOL "" FORCE)
+-  set(GGML_CUDA OFF CACHE BOOL "" FORCE)
+-  set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
+-  set(GGML_BACKEND_DL OFF CACHE BOOL "" FORCE)
+-  set(GGML_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+-  set(GGML_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+-  if(STRATA_PORTABLE)
+-    set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+-    foreach(_f GGML_AVX GGML_AVX2 GGML_FMA GGML_F16C GGML_BMI2)
+-      set(${_f} ON CACHE BOOL "" FORCE)
+-    endforeach()
+-    # The DeepSeek engine (STRATA_BUILD_DSV41) builds ggml-cpu with BMI2 OFF: ggml's IQ1_S / IQ1_M dots use _pdep_u64 with it, and AMD
+-    # Zen 1/2 run PDEP in microcode (EPYC 7452, IQ1_M one-token dot 1.8 GB/s against 32 GB/s without it; IQ1_S 2.3 against 37). The
+-    # results are bit-identical either way (ds4_gg_bench --dump, types 19 and 29, 1-16 tokens). Other engines keep BMI2 until their
+-    # next rebuild is looked at: no Qwen package changes with this commit.
+-    if(STRATA_BUILD_DSV41)
+-      set(GGML_BMI2 OFF CACHE BOOL "" FORCE)
++  if(STRATA_SYSTEM_GGML)
++    # the installed ggml (sci-ml/ggml): link its libraries, and take the internal
++    # headers and the ggml-cuda MMQ sources compiled into the strata_mmq targets
++    # from its installed source tree (STRATA_GGML_DIR)
++    find_package(ggml REQUIRED)
++    add_library(ggml ALIAS ggml::ggml)
++    add_library(ggml-base ALIAS ggml::ggml-base)
++    add_library(ggml-cpu ALIAS ggml::ggml-cpu)
++    if(NOT STRATA_GGML_DIR OR NOT EXISTS "${STRATA_GGML_DIR}/ggml/src")
++      message(FATAL_ERROR "STRATA_SYSTEM_GGML=ON requires STRATA_GGML_DIR (the installed ggml source tree)")
+     endif()
+-  elseif(STRATA_ISA_FLOOR)
+-    # the experimental older-CPU build (STRATA_ISA_FLOOR above): one ggml-cpu for the floor, ggml's "sandybridge"
+-    # feature set (SSE4.2 + AVX) or SSE4.2 alone - not the build host's, which may be newer than the PC it runs on.
+-    # From the Strata_Dirigo fork (rwkeyes).  ggml's defaults turn the rest on when GGML_NATIVE is off: all off here.
+-    set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+-    set(GGML_CPU_ALL_VARIANTS OFF CACHE BOOL "" FORCE)
+-    set(GGML_SSE42 ON CACHE BOOL "" FORCE)
+-    if(STRATA_ISA_FLOOR STREQUAL "avx")
+-      set(GGML_AVX ON CACHE BOOL "" FORCE)
++  else()
++    enable_language(C)
++    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
++    set(GGML_STATIC ON CACHE BOOL "" FORCE)
++    set(GGML_CUDA OFF CACHE BOOL "" FORCE)
++    set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
++    set(GGML_BACKEND_DL OFF CACHE BOOL "" FORCE)
++    set(GGML_BUILD_TESTS OFF CACHE BOOL "" FORCE)
++    set(GGML_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
++    if(STRATA_PORTABLE)
++      set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
++      foreach(_f GGML_AVX GGML_AVX2 GGML_FMA GGML_F16C GGML_BMI2)
++        set(${_f} ON CACHE BOOL "" FORCE)
++      endforeach()
++      # The DeepSeek engine (STRATA_BUILD_DSV41) builds ggml-cpu with BMI2 OFF: ggml's IQ1_S / IQ1_M dots use _pdep_u64 with it, and AMD
++      # Zen 1/2 run PDEP in microcode (EPYC 7452, IQ1_M one-token dot 1.8 GB/s against 32 GB/s without it; IQ1_S 2.3 against 37). The
++      # results are bit-identical either way (ds4_gg_bench --dump, types 19 and 29, 1-16 tokens). Other engines keep BMI2 until their
++      # next rebuild is looked at: no Qwen package changes with this commit.
++      if(STRATA_BUILD_DSV41)
++        set(GGML_BMI2 OFF CACHE BOOL "" FORCE)
++      endif()
++    elseif(STRATA_ISA_FLOOR)
++      # the experimental older-CPU build (STRATA_ISA_FLOOR above): one ggml-cpu for the floor, ggml's "sandybridge"
++      # feature set (SSE4.2 + AVX) or SSE4.2 alone - not the build host's, which may be newer than the PC it runs on.
++      # From the Strata_Dirigo fork (rwkeyes).  ggml's defaults turn the rest on when GGML_NATIVE is off: all off here.
++      set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
++      set(GGML_CPU_ALL_VARIANTS OFF CACHE BOOL "" FORCE)
++      set(GGML_SSE42 ON CACHE BOOL "" FORCE)
++      if(STRATA_ISA_FLOOR STREQUAL "avx")
++        set(GGML_AVX ON CACHE BOOL "" FORCE)
++      else()
++        set(GGML_AVX OFF CACHE BOOL "" FORCE)
++      endif()
++      foreach(_f GGML_AVX2 GGML_FMA GGML_F16C GGML_BMI2 GGML_AVX_VNNI GGML_AVX512 GGML_AVX512_VBMI GGML_AVX512_VNNI
++                 GGML_AVX512_BF16 GGML_AMX_TILE GGML_AMX_INT8 GGML_AMX_BF16)
++        set(${_f} OFF CACHE BOOL "" FORCE)
++      endforeach()
+     else()
+-      set(GGML_AVX OFF CACHE BOOL "" FORCE)
++      set(GGML_NATIVE ON CACHE BOOL "" FORCE)
+     endif()
+-    foreach(_f GGML_AVX2 GGML_FMA GGML_F16C GGML_BMI2 GGML_AVX_VNNI GGML_AVX512 GGML_AVX512_VBMI GGML_AVX512_VNNI
+-               GGML_AVX512_BF16 GGML_AMX_TILE GGML_AMX_INT8 GGML_AMX_BF16)
+-      set(${_f} OFF CACHE BOOL "" FORCE)
+-    endforeach()
+-  else()
+-    set(GGML_NATIVE ON CACHE BOOL "" FORCE)
+-  endif()
+-  if(STRATA_GGML_DIR)
+-    add_subdirectory(${STRATA_GGML_DIR}/ggml ${CMAKE_BINARY_DIR}/ggml EXCLUDE_FROM_ALL)
+-  else()
+-    include(FetchContent)
+-    FetchContent_Declare(strata_llamacpp
+-      GIT_REPOSITORY https://github.com/ggml-org/llama.cpp.git
+-      GIT_TAG 3cf03257f219afbe7334045ff7c6a06ac68c627d
+-      GIT_SHALLOW FALSE)
+-    FetchContent_GetProperties(strata_llamacpp)
+-    if(NOT strata_llamacpp_POPULATED)
+-      FetchContent_Populate(strata_llamacpp)
++    if(STRATA_GGML_DIR)
++      add_subdirectory(${STRATA_GGML_DIR}/ggml ${CMAKE_BINARY_DIR}/ggml EXCLUDE_FROM_ALL)
++    else()
++      include(FetchContent)
++      FetchContent_Declare(strata_llamacpp
++        GIT_REPOSITORY https://github.com/ggml-org/llama.cpp.git
++        GIT_TAG 3cf03257f219afbe7334045ff7c6a06ac68c627d
++        GIT_SHALLOW FALSE)
++      FetchContent_GetProperties(strata_llamacpp)
++      if(NOT strata_llamacpp_POPULATED)
++        FetchContent_Populate(strata_llamacpp)
++      endif()
++      add_subdirectory(${strata_llamacpp_SOURCE_DIR}/ggml ${CMAKE_BINARY_DIR}/ggml EXCLUDE_FROM_ALL)
+     endif()
+-    add_subdirectory(${strata_llamacpp_SOURCE_DIR}/ggml ${CMAKE_BINARY_DIR}/ggml EXCLUDE_FROM_ALL)
+   endif()
+   # part of strata_kernels_cpu (the pool calls these and they call its CPU probe: one library, so GNU ld's
+   # one-pass static linking has no cycle to resolve)
