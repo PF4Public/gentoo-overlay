@@ -51,7 +51,8 @@ runs:
           modified=""
           ebuilds="${{ inputs.ebuilds }}"
         else
-          all="${{ steps.changed-files.outputs.all_changed_files }}"
+          # tj-actions emits a space-separated list; normalize to one file per line
+          all=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n')
 
           # a deleted ebuild can no longer be built - drop it from the list;
           # other deletions (files/, ...) stay, they still drive the resolution
@@ -74,6 +75,10 @@ runs:
             [[ -n "$f" ]] || continue
             pkg=$(echo "$f" | cut -d/ -f1-2)
             name=$(basename "$f")
+            # package-level Manifest/metadata.xml are bookkeeping, never build
+            # inputs - they must not drive the resolution (a changed Manifest
+            # would otherwise fall back to the last two ebuilds of the package)
+            [[ "$f" = "$pkg/Manifest" || "$f" = "$pkg/metadata.xml" ]] && continue
             if [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] \
                && refs=$(grep -lP "(?<![A-Za-z0-9._-])${name//./\\.}" "${pkg}"/*.ebuild 2>/dev/null); then
               ebuilds+=$'\n'"${refs}"
