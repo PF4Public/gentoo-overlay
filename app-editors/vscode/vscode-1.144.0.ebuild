@@ -218,8 +218,14 @@ src_prepare() {
 	# einfo "as it depends on a package from a hidden repository"
 	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
 
-	einfo "Fixing Clipboard API"
-	patch -p1 -i "${FILESDIR}/fix-clipboard-api-1.144.patch" || die
+	# electron 44 removed the old main-process clipboard API (readFindText,
+	# readImage, readBuffer, ...) and added read()/write()/ClipboardItem
+	if ! vercmp -v 44 ${ELECTRON_SLOT}; then
+		einfo "Fixing Clipboard API"
+		patch -p1 -i "${FILESDIR}/fix-clipboard-api-1.144.patch" || die
+	else
+		einfo "Keeping old clipboard API (electron ${ELECTRON_SLOT})"
+	fi
 
 }
 
