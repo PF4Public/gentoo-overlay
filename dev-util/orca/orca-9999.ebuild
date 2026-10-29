@@ -75,7 +75,7 @@ src_prepare() {
 	# builds the native pieces inside Docker against Ubuntu 20.04 to hit that
 	# floor. Those hooks are CI guards for the AppImage, not Gentoo runtime
 	# requirements, so relax them (0001).
-	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks.patch" || die
+	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.243.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
@@ -96,7 +96,7 @@ src_prepare() {
 	# the main-process clipboard callers through a compat module that speaks
 	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
 	# path degrades to a reported failure on 44+.
-	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api.patch" || die
+	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.243.patch" || die
 
 	# The final writeImage call of the clipboard:writeImage handler is not in
 	# the patch: newer upstream trees wrap the handler body in

@@ -1,8 +1,8 @@
 diff --git a/config/electron-builder.config.cjs b/config/electron-builder.config.cjs
-index d8e788e..d76197d 100644
+index da3a3a48..47e09dff 100644
 --- a/config/electron-builder.config.cjs
 +++ b/config/electron-builder.config.cjs
-@@ -362,22 +362,11 @@ module.exports = {
+@@ -404,22 +404,11 @@ module.exports = {
    },
    // electron-builder calls this with the context alone. The second parameter is the bundle root,
    // so a test can point the guard at a scratch bundle instead of needing the repo's out/ built.
@@ -30,7 +30,7 @@ index d8e788e..d76197d 100644
    },
    afterPack: async (context) => {
      const resourcesDir =
-@@ -428,10 +417,12 @@ module.exports = {
+@@ -474,10 +463,12 @@ module.exports = {
        appImageNodeRuntime = await placeAppImageNodeRuntime(resourcesDir, targetArch)
        // Why the arch is passed: symbol-version checks pass happily on a wrong-architecture binary,
        // so a cross-built slice could ship the host's pty.node and only fail at runtime.
@@ -43,10 +43,10 @@ index d8e788e..d76197d 100644
      }
 -    verifyPackagedMainRuntimeDeps(resourcesDir)
 +    // Gentoo: skip the packaged main-runtime dependency check (CI guard).
-     // Smoke only host-runnable slices: daemon JS loads target-arch node-pty. Arch enum ia32=0, x64=1, armv7l=2, arm64=3, universal=4.
-     const archEnumByNodeArch = { ia32: 0, x64: 1, armv7l: 2, arm64: 3 }
-     const hostArchEnum = archEnumByNodeArch[process.arch]
-@@ -440,30 +431,15 @@ module.exports = {
+     // Why: boot the packaged daemon-entry under plain Node, but only for the
+     // slice matching the packaging host's arch — daemon-entry.js is JS, yet it
+     // require()s the native (N-API) node-pty for the TARGET arch, which the host
+@@ -490,33 +481,16 @@ module.exports = {
        verifyPackagedWindowsNodePty(resourcesDir, context.arch, { canExecuteTargetArch })
        verifyPackagedWindowsAgentHook(resourcesDir, context.arch)
      }
@@ -65,26 +65,29 @@ index d8e788e..d76197d 100644
 -        await verifyAppImageNodeRuntimeServesPty(resourcesDir, appImageNodeRuntime)
 -      }
 -    } else {
--      // Cross-arch smoke cannot run, but missing unpacked entry is always a packaging error.
+-      // Why: a cross-arch slice can't be booted by the host Node, but the
+-      // unpacked entry must still exist — its absence is a layout regression
+-      // regardless of arch, so only the boot is skipped, not the check.
 -      assertPackagedDaemonEntryExists(resourcesDir)
 -      console.log(
 -        `[verify-packaged-daemon-entry] skipped boot on cross-arch slice (target ${context.arch}, host ${process.arch})`
 -      )
 -    }
 +    // Gentoo: skip the packaged daemon-entry boot verification (CI guard).
-     // Validate real electron-builder output so broken extraResources mappings fail before shipping.
+     // Why: inspect electron-builder's real output so a broken extraResources
+     // mapping fails packaging before bundled content reaches users.
 -    verifyPackagedPluginResources(resourcesDir)
 -    assertPackagedWebClient(resourcesDir)
 -    assertPackagedServeSelectionEntry(resourcesDir)
 +    // Gentoo: skip the packaged plugin/web-client/serve-selection checks (CI guards).
      finalizePackagedRipgrep(resourcesDir)
-     for (const filename of readdirSync(resourcesDir)) {
-       if (!filename.startsWith('agent-browser-')) {
+     await finalizePackagedOrcadTemplate(resourcesDir, {
+       platform: context.electronPlatformName,
 diff --git a/config/scripts/build-source-commit.mjs b/config/scripts/build-source-commit.mjs
-index 5f97b4e..450958a 100644
+index 70aece6e..77d96bf4 100644
 --- a/config/scripts/build-source-commit.mjs
 +++ b/config/scripts/build-source-commit.mjs
-@@ -6,11 +6,13 @@ export function resolveBuildSourceCommit() {
+@@ -9,11 +9,13 @@
    try {
      commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
    } catch (error) {

@@ -1,6 +1,6 @@
 diff -ruN a/src/main/window/clipboard-compat.ts b/src/main/window/clipboard-compat.ts
 --- a/src/main/window/clipboard-compat.ts	1970-01-01 01:00:00.000000000 +0100
-+++ b/src/main/window/clipboard-compat.ts	2026-10-29 18:19:34.137351222 +0100
++++ b/src/main/window/clipboard-compat.ts	2026-10-25 03:37:06.469787961 +0100
 @@ -0,0 +1,181 @@
 +import * as Electron from 'electron'
 +import type { NativeImage } from 'electron'
@@ -184,8 +184,8 @@ diff -ruN a/src/main/window/clipboard-compat.ts b/src/main/window/clipboard-comp
 +  has: hasClipboardFormat
 +}
 diff -ruN a/src/main/window/clipboard-copied-file-paths.ts b/src/main/window/clipboard-copied-file-paths.ts
---- a/src/main/window/clipboard-copied-file-paths.ts	2026-10-29 18:18:58.686740985 +0100
-+++ b/src/main/window/clipboard-copied-file-paths.ts	2026-10-29 18:19:34.137493987 +0100
+--- a/src/main/window/clipboard-copied-file-paths.ts	2026-10-25 03:24:17.129707177 +0100
++++ b/src/main/window/clipboard-copied-file-paths.ts	2026-10-25 03:28:00.933799265 +0100
 @@ -1,7 +1,9 @@
  import { fileURLToPath } from 'node:url'
  import { readWindowsCopiedFilePath } from './clipboard-windows-image-file'
@@ -239,10 +239,10 @@ diff -ruN a/src/main/window/clipboard-copied-file-paths.ts b/src/main/window/cli
      .split(/\r\n|\r|\n/)
      .map((line) => line.trim())
      .filter((line) => line && !line.startsWith('#'))
-@@ -64,22 +70,22 @@
- }
- 
- /** Identify file-copy labels so paste does not type them as prompt text; unreadable/incomplete lists return empty. */
+@@ -67,22 +73,22 @@
+  * Paths of the files a file manager copied, so a paste can tell the text that
+  * labels them from prompt text. A list it cannot read in full comes back empty.
+  */
 -export function readClipboardCopiedFilePaths(
 +export async function readClipboardCopiedFilePaths(
    clipboard: ClipboardFormatReader,
@@ -269,8 +269,8 @@ diff -ruN a/src/main/window/clipboard-copied-file-paths.ts b/src/main/window/cli
      return []
    }
 diff -ruN a/src/main/window/clipboard-image-source.ts b/src/main/window/clipboard-image-source.ts
---- a/src/main/window/clipboard-image-source.ts	2026-10-29 18:18:58.688341253 +0100
-+++ b/src/main/window/clipboard-image-source.ts	2026-10-29 18:19:34.137626927 +0100
+--- a/src/main/window/clipboard-image-source.ts	2026-10-25 03:24:26.411602726 +0100
++++ b/src/main/window/clipboard-image-source.ts	2026-10-25 03:27:10.509800310 +0100
 @@ -1,15 +1,10 @@
  import { clipboardFormatsIncludeImage } from '../../shared/clipboard-image'
 +import type { ClipboardReader } from './clipboard-compat'
@@ -322,18 +322,21 @@ diff -ruN a/src/main/window/clipboard-image-source.ts b/src/main/window/clipboar
    }
    return windowsFileFormats ? { kind: 'windows-file', windowsFileFormats } : null
 diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboard-ipc-handlers.ts
---- a/src/main/window/clipboard-ipc-handlers.ts	2026-10-29 18:18:58.689814867 +0100
-+++ b/src/main/window/clipboard-ipc-handlers.ts	2026-10-29 18:19:54.026123418 +0100
-@@ -50,3 +50,9 @@
- import { isDashboardPopoutRenderer } from './dashboard-popout-window'
- import { restoreNativeChatPastes } from './native-chat-paste-files'
+--- a/src/main/window/clipboard-ipc-handlers.ts	2026-10-25 03:24:17.133002913 +0100
++++ b/src/main/window/clipboard-ipc-handlers.ts	2026-10-25 03:39:49.837784576 +0100
+@@ -45,6 +45,12 @@
+ import { readClipboardCopiedFilePaths } from './clipboard-copied-file-paths'
+ import { buildClipboardImageThumbnail } from './clipboard-image-thumbnail'
+ import { readClipboardNativeImage } from './clipboard-native-image'
 +import {
 +  clipboardReader,
 +  readSelectionText,
 +  writeClipboardImage,
 +  writeSelectionText
 +} from './clipboard-compat'
- import { savePastedTextAsFile, type SavePastedTextAsFileArgs } from './native-chat-pasted-text-file'
+ import { publishClipboardText } from './clipboard-text-publisher'
+ import { isDashboardPopoutRenderer } from './dashboard-popout-window'
+ import { restoreNativeChatPastes } from './native-chat-paste-files'
 @@ -133,7 +139,7 @@
      'clipboard:readSelectionText',
      async (event, options?: ReadClipboardTextOptions) => {
@@ -343,10 +346,10 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
      }
    )
    ipcMain.handle('clipboard:restoreNativeChatPastes', (event, paths: unknown) => {
-@@ -141,34 +147,37 @@
-     return restoreNativeChatPastes(paths)
+@@ -142,23 +148,26 @@
    })
-   // Preview in memory so the composer responds before the slower save completes.
+   // Why: an unanswered paste reads as a dropped paste, so the composer probes
+   // the clipboard in memory before the (slower) save lands.
 -  ipcMain.handle('clipboard:readImageThumbnail', (event): ClipboardImageThumbnail | null => {
 -    assertTrustedClipboardSender(event)
 -    try {
@@ -373,15 +376,16 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
 -    return readClipboardImageSource(clipboard) !== null
 +    return (await readClipboardImageSource(clipboardReader)) !== null
    })
-   // File-manager copies include text labels that paste must not type.
+   // Why: a file-manager copy also carries the files' names as text, which a paste must not type.
 -  ipcMain.handle('clipboard:readFilePaths', (event): string[] => {
 +  ipcMain.handle('clipboard:readFilePaths', async (event): Promise<string[]> => {
      assertTrustedClipboardSender(event)
 -    return readClipboardCopiedFilePaths(clipboard)
 +    return readClipboardCopiedFilePaths(clipboardReader)
    })
-   // Give image-aware terminal tools a saved image path, or null when no image exists.
-   ipcMain.handle(
+   // Why: terminals need to detect clipboard images to support tools like Claude
+   // Code that accept image input via paste. Writes the clipboard image to a
+@@ -167,11 +176,11 @@
      'clipboard:saveImageAsTempFile',
      async (event, args?: SaveClipboardImageAsTempFileArgs) => {
        assertTrustedClipboardSender(event)
@@ -395,7 +399,7 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
        if (image.isEmpty()) {
          if (!source.windowsFileFormats) {
            return null
-@@ -239,10 +248,7 @@
+@@ -233,12 +242,9 @@
    })
    ipcMain.handle('clipboard:writeSelectionText', async (event, text: string) => {
      assertTrustedClipboardSender(event)
@@ -405,11 +409,23 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
 -    )
 +    writeSelectionText(await assertClipboardTextWriteWithinLimitWithYield(text))
    })
-   ipcMain.handle('clipboard:writeImage', (event, dataUrl: string) => {
+-  ipcMain.handle('clipboard:writeImage', (event, dataUrl: string) => {
++  ipcMain.handle('clipboard:writeImage', async (event, dataUrl: string) => {
      assertTrustedClipboardSender(event)
+     // Why: only accept validated PNG data URIs to prevent writing arbitrary
+     // data to the clipboard. The renderer already validates the prefix, but
+@@ -272,7 +278,7 @@
+     } catch {
+       return
+     }
+-    clipboard.writeImage(image)
++    await writeClipboardImage(image)
+   })
+ }
+ 
 diff -ruN a/src/main/window/clipboard-native-image.ts b/src/main/window/clipboard-native-image.ts
---- a/src/main/window/clipboard-native-image.ts	2026-10-29 18:18:58.691288661 +0100
-+++ b/src/main/window/clipboard-native-image.ts	2026-10-29 18:19:34.144311718 +0100
+--- a/src/main/window/clipboard-native-image.ts	2026-10-25 03:24:17.125347153 +0100
++++ b/src/main/window/clipboard-native-image.ts	2026-10-25 03:27:20.853800095 +0100
 @@ -1,17 +1,18 @@
 -import { clipboard, nativeImage, type NativeImage } from 'electron'
 +import { nativeImage, type NativeImage } from 'electron'
