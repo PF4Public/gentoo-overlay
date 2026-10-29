@@ -97,6 +97,15 @@ src_prepare() {
 	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
 	# path degrades to a reported failure on 44+.
 	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api.patch" || die
+
+	# The final writeImage call of the clipboard:writeImage handler is not in
+	# the patch: newer upstream trees wrap the handler body in
+	# publishClipboardOperation, which changes its indentation and would break
+	# a patch hunk. Route it through the compat module with a whitespace-
+	# agnostic substitution instead — the promise is awaited by ipcMain.handle
+	# (and by the publish queue on the wrapped trees).
+	sed -i 's/^\([[:space:]]*\)clipboard\.writeImage(image)$/\1return writeClipboardImage(image)/' \
+		src/main/window/clipboard-ipc-handlers.ts || die
 }
 
 src_compile() {
