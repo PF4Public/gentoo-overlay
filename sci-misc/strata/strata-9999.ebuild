@@ -13,7 +13,9 @@ GGML_PV="0.27.0"
 
 ROCM_VERSION="7.2"
 
-inherit cmake cuda git-r3 linux-info rocm
+RUST_MIN_VER="1.77"
+
+inherit cargo cmake cuda git-r3 linux-info rocm
 
 DESCRIPTION="Local LLM inference engine with an OpenAI/Anthropic-compatible API"
 HOMEPAGE="https://github.com/Niko1221/Strata"
@@ -27,8 +29,14 @@ EGIT_REPO_URI="${REPO}.git"
 # the engine is built for one GPU backend; the terminal (the strata command,
 # the monitor and the API server) installs in every case. system-ggml links
 # the installed sci-ml/ggml instead of building the pinned commit's ggml
-# (files/strata-system-ggml.patch adds the STRATA_SYSTEM_GGML option)
-IUSE="cuda hip system-ggml"
+# (files/strata-9999-system-ggml.patch adds the STRATA_SYSTEM_GGML option).
+# desktop is the tauri app (apps/desktop): the Rust shell plus the host web
+# shell, the pinned node runtime, the pinned CPython control component and
+# (with cuda/hip) the engine bundle; the tauri shell locates the resources
+# in <bindir>/../lib/strata-desktop, so the layout below is fixed. The live
+# tree's pins (node, CPython, the wheel lock) come from the source, so they
+# are fetched at build time
+IUSE="cuda desktop hip system-ggml"
 REQUIRED_USE="!cuda? ( !hip )"
 
 # the terminal runs on the system python3 (the bin/strata launcher); these
@@ -47,6 +55,13 @@ COMMON_DEPEND="
 	dev-python/tqdm
 	dev-python/textual
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
+	desktop? (
+		dev-libs/glib
+		dev-libs/libx11
+		x11-libs/gtk+3
+		net-libs/webkit-gtk:4.1
+		x11-libs/libxkbcommon
+	)
 	hip? (
 		>=dev-util/hip-${ROCM_VERSION}:=
 		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
@@ -57,6 +72,11 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
+	desktop? (
+		net-misc/curl
+		>=dev-lang/nodejs-24.12
+		dev-util/npm
+	)
 	dev-util/wget
 "
 
@@ -76,6 +96,9 @@ pkg_pretend() {
 }
 
 pkg_setup() {
+	if use desktop; then
+		rust_pkg_setup
+	fi
 	if use hip; then
 		linux-info_pkg_setup
 		if linux-info_get_any_version && linux_config_exists; then
@@ -99,6 +122,15 @@ src_unpack() {
 		tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
 		LLAMA_COMMIT="${commit}"
 	fi
+
+	if use desktop; then
+		# the tauri shell's crates, fetched at build time (the live tree's
+		# Cargo.lock drifts, so there is no offline CRATES list)
+		local _S="${S}"
+		S="${S}/apps/desktop/src-tauri"
+		cargo_live_src_unpack
+		S="${_S}"
+	fi
 }
 
 src_prepare() {
@@ -114,6 +146,10 @@ src_prepare() {
 }
 
 src_configure() {
+	if use desktop; then
+		cargo_src_configure --manifest-path "${S}/apps/desktop/src-tauri/Cargo.toml"
+	fi
+
 	local ggml_dir
 	if use system-ggml; then
 		# the sci-ml/ggml install: the libraries to link + the source tree
@@ -169,6 +205,56 @@ src_configure() {
 }
 
 src_compile() {
+	if use desktop; then
+		# the host web shell (vite); the tauri shell embeds apps/host/dist at
+		# compile time, so this runs before cargo
+		einfo "building the host UI"
+		local -x NPM_CONFIG_CACHE="${WORKDIR}/.npm"
+		(
+			cd "${S}/apps/host" || die
+			npm install --no-audit --no-fund || die
+			npm run build || die
+		)
+
+		# tauri embeds every bundle.resources path into the binary (the
+		# embedded copy is unused on linux: at runtime the app reads
+		# <bindir>/../lib/strata-desktop), so every listed folder must exist
+		# at compile time; harness is never staged (the app runs without it)
+		mkdir -p "${S}/apps/desktop/src-tauri/resources/harness" || die
+
+		# the pinned node runtime: the source's own fetcher (digest-verified)
+		sh "${S}/apps/desktop/scripts/fetch-node.sh" || die
+
+		# the pinned CPython (digest-verified into its cache) and the locked
+		# wheels for the control component, both from the live tree's pins
+		mkdir -p "${T}/strata-packaging-cache" || die
+		python3 - "${S}" "${WORKDIR}" "${T}/strata-packaging-cache" <<'EOF' || die
+import pathlib, sys, tarfile
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "packaging"))
+import package_terminal as pt
+archive = pt.fetch_python(pt.host_target(), pathlib.Path(sys.argv[3]))
+tf = tarfile.open(archive)
+tf.extractall(sys.argv[2], filter="data")
+tf.close()
+EOF
+
+		mkdir -p "${WORKDIR}/wheels" || die
+		# two passes (one platform each): pip's multi-platform mode would
+		# refuse the dual-tagged wheels (numpy)
+		local plat
+		for plat in manylinux_2_28_x86_64 manylinux_2_17_x86_64; do
+			"${WORKDIR}/python/bin/python3" -m pip download --require-hashes --no-deps \
+				--only-binary=:all: --python-version 312 --implementation cp --abi cp312 \
+				--platform "${plat}" -d "${WORKDIR}/wheels" \
+				-r "${S}/packaging/locks/runtime-linux-x86_64-cp312.txt" || true
+		done
+		local expected
+		expected=$(grep -cE '^[A-Za-z0-9._-]+==' "${S}/packaging/locks/runtime-linux-x86_64-cp312.txt")
+		[[ $(find "${WORKDIR}/wheels" -name '*.whl' | wc -l) -eq ${expected} ]] || die "wheelhouse incomplete"
+
+		cargo_src_compile
+	fi
+
 	if use cuda; then
 		# strata_kq: the K-quant MMQ library the engine dlopens for the
 		# Unsloth UD-Q4/Q5/Q6_K_XL experts
@@ -183,7 +269,7 @@ src_install() {
 
 	# ---- the terminal: the strata command, the API server, the model installer ----
 	insinto "/${libdir}"
-	doins strata.py setup.py requirements.txt requirements-monitor.txt
+	doins strata.py setup.py chat.py highlight.py requirements.txt requirements-monitor.txt
 	doins -r strata_cli strata_control serve
 	doins -r data
 
@@ -304,6 +390,49 @@ EOF
 		export STRATA_COMPONENTS_DIR
 		EOF
 		doenvd "${envd}"
+	fi
+
+	# ---- the desktop: the tauri shell + the resources it locates beside it ----
+	if use desktop; then
+		local desktopdir="usr/$(get_libdir)/strata-desktop"
+
+		cp "${S}/apps/desktop/src-tauri/target/release/strata-desktop" "${T}/strata-desktop" || die
+		insinto /usr/bin
+		dofiles -m 0755 "${T}/strata-desktop"
+
+		# the web shell + engine host: node starts host/server/index.mjs
+		insinto "/${desktopdir}/host"
+		doins -r "${S}/apps/host/dist" "${S}/apps/host/server"
+		doins "${S}/apps/host/package.json"
+
+		# the pinned node runtime (the single binary the host uses)
+		insinto "/${desktopdir}/node"
+		doins "${S}/apps/desktop/src-tauri/resources/node/node"
+		fperms 0755 "/${desktopdir}/node/node"
+
+		# control: the pinned CPython + the locked wheels + the python parts
+		# of strata, staged and self-verified by the upstream script; the
+		# interpreter and the wheels were fetched in src_compile
+		local -x STRATA_COMMIT="$(git -C "${S}" rev-parse HEAD)"
+		local -x TMPDIR="${T}"
+		python3 "${S}/apps/desktop/scripts/stage-control.py" \
+			--out "${D}/${desktopdir}/control" \
+			--wheelhouse "${WORKDIR}/wheels" || die
+
+		# the pinned CPython is fragile: strip corrupts its dynamic section
+		# (its .dynstr is not in a segment) and the interpreter stops running
+		dostrip -x "/usr/$(get_libdir)/strata-desktop/control"
+
+		# the engine bundle: the same component the terminal installs, so
+		# the app ships with its engine
+		if use cuda || use hip; then
+			local comp
+			mkdir -p "${D}/${desktopdir}/engine-bundle" || die
+			for comp in "${D}/${libdir}/components/engine"/*; do
+				[[ -e ${comp} ]] || continue
+				cp -a "${comp}" "${D}/${desktopdir}/engine-bundle/" || die
+			done
+		fi
 	fi
 
 	dodoc README.md
