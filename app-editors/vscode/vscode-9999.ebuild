@@ -165,6 +165,10 @@ src_prepare() {
 	# sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
 	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
+	# 1.144+ pre-generates the node compile cache by spawning the packaged
+	# binary; the package ships without the electron binary (system
+	# electron-r1), so generate it from the ebuild instead (see src_compile)
+	sed -i '/if (shouldGenerateNodeCompileCache(platform, arch, product)) {/,+2d' build/gulpfile.vscode.ts || die
 
 	einfo "Editing build/gulpfile.vscode.linux.ts"
 	sed -i 's/gulp.task(buildDebTask);$/gulp.task(prepareDebTask);gulp.task(buildDebTask);/' build/gulpfile.vscode.linux.ts || die
@@ -362,6 +366,17 @@ src_compile() {
 	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
+	einfo "Generating node compile cache with the system electron"
+	local portable_dir
+	portable_dir="$(mktemp -d)"
+	VSCODE_PORTABLE="${portable_dir}" \
+	VSCODE_GENERATE_NODE_COMPILE_CACHE=1 \
+	env -u ELECTRON_RUN_AS_NODE -u NODE_COMPILE_CACHE \
+	timeout 300 "/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron" \
+	"${WORKDIR}/VSCode-linux-${VSCODE_ARCH}" --no-sandbox --ozone-platform=headless || die
+	find "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/node-compile-cache" -name .ready -delete
+	rm -rf "${portable_dir}"
+
 	#TODO: make reh use the same node at runtime as main vscode
 	if use reh; then
 		if use temp-fix; then
@@ -419,6 +434,7 @@ src_install() {
 	#TODO why no asar?
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
+	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node-compile-cache
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/ps.sh
