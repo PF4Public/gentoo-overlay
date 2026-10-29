@@ -215,7 +215,7 @@ src_prepare() {
 	# patch -p1 -i "${FILESDIR}/disable-signature-verification.patch" || die
 
 	einfo "Fixing Clipboard API"
-	patch -p1 -i "${FILESDIR}/fix-clipboard-api.patch" || die
+	patch -p1 -i "${FILESDIR}/fix-clipboard-api-1.144.patch" || die
 
 }
 
