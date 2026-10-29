@@ -10,7 +10,7 @@ inputs:
 
 outputs:
   modified:
-    description: List of changed files (deleted ebuilds excluded)
+    description: List of changed files (deleted files excluded)
     value: ${{ steps.files.outputs.modified }}
   ebuilds:
     description: >-
@@ -53,15 +53,17 @@ runs:
         else
           # tj-actions emits a space-separated list; normalize to one file per line
           all=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n')
+          modified=$(echo "$all" | tr '\n' ' ')
 
-          # a deleted ebuild can no longer be built - drop it from the list;
-          # other deletions (files/, ...) stay, they still drive the resolution
-          for d in ${{ steps.changed-files.outputs.all_deleted_files }}; do
+          # deleted files are a separate output - a deleted ebuild can no longer
+          # be built, but other deletions (files/, ...) still drive the
+          # resolution: a dangling reference to a deleted file fails the build
+          for d in ${{ steps.changed-files.outputs.deleted_files }}; do
             case "$d" in
-              *.ebuild) all=$(printf '%s\n' "$all" | grep -vxF "$d" || true) ;;
+              *.ebuild) ;;
+              *) all+=$'\n'"$d" ;;
             esac
           done
-          modified=$(echo "$all" | tr '\n' ' ')
 
           # resolve the ebuilds to build:
           # - ebuilds changed directly
@@ -84,10 +86,10 @@ runs:
               ebuilds+=$'\n'"${refs}"
               continue
             fi
-            ebuilds+=$'\n'"$(ls "${pkg}"/*.ebuild 2>/dev/null | sort -V | tail -2)"
+            ebuilds+=$'\n'"$(ls "${pkg}"/*.ebuild 2>/dev/null | sort -V | tail -2 || true)"
           done <<< "$(printf '%s\n' "$all" | grep -vE '\.ebuild$' || true)"
         fi
-        ebuilds=$(echo "$ebuilds" | tr ' ' '\n' | grep -E '^[^ ]+\.ebuild$' | sort -du | tr '\n' ' ')
+        ebuilds=$(echo "$ebuilds" | tr ' ' '\n' | grep -E '^[^ ]+\.ebuild$' | sort -du | tr '\n' ' ') || true
         ebuilds="${ebuilds% }"
         echo "modified=${modified}" >> $GITHUB_OUTPUT
         echo "ebuilds=${ebuilds}" >> $GITHUB_OUTPUT
