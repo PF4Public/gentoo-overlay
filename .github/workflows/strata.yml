@@ -60,3 +60,44 @@ jobs:
       - name: Save cache
         if: ${{ always() }}
         uses: ./.github/actions/cache-save
+
+  ebuild:
+    needs: [filter, default]
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # experimental: the docker image carries no GTK/webkit2gtk stack,
+          # so the desktop build fails until the image gets it
+          - use: 'desktop'
+            experimental: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+
+      - name: Restore cache
+        uses: ./.github/actions/cache-restore
+
+      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
+        uses: pf4public/gentoo-docker-action@master
+        with:
+            modified: ${{ steps.setup.outputs.ebuilds }}
+            tool: ebuild
+            action: compile
+            params: ${{ matrix.use }}
+
+      - name: Save cache
+        if: ${{ always() }}
+        uses: ./.github/actions/cache-save
