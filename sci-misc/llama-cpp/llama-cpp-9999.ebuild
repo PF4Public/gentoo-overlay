@@ -70,7 +70,7 @@ fi
 COMMON_DEPEND="
 	openssl? ( dev-libs/openssl:= )
 	system-ggml? (
-		>=sci-ml/ggml-0.27:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?]
+		>=sci-ml/ggml-0.28:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?]
 		hip? ( sci-ml/ggml[rocm] )
 	)
 	!system-ggml? (

@@ -52,8 +52,8 @@ if [[ ${PV} = *9999* ]]; then
 else
 	S="${WORKDIR}/${MY_PN}-${PV}"
 	# prebuilt webui matching the v${PV} release; the nightly build tag is
-	# listed on the release page (v0.7.0 -> b11669)
-	LLAMA_UI_VERSION="b11669"
+	# listed on the release page (v0.8.0 -> b11960)
+	LLAMA_UI_VERSION="b11960"
 	KEYWORDS="amd64 ~arm64"
 	SRC_URI="
 		${REPO}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
@@ -70,7 +70,7 @@ fi
 COMMON_DEPEND="
 	openssl? ( dev-libs/openssl:= )
 	system-ggml? (
-		>=sci-ml/ggml-0.27:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?]
+		>=sci-ml/ggml-0.28:=[cuda?,openblas?,opencl?,openmp?,rpc?,vulkan?]
 		hip? ( sci-ml/ggml[rocm] )
 	)
 	!system-ggml? (
