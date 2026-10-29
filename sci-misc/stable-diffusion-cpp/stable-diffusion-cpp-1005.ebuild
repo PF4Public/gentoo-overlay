@@ -54,7 +54,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_SUBMODULES=( ggml )
 else
 	S="${WORKDIR}/${MY_PN}-${MY_TAG}"
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 	SRC_URI="
 		${REPO}/archive/refs/tags/${MY_TAG}.tar.gz -> ${P}.tar.gz
 		${GGML_REPO}/archive/${GGML_REV}.tar.gz -> ${P}-ggml.tar.gz
