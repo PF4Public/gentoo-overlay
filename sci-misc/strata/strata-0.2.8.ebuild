@@ -570,7 +570,7 @@ S="${WORKDIR}/Strata-${PV}"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 # the engine is built for one GPU backend; the terminal (the strata command,
 # the monitor and the API server) installs in every case. system-ggml links
