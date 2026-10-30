@@ -41,7 +41,7 @@ inputs:
 outputs:
   status:
     description: Build status - complete, timeout or failed
-    value: ${{ steps.deps.outputs.status == 'timeout' && 'timeout' || steps.build.outputs.status }}
+    value: ${{ steps.build.outputs.status }}
 
 runs:
   using: composite
@@ -82,22 +82,22 @@ runs:
         set -uo pipefail
         # install the atom's dependencies only (--onlydeps): getbinpkg for
         # the binary ones, buildpkg to save the source-built ones for the
-        # next runs; the atom itself is built in the Build step from the
-        # restored state. The window is bounded: a cold (no ccache/binpkg)
-        # dep build is longer, on timeout the in-progress build is killed
-        # and the next job resumes from the saved deps set, so the window
-        # only has to fit a slice of the cold toolchain
+        # next runs. The window is small on purpose: a cold (no ccache/
+        # binpkg) toolchain is far longer, on timeout the in-progress build
+        # is killed and the Build step picks the rest up in its own window,
+        # so every job works at full speed, cold or warm; 25m + 280m build
+        # + the restores/saves still fits the 355m job cap
         rc=0
-        timeout 50m docker exec gentoo \
+        timeout 25m docker exec gentoo \
           emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
           ${{ inputs.atom }} 2>&1 | tee deps.log || rc=$?
         if [[ $rc -eq 124 ]]; then
-          echo "dependency build timed out, the next job resumes" >&2
+          echo "dependency build timed out, the Build step continues it" >&2
           tail -40 deps.log
-          # kill the in-progress builds so the saves below do not race them
+          # kill the in-progress builds so the Build step and the saves
+          # below do not race them
           docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
           sleep 5
-          echo "status=timeout" >> "$GITHUB_OUTPUT"
         elif [[ $rc -ne 0 ]]; then
           echo "dependency installation failed" >&2
           tail -40 deps.log
@@ -115,7 +115,6 @@ runs:
 
     - name: Build
       id: build
-      if: steps.deps.outputs.status != 'timeout'
       shell: bash
       run: |
         set -uo pipefail
@@ -160,7 +159,7 @@ runs:
         retention-days: 3
 
     - name: Save build state
-      if: failure() || steps.build.outputs.status == 'timeout' || steps.deps.outputs.status == 'timeout'
+      if: failure() || steps.build.outputs.status == 'timeout'
       uses: ./.github/actions/state-save
       with:
         name: ${{ steps.names.outputs.save }}
@@ -184,8 +183,10 @@ runs:
         path: release/x86-64.tar.bz2
         retention-days: 30
 
+    # only on failure/timeout: a completing job is the last one, and
+    # re-saving the unchanged warm set would cost ~15m of upload per job
     - name: Save deps
-      if: always()
+      if: failure() || steps.build.outputs.status == 'timeout'
       uses: ./.github/actions/deps-save
       with:
         prefix: ${{ inputs.deps-prefix }}
