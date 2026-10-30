@@ -12,6 +12,10 @@ on:
         description: Only build/refresh the shared deps set (toolchain, distfiles, caches), no release
         type: boolean
         default: false
+      version:
+        description: ungoogled-chromium version to warm the deps set for (blank means the newest ebuild)
+        type: string
+        default: ""
 
 env:
   # ------------------------------------------------------------------
@@ -72,6 +76,7 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
           DEPS_ONLY: ${{ github.event.inputs.deps-only }}
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           set -euo pipefail
 
@@ -79,11 +84,16 @@ jobs:
           ebuild="www-client/ungoogled-chromium/ungoogled-chromium-${pv}.ebuild"
           if [[ ! -f "$ebuild" ]]; then
             if [[ "$TAG" == "master" && "$DEPS_ONLY" == "true" ]]; then
-              # deps-only dispatch without a tag: the newest released ebuild
-              pv=$(ls -1 www-client/ungoogled-chromium/ungoogled-chromium-*.ebuild | grep -v "9999" \
-                | sed 's|.*/ungoogled-chromium-||; s|\.ebuild$||' | sort -V | tail -1)
+              # deps-only dispatch without a tag: the given version, or the
+              # newest released ebuild
+              pv="${VERSION:-$(ls -1 www-client/ungoogled-chromium/ungoogled-chromium-*.ebuild | grep -v "9999" \
+                | sed 's|.*/ungoogled-chromium-||; s|\.ebuild$||' | sort -V | tail -1)}"
               ebuild="www-client/ungoogled-chromium/ungoogled-chromium-${pv}.ebuild"
-              echo "no tag, using the newest ebuild: ${pv}"
+              if [[ ! -f "$ebuild" ]]; then
+                echo "::error::no ebuild found at ${ebuild}, the version input does not match"
+                exit 1
+              fi
+              echo "no tag, using version: ${pv}"
             else
               echo "::error::no ebuild found at ${ebuild} (a tagless dispatch needs the deps-only input)"
               exit 1
