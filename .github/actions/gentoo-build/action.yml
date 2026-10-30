@@ -41,7 +41,7 @@ inputs:
 outputs:
   status:
     description: Build status - complete, timeout or failed
-    value: ${{ steps.build.outputs.status }}
+    value: ${{ steps.deps.outputs.status == 'timeout' && 'timeout' || steps.build.outputs.status }}
 
 runs:
   using: composite
@@ -76,6 +76,7 @@ runs:
         echo "log=build-log-$n" >> "$GITHUB_OUTPUT"
 
     - name: Build dependencies
+      id: deps
       shell: bash
       run: |
         set -uo pipefail
@@ -83,18 +84,27 @@ runs:
         # the binary ones, buildpkg to save the source-built ones for the
         # next runs; the atom itself is built in the Build step from the
         # restored state. The window is bounded: a cold (no ccache/binpkg)
-        # dep build is longer, and the next job retries with the saved deps
-        # artifacts
+        # dep build is longer, on timeout the in-progress build is killed
+        # and the next job resumes from the saved deps set, so the window
+        # only has to fit a slice of the cold toolchain
         rc=0
-        timeout 90m docker exec gentoo \
+        timeout 50m docker exec gentoo \
           emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
           ${{ inputs.atom }} 2>&1 | tee deps.log || rc=$?
-        if [[ $rc -ne 0 ]]; then
+        if [[ $rc -eq 124 ]]; then
+          echo "dependency build timed out, the next job resumes" >&2
+          tail -40 deps.log
+          # kill the in-progress builds so the saves below do not race them
+          docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
+          sleep 5
+          echo "status=timeout" >> "$GITHUB_OUTPUT"
+        elif [[ $rc -ne 0 ]]; then
           echo "dependency installation failed" >&2
           tail -40 deps.log
           exit 1
+        else
+          echo "dependencies installed"
         fi
-        echo "dependencies installed"
 
     - name: Restore build state
       uses: ./.github/actions/state-restore
@@ -105,6 +115,7 @@ runs:
 
     - name: Build
       id: build
+      if: steps.deps.outputs.status != 'timeout'
       shell: bash
       run: |
         set -uo pipefail
@@ -149,7 +160,7 @@ runs:
         retention-days: 3
 
     - name: Save build state
-      if: failure() || steps.build.outputs.status == 'timeout'
+      if: failure() || steps.build.outputs.status == 'timeout' || steps.deps.outputs.status == 'timeout'
       uses: ./.github/actions/state-save
       with:
         name: ${{ steps.names.outputs.save }}

@@ -2,7 +2,8 @@ name: Save deps
 description: >-
   Pack the workspace dep dirs (distfiles, binpkgs, ccache, ...) into chunked
   artifacts. Artifact names are fixed, so every release run feeds the next
-  one: superseded sets (any run) are deleted before the upload.
+  one: superseded sets (any run) are deleted only after the new set is
+  fully uploaded, so a failed save never wipes the previous set.
 
 inputs:
   prefix:
@@ -12,24 +13,6 @@ inputs:
 runs:
   using: composite
   steps:
-    # only the newest deps set is useful, drop every older one
-    - name: Delete superseded deps artifacts
-      env:
-        GH_TOKEN: ${{ github.token }}
-      shell: bash
-      run: |
-        set -uo pipefail
-        p="${{ inputs.prefix }}"
-        # query each slot name directly; an unfiltered list is a 100-item
-        # newest-first window and would miss sets in a busy repo
-        for name in "${p}-deps-meta" $(seq -w 0 19 | sed "s/^/${p}-deps-/"); do
-          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=100" --jq '.artifacts[].id' || true)
-          for id in $ids; do
-            echo "deleting superseded artifact $id ($name)"
-            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
-          done
-        done
-
     # 20 slots x 1900 MiB zstd ~= 38 GiB compressed max
     - name: Pack and split
       id: pack
@@ -263,3 +246,25 @@ runs:
         done
         [[ $missing -eq 0 ]] || exit 1
         echo "all deps chunks verified"
+
+    # only the newest deps set is useful, drop every older one; runs last so
+    # a pack/upload failure above leaves the previous set in place
+    - name: Delete superseded deps artifacts
+      env:
+        GH_TOKEN: ${{ github.token }}
+      if: steps.pack.outputs.has-deps == 'true'
+      shell: bash
+      run: |
+        set -uo pipefail
+        p="${{ inputs.prefix }}"
+        # query each slot name directly; an unfiltered list is a 100-item
+        # newest-first window and would miss sets in a busy repo
+        for name in "${p}-deps-meta" $(seq -w 0 19 | sed "s/^/${p}-deps-/"); do
+          # keep this run's own set (just uploaded), drop the older runs'
+          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=100" \
+            --jq ".artifacts[] | select(.workflow_run.id != ${GITHUB_RUN_ID}) | .id" || true)
+          for id in $ids; do
+            echo "deleting superseded artifact $id ($name)"
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
+          done
+        done

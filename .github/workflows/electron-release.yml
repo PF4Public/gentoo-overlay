@@ -4,8 +4,14 @@ on:
     tags:
     - 'electron/*'
   # the build workflow pushes tags via GITHUB_TOKEN, which does not auto-trigger
-  # other workflows, so it also dispatches this run explicitly (gh workflow run)
+  # other workflows, so it also dispatches this run explicitly (gh workflow run
+  # --ref <tag>); without a tag the newest ebuild is used (deps-only runs)
   workflow_dispatch:
+    inputs:
+      deps-only:
+        description: Only build/refresh the shared deps set (toolchain, distfiles, caches), no release
+        type: boolean
+        default: false
 
 env:
   # ------------------------------------------------------------------
@@ -65,14 +71,23 @@ jobs:
         id: env
         env:
           TAG: ${{ github.ref_name }}
+          DEPS_ONLY: ${{ github.event.inputs.deps-only }}
         run: |
           set -euo pipefail
 
           pv="${TAG#*/}"
           ebuild="dev-util/electron/electron-${pv}.ebuild"
           if [[ ! -f "$ebuild" ]]; then
-            echo "::error::no ebuild found at ${ebuild}, the tag does not match a version"
-            exit 1
+            if [[ "$TAG" == "master" && "$DEPS_ONLY" == "true" ]]; then
+              # deps-only dispatch without a tag: the newest released ebuild
+              pv=$(ls -1 dev-util/electron/electron-*.ebuild | grep -v "9999" \
+                | sed 's|.*/electron-||; s|\.ebuild$||' | sort -V | tail -1)
+              ebuild="dev-util/electron/electron-${pv}.ebuild"
+              echo "no tag, using the newest ebuild: ${pv}"
+            else
+              echo "::error::no ebuild found at ${ebuild} (a tagless dispatch needs the deps-only input)"
+              exit 1
+            fi
           fi
 
           # the workdir source dir the build state (out/) lives in, the
@@ -140,9 +155,81 @@ jobs:
           echo "portage-dir=/var/tmp/portage/dev-util/electron-${pv}" >> "$GITHUB_OUTPUT"
           echo "build with USE: ${use}"
 
+  # dedicated toolchain warm-up (dispatch with deps-only): the official
+  # binhost carries no llvm-23, so the toolchain can only come from the
+  # shared deps set; this job builds it with a generous window (a cold
+  # toolchain takes hours) and saves the set for the release runs, which
+  # then spend only a few minutes on deps. A timed-out run saves its
+  # progress; rerun the dispatch to resume.
+  deps-warm:
+    needs: resolve
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.deps-only == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="${{ needs.resolve.outputs.use }}" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build dependencies
+        shell: bash
+        run: |
+          set -uo pipefail
+          # generous window for the cold toolchain (llvm, clang, rust, ...);
+          # on timeout the build is killed and the next dispatch resumes it
+          # from the saved deps set
+          rc=0
+          timeout 300m docker exec gentoo \
+            emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee deps.log || rc=$?
+          if [[ $rc -eq 124 ]]; then
+            echo "dependency build timed out, rerun the dispatch to resume" >&2
+            tail -40 deps.log
+            docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
+            sleep 5
+          elif [[ $rc -ne 0 ]]; then
+            echo "dependency installation failed" >&2
+            tail -40 deps.log
+            exit 1
+          else
+            echo "dependencies installed"
+          fi
+
+      - name: Save deps
+        if: always()
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
   build-1:
     needs: resolve
-    if: github.repository == 'PF4Public/gentoo-overlay'
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 355
     outputs:
@@ -363,7 +450,9 @@ jobs:
 
   publish:
     needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]
-    if: always() && github.repository == 'PF4Public/gentoo-overlay'
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -492,6 +581,7 @@ jobs:
     needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]
     if: >-
       always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
       (needs.build-1.result == 'failure' ||
        needs.build-2.result == 'failure' ||
        needs.build-3.result == 'failure' ||
@@ -552,12 +642,18 @@ jobs:
         run: |
           set -uo pipefail
           # the dump must start from installed dependencies so it goes
-          # straight to the failing step
+          # straight to the failing step; a timeout is not fatal, the dump
+          # runs with whatever is installed
           rc=0
           timeout 90m docker exec gentoo \
             emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
             ${{ needs.resolve.outputs.atom }} 2>&1 | tee deps.log || rc=$?
-          if [[ $rc -ne 0 ]]; then
+          if [[ $rc -eq 124 ]]; then
+            echo "dependency build timed out, dumping with what is installed" >&2
+            tail -40 deps.log
+            docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
+            sleep 5
+          elif [[ $rc -ne 0 ]]; then
             echo "dependency installation failed" >&2
             tail -40 deps.log
             exit 1
