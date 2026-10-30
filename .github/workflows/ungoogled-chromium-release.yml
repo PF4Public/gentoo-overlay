@@ -571,7 +571,7 @@ jobs:
           # -k0 makes every ninja/make invocation keep going past its errors,
           # so the log contains all failed steps
           timeout 145m docker exec gentoo \
-            emerge --getbinpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" --keepwork \
+            emerge --getbinpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
             --autounmask --autounmask-write --autounmask-continue -v1 ${{ needs.resolve.outputs.atom }} > dump.log 2>&1 || true
           tail -200 dump.log
           docker exec gentoo ccache -s || true

@@ -116,7 +116,7 @@ runs:
         # the step on a timeout before it can be handled
         rc=0
         timeout ${{ inputs.build-timeout }} docker exec gentoo \
-          emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ inputs.atom }}" --keepwork \
+          emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ inputs.atom }}" \
           --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log || rc=$?
         if [[ $rc -eq 0 ]]; then
           status="complete"
