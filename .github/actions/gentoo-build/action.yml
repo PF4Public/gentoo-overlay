@@ -1,19 +1,28 @@
 name: Gentoo build
 description: >-
-  Build a package in the gentoo container: restore the deps and build state,
-  apply the USE flags, run the timeout-bounded emerge, then save the state,
-  package/upload the release artifact and save the deps. The job only reports
-  'status'.
+  Build a package in the gentoo container: restore the shared deps, install
+  the atom's dependencies only, restore the run's build state (the whole
+  portage dir of the package), run the timeout-bounded emerge with keepwork,
+  then save the state, package/upload the release artifact and save the deps.
+  The job only reports 'status'.
 
 inputs:
   atom:
-    description: Package atom to build (e.g. dev-util/electron)
+    description: Package atom to build (e.g. =dev-util/electron-44.9.3)
     required: true
   use:
     description: USE flags (and USE_EXPAND settings) to apply for the atom
     required: true
+  portage-dir:
+    description: >-
+      Absolute path of the package's portage build dir inside the container
+      (e.g. /var/tmp/portage/dev-util/electron-44.9.3); this whole dir is
+      the build state
+    required: true
   src-dir:
-    description: Absolute path inside the gentoo container that contains the out/ dir
+    description: >-
+      Absolute path of the source work dir inside the container (the dir
+      that src_prepare moves the electron and node trees into)
     required: true
   deps-prefix:
     description: deps artifact name prefix (e.g. electron)
@@ -22,7 +31,7 @@ inputs:
     description: Per-job build window for the emerge (e.g. 280m)
     required: true
   job:
-    description: Build job number (1..6); state is restored from job-1 and saved as job
+    description: Build job number (1..7); state is restored from job-1 and saved as job
     required: true
     type: number
   accept-keywords:
@@ -60,48 +69,55 @@ runs:
       shell: bash
       run: |
         n=${{ inputs.job }}
-        echo "restore=state-$((n - 1))" >> "$GITHUB_OUTPUT"
-        echo "save=state-$n" >> "$GITHUB_OUTPUT"
+        # state is run-scoped: it is version-specific, so a set from another
+        # run (even the same job number) is worthless and must not be used
+        echo "restore=state-${GITHUB_RUN_ID}-$((n - 1))" >> "$GITHUB_OUTPUT"
+        echo "save=state-${GITHUB_RUN_ID}-$n" >> "$GITHUB_OUTPUT"
         echo "log=build-log-$n" >> "$GITHUB_OUTPUT"
+
+    - name: Build dependencies
+      shell: bash
+      run: |
+        set -uo pipefail
+        # install the atom's dependencies only (--onlydeps): getbinpkg for
+        # the binary ones, buildpkg to save the source-built ones for the
+        # next runs; the atom itself is built in the Build step from the
+        # restored state. The window is bounded: a cold (no ccache/binpkg)
+        # dep build is longer, and the next job retries with the saved deps
+        # artifacts
+        rc=0
+        timeout 90m docker exec gentoo \
+          emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
+          ${{ inputs.atom }} 2>&1 | tee deps.log || rc=$?
+        if [[ $rc -ne 0 ]]; then
+          echo "dependency installation failed" >&2
+          tail -40 deps.log
+          exit 1
+        fi
+        echo "dependencies installed"
 
     - name: Restore build state
       uses: ./.github/actions/state-restore
       with:
         name: ${{ steps.names.outputs.restore }}
+        portage-dir: ${{ inputs.portage-dir }}
         src-dir: ${{ inputs.src-dir }}
-
-    - name: Check dependency resolution (dry run)
-      shell: bash
-      run: |
-        set -uo pipefail
-        # fail fast on unsatisfiable deps/keywords instead of hours into the build;
-        # -p mode cannot write the autounmask changes it reports ("... changes are
-        # necessary to proceed"), so treat those as a warning - the real build
-        # writes them via --autounmask-write; the || keeps the rc in a conditional
-        # context, so the -e wrapper does not abort the step before it can be handled
-        rc=0
-        timeout 15m docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -pv1 ${{ inputs.atom }} 2>&1 | tee dry-run.log || rc=$?
-        if [[ $rc -ne 0 ]]; then
-          if grep -q "changes are necessary to proceed" dry-run.log; then
-            echo "::warning::dry run reports necessary USE/keyword changes, the build will autounmask them"
-          else
-            echo "dependency resolution failed" >&2
-            exit 1
-          fi
-        fi
 
     - name: Build
       id: build
       shell: bash
       run: |
         set -uo pipefail
-        # stream to the job log too, the build is otherwise silent for hours;
-        # the || keeps the rc in a conditional context, so the -e wrapper does
-        # not abort the step on a timeout before it can be handled
+        # deps are already installed; keepwork keeps the workdir so the next
+        # job resumes; --buildpkg-exclude keeps the atom out of the shared
+        # binpkgs (version-specific, useless to other runs); stream to the
+        # job log too, the build is otherwise silent for hours; the || keeps
+        # the rc in a conditional context, so the -e wrapper does not abort
+        # the step on a timeout before it can be handled
         rc=0
         timeout ${{ inputs.build-timeout }} docker exec gentoo \
-          emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log || rc=$?
+          emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ inputs.atom }}" --keepwork \
+          --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log || rc=$?
         if [[ $rc -eq 0 ]]; then
           status="complete"
         elif [[ $rc -eq 124 ]]; then
@@ -110,6 +126,11 @@ runs:
           status="failed"
         fi
         echo "status=${status}" >> "$GITHUB_OUTPUT"
+        # the job log is what is actually read; log artifacts can lag a long
+        # time, and the tail is where the failure is
+        echo "=== tail of build.log ==="
+        tail -n 200 build.log
+        grep -a "^FAILED:\|ninja: build stopped" build.log | tail -n 30 || true
         if [[ $status == "failed" ]]; then
           exit 1
         fi
@@ -132,7 +153,7 @@ runs:
       uses: ./.github/actions/state-save
       with:
         name: ${{ steps.names.outputs.save }}
-        src-dir: ${{ inputs.src-dir }}
+        portage-dir: ${{ inputs.portage-dir }}
 
     - name: Package release artifact
       if: steps.build.outputs.status == 'complete'

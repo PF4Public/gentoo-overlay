@@ -1,15 +1,24 @@
 name: Restore state
 description: >-
-  Download the chunked state artifacts from a previous build job (or the
-  newest set from an earlier run, for retries), verify the sha256 and
-  extract the out/ dir back into the gentoo container
+  Download the chunked state artifacts of a previous build job of this run,
+  verify the sha256 and extract the package's whole portage dir back into
+  the gentoo container. State is run-scoped only: it is version-specific,
+  so a set from another run is useless and never consulted.
 
 inputs:
   name:
-    description: Artifact name prefix to restore (e.g. state-3)
+    description: Run-scoped artifact name prefix to restore (e.g. state-40732479379-3)
+    required: true
+  portage-dir:
+    description: >-
+      Absolute path of the package's portage build dir inside the container
+      (e.g. /var/tmp/portage/dev-util/electron-44.9.3); the state extracts
+      over it
     required: true
   src-dir:
-    description: Absolute path inside the gentoo container to extract into (must exist)
+    description: >-
+      Absolute path of the source work dir inside the container (the dir
+      that src_prepare moves the electron and node trees into)
     required: true
 
 runs:
@@ -161,23 +170,15 @@ runs:
 
         mkdir -p state-chunks
         mapfile -t local < <(ls -1 state-chunks/ 2>/dev/null | grep "^${p}-" || true)
-        if [[ ${#local[@]} -gt 0 ]]; then
-          # this run produced a set, the meta must be in this run too
-          echo "restoring ${#local[@]} chunk(s) from this run"
-          sha256=$(fetch_meta) || { echo "local chunks but no meta (incomplete save), starting cold" >&2; exit 0; }
-        else
-          # no set in this run, fall back to the newest one from any run
-          sha256=$(fetch_meta) || { echo "No state set found, starting without build state"; exit 0; }
-          echo "restoring the newest state set from an earlier run"
-          # enumerate the 20 slot names directly instead of listing artifacts
-          for name in $(seq -w 0 19 | sed "s/^/${p}-/"); do
-            id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=1" --jq '.artifacts[0].id // empty')
-            [[ -n "$id" ]] || continue
-            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id/zip" > /tmp/chunk.zip
-            unzip -o -q /tmp/chunk.zip -d state-chunks/
-            rm -f /tmp/chunk.zip
-          done
+        if [[ ${#local[@]} -eq 0 ]]; then
+          # no set in this run: there is no cross-run fallback, state from
+          # another run belongs to another version
+          echo "No state set in this run, starting without build state"
+          exit 0
         fi
+        # the name is run-scoped, so the meta can only be from this run
+        echo "restoring ${#local[@]} chunk(s) from this run"
+        sha256=$(fetch_meta) || { echo "local chunks but no meta (incomplete save), starting cold" >&2; exit 0; }
 
         mapfile -t files < <(ls -1 state-chunks/ | grep "^${p}-" | sort)
         actual=$(cat state-chunks/${p}-* | sha256sum | awk '{print $1}')
@@ -189,13 +190,23 @@ runs:
         fi
         echo "Extracting build state from ${#files[@]} chunk(s)"
         command -v zstd > /dev/null || sudo apt-get install -y zstd > /dev/null
-        # portage creates this work dir when the build starts, which has not
-        # happened yet, so create it for the extraction
-        docker exec gentoo mkdir -p "${{ inputs.src-dir }}"
-        cat state-chunks/${p}-* | zstd -d -q | docker exec -i gentoo tar -xpf - -C "${{ inputs.src-dir }}"
+        # the tar member is relative to /var/tmp/portage, so extract there;
+        # portage creates the build dir when the build starts, which has
+        # not happened yet, so create it for the extraction
+        docker exec gentoo mkdir -p "${{ inputs.portage-dir }}"
+        cat state-chunks/${p}-* | zstd -d -q | docker exec -i gentoo tar -xpf - -C /var/tmp/portage
+        # src_prepare moves the freshly unpacked trees in with plain mv:
+        #   mv work/<P> electron ; mv work/<NODE_P> third_party/electron_node
+        # with the restored tree in place, mv would nest into the existing
+        # dirs and bury the fresh (re-patched) source, and the nested
+        # electron_node would break the @node/* TS resolution; drop the mv
+        # target dirs so src_unpack/src_prepare rebuild them fresh. The
+        # electron.d.ts source-root copy they carry is a build side effect
+        # that the ebuild regenerates in src_configure.
+        docker exec gentoo bash -c "rm -rf '${{ inputs.src-dir }}/electron' '${{ inputs.src-dir }}/third_party/electron_node'"
         # the ebuild build runs as the portage user (250), not root: hand
         # over the restored tree, otherwise src_unpack dies with
         # permission denied on the root-owned work dir
-        docker exec gentoo chown -R 250:250 "$(dirname "${{ inputs.src-dir }}")"
-        docker exec gentoo du -sh "${{ inputs.src-dir }}/out"
+        docker exec gentoo chown -R 250:250 "${{ inputs.portage-dir }}"
+        docker exec gentoo du -sh "${{ inputs.portage-dir }}"
         rm -rf "${GITHUB_WORKSPACE}/state-chunks"

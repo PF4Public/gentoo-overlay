@@ -44,7 +44,7 @@ env:
   DEPS_PREFIX: electron
 
   # per-job build window, the jobs are chained until the build completes
-  # (6 jobs x ~5h ~= 29h of build time)
+  # (7 jobs x ~5h ~= 33h of build time)
   BUILD_TIMEOUT: "280m"
 
 jobs:
@@ -56,6 +56,7 @@ jobs:
       atom: ${{ steps.env.outputs.atom }}
       use: ${{ steps.env.outputs.use }}
       src-dir: ${{ steps.env.outputs.src-dir }}
+      portage-dir: ${{ steps.env.outputs.portage-dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -136,6 +137,7 @@ jobs:
           echo "atom==dev-util/electron-${pv}" >> "$GITHUB_OUTPUT"
           echo "use=${use}" >> "$GITHUB_OUTPUT"
           echo "src-dir=${src_dir}" >> "$GITHUB_OUTPUT"
+          echo "portage-dir=/var/tmp/portage/dev-util/electron-${pv}" >> "$GITHUB_OUTPUT"
           echo "build with USE: ${use}"
 
   build-1:
@@ -162,6 +164,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 1
@@ -193,6 +196,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 2
@@ -224,6 +228,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 3
@@ -255,6 +260,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 4
@@ -286,6 +292,7 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 5
@@ -317,12 +324,45 @@ jobs:
           accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           deps-prefix: ${{ env.DEPS_PREFIX }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 6
 
+  build-7:
+    needs: [resolve, build-6]
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      needs.build-6.result == 'success' &&
+      needs.build-6.outputs.status == 'timeout'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    outputs:
+      status: ${{ steps.gentoo-build.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo build
+        id: gentoo-build
+        uses: ./.github/actions/gentoo-build
+        with:
+          atom: ${{ needs.resolve.outputs.atom }}
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+          use: ${{ needs.resolve.outputs.use }}
+          src-dir: ${{ needs.resolve.outputs.src-dir }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
+          deps-prefix: ${{ env.DEPS_PREFIX }}
+          build-timeout: ${{ env.BUILD_TIMEOUT }}
+          job: 7
+
   publish:
-    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6]
+    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]
     if: always() && github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
     steps:
@@ -340,22 +380,24 @@ jobs:
           B4: ${{ needs.build-4.result }}
           B5: ${{ needs.build-5.result }}
           B6: ${{ needs.build-6.result }}
+          B7: ${{ needs.build-7.result }}
           S1: ${{ needs.build-1.outputs.status }}
           S2: ${{ needs.build-2.outputs.status }}
           S3: ${{ needs.build-3.outputs.status }}
           S4: ${{ needs.build-4.outputs.status }}
           S5: ${{ needs.build-5.outputs.status }}
           S6: ${{ needs.build-6.outputs.status }}
+          S7: ${{ needs.build-7.outputs.status }}
         run: |
           set -euo pipefail
-          for i in 1 2 3 4 5 6; do
+          for i in 1 2 3 4 5 6 7; do
             eval "r=\$B${i}"
             if [[ "$r" == "failure" ]]; then
               echo "outcome=build-failed" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           done
-          for i in 1 2 3 4 5 6; do
+          for i in 1 2 3 4 5 6 7; do
             eval "s=\$S${i}"
             if [[ "$s" == "complete" ]]; then
               echo "outcome=complete" >> "$GITHUB_OUTPUT"
@@ -447,7 +489,7 @@ jobs:
           }
 
   dump-failures:
-    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6]
+    needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]
     if: >-
       always() && github.repository == 'PF4Public/gentoo-overlay' &&
       (needs.build-1.result == 'failure' ||
@@ -455,7 +497,8 @@ jobs:
        needs.build-3.result == 'failure' ||
        needs.build-4.result == 'failure' ||
        needs.build-5.result == 'failure' ||
-       needs.build-6.result == 'failure')
+       needs.build-6.result == 'failure' ||
+       needs.build-7.result == 'failure')
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -473,9 +516,10 @@ jobs:
           B4: ${{ needs.build-4.result }}
           B5: ${{ needs.build-5.result }}
           B6: ${{ needs.build-6.result }}
+          B7: ${{ needs.build-7.result }}
         run: |
           set -euo pipefail
-          for i in 6 5 4 3 2 1; do
+          for i in 7 6 5 4 3 2 1; do
             eval "r=\$B${i}"
             if [[ "$r" == "failure" ]]; then
               echo "idx=${i}" >> "$GITHUB_OUTPUT"
@@ -503,10 +547,27 @@ jobs:
           docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="${{ needs.resolve.outputs.use }}" gentoo \
             bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
 
+      - name: Build dependencies
+        shell: bash
+        run: |
+          set -uo pipefail
+          # the dump must start from installed dependencies so it goes
+          # straight to the failing step
+          rc=0
+          timeout 90m docker exec gentoo \
+            emerge --getbinpkg --buildpkg --onlydeps --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee deps.log || rc=$?
+          if [[ $rc -ne 0 ]]; then
+            echo "dependency installation failed" >&2
+            tail -40 deps.log
+            exit 1
+          fi
+
       - name: Restore build state
         uses: ./.github/actions/state-restore
         with:
-          name: state-${{ steps.failed.outputs.idx }}
+          name: state-${{ github.run_id }}-${{ steps.failed.outputs.idx }}
+          portage-dir: ${{ needs.resolve.outputs.portage-dir }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
 
       - name: Dump all failed build steps
@@ -516,7 +577,8 @@ jobs:
           # -k0 makes every ninja/make invocation keep going past its errors,
           # so the log contains all failed steps
           timeout 145m docker exec gentoo \
-            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 ${{ needs.resolve.outputs.atom }} > dump.log 2>&1 || true
+            emerge --getbinpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" --keepwork \
+            --autounmask --autounmask-write --autounmask-continue -v1 ${{ needs.resolve.outputs.atom }} > dump.log 2>&1 || true
           tail -200 dump.log
           docker exec gentoo ccache -s || true
 

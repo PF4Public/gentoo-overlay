@@ -1,19 +1,19 @@
 name: Save state
 description: >-
-  Compress the build state (the out/ dir) inside the gentoo container and
-  upload it as chunked artifacts for the next build job to restore
+  Compress the build state (the package's whole portage dir, including the
+  workdir with out/) inside the gentoo container and upload it as chunked
+  artifacts for the next build job to restore
 
 inputs:
   name:
-    description: Unique artifact name prefix for this save (e.g. state-3)
+    description: Unique artifact name prefix for this save (e.g. state-40732479379-3)
     required: true
-  src-dir:
-    description: Absolute path inside the gentoo container that contains the out/ dir
+  portage-dir:
+    description: >-
+      Absolute path of the package's portage build dir inside the container
+      (e.g. /var/tmp/portage/dev-util/electron-44.9.3); this whole dir is
+      the build state
     required: true
-  member:
-    description: Dir to archive within src-dir
-    required: false
-    default: 'out'
 
 runs:
   using: composite
@@ -26,16 +26,19 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
-        if ! docker exec gentoo test -d "${{ inputs.src-dir }}/${{ inputs.member }}"; then
-          echo "Nothing to save, ${{ inputs.src-dir }}/${{ inputs.member }} does not exist"
+        if ! docker exec gentoo test -d "${{ inputs.portage-dir }}"; then
+          echo "Nothing to save, ${{ inputs.portage-dir }} does not exist"
           echo "has-state=false" >> "$GITHUB_OUTPUT"
         echo "GITHUB_OUTPUT now: $(cat "$GITHUB_OUTPUT")"
           exit 0
         fi
-        docker exec gentoo du -sh "${{ inputs.src-dir }}/${{ inputs.member }}"
-        docker exec gentoo bash -c "cd '${{ inputs.src-dir }}' && tar -cf - '${{ inputs.member }}' | zstd -q -T0 -1 -o /tmp/state.zst"
-        docker cp gentoo:/tmp/state.zst "${GITHUB_WORKSPACE}/state.zst"
-        docker exec gentoo rm -f /tmp/state.zst
+        # the whole portage build dir (workdir with out/ and the unpacked
+        # trees); the tar member is the path relative to /var/tmp/portage so
+        # the restore extracts back to the same place; compress inside the
+        # container to the shared workspace volume so no docker cp of a
+        # large file is needed
+        docker exec gentoo du -sh "${{ inputs.portage-dir }}"
+        docker exec gentoo bash -c "cd /var/tmp/portage && tar -cf - \"\${{ inputs.portage-dir }}#/var/tmp/portage/\" | zstd -q -T0 -1 -o /workspace/state.zst"
 
         mkdir -p "${GITHUB_WORKSPACE}/state-chunks" "${GITHUB_WORKSPACE}/meta"
         sha256sum "${GITHUB_WORKSPACE}/state.zst" | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${{ inputs.name }}-sha256"
