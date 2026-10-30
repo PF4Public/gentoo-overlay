@@ -1667,6 +1667,14 @@ src_configure() {
 	# export YARN_ENABLE_OFFLINE_MODE=1
     node script/yarn.js config set --home enableTelemetry 0 || die;
     node script/yarn.js install --immutable
+	# electron.d.ts is read from the source root by the webpack ts check,
+	# but it is only produced as a side effect of the build_electron_
+	# definitions gn action whose tracked outputs live in out/; on a
+	# resumed build that action is up to date and skipped, leaving the
+	# source root copy missing and the webpack step failing with
+	# "Cannot find module 'electron/main'". Upstream CI generates it
+	# explicitly as a build step, so do the same here.
+	node script/yarn.js create-typescript-definitions
 	#!^ No control over what happens here
 	popd > /dev/null || die
 
