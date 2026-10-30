@@ -36,7 +36,7 @@ EGIT_REPO_URI="${REPO}.git"
 # in <bindir>/../lib/strata-desktop, so the layout below is fixed. The live
 # tree's pins (node, CPython, the wheel lock) come from the source, so they
 # are fetched at build time
-IUSE="cuda desktop hip system-ggml"
+IUSE="cuda desktop hip system-ggml tui"
 REQUIRED_USE="!cuda? ( !hip )"
 
 # the terminal runs on the system python3 (the bin/strata launcher); these
@@ -53,7 +53,7 @@ COMMON_DEPEND="
 	dev-python/regex
 	dev-python/requests
 	dev-python/tqdm
-	dev-python/textual
+	tui? ( dev-python/textual )
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
 		dev-libs/glib

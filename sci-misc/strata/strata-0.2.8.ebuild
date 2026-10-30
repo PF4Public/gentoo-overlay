@@ -580,7 +580,7 @@ KEYWORDS="~amd64"
 # shell, the pinned node runtime, the pinned CPython control component and
 # (with cuda/hip) the engine bundle; the tauri shell locates the resources
 # in <bindir>/../lib/strata-desktop, so the layout below is fixed
-IUSE="cuda desktop hip system-ggml"
+IUSE="cuda desktop hip system-ggml tui"
 REQUIRED_USE="!cuda? ( !hip )"
 
 # the terminal runs on the system python3 (the bin/strata launcher); these
@@ -598,7 +598,7 @@ COMMON_DEPEND="
 	dev-python/regex
 	dev-python/requests
 	dev-python/tqdm
-	dev-python/textual
+	tui? ( dev-python/textual )
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
 		dev-libs/glib
