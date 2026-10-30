@@ -666,7 +666,7 @@ src_unpack() {
 	# here)
 	if use desktop; then
 		mkdir -p "${WORKDIR}/wheels" || die
-		tar xzf "${FILESDIR}/${P}-runtime-wheels-linux-x86_64.tar.gz" \
+		tar xzf "${FILESDIR}/strata-runtime-wheels-linux-x86_64.tar.gz" \
 			-C "${WORKDIR}/wheels" || die
 	fi
 }
@@ -887,10 +887,15 @@ EOF
 			--backend "${backend}" \
 			--version "${ENGINE_PV}" \
 			--platform linux-x86_64 \
-			--out "${D}/usr/${libdir}/components/engine" \
+			--out "${D}/${libdir}/components/engine" \
 			"${arch_args[@]}" \
 			--build-id "gentoo-${PV}" \
 			--no-picture-reader || die
+
+		# estrip (after src_install) would break the component's integrity:
+		# engine-component.json records the binaries' hashes, so the engine
+		# must survive the install unstripped
+		dostrip -x "/${libdir}/components/engine"
 
 		local envd="${T}/90strata"
 		cat > "${envd}" <<-EOF
@@ -906,7 +911,8 @@ EOF
 
 		cp "${S}/apps/desktop/src-tauri/target/release/strata-desktop" "${T}/strata-desktop" || die
 		insinto /usr/bin
-		dofiles -m 0755 "${T}/strata-desktop"
+		doins "${T}/strata-desktop"
+		fperms 0755 /usr/bin/strata-desktop
 
 		# the web shell + engine host: node starts host/server/index.mjs
 		insinto "/${desktopdir}/host"

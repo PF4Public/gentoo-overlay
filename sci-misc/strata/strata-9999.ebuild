@@ -371,6 +371,15 @@ EOF
 			arch_args=( --arch gfx1100 --arch gfx1201 )
 		fi
 
+		# the engine imports the CUDA toolkit's libraries (cublas, cublasLt,
+		# cudart); the packager refuses a component whose imports are neither
+		# bundled nor OS or driver libraries. The toolkit's are allowed:
+		# RDEPEND (nvidia-cuda-toolkit) provides them and its lib dir is in
+		# the ldconfig cache
+		local allow_args=()
+		use cuda && allow_args=( --allow-lib libcublas.so.13 --allow-lib libcublasLt.so.13
+			--allow-lib libcudart.so.13 )
+
 		# the manifest (engine-component.json): strata hashes and verifies the
 		# whole component before a start. The picture reader is not shipped,
 		# so the image input stays off (the engine reports it as missing)
@@ -379,10 +388,16 @@ EOF
 			--backend "${backend}" \
 			--version "${ENGINE_PV}" \
 			--platform linux-x86_64 \
-			--out "${D}/usr/${libdir}/components/engine" \
+			--out "${D}/${libdir}/components/engine" \
 			"${arch_args[@]}" \
+			"${allow_args[@]}" \
 			--build-id "gentoo-${PV}" \
 			--no-picture-reader || die
+
+		# estrip (after src_install) would break the component's integrity:
+		# engine-component.json records the binaries' hashes, so the engine
+		# must survive the install unstripped
+		dostrip -x "/${libdir}/components/engine"
 
 		local envd="${T}/90strata"
 		cat > "${envd}" <<-EOF
@@ -398,7 +413,8 @@ EOF
 
 		cp "${S}/apps/desktop/src-tauri/target/release/strata-desktop" "${T}/strata-desktop" || die
 		insinto /usr/bin
-		dofiles -m 0755 "${T}/strata-desktop"
+		doins "${T}/strata-desktop"
+		fperms 0755 /usr/bin/strata-desktop
 
 		# the web shell + engine host: node starts host/server/index.mjs
 		insinto "/${desktopdir}/host"
