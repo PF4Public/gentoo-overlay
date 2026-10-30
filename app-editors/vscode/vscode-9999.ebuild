@@ -69,6 +69,7 @@ BDEPEND="
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	')
 	>=net-libs/nodejs-7.6.0[npm]
+	x11-misc/xvfb-run
 "
 
 python_check_deps() {
@@ -372,15 +373,20 @@ src_compile() {
 	/usr/bin/node node_modules/gulp/bin/gulp.js vscode-linux-${VSCODE_ARCH}-min || die
 	fi
 
+	# It needs a real display: headless ozone segfaults on GL init in
+	# electron >= 44, so run it under xvfb.
 	einfo "Generating node compile cache with the system electron"
 	local portable_dir
 	portable_dir="$(mktemp -d)"
 	VSCODE_PORTABLE="${portable_dir}" \
 	VSCODE_GENERATE_NODE_COMPILE_CACHE=1 \
 	env -u ELECTRON_RUN_AS_NODE -u NODE_COMPILE_CACHE \
-	timeout 300 "/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron" \
-	"${WORKDIR}/VSCode-linux-${VSCODE_ARCH}" --no-sandbox --ozone-platform=headless || die
-	find "${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/node-compile-cache" -name .ready -delete
+	timeout -k 15 300 xvfb-run -a -s "-screen 0 1280x1024x24" \
+	"/usr/$(get_libdir)/electron-${ELECTRON_SLOT}/electron" \
+	"${WORKDIR}/VSCode-linux-${VSCODE_ARCH}" --no-sandbox \
+		|| ewarn "node compile cache generation failed; continuing without it"
+	local cache_dir="${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/node-compile-cache"
+	[[ -d ${cache_dir} ]] && find "${cache_dir}" -name .ready -delete
 	rm -rf "${portable_dir}"
 
 	#TODO: make reh use the same node at runtime as main vscode
@@ -440,7 +446,9 @@ src_install() {
 	#TODO why no asar?
 	doins "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar
 	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules.asar.unpacked
-	doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node-compile-cache
+	if [[ -d "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node-compile-cache ]]; then
+		doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node-compile-cache
+	fi
 	# doins -r "${WORKDIR}"/VSCode-linux-${VSCODE_ARCH}/node_modules
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/cpuUsage.sh
 	fperms +x ${VSCODE_HOME}/out/vs/base/node/ps.sh
