@@ -979,7 +979,8 @@ src_prepare() {
 
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
 			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc \
-			graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc _api_features.json"
+			http_cache_transaction.cc graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc \
+			_api_features.json"
 
 		local ugc_unneeded=(
 			# GN bootstrap
