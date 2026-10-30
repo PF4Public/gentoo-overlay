@@ -221,7 +221,7 @@ src_prepare() {
 
 	# electron 44 removed the old main-process clipboard API (readFindText,
 	# readImage, readBuffer, ...) and added read()/write()/ClipboardItem
-	if ! vercmp -v 44 ${ELECTRON_SLOT}; then
+	if [[ ${ELECTRON_SLOT} -ge 44 ]]; then
 		einfo "Fixing Clipboard API"
 		patch -p1 -i "${FILESDIR}/fix-clipboard-api-1.144.patch" || die
 	else
