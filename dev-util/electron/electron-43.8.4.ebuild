@@ -10,7 +10,7 @@ EAPI=8
 # UGC_KEEP_BINARIES — space-separated list of binaries to keep
 # UGC_SKIP_SUBSTITUTION — space-separated list of files to skip domain substitution
 
-GN_MIN_VER=0.2374
+GN_MIN_VER=0.2562 # exactly this version
 # chromium-tools/get-chromium-toolchain-strings.py (or just use Chromicler)
 # Node for M145+ should be 24.12.0 but that's not packaged in Gentoo yet. See #969145
 TEST_FONT="9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9"
@@ -299,7 +299,7 @@ BDEPEND="
 		${RUST_DEPEND}
 	)
 	>=dev-util/bindgen-0.72.1
-	>=dev-build/gn-${GN_MIN_VER}
+	~dev-build/gn-${GN_MIN_VER}
 	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.2
