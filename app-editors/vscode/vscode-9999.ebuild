@@ -386,6 +386,11 @@ src_compile() {
 	"${WORKDIR}/VSCode-linux-${VSCODE_ARCH}" --no-sandbox \
 		|| ewarn "node compile cache generation failed; continuing without it"
 	local cache_dir="${WORKDIR}/VSCode-linux-${VSCODE_ARCH}/node-compile-cache"
+	local missing_kind
+	for missing_kind in main extension-host shared-process pty-host agent-host; do
+		[[ -f ${cache_dir}/${missing_kind}/.ready ]] || \
+			ewarn "node compile cache: ${missing_kind} never became ready"
+	done
 	[[ -d ${cache_dir} ]] && find "${cache_dir}" -name .ready -delete
 	rm -rf "${portable_dir}"
 
