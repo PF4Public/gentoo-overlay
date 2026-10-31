@@ -15,7 +15,7 @@ ROCM_VERSION="7.2"
 
 RUST_MIN_VER="1.77"
 
-inherit cargo cmake cuda git-r3 linux-info rocm
+inherit cargo cmake cuda desktop git-r3 linux-info rocm xdg-utils
 
 DESCRIPTION="Local LLM inference engine with an OpenAI/Anthropic-compatible API"
 HOMEPAGE="https://github.com/Niko1221/Strata"
@@ -465,16 +465,33 @@ EOF
 				cp -a "${comp}" "${D}/${desktopdir}/engine-bundle/" || die
 			done
 		fi
+
+		# the application menu entry + the icon (hicolor, the size is
+		# detected from the image)
+		newicon "${S}/apps/desktop/src-tauri/icons/icon.png" strata-desktop.png
+		make_desktop_entry "/usr/bin/strata-desktop" Strata \
+			"strata-desktop" "Development;Science;" "Local AI, tuned to one model."
 	fi
 
 	dodoc README.md
 }
 
 pkg_postinst() {
+	if use desktop; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
+	fi
 	if ! use cuda && ! use hip; then
 		ewarn "No engine was built (enable the cuda or hip USE flag for an"
 		ewarn "NVIDIA / AMD GPU). The strata terminal is installed, but"
 		ewarn "'strata launch' needs an engine: re-emerge sci-misc/strata with"
 		ewarn "[cuda] or [hip] to build one."
+	fi
+}
+
+pkg_postrm() {
+	if use desktop; then
+		xdg_icon_cache_update
+		xdg_desktop_database_update
 	fi
 }
