@@ -12,7 +12,7 @@
 	<use>
 		<flag name="build-online">Allow the build to fetch npm packages for the host UI (implied by desktop; no offline mode for the UI build is implemented)</flag>
 		<flag name="cuda">Build the engine for NVIDIA GPUs (CUDA backend, sm_75 through sm_120: RTX 20/30/40/50)</flag>
-		<flag name="desktop">Install the Tauri desktop app (strata-desktop): the web shell, a pinned Node.js runtime and a pinned CPython control component; with cuda or hip the app also ships the engine bundle</flag>
+		<flag name="desktop">Install the Tauri desktop app (strata-desktop): the web shell, a pinned Node.js runtime and a control component that runs on the system python (one of 3.11-3.15); with cuda or hip the app also ships the engine bundle</flag>
 		<flag name="hip">Build the engine for AMD GPUs (ROCm/HIP backend, gfx1100 and gfx1201: RDNA3/RDNA4)</flag>
 		<flag name="system-ggml">Link the ggml installed by sci-ml/ggml instead of building the pinned llama.cpp commit's ggml; strata's own ggml-cuda MMQ sources are still compiled, from ggml's installed source tree</flag>
 		<flag name="tui">Pull dev-python/textual for the terminal's interactive screens (strata launch, strata monitor); without it the screens report a clean error and the --no-tui fallback stays available</flag>

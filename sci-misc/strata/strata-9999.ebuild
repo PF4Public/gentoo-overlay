@@ -15,7 +15,9 @@ ROCM_VERSION="7.2"
 
 RUST_MIN_VER="1.77"
 
-inherit cargo cmake cuda desktop git-r3 linux-info rocm xdg-utils
+PYTHON_COMPAT=( python3_{11..15} )
+
+inherit cargo cmake cuda desktop git-r3 linux-info python-any-r1 rocm xdg-utils
 
 DESCRIPTION="Local LLM inference engine with an OpenAI/Anthropic-compatible API"
 HOMEPAGE="https://github.com/Niko1221/Strata"
@@ -31,36 +33,65 @@ EGIT_REPO_URI="${REPO}.git"
 # the installed sci-ml/ggml instead of building the pinned commit's ggml
 # (files/strata-9999-system-ggml.patch adds the STRATA_SYSTEM_GGML option).
 # desktop is the tauri app (apps/desktop): the Rust shell plus the host web
-# shell, the pinned node runtime, the pinned CPython control component and
-# (with cuda/hip) the engine bundle; the tauri shell locates the resources
-# in <bindir>/../lib/strata-desktop, so the layout below is fixed. The live
-# tree's pins (node, CPython, the wheel lock) come from the source, so they
-# are fetched at build time. build-online permits the npm fetch for the host
-# UI (implied by desktop)
+# shell, the pinned node runtime, the control component (its python parts run
+# on the system python, one of PYTHON_COMPAT) and (with cuda/hip) the engine
+# bundle; the tauri shell locates the resources in <bindir>/../lib/strata-
+# desktop, so the layout below is fixed. The live tree's node pin comes from
+# the source, so it is fetched at build time. build-online permits the npm
+# and node fetches for the host (implied by desktop)
 IUSE="build-online cuda desktop hip system-ggml tui"
 REQUIRED_USE="!cuda? ( !hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
 
 # the terminal runs on the system python3 (the bin/strata launcher); these
-# are the packages its requirements.txt pins; with system-ggml the engine
-# links sci-ml/ggml, whose install also carries the source tree (src/ +
-# include/) with the internal headers and the ggml-cuda MMQ sources strata
-# compiles itself
+# are the packages its requirements.txt pins, the any-dep group is what
+# python_setup checks at pkg_setup and pins via STRATA_PYTHON (the 90strata
+# env.d in src_install); with system-ggml the engine links sci-ml/ggml,
+# whose install also carries the source tree (src/ + include/) with the
+# internal headers and the ggml-cuda MMQ sources strata compiles itself
 COMMON_DEPEND="
-	dev-python/jinja2
-	dev-python/numpy
-	dev-python/pillow
-	dev-python/psutil
-	dev-python/pyyaml
-	dev-python/regex
-	dev-python/requests
-	dev-python/tqdm
+	$(python_gen_any_dep '
+		dev-python/jinja2[${PYTHON_USEDEP}]
+		dev-python/numpy[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/psutil[${PYTHON_USEDEP}]
+		dev-python/pyyaml[${PYTHON_USEDEP}]
+		dev-python/regex[${PYTHON_USEDEP}]
+		dev-python/requests[${PYTHON_USEDEP}]
+		dev-python/tqdm[${PYTHON_USEDEP}]
+		')
 	tui? ( dev-python/textual )
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
 		dev-libs/glib
 		net-libs/webkit-gtk:4.1
+		$(python_gen_any_dep '
+			dev-python/certifi[${PYTHON_USEDEP}]
+			dev-python/charset-normalizer[${PYTHON_USEDEP}]
+			dev-python/idna[${PYTHON_USEDEP}]
+			dev-python/jinja2[${PYTHON_USEDEP}]
+			dev-python/linkify-it-py[${PYTHON_USEDEP}]
+			dev-python/markdown-it-py[${PYTHON_USEDEP}]
+			dev-python/markupsafe[${PYTHON_USEDEP}]
+			dev-python/mdit-py-plugins[${PYTHON_USEDEP}]
+			dev-python/mdurl[${PYTHON_USEDEP}]
+			dev-python/numpy[${PYTHON_USEDEP}]
+			dev-python/pillow[${PYTHON_USEDEP}]
+			dev-python/platformdirs[${PYTHON_USEDEP}]
+			dev-python/psutil[${PYTHON_USEDEP}]
+			dev-python/pygments[${PYTHON_USEDEP}]
+			dev-python/pyyaml[${PYTHON_USEDEP}]
+			dev-python/regex[${PYTHON_USEDEP}]
+			dev-python/requests[${PYTHON_USEDEP}]
+			dev-python/rich[${PYTHON_USEDEP}]
+			dev-python/setuptools[${PYTHON_USEDEP}]
+			dev-python/textual[${PYTHON_USEDEP}]
+			dev-python/tqdm[${PYTHON_USEDEP}]
+			dev-python/truststore[${PYTHON_USEDEP}]
+			dev-python/typing-extensions[${PYTHON_USEDEP}]
+			dev-python/urllib3[${PYTHON_USEDEP}]
+			')
 		x11-libs/gtk+:3
 	)
 	hip? (
@@ -76,6 +107,32 @@ BDEPEND="
 	desktop? (
 		net-misc/curl
 		>=net-libs/nodejs-24.12[npm]
+		$(python_gen_any_dep '
+			dev-python/certifi[${PYTHON_USEDEP}]
+			dev-python/charset-normalizer[${PYTHON_USEDEP}]
+			dev-python/idna[${PYTHON_USEDEP}]
+			dev-python/jinja2[${PYTHON_USEDEP}]
+			dev-python/linkify-it-py[${PYTHON_USEDEP}]
+			dev-python/markdown-it-py[${PYTHON_USEDEP}]
+			dev-python/markupsafe[${PYTHON_USEDEP}]
+			dev-python/mdit-py-plugins[${PYTHON_USEDEP}]
+			dev-python/mdurl[${PYTHON_USEDEP}]
+			dev-python/numpy[${PYTHON_USEDEP}]
+			dev-python/pillow[${PYTHON_USEDEP}]
+			dev-python/platformdirs[${PYTHON_USEDEP}]
+			dev-python/psutil[${PYTHON_USEDEP}]
+			dev-python/pygments[${PYTHON_USEDEP}]
+			dev-python/pyyaml[${PYTHON_USEDEP}]
+			dev-python/regex[${PYTHON_USEDEP}]
+			dev-python/requests[${PYTHON_USEDEP}]
+			dev-python/rich[${PYTHON_USEDEP}]
+			dev-python/setuptools[${PYTHON_USEDEP}]
+			dev-python/textual[${PYTHON_USEDEP}]
+			dev-python/tqdm[${PYTHON_USEDEP}]
+			dev-python/truststore[${PYTHON_USEDEP}]
+			dev-python/typing-extensions[${PYTHON_USEDEP}]
+			dev-python/urllib3[${PYTHON_USEDEP}]
+			')
 	)
 	dev-util/wget
 "
@@ -104,7 +161,53 @@ pkg_pretend() {
 	fi
 }
 
+python_check_deps() {
+	# the terminal runs on the checked implementation: all of its packages
+	# must be built for it
+	python_has_version \
+		"dev-python/jinja2[${PYTHON_USEDEP}]" \
+		"dev-python/numpy[${PYTHON_USEDEP}]" \
+		"dev-python/pillow[${PYTHON_USEDEP}]" \
+		"dev-python/psutil[${PYTHON_USEDEP}]" \
+		"dev-python/pyyaml[${PYTHON_USEDEP}]" \
+		"dev-python/regex[${PYTHON_USEDEP}]" \
+		"dev-python/requests[${PYTHON_USEDEP}]" \
+		"dev-python/tqdm[${PYTHON_USEDEP}]"
+	if use desktop; then
+		# the control has to run on the checked implementation: all of its
+		# packages must be built for it
+		python_has_version \
+			"dev-python/certifi[${PYTHON_USEDEP}]" \
+			"dev-python/charset-normalizer[${PYTHON_USEDEP}]" \
+			"dev-python/idna[${PYTHON_USEDEP}]" \
+			"dev-python/jinja2[${PYTHON_USEDEP}]" \
+			"dev-python/linkify-it-py[${PYTHON_USEDEP}]" \
+			"dev-python/markdown-it-py[${PYTHON_USEDEP}]" \
+			"dev-python/markupsafe[${PYTHON_USEDEP}]" \
+			"dev-python/mdit-py-plugins[${PYTHON_USEDEP}]" \
+			"dev-python/mdurl[${PYTHON_USEDEP}]" \
+			"dev-python/numpy[${PYTHON_USEDEP}]" \
+			"dev-python/pillow[${PYTHON_USEDEP}]" \
+			"dev-python/platformdirs[${PYTHON_USEDEP}]" \
+			"dev-python/psutil[${PYTHON_USEDEP}]" \
+			"dev-python/pygments[${PYTHON_USEDEP}]" \
+			"dev-python/pyyaml[${PYTHON_USEDEP}]" \
+			"dev-python/regex[${PYTHON_USEDEP}]" \
+			"dev-python/requests[${PYTHON_USEDEP}]" \
+			"dev-python/rich[${PYTHON_USEDEP}]" \
+			"dev-python/setuptools[${PYTHON_USEDEP}]" \
+			"dev-python/textual[${PYTHON_USEDEP}]" \
+			"dev-python/tqdm[${PYTHON_USEDEP}]" \
+			"dev-python/truststore[${PYTHON_USEDEP}]" \
+			"dev-python/typing-extensions[${PYTHON_USEDEP}]" \
+			"dev-python/urllib3[${PYTHON_USEDEP}]"
+	fi
+}
+
 pkg_setup() {
+	# pick the PYTHON_COMPAT implementation the terminal and the control
+	# run on
+	python_setup
 	if use desktop; then
 		rust_pkg_setup
 	fi
@@ -237,33 +340,6 @@ src_compile() {
 		# the pinned node runtime: the source's own fetcher (digest-verified)
 		sh "${S}/apps/desktop/scripts/fetch-node.sh" || die
 
-		# the pinned CPython (digest-verified into its cache) and the locked
-		# wheels for the control component, both from the live tree's pins
-		mkdir -p "${T}/strata-packaging-cache" || die
-		python3 - "${S}" "${WORKDIR}" "${T}/strata-packaging-cache" <<'EOF' || die
-import pathlib, sys, tarfile
-sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "packaging"))
-import package_terminal as pt
-archive = pt.fetch_python(pt.host_target(), pathlib.Path(sys.argv[3]))
-tf = tarfile.open(archive)
-tf.extractall(sys.argv[2], filter="data")
-tf.close()
-EOF
-
-		mkdir -p "${WORKDIR}/wheels" || die
-		# two passes (one platform each): pip's multi-platform mode would
-		# refuse the dual-tagged wheels (numpy)
-		local plat
-		for plat in manylinux_2_28_x86_64 manylinux_2_17_x86_64; do
-			"${WORKDIR}/python/bin/python3" -m pip download --require-hashes --no-deps \
-				--only-binary=:all: --python-version 312 --implementation cp --abi cp312 \
-				--platform "${plat}" -d "${WORKDIR}/wheels" \
-				-r "${S}/packaging/locks/runtime-linux-x86_64-cp312.txt" || true
-		done
-		local expected
-		expected=$(grep -cE '^[A-Za-z0-9._-]+==' "${S}/packaging/locks/runtime-linux-x86_64-cp312.txt")
-		[[ $(find "${WORKDIR}/wheels" -name '*.whl' | wc -l) -eq ${expected} ]] || die "wheelhouse incomplete"
-
 		cargo_src_compile
 	fi
 
@@ -326,7 +402,9 @@ EOF
 	# the terminal's own version label
 	echo "${PV}" > "${D}/${libdir}/VERSION"
 
-	# the launcher finds the python3 (3.10+) on the PATH
+	# the launcher takes $STRATA_PYTHON (the 90strata env.d; the
+	# implementation python_setup picked) and falls back to a python3
+	# (3.10+) on the PATH
 	dosym "../$(get_libdir)/strata/bin/strata" /usr/bin/strata
 
 	# ---- the engine: an engine component the terminal verifies before a start ----
@@ -410,15 +488,19 @@ EOF
 		# engine-component.json records the binaries' hashes, so the engine
 		# must survive the install unstripped
 		dostrip -x "/${libdir}/components/engine"
-
-		# env.d files are parsed as flat KEY=VALUE configs, so the export
-		# must carry the value on the same line
-		local envd="${T}/90strata"
-		cat > "${envd}" <<-EOF
-		export STRATA_COMPONENTS_DIR="/usr/$(get_libdir)/strata/components"
-		EOF
-		doenvd "${envd}"
 	fi
+
+	# env.d files are parsed as flat KEY=VALUE configs, so the export must
+	# carry the value on the same line; the terminal's launcher takes
+	# STRATA_PYTHON as its first-choice interpreter (bin/strata)
+	local envd="${T}/90strata"
+	cat > "${envd}" <<-EOF
+	export STRATA_PYTHON="${PYTHON}"
+	EOF
+	if use cuda || use hip; then
+		echo "export STRATA_COMPONENTS_DIR=\"/usr/$(get_libdir)/strata/components\"" >> "${envd}"
+	fi
+	doenvd "${envd}"
 
 	# ---- the desktop: the tauri shell + the resources it locates beside it ----
 	if use desktop; then
@@ -442,18 +524,33 @@ EOF
 		doins "${S}/apps/desktop/src-tauri/resources/node/node"
 		fperms 0755 "/${desktopdir}/node/node"
 
-		# control: the pinned CPython + the locked wheels + the python parts
-		# of strata, staged and self-verified by the upstream script; the
-		# interpreter and the wheels were fetched in src_compile
+		# control: the python parts of strata, no interpreter and no wheels:
+		# they run on the system python (the one of PYTHON_COMPAT that
+		# python_setup picked in pkg_setup) and the desktop's python set
 		local -x STRATA_COMMIT="$(git -C "${S}" rev-parse HEAD)"
-		local -x TMPDIR="${T}"
-		python3 "${S}/apps/desktop/scripts/stage-control.py" \
-			--out "${D}/${desktopdir}/control" \
-			--wheelhouse "${WORKDIR}/wheels" || die
+		python3 "${FILESDIR}/stage-control.py" \
+			"${S}" "${D}/${desktopdir}/control" || die
 
-		# the pinned CPython is fragile: strip corrupts its dynamic section
-		# (its .dynstr is not in a segment) and the interpreter stops running
-		dostrip -x "/${desktopdir}/control"
+		# the launcher the tauri shell expects (control/python/bin/python3),
+		# pointing at the system interpreter picked in pkg_setup
+		local pbin="${D}/${desktopdir}/control/python/bin"
+		mkdir -p "${pbin}" || die
+		local pname
+		for pname in python python3 "${EPYTHON}"; do
+			cat > "${pbin}/${pname}" <<-EOF
+			#!/bin/sh
+			# Strata control: starts the system python (${PYTHON})
+			export PYTHONNOUSERSITE=1
+			export PYTHONDONTWRITEBYTECODE=1
+			exec ${PYTHON} "\$@"
+			EOF
+			fperms 0755 "/${desktopdir}/control/python/bin/${pname}"
+		done
+
+		# the system python has to run the control: fail the build, not the app
+		( cd "${D}/${desktopdir}/control" || die
+			PYTHONNOUSERSITE=1 ./python/bin/python3 strata.py --version ) \
+			|| die "the control component does not run on the system python (${PYTHON})"
 
 		# the engine bundle: the same component the terminal installs, so
 		# the app ships with its engine
