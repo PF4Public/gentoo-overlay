@@ -10,7 +10,7 @@ REPO="https://github.com/Niko1221/Strata"
 LLAMA_REPO="https://github.com/ggml-org/llama.cpp"
 LLAMA_COMMIT="3cf03257f219afbe7334045ff7c6a06ac68c627d"
 # system-ggml: the sci-ml/ggml package to link (bump with its bumps)
-GGML_PV="0.27.0"
+GGML_PV="0.28.0"
 # the commit the v${PV} tag points at; the desktop control staging needs it
 # (the tarball has no .git, so STRATA_COMMIT supplies it)
 STRATA_TAG_COMMIT="878ef09cc9092a41a37dac32fd6fe461e47fa326"
@@ -602,10 +602,8 @@ COMMON_DEPEND="
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
 		dev-libs/glib
-		dev-libs/libx11
-		x11-libs/gtk+3
 		net-libs/webkit-gtk:4.1
-		x11-libs/libxkbcommon
+		x11-libs/gtk+:3
 	)
 	hip? (
 		>=dev-util/hip-${ROCM_VERSION}:=
@@ -618,8 +616,7 @@ RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	desktop? (
-		>=dev-lang/nodejs-24.12
-		dev-util/npm
+		>=net-libs/nodejs-24.12[npm]
 	)
 "
 

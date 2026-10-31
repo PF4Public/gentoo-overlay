@@ -9,7 +9,7 @@ REPO="https://github.com/Niko1221/Strata"
 # from the network at configure time, so the ebuild fetches it in src_unpack
 LLAMA_REPO="https://github.com/ggml-org/llama.cpp"
 # system-ggml: the sci-ml/ggml package to link (bump with its bumps)
-GGML_PV="0.27.0"
+GGML_PV="0.28.0"
 
 ROCM_VERSION="7.2"
 
@@ -57,10 +57,8 @@ COMMON_DEPEND="
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
 		dev-libs/glib
-		dev-libs/libx11
-		x11-libs/gtk+3
 		net-libs/webkit-gtk:4.1
-		x11-libs/libxkbcommon
+		x11-libs/gtk+:3
 	)
 	hip? (
 		>=dev-util/hip-${ROCM_VERSION}:=
@@ -74,8 +72,7 @@ DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	desktop? (
 		net-misc/curl
-		>=dev-lang/nodejs-24.12
-		dev-util/npm
+		>=net-libs/nodejs-24.12[npm]
 	)
 	dev-util/wget
 "
