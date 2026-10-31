@@ -89,7 +89,7 @@ COMMON_DEPEND="
 		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
 		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
 	)
-	system-ggml? ( sci-ml/ggml:0/${GGML_PV} )
+	system-ggml? ( sci-ml/ggml:0/${GGML_PV}[src] )
 "
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"

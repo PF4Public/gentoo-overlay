@@ -42,7 +42,7 @@ X86_CPU_FLAGS=(
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 
-IUSE="${CPU_FLAGS[*]} cuda openblas opencl openmp rpc rocm test vulkan"
+IUSE="${CPU_FLAGS[*]} cuda openblas opencl openmp rpc rocm src test vulkan"
 
 unset X86_CPU_FLAGS CPU_FLAGS
 
@@ -182,8 +182,10 @@ src_configure() {
 src_install() {
 	cmake_src_install
 
-	# the internal headers and sources, for packages that compile parts of
-	# ggml themselves (sci-misc/strata with system-ggml)
-	insinto "/usr/$(get_libdir)/ggml-${PV}/ggml"
-	doins -r src include
+	if use src; then
+		# the internal headers and sources, for packages that compile parts
+		# of ggml themselves (sci-misc/strata with system-ggml)
+		insinto "/usr/$(get_libdir)/ggml-${PV}/ggml"
+		doins -r src include
+	fi
 }

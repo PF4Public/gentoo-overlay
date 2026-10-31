@@ -21,6 +21,7 @@
 		<flag name="openmp">Use OpenMP in the CPU backend</flag>
 		<flag name="rocm">Enable the AMD ROCm/HIP GPU backend</flag>
 		<flag name="rpc">Enable the RPC backend for distributed inference</flag>
+		<flag name="src">Install the internal headers and sources (src/ and include/) for packages that compile parts of ggml themselves, e.g. sci-misc/strata with system-ggml</flag>
 		<flag name="vulkan">Enable the Vulkan backend</flag>
 	</use>
 </pkgmetadata>
