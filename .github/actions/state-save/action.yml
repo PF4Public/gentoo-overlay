@@ -32,13 +32,17 @@ runs:
         echo "GITHUB_OUTPUT now: $(cat "$GITHUB_OUTPUT")"
           exit 0
         fi
-        # the whole portage build dir (workdir with out/ and the unpacked
-        # trees); the tar member is the path relative to /var/tmp/portage so
-        # the restore extracts back to the same place; compress inside the
-        # container to the shared workspace volume so no docker cp of a
-        # large file is needed
-        docker exec gentoo du -sh "${{ inputs.portage-dir }}"
-        docker exec gentoo bash -c "cd /var/tmp/portage && tar -cf - \"\${{ inputs.portage-dir }}#/var/tmp/portage/\" | zstd -q -T0 -1 -o /workspace/state.zst"
+         # the whole portage build dir (workdir with out/ and the unpacked
+         # trees); the tar member is the path relative to /var/tmp/portage so
+         # the restore extracts back to the same place; compress on the host
+         # from docker's stdout so no docker cp of a large file is needed.
+         # No nested bash: a bash -c here double-quoted the path and leaked a
+         # stray backslash into the tar name, which silently produced an
+         # empty archive (and the nested shell swallowed tar's exit code)
+         docker exec gentoo du -sh "${{ inputs.portage-dir }}"
+         rel=${{ inputs.portage-dir }}
+         rel=${rel#/var/tmp/portage/}
+         docker exec gentoo tar -cf - -C /var/tmp/portage "$rel" | zstd -q -T0 -1 -o "${GITHUB_WORKSPACE}/state.zst"
 
         mkdir -p "${GITHUB_WORKSPACE}/state-chunks" "${GITHUB_WORKSPACE}/meta"
         sha256sum "${GITHUB_WORKSPACE}/state.zst" | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${{ inputs.name }}-sha256"
