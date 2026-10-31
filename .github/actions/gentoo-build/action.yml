@@ -94,10 +94,19 @@ runs:
         if [[ $rc -eq 124 ]]; then
           echo "dependency build timed out, the Build step continues it" >&2
           tail -40 deps.log
-          # kill the in-progress builds so the Build step and the saves
-          # below do not race them
+          # kill the in-progress builds, then wait for the killed emerge to
+          # finish its graceful shutdown: it keeps cleaning up the in-
+          # progress package for a while after the pkill, and the Build step
+          # re-emerges in this same container, so a stale workdir (or a still
+          # cleaning emerge) makes the resume fail within seconds. The
+          # half-built (unmerged) packages are dropped, portage redoes them
+          # from scratch
           docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-          sleep 5
+          for i in $(seq 30); do
+            docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
+            sleep 2
+          done
+          docker exec gentoo bash -c 'find /var/tmp/portage -mindepth 2 -maxdepth 2 -type d ! -path "'"${{ inputs.portage-dir }}"'" -print0 | while IFS= read -r -d "" d; do [[ -e "$d/.merged" || -e "$d/.pretended" ]] || rm -rf "$d"; done' || true
         elif [[ $rc -ne 0 ]]; then
           echo "dependency installation failed" >&2
           tail -40 deps.log
@@ -145,9 +154,14 @@ runs:
           exit 1
         fi
         if [[ $status == "timeout" ]]; then
-          # kill lingering build processes, the next job resumes
+          # kill lingering build processes and wait for the shutdown, so
+          # the state/deps saves below do not race the dying processes
+          # (a tar reading a still-written ccache fails with "file changed")
           docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-          sleep 5
+          for i in $(seq 30); do
+            docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
+            sleep 2
+          done
         fi
 
     - name: Upload build log

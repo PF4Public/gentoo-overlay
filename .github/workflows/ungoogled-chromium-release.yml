@@ -213,8 +213,13 @@ jobs:
           if [[ $rc -eq 124 ]]; then
             echo "dependency build timed out, rerun the dispatch to resume" >&2
             tail -40 deps.log
+            # wait for the killed emerge to finish its graceful shutdown, so
+            # the deps save below does not race the dying processes
             docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-            sleep 5
+            for i in $(seq 30); do
+              docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
+              sleep 2
+            done
           elif [[ $rc -ne 0 ]]; then
             echo "dependency installation failed" >&2
             tail -40 deps.log
@@ -655,8 +660,15 @@ jobs:
           if [[ $rc -eq 124 ]]; then
             echo "dependency build timed out, dumping with what is installed" >&2
             tail -40 deps.log
+            # wait for the killed emerge to finish its graceful shutdown, and
+            # drop the half-built packages: the dump re-emerges in this same
+            # container, so a stale workdir makes it fail within seconds
             docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-            sleep 5
+            for i in $(seq 30); do
+              docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
+              sleep 2
+            done
+            docker exec gentoo bash -c 'find /var/tmp/portage -mindepth 2 -maxdepth 2 -type d ! -path "'"${{ needs.resolve.outputs.portage-dir }}"'" -print0 | while IFS= read -r -d "" d; do [[ -e "$d/.merged" || -e "$d/.pretended" ]] || rm -rf "$d"; done' || true
           elif [[ $rc -ne 0 ]]; then
             echo "dependency installation failed" >&2
             tail -40 deps.log
