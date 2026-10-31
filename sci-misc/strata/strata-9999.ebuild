@@ -82,6 +82,15 @@ BDEPEND="
 PATCHES=( "${FILESDIR}/strata-9999-system-ggml.patch" )
 
 pkg_pretend() {
+	if use cuda && use system-ggml; then
+		# the K-quant MMQ kernels are compiled from the pinned llama.cpp fork's
+		# ggml (its mul_mat_q_case and pool API), which vanilla sci-ml/ggml is
+		# neither API- nor content-compatible with
+		die "cuda + system-ggml cannot build; K-quant MMQ kernels need the pinned llama.cpp fork (build with -system-ggml)"
+	fi
+	if use hip && use system-ggml; then
+		ewarn "hip + system-ggml likely fails the same way (same pinned-fork ggml API); build with -system-ggml"
+	fi
 	if use cuda && [[ -z ${CUDA_ARCHITECTURES} ]]; then
 		einfo "CUDA_ARCHITECTURES is unset, so strata builds its default set of"
 		einfo "CUDA compute capabilities (75/86/89/120 SASS, 120 PTX), which is slow."

@@ -142,3 +142,17 @@
    endif()
    # part of strata_kernels_cpu (the pool calls these and they call its CPU probe: one library, so GNU ld's
    # one-pass static linking has no cycle to resolve)
+@@ -2279,8 +2279,11 @@
+       endif()
+       set_target_properties(strata_kq PROPERTIES CUDA_RUNTIME_LIBRARY Static POSITION_INDEPENDENT_CODE ON
+                             CXX_VISIBILITY_PRESET hidden CUDA_VISIBILITY_PRESET hidden)
+-      # ggml-base is static: position-independent so a shared library can hold it (the same code otherwise)
+-      set_target_properties(ggml-base PROPERTIES POSITION_INDEPENDENT_CODE ON)
++      # ggml-base is static: position-independent so a shared library can hold it (the same code otherwise); with the
++      # installed ggml it is an alias to a shared library, where the property is refused (and unnecessary)
++      if(NOT STRATA_SYSTEM_GGML)
++        set_target_properties(ggml-base PROPERTIES POSITION_INDEPENDENT_CODE ON)
++      endif()
+       target_link_libraries(strata_kq PRIVATE ggml-base)
+       if(TARGET CUDA::cuda_driver)
+         target_link_libraries(strata_kq PRIVATE CUDA::cuda_driver)
