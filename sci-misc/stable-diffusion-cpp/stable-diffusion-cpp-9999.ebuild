@@ -20,7 +20,8 @@ HOMEPAGE="https://github.com/leejet/stable-diffusion.cpp"
 
 # MIT: stable-diffusion.cpp, ggml, utf8proc, stb_image, miniz, cpp-httplib, nlohmann/json
 # BSD-2: darts-clone, oniguruma (both vendored under thirdparty/)
-LICENSE="MIT BSD-2"
+# BSD: cutlass (bundled ggml CUDA INT8 GEMM / attention, via dev-libs/cutlass)
+LICENSE="MIT BSD BSD-2"
 SLOT="0"
 
 # GGML CPU flags
@@ -87,6 +88,7 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	!system-ggml? (
+		cuda? ( =dev-libs/cutlass-3.9.2-r0:= )
 		opencl? ( ${PYTHON_DEPS} )
 		vulkan? ( media-libs/shaderc )
 	)
@@ -181,6 +183,15 @@ src_configure() {
 			local -x CUDAHOSTCXX="$(cuda_gccdir)"
 			cuda_add_sandbox
 			addpredict "/dev/char/"
+			# the bundled ggml vendors CUTLASS (fused INT8 GEMM / attention) as a
+			# nested git submodule; use the system copy from dev-libs/cutlass
+			# (installs to /usr/include/{cutlass,cute}) instead of the submodule
+			mycmakeargs+=( -DGGML_CUDA_CUTLASS_PATH="/usr" )
+			# CUDA_ARCHITECTURES: restrict the compute capabilities; the bundled
+			# ggml otherwise falls back to its own (broad) default arch list
+			if [[ -n ${CUDA_ARCHITECTURES} ]]; then
+				mycmakeargs+=( -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES}" )
+			fi
 		fi
 	fi
 
