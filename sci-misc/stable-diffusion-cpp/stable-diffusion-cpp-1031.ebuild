@@ -13,7 +13,7 @@ MY_PN="stable-diffusion.cpp"
 # upstream publishes master-NNN-sha snapshot tags (no semver); PV is snapshot N
 MY_TAG="master-${PV}-c6dfa9d"
 # ggml is a git submodule pin (leejet's patched ggml fork), not a release tag
-GGML_REV="a5915eb0e47adef21c3f25b889a008925ea838c2"
+GGML_REV="c57b71a3448809d07d49360273201bb5a5e7cafb"
 
 DESCRIPTION="Diffusion model (SD, Flux, Wan, ...) inference in pure C/C++"
 HOMEPAGE="https://github.com/leejet/stable-diffusion.cpp"
