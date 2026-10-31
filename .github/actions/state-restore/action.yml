@@ -197,13 +197,18 @@ runs:
         cat state-chunks/${p}-* | zstd -d -q | docker exec -i gentoo tar -xpf - -C /var/tmp/portage
         # src_prepare moves the freshly unpacked trees in with plain mv:
         #   mv work/<P> electron ; mv work/<NODE_P> third_party/electron_node
-        # with the restored tree in place, mv would nest into the existing
-        # dirs and bury the fresh (re-patched) source, and the nested
-        # electron_node would break the @node/* TS resolution; drop the mv
-        # target dirs so src_unpack/src_prepare rebuild them fresh. The
-        # electron.d.ts source-root copy they carry is a build side effect
-        # that the ebuild regenerates in src_configure.
-        docker exec gentoo bash -c "rm -rf '${{ inputs.src-dir }}/electron' '${{ inputs.src-dir }}/third_party/electron_node'"
+        # when unpack/prepare will run again (no restored .prepared marker),
+        # the mv would nest into the restored dirs and bury the fresh
+        # (re-patched) source, and the nested electron_node would break the
+        # @node/* TS resolution, so drop the mv target dirs. A resumed build
+        # (marker restored) skips src_unpack/src_prepare/src_configure
+        # entirely, so the restored trees are the build's own and must stay:
+        # they carry the source and the generated artifacts nothing
+        # regenerates (the PGO profiles src_prepare downloads, which
+        # build.ninja depends on).
+        if ! docker exec gentoo test -e "${{ inputs.portage-dir }}/.prepared"; then
+          docker exec gentoo bash -c "rm -rf '${{ inputs.src-dir }}/electron' '${{ inputs.src-dir }}/third_party/electron_node'"
+        fi
         # the ebuild build runs as the portage user (250), not root: hand
         # over the restored tree, otherwise src_unpack dies with
         # permission denied on the root-owned work dir
