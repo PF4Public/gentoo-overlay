@@ -207,6 +207,16 @@ src_configure() {
 src_install() {
 	cmake_src_install
 
+	# the bundled ggml is linked statically into the executables, but its CMake
+	# still installs the public interface (headers/lib/cmake-config), colliding
+	# with sci-ml/ggml; strip it from the image.
+	if ! use system-ggml; then
+		rm -f "${ED}"/usr/include/ggml*.h "${ED}"/usr/include/gguf.h
+		rm -f "${ED}"/usr/$(get_libdir)/libggml*.a
+		rm -rf "${ED}"/usr/$(get_libdir)/cmake/ggml
+		rm -f "${ED}"/usr/$(get_libdir)/pkgconfig/ggml.pc
+	fi
+
 	dodoc -r "${S}"/docs
 	dodoc "${S}"/README.md
 }
