@@ -413,7 +413,10 @@ EOF
 
 	# ---- the desktop: the tauri shell + the resources it locates beside it ----
 	if use desktop; then
-		local desktopdir="usr/$(get_libdir)/strata-desktop"
+		# the shell hardcodes the packaged layout <bindir>/../lib/strata-desktop
+		# (a literal lib, not $(get_libdir)); nothing else is tried before the
+		# compile-time source tree, so this location is not optional
+		local desktopdir="usr/lib/strata-desktop"
 
 		cp "${S}/apps/desktop/src-tauri/target/release/strata-desktop" "${T}/strata-desktop" || die
 		insinto /usr/bin
@@ -445,7 +448,7 @@ EOF
 
 		# the pinned CPython is fragile: strip corrupts its dynamic section
 		# (its .dynstr is not in a segment) and the interpreter stops running
-		dostrip -x "/usr/$(get_libdir)/strata-desktop/control"
+		dostrip -x "/${desktopdir}/control"
 
 		# the engine bundle: the same component the terminal installs, so
 		# the app ships with its engine
