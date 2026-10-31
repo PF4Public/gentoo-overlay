@@ -10,6 +10,7 @@
 		<doc>https://github.com/Niko1221/Strata/tree/main/docs</doc>
 	</upstream>
 	<use>
+		<flag name="build-online">Allow the build to fetch npm packages for the host UI (implied by desktop; no offline mode for the UI build is implemented)</flag>
 		<flag name="cuda">Build the engine for NVIDIA GPUs (CUDA backend, sm_75 through sm_120: RTX 20/30/40/50)</flag>
 		<flag name="desktop">Install the Tauri desktop app (strata-desktop): the web shell, a pinned Node.js runtime and a pinned CPython control component; with cuda or hip the app also ships the engine bundle</flag>
 		<flag name="hip">Build the engine for AMD GPUs (ROCm/HIP backend, gfx1100 and gfx1201: RDNA3/RDNA4)</flag>

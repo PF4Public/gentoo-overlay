@@ -71,8 +71,9 @@ jobs:
       matrix:
         include:
           # experimental: the docker image carries no GTK/webkit2gtk stack,
-          # so the desktop build fails until the image gets it
-          - use: 'desktop'
+          # so the desktop build fails until the image gets it (build-online
+          # is named explicitly: ebuild compile does not apply REQUIRED_USE)
+          - use: 'desktop build-online'
             experimental: true
 
     steps:

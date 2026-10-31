@@ -55,9 +55,12 @@ KEYWORDS="amd64"
 # desktop is the tauri app (apps/desktop): the Rust shell plus the host web
 # shell, the pinned node runtime, the pinned CPython control component and
 # (with cuda/hip) the engine bundle; the tauri shell locates the resources
-# in <bindir>/../lib/strata-desktop, so the layout below is fixed
-IUSE="cuda desktop hip system-ggml tui"
-REQUIRED_USE="!cuda? ( !hip )"
+# in <bindir>/../lib/strata-desktop, so the layout below is fixed.
+# build-online permits the npm fetch for the host UI (implied by desktop)
+IUSE="build-online cuda desktop hip system-ggml tui"
+REQUIRED_USE="!cuda? ( !hip ) desktop? ( build-online )"
+# the host UI build (desktop) fetches npm packages at build time
+RESTRICT="mirror build-online? ( network-sandbox )"
 
 # the terminal runs on the system python3 (the bin/strata launcher); these
 # are the packages its requirements.txt pins; with system-ggml the engine
@@ -232,6 +235,9 @@ src_configure() {
 }
 
 src_compile() {
+	if use desktop && ! use build-online; then
+		die "desktop needs build-online: the host UI build fetches npm packages (no offline mode is implemented)"
+	fi
 	if use desktop; then
 		# the host web shell (vite); the tauri shell embeds apps/host/dist at
 		# compile time, so this runs before cargo
