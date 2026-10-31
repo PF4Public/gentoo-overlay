@@ -459,6 +459,9 @@ EOF
 				[[ -e ${comp} ]] || continue
 				cp -a "${comp}" "${D}/${desktopdir}/engine-bundle/" || die
 			done
+			# the bundle's manifest hashes the unstripped binaries, so this
+			# copy must survive the strip like the terminal component
+			dostrip -x "/${desktopdir}/engine-bundle"
 		fi
 
 		# the application menu entry + the icon (hicolor, the size is
