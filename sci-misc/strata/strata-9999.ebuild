@@ -411,10 +411,11 @@ EOF
 		# must survive the install unstripped
 		dostrip -x "/${libdir}/components/engine"
 
+		# env.d files are parsed as flat KEY=VALUE configs, so the export
+		# must carry the value on the same line
 		local envd="${T}/90strata"
 		cat > "${envd}" <<-EOF
-		STRATA_COMPONENTS_DIR="/usr/$(get_libdir)/strata/components"
-		export STRATA_COMPONENTS_DIR
+		export STRATA_COMPONENTS_DIR="/usr/$(get_libdir)/strata/components"
 		EOF
 		doenvd "${envd}"
 	fi
