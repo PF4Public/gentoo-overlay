@@ -72,7 +72,15 @@
      args += [ "--bindgen-flags" ]
 --- a/build/rust/gni_impl/libclang_args.gni
 +++ b/build/rust/gni_impl/libclang_args.gni
-@@ -36,10 +36,17 @@
+@@ -19,6 +19,7 @@
+ #   }
+ 
+ import("//build/config/clang/clang.gni")
++import("//build/config/rust.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+ 
+ if (is_win) {
+@@ -36,10 +37,17 @@
  # says the wrong thing. We point it to our clang's resource dir which will
  # make it behave consistently with our other command line flags and allows
  # system headers to be found.
@@ -94,7 +102,7 @@
  
  if (is_win) {
    # On Windows we fall back to using system headers from a sysroot from
-@@ -92,6 +99,10 @@
+@@ -92,6 +100,10 @@
    _libclang_extra_args += [ "-fno-sanitize-ignorelist" ]
  }
  
