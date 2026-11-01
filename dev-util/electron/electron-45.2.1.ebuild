@@ -2184,6 +2184,15 @@ src_compile() {
 	fi
 	[[ " ${CFLAGS} " == *" -Wno-unknown-warning-option "* ]] || append-cflags -Wno-unknown-warning-option
 	[[ " ${CXXFLAGS} " == *" -Wno-unknown-warning-option "* ]] || append-cxxflags -Wno-unknown-warning-option
+	if use !bundled-toolchain; then
+		[[ " ${LDFLAGS} " == *" -Wl,--undefined-version "* ]] || append-ldflags -Wl,--undefined-version
+	fi
+	if use !libcxx; then
+		[[ " ${CPPFLAGS} " == *" -U_GLIBCXX_ASSERTIONS "* ]] || append-cppflags -U_GLIBCXX_ASSERTIONS
+	fi
+	if use thinlto; then
+		[[ " ${LDFLAGS} " == *" -Wl,--thinlto-jobs="* ]] || append-ldflags "-Wl,--thinlto-jobs=$(makeopts_jobs)"
+	fi
 	[[ " ${CFLAGS} " == *" -Wno-builtin-macro-redefined "* ]] || append-cflags -Wno-builtin-macro-redefined
 	[[ " ${CXXFLAGS} " == *" -Wno-builtin-macro-redefined "* ]] || append-cxxflags -Wno-builtin-macro-redefined
 	[[ " ${CPPFLAGS} " == *" -D__DATE__= "* ]] || append-cppflags "-D__DATE__= -D__TIME__= -D__TIMESTAMP__="
