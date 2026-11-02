@@ -162,11 +162,13 @@ jobs:
           fi
 
           for sha in "${commits[@]}"; do
-            # build commits are "<cat>/<pn>: build"; the version is extracted
-            # from the changed ebuild file below, not from the message. Match
-            # only the first line: with our blank-line-free messages %s returns
-            # the whole message, so a "build" in the body would fire this
-            if ! git log -1 --format=%B "${sha}" | head -n 1 | grep -qiE '\bbuild\b'; then
+            # build commits are exactly "<cat>/<pn>: build"; the version is
+            # extracted from the changed ebuild file below, not from the
+            # message. Match only the first line (with our blank-line-free
+            # messages %s returns the whole message) and require "build" to
+            # be the only word after the colon, so titles like "fix the
+            # system-openjpeg build" do not fire this
+            if ! git log -1 --format=%B "${sha}" | head -n 1 | grep -qiE '^[^:]+: build$'; then
               continue
             fi
             while IFS= read -r file; do
