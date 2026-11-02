@@ -691,7 +691,7 @@ jobs:
           timeout 145m docker exec gentoo \
             emerge --getbinpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
             --autounmask --autounmask-write --autounmask-continue -v1 ${{ needs.resolve.outputs.atom }} > dump.log 2>&1 || true
-          tail -200 dump.log
+          tail -1000 dump.log
           docker exec gentoo ccache -s || true
 
       - name: Upload failure log
