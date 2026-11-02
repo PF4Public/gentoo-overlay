@@ -185,8 +185,13 @@ runs:
       run: |
         set -euo pipefail
         mkdir -p release
-        docker exec -e ATOM="${{ inputs.atom }}" -w / gentoo \
-          bash -c 'qlist -ev "$ATOM" | sed "s|^/||" | tar -cjf /workspace/release/x86-64.tar.bz2 -T -'
+        # the build already produced a binpkg (--buildpkg into PKGDIR); the
+        # -bin ebuilds consume the file tree inside it (the PACKAGE/ metadata
+        # dir is ignored), so no separate qlist/tar pass is needed
+        docker exec -e ATOM="${{ inputs.atom }}" -w /workspace/release gentoo \
+          bash -c 'set -euo pipefail
+            atom="${ATOM#=}"
+            cp "/workspace/binpkgs/${atom%%/*}/${atom#*/}"*.tbz2 x86-64.tar.bz2'
         docker exec gentoo du -sh /workspace/release/x86-64.tar.bz2
 
     - name: Upload release artifact
