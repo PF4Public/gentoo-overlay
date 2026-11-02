@@ -996,9 +996,9 @@ src_prepare() {
 		)
 	fi
 
-	if use system-openjpeg ; then
+	if use system-brotli ; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-system-openjpeg-r4.patch"
+			"${FILESDIR}/chromium-system-brotli-headers.patch"
 		)
 	fi
 
