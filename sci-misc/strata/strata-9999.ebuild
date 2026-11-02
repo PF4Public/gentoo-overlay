@@ -40,7 +40,7 @@ EGIT_REPO_URI="${REPO}.git"
 # the source, so it is fetched at build time. build-online permits the npm
 # and node fetches for the host (implied by desktop)
 IUSE="build-online cuda desktop hip system-ggml tui"
-REQUIRED_USE="!cuda? ( !hip ) desktop? ( build-online )"
+REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
 

@@ -60,7 +60,7 @@ KEYWORDS="amd64"
 # desktop, so the layout below is fixed.
 # build-online permits the npm fetch for the host UI (implied by desktop)
 IUSE="build-online cuda desktop hip system-ggml tui"
-REQUIRED_USE="!cuda? ( !hip ) desktop? ( build-online )"
+REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
 
