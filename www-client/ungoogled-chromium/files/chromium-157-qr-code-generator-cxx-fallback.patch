@@ -1,0 +1,257 @@
+Revert components/qr_code_generator to the 156 design: gate the Crubit dependency on
+enable_cpp_api_from_rust and keep the cxx (qr_code_generator_ffi_glue.rs) fallback
+for builds without the Crubit toolchain (system rust).
+
+--- a/components/qr_code_generator/BUILD.gn
++++ b/components/qr_code_generator/BUILD.gn
+@@ -2,6 +2,8 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
++import("//build/buildflag_header.gni")
++import("//build/config/rust.gni")
+ import("//testing/libfuzzer/fuzzer_test.gni")
+ 
+ declare_args() {
+@@ -9,8 +11,9 @@
+   enable_qr_print = false
+ }
+ 
++# Error type shared between C++ and Rust.
+ source_set("error") {
+-  public = [ "error.h" ]
++  sources = [ "error.h" ]
+ }
+ 
+ source_set("bitmap_generator") {
+@@ -30,23 +33,51 @@
+   ]
+ }
+ 
++# TODO(https://crbug.com/533546009): After Crubit bakes and sticks on the
++# Stable release channel, then it should be okay to assume that
++# `enable_cpp_api_from_rust` will be forever true (and remove
++# `cxx::bridge`-related bits of QR code generator in this `BUILD.gn` file, bits
++# in `.cc` files, and the whole `qr_code_generator_ffi_glue.rs` file).
++buildflag_header("cpp_api_from_rust_buildflags") {
++  header = "cpp_api_from_rust_buildflags.h"
++  flags = [ "ENABLE_CPP_API_FROM_RUST=$enable_cpp_api_from_rust" ]
++  visibility = [ ":qr_code_generator" ]
++}
++
+ source_set("qr_code_generator") {
+-  # Enforces that `qr_code_generator.h` does not #include headers from private
+-  # `deps`, which also stops GN from forwarding the Crubit bindings' hard_deps
+-  # to targets depending on `:qr_code_generator`.
+-  check_includes_strict = true
+-  public = [ "qr_code_generator.h" ]
+-  sources = [ "qr_code_generator.cc" ]
+-  deps = [
+-    "//build/rust/crubit",
+-    "//third_party/rust/qr_code/v2:cpp_api_from_rust",
++  sources = [
++    "qr_code_generator.cc",
++    "qr_code_generator.h",
+   ]
++  deps = [ ":cpp_api_from_rust_buildflags" ]
++  if (enable_cpp_api_from_rust) {
++    deps += [
++      "//build/rust/crubit",
++      "//third_party/rust/qr_code/v2:cpp_api_from_rust",
++    ]
++  } else {
++    deps += [ ":qr_code_generator_ffi_glue" ]
++  }
+   public_deps = [
+     ":error",
+     "//base",
+   ]
+ }
+ 
++if (!enable_cpp_api_from_rust) {
++  rust_static_library("qr_code_generator_ffi_glue") {
++    allow_unsafe = true  # Needed for FFI that underpins the `cxx` crate.
++    crate_root = "qr_code_generator_ffi_glue.rs"
++    sources = [ "qr_code_generator_ffi_glue.rs" ]
++    cxx_bindings = [ "qr_code_generator_ffi_glue.rs" ]
++    visibility = [ ":qr_code_generator" ]
++    deps = [
++      ":error",
++      "//third_party/rust/qr_code/v2:lib",
++    ]
++  }
++}
++
+ source_set("unit_tests") {
+   testonly = true
+   sources = [
+--- a/components/qr_code_generator/qr_code_generator.cc
++++ b/components/qr_code_generator/qr_code_generator.cc
+@@ -10,10 +10,17 @@
+ 
+ #include "base/check.h"
+ #include "base/check_op.h"
++#include "base/containers/span_rust.h"
+ #include "base/numerics/safe_conversions.h"
++#include "components/qr_code_generator/cpp_api_from_rust_buildflags.h"
++
++#if BUILDFLAG(ENABLE_CPP_API_FROM_RUST)
+ #include "third_party/crubit/support/rs_std/iterator_adapter.h"
+ #include "third_party/crubit/support/rs_std/slice_ref.h"
+ #include "third_party/rust/qr_code/v2/qr_code.h"
++#else
++#include "components/qr_code_generator/qr_code_generator_ffi_glue.rs.h"
++#endif
+ 
+ namespace qr_code_generator {
+ 
+@@ -22,6 +29,7 @@
+ GeneratedCode::GeneratedCode(GeneratedCode&&) = default;
+ GeneratedCode& GeneratedCode::operator=(GeneratedCode&&) = default;
+ 
++#if BUILDFLAG(ENABLE_CPP_API_FROM_RUST)
+ Error RustErrorToCppError(const ::qr_code::types::QrError& rust_error) {
+   if (rust_error == ::qr_code::types::QrError::MakeDataTooLong()) {
+     return Error::kInputTooLong;
+@@ -63,5 +71,32 @@
+   CHECK_EQ(code.data.size(), static_cast<size_t>(code.qr_size * code.qr_size));
+   return code;
+ }
++#else
++base::expected<GeneratedCode, Error> GenerateCode(
++    base::span<const uint8_t> in,
++    std::optional<int> min_version) {
++  rust::Slice<const uint8_t> rs_in = base::SpanToRustSlice(in);
++
++  // `min_version` might come from a fuzzer and therefore we use a lenient
++  // `saturated_cast` instead of a `checked_cast`.
++  int16_t rs_min_version =
++      base::saturated_cast<int16_t>(min_version.value_or(0));
++
++  std::vector<uint8_t> result_pixels;
++  size_t result_width = 0;
++  Error result_error = Error::kUnknownError;
++  bool result_is_success = generate_qr_code_using_rust(
++      rs_in, rs_min_version, result_pixels, result_width, result_error);
++
++  if (!result_is_success) {
++    return base::unexpected(result_error);
++  }
++  GeneratedCode code;
++  code.data = std::move(result_pixels);
++  code.qr_size = base::checked_cast<int>(result_width);
++  CHECK_EQ(code.data.size(), static_cast<size_t>(code.qr_size * code.qr_size));
++  return code;
++}
++#endif
+ 
+ }  // namespace qr_code_generator
+--- a/components/qr_code_generator/qr_code_generator_ffi_glue.rs
++++ b/components/qr_code_generator/qr_code_generator_ffi_glue.rs
+@@ -0,0 +1,106 @@
++// Copyright 2023 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++use cxx::CxxVector;
++use qr_code::types::{Color, EcLevel, QrError};
++use qr_code::{QrCode, Version};
++use std::pin::Pin;
++
++#[cxx::bridge(namespace = "qr_code_generator")]
++mod ffi {
++    #[repr(u8)]
++    enum Error {
++        kUnknownError = 0,
++        kInputTooLong = 1,
++    }
++
++    extern "C++" {
++        include!("components/qr_code_generator/error.h");
++        type Error;
++    }
++
++    extern "Rust" {
++        fn generate_qr_code_using_rust(
++            data: &[u8],
++            min_version: i16,
++            out_pixels: Pin<&mut CxxVector<u8>>,
++            out_qr_size: &mut usize,
++            out_error: &mut Error,
++        ) -> bool;
++    }
++}
++
++/// Translates `data` into a QR code.
++///
++/// `min_version` can request a minimum QR code version.
++fn generate(data: &[u8], min_version: Option<i16>) -> Result<QrCode, QrError> {
++    let mut qr_code = QrCode::new(data)?;
++
++    let actual_version = match qr_code.version() {
++        Version::Micro(_) => panic!("QrCode::new should not generate micro QR codes"),
++        Version::Normal(actual_version) => actual_version,
++    };
++
++    match min_version {
++        None => (),
++        Some(min_version) if actual_version >= min_version => (),
++        Some(min_version) => {
++            // If `actual_version` < `min_version`, then re-encode using `min_version`
++            qr_code = QrCode::with_version(data, Version::Normal(min_version), EcLevel::M)?;
++        }
++    }
++
++    Ok(qr_code)
++}
++
++/// Translates `data` into a QR code.
++///
++/// `min_version` can request a minimum QR code version (e.g. if the caller
++/// requires that the QR code has a certain minimal width and height;  for
++/// example, QR code version 5 translates into 37x37 QR pixels).  Setting
++/// `min_version` to 0 means that the caller doesn't have any QR version
++/// requirements.
++///
++/// On success returns `true` and populates `out_pixels` and `out_qr_size`.  On
++/// failure returns `false` and populates `out_error`.
++pub fn generate_qr_code_using_rust(
++    data: &[u8],
++    min_version: i16,
++    mut out_pixels: Pin<&mut CxxVector<u8>>,
++    out_qr_size: &mut usize,
++    out_error: &mut ffi::Error,
++) -> bool {
++    let min_version = match min_version {
++        0 => None,
++        1..=40 => Some(min_version),
++        _ => {
++            *out_error = ffi::Error::kUnknownError;
++            return false;
++        }
++    };
++
++    match generate(data, min_version) {
++        Err(err) => {
++            *out_error = match err {
++                QrError::DataTooLong => ffi::Error::kInputTooLong,
++                _ => ffi::Error::kUnknownError,
++            };
++            false
++        }
++        Ok(qr_code) => {
++            *out_qr_size = qr_code.width();
++
++            assert!(out_pixels.is_empty());
++            for color in qr_code.into_colors() {
++                let u8_value = match color {
++                    Color::Light => 0,
++                    Color::Dark => 1,
++                };
++                out_pixels.as_mut().push(u8_value);
++            }
++
++            true
++        }
++    }
++}

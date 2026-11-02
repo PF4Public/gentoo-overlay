@@ -771,6 +771,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-157-private_verification_tokens.patch"
 		"${FILESDIR}/chromium-157-system-typescript.patch"
 		"${FILESDIR}/chromium-157-cbor-fix.patch"
+		"${FILESDIR}/chromium-157-qr-code-generator-cxx-fallback.patch"
 		"${FILESDIR}/chromium-157-gn-fixes.patch"
 		"${FILESDIR}/chromium-157-bindgen-libclang-paths.patch"
 		"${FILESDIR}/cr156-compiler.patch"
