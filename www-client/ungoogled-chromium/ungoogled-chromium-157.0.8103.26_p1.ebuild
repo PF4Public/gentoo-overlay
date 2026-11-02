@@ -1024,11 +1024,18 @@ src_prepare() {
 
 		sed -i '/b\/components\/components_strings\.grd/,+10d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
 		sed -i '/b\/chrome\/android\/java\/res\/xml\/privacy_preferences\.xml/,+13d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
+		# 157 added ":java_flags" to the srcjar_deps block; add it to the patch context.
+		sed -i 's|     ":chrome_browser_flags_enums_srcjar",|     ":chrome_browser_flags_enums_srcjar",\n     ":java_flags",|' \
+			"${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
 		sed -i '/b\/android_webview\/support_library\/java\/src\/org\/chromium\/support_lib_glue/,+11d' "${BR_PA_PATH}/Client-hints-overrides.patch" || die
 		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
 			components/components_strings.grd || die
 
 		sed -i 's/absl::/std::/' "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" || die
+
+		# 157 reformatted a TS import to add spaces after the commas; match the new form.
+		sed -i 's/RawSiteException,SiteException,SiteSettingsBrowserProxy/RawSiteException, SiteException, SiteSettingsBrowserProxy/g' \
+			"${BR_PA_PATH}/Content-settings-infrastructure.patch" || die
 
 		# 157 renamed LayoutObject::StyleRef() to Style(); the svg hunks that modify
 		# lines carry the old StyleRef() in their context and fail to apply. Rewrite
