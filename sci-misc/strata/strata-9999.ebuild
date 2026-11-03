@@ -232,6 +232,15 @@ src_unpack() {
 		wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
 			"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
 		tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
+		# a pin predating upstream llama.cpp 9145ddb9556c has bf16 wmma
+		# fragments the amdgcn builtins take as short vectors, not __bf16:
+		# the hip build cannot compile its mma.cuh (bit-identical, the bytes
+		# reach the builtin only through a reinterpret_cast)
+		if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
+			"${WORKDIR}/llama.cpp-${commit}/ggml/src/ggml-cuda/mma.cuh"; then
+			patch -d "${WORKDIR}/llama.cpp-${commit}" -p1 \
+				< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
+		fi
 		LLAMA_COMMIT="${commit}"
 	fi
 

@@ -248,6 +248,15 @@ src_unpack() {
 		mkdir -p "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" || die
 		tar xzf "${DISTDIR}/${P}-ggml-${LLAMA_COMMIT}.tar.gz" \
 			-C "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" --strip-components=1 || die
+		# the pin predates upstream llama.cpp 9145ddb9556c, whose bf16 wmma
+		# fragments the amdgcn builtins take as short vectors, not __bf16:
+		# the hip build cannot compile the pinned mma.cuh (bit-identical, the
+		# bytes reach the builtin only through a reinterpret_cast)
+		if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
+			"${WORKDIR}/llama.cpp-${LLAMA_COMMIT}/ggml/src/ggml-cuda/mma.cuh"; then
+			patch -d "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" -p1 \
+				< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
+		fi
 	fi
 
 	# the desktop crates (self-generated, kept in files/ like the wheelhouse);
