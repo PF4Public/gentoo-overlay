@@ -535,7 +535,7 @@ jobs:
         run: |
           gh release create "${{ github.ref_name }}" \
             --title "${{ needs.resolve.outputs.pv }}" \
-            --notes "ungoogled-chromium ${needs.resolve.outputs.pv}, built by the ${GITHUB_SHA:0:7} release workflow" \
+            --notes "ungoogled-chromium ${{ needs.resolve.outputs.pv }}, built by the ${GITHUB_SHA:0:7} release workflow" \
             release/x86-64.tar.bz2
 
       - name: Bump -bin ebuild
