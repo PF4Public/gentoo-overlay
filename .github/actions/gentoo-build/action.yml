@@ -192,7 +192,9 @@ runs:
         docker exec -e ATOM="${{ inputs.atom }}" -w /workspace/release gentoo \
           bash -c 'set -euo pipefail
             atom="${ATOM#=}"
-            quickpkg "$atom"
+            # quickpkg requires the explicit '=' prefix (a bare cpv is
+            # rejected as an invalid atom after dep_expand adds it)
+            quickpkg "=$atom"
             cp "/workspace/binpkgs/${atom%%/*}/${atom#*/}"*.tbz2 x86-64.tar.bz2'
         docker exec gentoo du -sh /workspace/release/x86-64.tar.bz2
 
