@@ -75,8 +75,8 @@ RDEPEND="
 "
 
 src_install() {
-	# The archive is the binpkg of dev-util/electron (the PACKAGE/ metadata
-	# directory is ignored); its file tree:
+	# The archive is a plain bzip2 tarball of the installed electron file
+	# tree:
 	#   usr/$(get_libdir)/electron-<major>/   runtime
 	#   usr/bin/electron-<major>              launcher (not installed: it is
 	#                                          only meaningful on PATH under
