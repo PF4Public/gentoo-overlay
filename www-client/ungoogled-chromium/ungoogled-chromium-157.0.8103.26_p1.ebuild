@@ -1602,6 +1602,7 @@ src_prepare() {
 		third_party/selenium-atoms
 		third_party/sentencepiece
 		third_party/sentencepiece/src/third_party/darts_clone
+		third_party/sframe
 		third_party/shell-encryption
 		third_party/simdutf
 		third_party/simplejson
