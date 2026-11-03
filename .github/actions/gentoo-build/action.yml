@@ -185,17 +185,13 @@ runs:
       run: |
         set -euo pipefail
         mkdir -p release
-        # --buildpkg-exclude keeps the atom out of the shared binpkgs, so
-        # build the release binpkg from the installed package (quickpkg
-        # writes it into PKGDIR); the -bin ebuilds consume the file tree
-        # inside it (the PACKAGE/ metadata dir is ignored)
-        docker exec -e ATOM="${{ inputs.atom }}" -w /workspace/release gentoo \
+        # tar the installed file list into a plain bzip2 tarball (cwd / so
+        # the relative paths resolve); the -bin ebuilds unpack it and read
+        # the usr/ tree. No -v on qlist: it would emit a "<atom> CONTENTS:"
+        # header line that breaks tar -T
+        docker exec -e ATOM="${{ inputs.atom }}" -w / gentoo \
           bash -c 'set -euo pipefail
-            atom="${ATOM#=}"
-            # quickpkg requires the explicit '=' prefix (a bare cpv is
-            # rejected as an invalid atom after dep_expand adds it)
-            quickpkg "=$atom"
-            cp "/workspace/binpkgs/${atom%%/*}/${atom#*/}"*.tbz2 x86-64.tar.bz2'
+            qlist -e "${ATOM}" | sed "s|^/||" | tar -cjf /workspace/release/x86-64.tar.bz2 -T -'
         docker exec gentoo du -sh /workspace/release/x86-64.tar.bz2
 
     - name: Upload release artifact
