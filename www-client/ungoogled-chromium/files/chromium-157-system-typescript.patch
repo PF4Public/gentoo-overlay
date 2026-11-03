@@ -54,10 +54,10 @@
      else:
 --- a/third_party/typescript/tsgo.gni
 +++ b/third_party/typescript/tsgo.gni
-@@ -23,7 +23,7 @@ assert(defined(_platform_dir), "Did not
+@@ -23,7 +23,6 @@ assert(defined(_platform_dir), "Did not
  
  tsgo_inputs = [
-   "//third_party/typescript/typescript.py",
+-  "//third_party/typescript/typescript.py",
 -  "//third_party/typescript/$_platform_dir/src/lib/$_binary_name",
 +  "/usr/bin/tsc",
  ]
