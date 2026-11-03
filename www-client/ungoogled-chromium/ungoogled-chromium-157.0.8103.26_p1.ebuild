@@ -1054,6 +1054,14 @@ src_prepare() {
 		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-fix-r1.patch"
 		#TODO remove after cromite update
 
+		#TODO remove after cromite update
+		# 157 removed static_library("ui") from chrome/browser/ui/BUILD.gn, so this
+		# patch's deps hunk fuzz-misapplies at end-of-file. Drop it; the content_settings
+		# dep is re-added to the browser_commands_impl target below.
+		filterdiff -p1 "${BR_PA_PATH}/Content-settings-infrastructure.patch" --exclude="chrome/browser/ui/BUILD.gn" \
+			> "${BR_PA_PATH}/Content-settings-infrastructure.patch1"
+		mv -f "${BR_PA_PATH}/Content-settings-infrastructure.patch1" "${BR_PA_PATH}/Content-settings-infrastructure.patch"
+
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
@@ -1098,6 +1106,10 @@ src_prepare() {
 				filter_wrapper "$i" --exclude="chrome/android/*"
 			fi
 		done
+
+		# Re-add the content_settings dep dropped above (157 restructured the ui target).
+		sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
+			chrome/browser/ui/BUILD.gn || die
 
 		#* Viewport Protection's screen emulation misplaces page-anchored native
 		#* popups (select/date/color pickers); round the screen de-emulation so
