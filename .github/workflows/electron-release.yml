@@ -561,16 +561,9 @@ jobs:
           # point the download at this release (idempotent)
           sed -E -i "s|^[[:space:]]*DL_URL=.*|DL_URL=\"https://github.com/PF4Public/gentoo-overlay/releases/download/\${PV}\"|" "$target"
 
-          # manifest entries (manifest2 format)
+          # manifest entries (manifest2 format; no EBUILD entry is needed)
           manifest="${dir}/Manifest"
           [[ -f "$manifest" ]] || : > "$manifest"
-          fname="${pn}-${pv}.ebuild"
-          if ! grep -q "^EBUILD ${fname//./\\.} " "$manifest"; then
-            b2=$(b2sum "$target" | awk '{print $1}')
-            s5=$(sha512sum "$target" | awk '{print $1}')
-            sz=$(stat -c%s "$target")
-            echo "EBUILD ${fname} ${sz} BLAKE2B ${b2} SHA512 ${s5}" >> "$manifest"
-          fi
           dname="${pn}-${pv}-x86-64.tar.bz2"
           if ! grep -q "^DIST ${dname//./\\.} " "$manifest"; then
             b2=$(b2sum release/x86-64.tar.bz2 | awk '{print $1}')
