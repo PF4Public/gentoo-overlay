@@ -54,7 +54,7 @@ else
 	# prebuilt webui matching the v${PV} release; the nightly build tag is
 	# listed on the release page ((v0.9.0 -> b12110))
 	LLAMA_UI_VERSION="b12110"
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 	SRC_URI="
 		${REPO}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 		webui? (
