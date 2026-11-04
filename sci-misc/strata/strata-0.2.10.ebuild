@@ -242,6 +242,16 @@ pkg_setup() {
 src_unpack() {
 	cargo_src_unpack
 
+	# strata's own RDNA3 wmma gemms (hip-only files) declare their bf16
+	# fragments as __bf16 vectors, which the amdgcn builtins reject the
+	# same way as the pinned mma.cuh: the vector typedefs must be short
+	# (bit-identical, the bytes reach the builtin only through a memcpy
+	# or bit-cast); upstream main still carries the bug
+	if use hip && grep -q "typedef __bf16 hb16 __attribute__((ext_vector_type(16)));" \
+		"${S}/src/prefill/wmma_gemm.cu"; then
+		patch -p1 < "${FILESDIR}/strata-wmma-bf16.patch" || die
+	fi
+
 	# the llama.cpp pin for the built-in ggml (not a distfile with
 	# system-ggml; CMake would fetch the commit from the network)
 	if ! use system-ggml; then
