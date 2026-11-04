@@ -5,7 +5,7 @@ EAPI=8
 
 DESCRIPTION="Cross-platform application development framework"
 HOMEPAGE="https://www.electronjs.org/ https://github.com/electron/electron"
-DL_URL="https://github.com/PF4Public/gentoo-overlay/releases/download/${PV}"
+DL_URL="https://github.com/PF4Public/gentoo-overlay/releases/download/electron/${PV}"
 SRC_URI="
 	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
 
