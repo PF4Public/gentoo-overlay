@@ -1043,6 +1043,22 @@ src_prepare() {
 		sed -i '/^diff --git a\/.*svg_text_content_element\.cc$/,/^diff --git / s/StyleRef()/Style()/g' \
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch" || die
 
+		# 157 changed OfflineAudioContext::FireCompletionEvent to take the
+		# AudioBuffer as a parameter and dropped the trailing "resolve the promise
+		# too" comment; re-point the AudioBuffer shuffle hunk at the new context
+		# so it lands where rendered_buffer is in scope.
+		sed -i 's|// Call the offline rendering completion event listener and resolve the|// Call the offline rendering completion event listener.|' \
+			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch" || die
+		sed -i 's|// promise too\.|DispatchEvent(*OfflineAudioCompletionEvent::Create(rendered_buffer));|' \
+			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch" || die
+
+		# 157 moved kLiveCaption/kLiveCaptionWebAudio into the media:: namespace;
+		# the speech-synthesis flag .inc must use the namespaced setter.
+		sed -i 's|SET_CROMITE_FEATURE_DISABLED(kLiveCaptionWebAudio)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kLiveCaptionWebAudio)|' \
+			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch" || die
+		sed -i 's|SET_CROMITE_FEATURE_DISABLED(kLiveCaption)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kLiveCaption)|' \
+			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch" || die
+
 		filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" --exclude="content/browser/renderer_host/render_process_host_impl.cc" \
 			> "${BR_PA_PATH}/JIT-site-settings.patch1"
 		mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
