@@ -2152,6 +2152,10 @@ src_configure() {
 		# List all args
 		# gn args --list out/Release
 
+		# Build-graph dry run: resolves the full dependency graph without
+		# compiling, so a source removed by unbundle is caught here
+		eninja -n -C out/Release electron
+
 		# Quick compiler check
 		eninja -C out/Release protoc torque
 	fi
