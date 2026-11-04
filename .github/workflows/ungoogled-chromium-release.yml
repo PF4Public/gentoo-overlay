@@ -553,7 +553,7 @@ jobs:
             cp "$template" "$target"
           fi
           # point the download at this release (idempotent)
-          sed -E -i "s|^[[:space:]]*DL_URL=.*|DL_URL=\"https://github.com/PF4Public/gentoo-overlay/releases/download/\${PV}\"|" "$target"
+          sed -E -i "s|^[[:space:]]*DL_URL=.*|DL_URL=\"https://github.com/PF4Public/gentoo-overlay/releases/download/ungoogled-chromium/\${PV}\"|" "$target"
 
           # manifest entries (manifest2 format; no EBUILD entry is needed)
           manifest="${dir}/Manifest"
