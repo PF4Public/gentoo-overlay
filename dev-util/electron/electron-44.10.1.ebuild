@@ -2163,6 +2163,25 @@ src_compile() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
+	# A resumed build re-runs pkg_pretend before the kept phases, and the
+	# pretend phase rewrites ${T}/environment with its minimal env (no
+	# CC/CXX, no appended flags), clobbering the env saved by the original
+	# build; the kept phases are then skipped, so nothing restores it. The
+	# unbundle toolchain resolves cc/cxx/ar/nm and the extra flags via
+	# getenv at generation time, so when ninja regenerates build.ninja on
+	# resume it bakes the empty toolchain env into every compile edge and
+	# the whole build fails. Re-assert the toolchain env here (src_compile
+	# always runs, fresh or resumed); the assignments are idempotent and
+	# the appends are guarded against duplicates.
+	if use !bundled-toolchain; then
+		CC="${CHOST}-clang-${LLVM_SLOT}"
+		CXX="${CHOST}-clang++-${LLVM_SLOT}"
+		CPP="${CHOST}-clang++-${LLVM_SLOT} -E"
+		AR=llvm-ar
+		NM=llvm-nm
+		export CC CXX CPP AR NM
+	fi
+	[[ " ${CFLAGS} " == *" -Wno-unknown-warning-option "* ]] || append-cflags -Wno-unknown-warning-option
 	# I hate doing this but upstream Rust have yet to come up with a better solution for
 	# us poor packagers. Required for Split LTO units, which are required for CFI.
 	export RUSTC_BOOTSTRAP=1
