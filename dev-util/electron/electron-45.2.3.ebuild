@@ -1137,8 +1137,8 @@ src_prepare() {
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
-				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
-				--exclude="test/mjsunit/es6/classes-subclass-builtins.js" \
+				--exclude="*/__config_site" --exclude="*/javatests/*" \
+				--exclude="test/mjsunit/*" --exclude="test/inspector/*" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
