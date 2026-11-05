@@ -1,13 +1,17 @@
 name: Save deps
 description: >-
   Pack the workspace dep dirs (distfiles, binpkgs, ccache, ...) into chunked
-  artifacts. Artifact names are fixed, so every release run feeds the next
-  one: superseded sets (any run) are deleted only after the new set is
-  fully uploaded, so a failed save never wipes the previous set.
+  artifacts. Every save gets a unique generation (run-attempt-random), so
+  concurrent saves (parallel release runs, chained jobs of one run) never
+  upload into the same slot names and can't clobber each other. The fixed
+  name meta artifact is a pointer (generation + sha256) uploaded last; the
+  restore side follows it to exactly one coherent set. Superseded sets from
+  other runs are deleted only after the pointer moved, and never while their
+  run is still in progress.
 
 inputs:
   prefix:
-    description: Artifact name prefix, e.g. electron (-> electron-deps-00)
+    description: Artifact name prefix, e.g. electron (-> electron-deps-<gen>-00)
     required: true
 
 runs:
@@ -29,7 +33,6 @@ runs:
         if [[ ${#dirs[@]} -eq 0 ]]; then
           echo "Nothing to save"
           echo "has-deps=false" >> "$GITHUB_OUTPUT"
-        echo "GITHUB_OUTPUT now: $(cat "$GITHUB_OUTPUT")"
           exit 0
         fi
         echo "packing: ${dirs[*]}"
@@ -37,12 +40,16 @@ runs:
         # ccache holds 0600 entries, pack as root
         sudo tar -cf - -C "${GITHUB_WORKSPACE}" "${dirs[@]}" | zstd -q -T0 -1 -o /tmp/deps.zst
         mkdir -p "${GITHUB_WORKSPACE}/deps-chunks" "${GITHUB_WORKSPACE}/meta"
-        sha256sum /tmp/deps.zst | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256"
-        split -b 1900m -d -a 2 /tmp/deps.zst "${GITHUB_WORKSPACE}/deps-chunks/${p}-deps-"
+        # unique per save, so concurrent saves never share slot names
+        gen="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$(openssl rand -hex 3)"
+        sha256sum /tmp/deps.zst | awk '{print $1}' > "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256.tmp"
+        { echo "$gen"; cat "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256.tmp"; } > "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256"
+        rm -f "${GITHUB_WORKSPACE}/meta/${p}-deps-sha256.tmp"
+        split -b 1900m -d -a 2 /tmp/deps.zst "${GITHUB_WORKSPACE}/deps-chunks/${p}-deps-${gen}-"
         rm -f /tmp/deps.zst
 
         n=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep -c "^${p}-deps-" || true)
-        echo "deps chunks: $n"
+        echo "deps chunks: $n (generation $gen)"
         ls -l "${GITHUB_WORKSPACE}/deps-chunks"
         du -sh "${GITHUB_WORKSPACE}/deps-chunks"
         if [[ $n -gt 20 ]]; then
@@ -50,179 +57,169 @@ runs:
           exit 1
         fi
         echo "has-deps=true" >> "$GITHUB_OUTPUT"
-        echo "GITHUB_OUTPUT now: $(cat "$GITHUB_OUTPUT")"
+        echo "gen=$gen" >> "$GITHUB_OUTPUT"
 
     - name: Upload deps chunk 00
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-00')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-00*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-00
-        path: deps-chunks/${{ inputs.prefix }}-deps-00*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-00
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-00*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 01
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-01')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-01*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-01
-        path: deps-chunks/${{ inputs.prefix }}-deps-01*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-01
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-01*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 02
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-02')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-02*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-02
-        path: deps-chunks/${{ inputs.prefix }}-deps-02*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-02
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-02*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 03
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-03')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-03*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-03
-        path: deps-chunks/${{ inputs.prefix }}-deps-03*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-03
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-03*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 04
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-04')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-04*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-04
-        path: deps-chunks/${{ inputs.prefix }}-deps-04*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-04
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-04*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 05
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-05')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-05*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-05
-        path: deps-chunks/${{ inputs.prefix }}-deps-05*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-05
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-05*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 06
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-06')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-06*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-06
-        path: deps-chunks/${{ inputs.prefix }}-deps-06*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-06
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-06*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 07
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-07')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-07*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-07
-        path: deps-chunks/${{ inputs.prefix }}-deps-07*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-07
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-07*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 08
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-08')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-08*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-08
-        path: deps-chunks/${{ inputs.prefix }}-deps-08*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-08
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-08*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 09
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-09')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-09*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-09
-        path: deps-chunks/${{ inputs.prefix }}-deps-09*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-09
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-09*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 10
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-10')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-10*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-10
-        path: deps-chunks/${{ inputs.prefix }}-deps-10*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-10
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-10*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 11
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-11')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-11*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-11
-        path: deps-chunks/${{ inputs.prefix }}-deps-11*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-11
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-11*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 12
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-12')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-12*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-12
-        path: deps-chunks/${{ inputs.prefix }}-deps-12*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-12
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-12*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 13
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-13')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-13*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-13
-        path: deps-chunks/${{ inputs.prefix }}-deps-13*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-13
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-13*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 14
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-14')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-14*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-14
-        path: deps-chunks/${{ inputs.prefix }}-deps-14*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-14
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-14*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 15
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-15')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-15*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-15
-        path: deps-chunks/${{ inputs.prefix }}-deps-15*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-15
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-15*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 16
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-16')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-16*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-16
-        path: deps-chunks/${{ inputs.prefix }}-deps-16*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-16
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-16*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 17
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-17')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-17*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-17
-        path: deps-chunks/${{ inputs.prefix }}-deps-17*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-17
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-17*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 18
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-18')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-18*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-18
-        path: deps-chunks/${{ inputs.prefix }}-deps-18*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-18
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-18*
         retention-days: 90
         overwrite: true
     - name: Upload deps chunk 19
-      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-19')
+      if: (steps.pack.outputs.has-deps == 'true') && hashFiles('deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-19*')
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.prefix }}-deps-19
-        path: deps-chunks/${{ inputs.prefix }}-deps-19*
+        name: ${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-19
+        path: deps-chunks/${{ inputs.prefix }}-deps-${{ steps.pack.outputs.gen }}-19*
         retention-days: 90
         overwrite: true
-    # the meta carries the expected sha256, the restore side verifies against it;
-    # upload it only after all chunks, so a partial upload never leaves a meta
-    # without chunks (an orphaned meta would poison the next restore)
-    - name: Upload meta
-      if: steps.pack.outputs.has-deps == 'true'
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ inputs.prefix }}-deps-meta
-        path: meta/${{ inputs.prefix }}-deps-sha256*
-        retention-days: 90
-        overwrite: true
+
     # fail loudly if a chunk was packed but did not end up as a run artifact
     - name: Verify deps chunks
       env:
@@ -232,7 +229,8 @@ runs:
       run: |
         set -uo pipefail
         p="${{ inputs.prefix }}"
-        want=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep "^${p}-deps-" | sort)
+        gen="${{ steps.pack.outputs.gen }}"
+        want=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep "^${p}-deps-${gen}-" | sort)
         got=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
         echo "packed:"; echo "$want"
         echo "uploaded:"; echo "$got"
@@ -247,24 +245,64 @@ runs:
         [[ $missing -eq 0 ]] || exit 1
         echo "all deps chunks verified"
 
-    # only the newest deps set is useful, drop every older one; runs last so
-    # a pack/upload failure above leaves the previous set in place
+    # the meta is a pointer (line 1: generation, line 2: expected sha256 of
+    # the concatenated chunks) and is uploaded only after all chunks are
+    # verified, so it always names a fully uploaded set; a failed save never
+    # moves it and the previous set stays usable
+    - name: Upload meta
+      if: steps.pack.outputs.has-deps == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.prefix }}-deps-meta
+        path: meta/${{ inputs.prefix }}-deps-sha256*
+        retention-days: 90
+        overwrite: true
+
+    # drop every deps chunk set superseded by this pointer move: older
+    # generations of this run (its jobs are sequential, so none is live) and
+    # the sets of finished other runs; runs last so a pack/upload failure
+    # above leaves the previous set in place, and sets of still in-progress
+    # runs are kept (their jobs may still restore them)
     - name: Delete superseded deps artifacts
       env:
         GH_TOKEN: ${{ github.token }}
+        GEN: ${{ steps.pack.outputs.gen }}
       if: steps.pack.outputs.has-deps == 'true'
       shell: bash
       run: |
         set -uo pipefail
         p="${{ inputs.prefix }}"
-        # query each slot name directly; an unfiltered list is a 100-item
-        # newest-first window and would miss sets in a busy repo
-        for name in "${p}-deps-meta" $(seq -w 0 19 | sed "s/^/${p}-deps-/"); do
-          # keep this run's own set (just uploaded), drop the older runs'
-          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=$name&per_page=100" \
-            --jq ".artifacts[] | select(.workflow_run.id != ${GITHUB_RUN_ID}) | .id" || true)
-          for id in $ids; do
+        declare -A live
+        page=1
+        while [[ $page -le 10 ]]; do
+          mapfile -t rows < <(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100&page=${page}" \
+            --jq '.artifacts[] | [.id, .name, .workflow_run.id] | @tsv' 2>/dev/null || true)
+          [[ ${#rows[@]} -eq 0 ]] && break
+          found=0
+          for row in "${rows[@]}"; do
+            IFS=$'\t' read -r id name runid <<< "$row"
+            [[ "$name" == "${p}-deps-"* && "$name" != "${p}-deps-meta" ]] || continue
+            gen="${name#"${p}-deps-"}"
+            gen="${gen%-[0-9][0-9]}"
+            if [[ "$runid" == "${GITHUB_RUN_ID}" ]]; then
+              # an earlier job of this run saved it
+              [[ "$gen" == "$GEN" ]] && continue
+            else
+              if [[ -z "${live[$runid]+x}" ]]; then
+                status=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${runid}" --jq '.status' 2>/dev/null || echo unknown)
+                live[$runid]="$status"
+              fi
+              if [[ "${live[$runid]}" == "in_progress" ]]; then
+                echo "keeping $name (run $runid is still in progress)"
+                continue
+              fi
+            fi
+            found=1
             echo "deleting superseded artifact $id ($name)"
             gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
           done
+          # pages are newest-first; a page with nothing deletable means the
+          # older pages hold no superseded sets either
+          [[ $found -eq 1 ]] || break
+          page=$((page + 1))
         done
