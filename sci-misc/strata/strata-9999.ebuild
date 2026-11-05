@@ -33,12 +33,11 @@ EGIT_REPO_URI="${REPO}.git"
 # the installed sci-ml/ggml instead of building the pinned commit's ggml
 # (files/strata-9999-system-ggml.patch adds the STRATA_SYSTEM_GGML option).
 # desktop is the tauri app (apps/desktop): the Rust shell plus the host web
-# shell, the pinned node runtime, the control component (its python parts run
+# shell, the system node runtime, the control component (its python parts run
 # on the system python, one of PYTHON_COMPAT) and (with cuda/hip) the engine
 # bundle; the tauri shell locates the resources in <bindir>/../lib/strata-
-# desktop, so the layout below is fixed. The live tree's node pin comes from
-# the source, so it is fetched at build time. build-online permits the npm
-# and node fetches for the host (implied by desktop)
+# desktop, so the layout below is fixed.
+# build-online permits the npm fetch for the host UI (implied by desktop)
 IUSE="build-online cuda desktop hip system-ggml tui"
 REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
@@ -64,6 +63,7 @@ COMMON_DEPEND="
 	tui? ( dev-python/textual )
 	cuda? ( dev-util/nvidia-cuda-toolkit:= )
 	desktop? (
+		>=net-libs/nodejs-24
 		dev-libs/glib
 		net-libs/webkit-gtk:4.1
 		$(python_gen_any_dep '
@@ -105,8 +105,7 @@ RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	desktop? (
-		net-misc/curl
-		>=net-libs/nodejs-24.12[npm]
+		>=net-libs/nodejs-24[npm]
 		$(python_gen_any_dep '
 			dev-python/certifi[${PYTHON_USEDEP}]
 			dev-python/charset-normalizer[${PYTHON_USEDEP}]
@@ -224,16 +223,6 @@ pkg_setup() {
 src_unpack() {
 	git-r3_src_unpack
 
-	# strata's own RDNA3 wmma gemms (hip-only files) declare their bf16
-	# fragments as __bf16 vectors, which the amdgcn builtins reject the
-	# same way as the pinned mma.cuh: the vector typedefs must be short
-	# (bit-identical, the bytes reach the builtin only through a memcpy
-	# or bit-cast); upstream main still carries the bug
-	if use hip && grep -q "typedef __bf16 hb16 __attribute__((ext_vector_type(16)));" \
-		"${S}/src/prefill/wmma_gemm.cu"; then
-		patch -p1 < "${FILESDIR}/strata-wmma-bf16.patch" || die
-	fi
-
 	if ! use system-ggml; then
 		# the pinned llama.cpp, fetched so the build needs no network at configure
 		local commit
@@ -267,6 +256,16 @@ src_unpack() {
 src_prepare() {
 	use cuda && cuda_src_prepare
 	cmake_src_prepare
+
+	# strata's own RDNA3 wmma gemms (hip-only files) declare their bf16
+	# fragments as __bf16 vectors, which the amdgcn builtins reject the
+	# same way as the pinned mma.cuh: the vector typedefs must be short
+	# (bit-identical, the bytes reach the builtin only through a memcpy
+	# or bit-cast); upstream main still carries the bug
+	if use hip && grep -q "typedef __bf16 hb16 __attribute__((ext_vector_type(16)));" \
+		"${S}/src/prefill/wmma_gemm.cu"; then
+		eapply "${FILESDIR}/strata-wmma-bf16.patch"
+	fi
 
 	# the engine version for the component folder name and the manifest
 	ENGINE_PV=$(sed -n 's/^[[:space:]]*project([^)]*VERSION[[:space:]]*\([0-9][0-9.]*\).*/\1/p' \
@@ -356,9 +355,9 @@ src_compile() {
 		# at compile time; harness is never staged (the app runs without it)
 		mkdir -p "${S}/apps/desktop/src-tauri/resources/harness" || die
 
-		# the pinned node runtime: the source's own fetcher (digest-verified)
-		sh "${S}/apps/desktop/scripts/fetch-node.sh" || die
-
+		# the node runtime is the system node (src_install symlinks it into the
+		# bundled path); resources/node already exists in the tree, so tauri's
+		# bundle.resources is satisfied without fetching a binary
 		cargo_src_compile
 	fi
 
@@ -538,10 +537,10 @@ EOF
 		doins -r "${S}/apps/host/dist" "${S}/apps/host/server"
 		doins "${S}/apps/host/package.json"
 
-		# the pinned node runtime (the single binary the host uses)
+		# the host runs on the system node: the app only ever looks at the
+		# bundled <resources>/node/node, so point that at the system binary
 		insinto "/${desktopdir}/node"
-		doins "${S}/apps/desktop/src-tauri/resources/node/node"
-		fperms 0755 "/${desktopdir}/node/node"
+		dosym ../../../bin/node node
 
 		# control: the python parts of strata, no interpreter and no wheels:
 		# they run on the system python (the one of PYTHON_COMPAT that
