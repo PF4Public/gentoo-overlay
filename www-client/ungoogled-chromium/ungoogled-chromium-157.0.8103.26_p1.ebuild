@@ -1002,6 +1002,12 @@ src_prepare() {
 		)
 	fi
 
+	if use system-openjpeg ; then
+		PATCHES+=(
+			"${FILESDIR}/chromium-system-openjpeg-r5.patch"
+		)
+	fi
+
 	# if use x86 ; then
 	# 	#* Fixes a segfault in transport_security_state_generator
 	# 	PATCHES+=(
