@@ -538,9 +538,16 @@ EOF
 		doins "${S}/apps/host/package.json"
 
 		# the host runs on the system node: the app only ever looks at the
-		# bundled <resources>/node/node, so point that at the system binary
-		insinto "/${desktopdir}/node"
-		dosym ../../../bin/node node
+		# bundled <resources>/node/node, so point it at the system binary with
+		# a launcher (same pattern as the control python launcher below)
+		local nbin="${D}/${desktopdir}/node"
+		mkdir -p "${nbin}" || die
+		cat > "${nbin}/node" <<-EOF
+		#!/bin/sh
+		# Strata host: starts the system node
+		exec /usr/bin/node "\$@"
+		EOF
+		fperms 0755 "/${desktopdir}/node/node"
 
 		# control: the python parts of strata, no interpreter and no wheels:
 		# they run on the system python (the one of PYTHON_COMPAT that
