@@ -100,13 +100,19 @@ runs:
           # re-emerges in this same container, so a stale workdir (or a still
           # cleaning emerge) makes the resume fail within seconds. The
           # half-built (unmerged) packages are dropped, portage redoes them
-          # from scratch
+          # from scratch. A dir killed after configure must be dropped
+          # entirely: portage wipes ${T} on the new emerge run, the
+          # .configured marker makes it skip src_configure, and build
+          # systems whose configure state lives in ${T} (meson's machine
+          # .ini files) then die in ninja's regenerate. Pretended but
+          # unconfigured dirs are safe to keep (the resume re-runs
+          # configure) and save the unpack
           docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
           for i in $(seq 30); do
             docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
             sleep 2
           done
-          docker exec gentoo bash -c 'find /var/tmp/portage -mindepth 2 -maxdepth 2 -type d ! -path "'"${{ inputs.portage-dir }}"'" -print0 | while IFS= read -r -d "" d; do [[ -e "$d/.merged" || -e "$d/.pretended" ]] || rm -rf "$d"; done' || true
+          docker exec gentoo bash -c 'find /var/tmp/portage -mindepth 2 -maxdepth 2 -type d ! -path "'"${{ inputs.portage-dir }}"'" -print0 | while IFS= read -r -d "" d; do if [[ ! -e "$d/.merged" && ( -e "$d/.configured" || ! -e "$d/.pretended" ) ]]; then rm -rf "$d"; fi; done' || true
         elif [[ $rc -ne 0 ]]; then
           echo "dependency installation failed" >&2
           tail -40 deps.log
