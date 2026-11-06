@@ -1084,6 +1084,15 @@ src_prepare() {
 			> "${BR_PA_PATH}/Content-settings-infrastructure.patch1"
 		mv -f "${BR_PA_PATH}/Content-settings-infrastructure.patch1" "${BR_PA_PATH}/Content-settings-infrastructure.patch"
 
+		#TODO remove after cromite update
+		# 157 split the webui "configs" target into public/sources lists and dropped
+		# the "configs +=" line, so this hunk fuzz-misapplies into the public list
+		# and proxy_config_ui.cc is never compiled (undefined ProxyConfigUI ctor).
+		# Drop the hunk; the sources and deps are re-added below.
+		filterdiff -p1 "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" --exclude="chrome/browser/ui/webui/BUILD.gn" \
+			> "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1"
+		mv -f "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1" "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
+
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
@@ -1132,6 +1141,13 @@ src_prepare() {
 		# Re-add the content_settings dep dropped above (157 restructured the ui target).
 		sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
 			chrome/browser/ui/BUILD.gn || die
+
+		# Re-add the proxy config UI sources and their strict-include deps to the
+		# webui configs target (the patch's BUILD.gn hunk is dropped above).
+		sed -i '/^source_set("configs") {/,/^}/ s|^    "chrome_web_ui_configs.cc",|    "chrome_web_ui_configs.cc",\n    "proxy_config_ui.cc",\n    "proxy_config_ui.h",|' \
+			chrome/browser/ui/webui/BUILD.gn || die
+		sed -i '/^source_set("configs") {/,/^}/ s|^  deps = \[$|  deps = [\n    "//base",\n    "//chrome/browser:browser_process",\n    "//chrome/browser:primitives",\n    "//chrome/browser/net",\n    "//chrome/browser/policy:policy",\n    "//chrome/browser/profiles:profile",\n    "//chrome/common",\n    "//chrome:resources",\n    "//components/prefs",\n    "//components/proxy_config",\n    "//components/resources:components_resources",\n    "//content/public/browser",\n    "//url",|' \
+			chrome/browser/ui/webui/BUILD.gn || die
 
 		#* Viewport Protection's screen emulation misplaces page-anchored native
 		#* popups (select/date/color pickers); round the screen de-emulation so
