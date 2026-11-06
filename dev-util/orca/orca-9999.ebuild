@@ -75,6 +75,11 @@ src_prepare() {
 	# builds the native pieces inside Docker against Ubuntu 20.04 to hit that
 	# floor. Those hooks are CI guards for the AppImage, not Gentoo runtime
 	# requirements, so relax them (0001).
+	# main additionally gained a verifyPackagedPluginTypings call beside the
+	# plugin-resources check 0001 removes; strip it first so the hunk context
+	# matches on both trees (a no-op where the line is absent).
+	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
+		config/electron-builder.config.cjs || die
 	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
