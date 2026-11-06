@@ -38,7 +38,7 @@ EGIT_REPO_URI="${REPO}.git"
 # bundle; the tauri shell locates the resources in <bindir>/../lib/strata-
 # desktop, so the layout below is fixed.
 # build-online permits the npm fetch for the host UI (implied by desktop)
-IUSE="build-online cuda desktop hip system-ggml tui"
+IUSE="build-online cuda desktop hip old-cpu system-ggml tui"
 REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
@@ -290,10 +290,6 @@ src_configure() {
 	fi
 
 	local mycmakeargs=(
-		# portable: the AVX2-baseline ggml-cpu instead of the build host's
-		# -march=native; strata's own kernels are per-file and CPU-dispatched
-		# at run time either way
-		-DSTRATA_PORTABLE=ON
 		-DSTRATA_NATIVE_EXPERTS=ON
 		-DSTRATA_Q6K_EXPERTS=ON
 		-DSTRATA_MMQ_KQUANTS=ON
@@ -303,6 +299,16 @@ src_configure() {
 		-DSTRATA_GGML_DIR="${ggml_dir}"
 		-DSTRATA_SYSTEM_GGML=$(usex system-ggml)
 	)
+	# portable: the AVX2-baseline ggml-cpu instead of the build host's
+	# -march=native; strata's own kernels are per-file and CPU-dispatched
+	# at run time either way. old-cpu is the experimental older-CPU build:
+	# the SSE4.2 + AVX ggml floor instead of the AVX2 baseline (CMake
+	# excludes STRATA_PORTABLE and STRATA_ISA_FLOOR from each other)
+	if use old-cpu; then
+		mycmakeargs+=( -DSTRATA_PORTABLE=OFF -DSTRATA_ISA_FLOOR=avx )
+	else
+		mycmakeargs+=( -DSTRATA_PORTABLE=ON )
+	fi
 
 	if use cuda; then
 		mycmakeargs+=(
@@ -469,7 +475,7 @@ EOF
 				"source": "gentoo ebuild",
 				"archs": "${arch_nums}",
 				"cuda": "${cuda_pv}",
-				"portable": true
+				"portable": $(usex old-cpu false true)
 			}
 			EOF
 		else
