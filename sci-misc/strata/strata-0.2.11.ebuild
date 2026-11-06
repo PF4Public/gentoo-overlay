@@ -117,6 +117,7 @@ COMMON_DEPEND="
 	hip? (
 		>=dev-util/hip-${ROCM_VERSION}:=
 		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
+		>=sci-libs/hipBLASLt-${ROCM_VERSION}:=
 		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
 	)
 	system-ggml? ( sci-ml/ggml:0/${GGML_PV}[src] )
@@ -496,6 +497,11 @@ EOF
 		local allow_args=()
 		use cuda && allow_args=( --allow-lib libcublas.so.13 --allow-lib libcublasLt.so.13
 			--allow-lib libcudart.so.13 )
+		# the engine imports the ROCm HIP runtime and BLAS libraries; RDEPEND
+		# (hip, hipBLAS, hipBLASLt, rocBLAS) provides them and their lib dir is
+		# in the ldconfig cache
+		use hip && allow_args=( --allow-lib libamdhip64.so.7 --allow-lib libhipblas.so.3
+			--allow-lib libhipblaslt.so.1 --allow-lib librocblas.so.5 )
 
 		# the manifest (engine-component.json): strata hashes and verifies the
 		# whole component before a start. The picture reader is not shipped,
@@ -603,8 +609,9 @@ EOF
 		# the application menu entry + the icon (hicolor, the size is
 		# detected from the image)
 		newicon "${S}/apps/desktop/src-tauri/icons/icon.png" strata-desktop.png
-		make_desktop_entry "/usr/bin/strata-desktop" Strata \
-			"strata-desktop" "Development;Science;" "Local AI, tuned to one model."
+		make_desktop_entry --eapi9 "/usr/bin/strata-desktop" \
+			-n "Strata" -i "strata-desktop" \
+			-c "Development;Science;" -C "Local AI, tuned to one model."
 	fi
 
 	dodoc README.md
