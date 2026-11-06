@@ -75,7 +75,7 @@ src_prepare() {
 	# builds the native pieces inside Docker against Ubuntu 20.04 to hit that
 	# floor. Those hooks are CI guards for the AppImage, not Gentoo runtime
 	# requirements, so relax them (0001).
-	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.243.patch" || die
+	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
@@ -87,7 +87,7 @@ src_prepare() {
 	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);
 	# src_compile pins the source commit (git HEAD for this live build, tracking
 	# each update) so the app's skill installs resolve to this build.
-	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env.patch" || die
+	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env-1.4.251.patch" || die
 
 	# Electron 44 removed the legacy clipboard surface (availableFormats,
 	# readBuffer, readImage, writeImage, writeBuffer, the 'selection' argument
