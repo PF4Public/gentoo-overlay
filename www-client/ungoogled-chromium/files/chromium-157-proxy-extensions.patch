@@ -1,0 +1,99 @@
+--- a/chrome/browser/net/proxy_service_factory.cc
++++ b/chrome/browser/net/proxy_service_factory.cc
+@@ -7,6 +7,7 @@
+ #include <utility>
+ 
+ #include "base/logging.h"
++#include "base/memory/raw_ptr.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
+@@ -14,7 +15,10 @@
+ #include "content/public/browser/browser_task_traits.h"
+ #include "content/public/browser/browser_thread.h"
+ #include "net/proxy_resolution/proxy_config_service.h"
++#include "net/proxy_resolution/proxy_config_with_annotation.h"
+ #include "components/proxy_config/proxy_config_pref_names.h"
++#include "components/proxy_config/proxy_prefs.h"
++#include "components/prefs/pref_change_registrar.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/prefs/pref_registry_simple.h"
+ 
+@@ -24,6 +28,64 @@
+ 
+ using content::BrowserThread;
+ 
++namespace {
++
++// Tracks the proxy preference in both the profile's preferences and in the
++// global Local State. The chrome.proxy extension API writes to the profile's
++// preferences while the chrome://proxy page (added by the
++// Add-a-proxy-configuration-page patch) and the command line switches write
++// to the Local State. The profile's setting takes precedence while it is
++// explicitly set (policy, extension or user); otherwise the Local State
++// setting is used.
++class ProfileAndLocalStateProxyTracker : public PrefProxyConfigTrackerImpl {
++ public:
++  ProfileAndLocalStateProxyTracker(
++      PrefService* profile_prefs,
++      PrefService* local_state_prefs,
++      policy::PolicyService* policy_service,
++      enterprise_net::EnterpriseProxyService* enterprise_proxy_service)
++      : PrefProxyConfigTrackerImpl(
++            profile_prefs, /*proxy_config_service_task_runner=*/nullptr,
++            policy_service, enterprise_proxy_service),
++        policy_service_(policy_service) {
++    local_state_registrar_.Init(local_state_prefs);
++    local_state_registrar_.Add(
++        proxy_config::prefs::kProxy,
++        base::BindRepeating(
++            &ProfileAndLocalStateProxyTracker::OnLocalStateProxyPrefChanged,
++            base::Unretained(this)));
++    Reevaluate();
++  }
++
++ private:
++  // The base class forwards profile preference changes here.
++  void OnProxyConfigChanged(ProxyPrefs::ConfigState config_state,
++                            const net::ProxyConfigWithAnnotation& config)
++      override {
++    Reevaluate();
++  }
++
++  void OnLocalStateProxyPrefChanged() { Reevaluate(); }
++
++  void Reevaluate() {
++    net::ProxyConfigWithAnnotation config;
++    ProxyPrefs::ConfigState state =
++        ReadPrefConfig(prefs(), &config, policy_service_);
++    if (!PrefPrecedes(state)) {
++      // The profile's proxy setting is at its default (or invalid); use the
++      // global Local State setting instead.
++      state = ReadPrefConfig(local_state_registrar_.prefs(), &config,
++                             policy_service_);
++    }
++    PrefProxyConfigTrackerImpl::OnProxyConfigChanged(state, config);
++  }
++
++  raw_ptr<policy::PolicyService> policy_service_;
++  PrefChangeRegistrar local_state_registrar_;
++};
++
++}  // namespace
++
+ // static
+ std::unique_ptr<net::ProxyConfigService>
+ ProxyServiceFactory::CreateProxyConfigService(PrefProxyConfigTracker* tracker,
+@@ -78,9 +140,9 @@
+     local_state_prefs->SetBoolean("proxy_migrated", true);
+     local_state_prefs->CommitPendingWrite();
+   }
+-  return std::make_unique<PrefProxyConfigTrackerImpl>(
+-      local_state_prefs, /*proxy_config_service_task_runner=*/nullptr,
+-      policy_service, enterprise_proxy_service);
++  return std::make_unique<ProfileAndLocalStateProxyTracker>(
++      profile_prefs, local_state_prefs, policy_service,
++      enterprise_proxy_service);
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ }
+ 
