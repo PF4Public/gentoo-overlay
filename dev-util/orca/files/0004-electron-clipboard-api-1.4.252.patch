@@ -343,7 +343,7 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
      }
    )
    ipcMain.handle('clipboard:restoreNativeChatPastes', (event, paths: unknown) => {
-@@ -141,34 +147,37 @@
+@@ -141,26 +147,29 @@
      return restoreNativeChatPastes(paths)
    })
    // Preview in memory so the composer responds before the slower save completes.
@@ -385,16 +385,6 @@ diff -ruN a/src/main/window/clipboard-ipc-handlers.ts b/src/main/window/clipboar
      'clipboard:saveImageAsTempFile',
      async (event, args?: SaveClipboardImageAsTempFileArgs) => {
        assertTrustedClipboardSender(event)
--      const source = readClipboardImageSource(clipboard)
-+      const source = await readClipboardImageSource(clipboardReader)
-       if (!source) {
-         return null
-       }
--      const image = readClipboardNativeImage()
-+      const image = await readClipboardNativeImage()
-       if (image.isEmpty()) {
-         if (!source.windowsFileFormats) {
-           return null
 @@ -239,10 +248,7 @@
    })
    ipcMain.handle('clipboard:writeSelectionText', async (event, text: string) => {
