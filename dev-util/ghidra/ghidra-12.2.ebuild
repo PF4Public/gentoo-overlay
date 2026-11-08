@@ -8,18 +8,24 @@ PYTHON_COMPAT=( python3_{9..15} )
 
 inherit desktop edo java-pkg-2 multiprocessing python-any-r1 xdg
 
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/NationalSecurityAgency/ghidra.git"
+	EGIT_BRANCH="master"
+else
+	SRC_URI="https://github.com/NationalSecurityAgency/ghidra/archive/refs/tags/Ghidra_${PV}_build.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/ghidra-Ghidra_${PV}_build"
+	KEYWORDS="~amd64"
+fi
+
 DESCRIPTION="Ghidra is a software reverse engineering (SRE) framework"
 HOMEPAGE="https://github.com/NationalSecurityAgency/ghidra"
-SRC_URI="https://github.com/NationalSecurityAgency/ghidra/archive/refs/tags/Ghidra_${PV}_build.tar.gz -> ${P}.tar.gz"
-
-S="${WORKDIR}/ghidra-Ghidra_${PV}_build"
 
 LICENSE="Apache-2.0"
 LICENSE+=" Apache-2.0-with-LLVM-exceptions BSD CC-BY-2.5 EPL-2.0"
 LICENSE+=" GPL-2-with-classpath-exception LGPL-2.1 LGPL-3+ MIT MPL-2.0"
 LICENSE+=" POSTGRESQL PSF-2 public-domain ZLIB"
 SLOT="0"
-KEYWORDS="~amd64"
 IUSE="+build-online"
 RESTRICT="test build-online? ( network-sandbox )"
 

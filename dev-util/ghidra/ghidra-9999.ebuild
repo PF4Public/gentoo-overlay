@@ -6,13 +6,20 @@ EAPI=8
 # application.python.supported
 PYTHON_COMPAT=( python3_{9..15} )
 
-inherit desktop edo git-r3 java-pkg-2 multiprocessing python-any-r1 xdg
+inherit desktop edo java-pkg-2 multiprocessing python-any-r1 xdg
+
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/NationalSecurityAgency/ghidra.git"
+	EGIT_BRANCH="master"
+else
+	SRC_URI="https://github.com/NationalSecurityAgency/ghidra/archive/refs/tags/Ghidra_${PV}_build.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/ghidra-Ghidra_${PV}_build"
+	KEYWORDS="~amd64"
+fi
 
 DESCRIPTION="Ghidra is a software reverse engineering (SRE) framework"
 HOMEPAGE="https://github.com/NationalSecurityAgency/ghidra"
-EGIT_REPO_URI="https://github.com/NationalSecurityAgency/ghidra.git"
-EGIT_BRANCH="master"
-SRC_URI=""
 
 LICENSE="Apache-2.0"
 LICENSE+=" Apache-2.0-with-LLVM-exceptions BSD CC-BY-2.5 EPL-2.0"
