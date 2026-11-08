@@ -544,13 +544,23 @@ jobs:
             --notes "electron ${{ needs.resolve.outputs.pv }}, built by the ${GITHUB_SHA:0:7} release workflow" \
             release/x86-64.tar.bz2
 
-      - name: Bump -bin ebuild
+      # the bump is committed on top of a fresh origin/master, not the
+      # (stale) tag tree the run checked out: concurrent release runs bump
+      # the same -bin Manifest, and a tag-based commit whose EOF append
+      # hunk no longer matches the moved master fails the rebase and kills
+      # the publish (the release itself is already out at that point)
+      - name: Commit and push
         if: steps.check.outputs.outcome == 'complete'
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           dir="dev-util/electron-bin"
           pn="electron-bin"
           pv="${{ needs.resolve.outputs.pv }}"
+
+          git fetch origin master
+          git checkout -q --detach origin/master
           target="${dir}/${pn}-${pv}.ebuild"
 
           # create the ebuild from the latest existing version if it does not exist yet
@@ -571,17 +581,13 @@ jobs:
             sz=$(stat -c%s release/x86-64.tar.bz2)
             echo "DIST ${dname} ${sz} BLAKE2B ${b2} SHA512 ${s5}" >> "$manifest"
           fi
-          git status --short
 
-      - name: Commit and push
-        if: steps.check.outputs.outcome == 'complete'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dev-util/electron-bin/
-          git commit -m "dev-util/electron-bin: ${{ needs.resolve.outputs.pv }}"
+          git add "$dir"
+          git diff --cached --quiet || git commit -m "dev-util/electron-bin: ${pv}"
           git push origin HEAD:master || {
-            git pull --rebase origin master
+            # master moved again between the fetch and the push
+            git fetch origin master
+            git rebase origin/master
             git push origin HEAD:master
           }
 
