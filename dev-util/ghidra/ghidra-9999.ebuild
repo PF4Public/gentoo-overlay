@@ -29,9 +29,9 @@ SLOT="0"
 IUSE="+build-online"
 RESTRICT="test build-online? ( network-sandbox )"
 
-# Requires JDK 25 (application.java.min), Gradle 9.1+, and a Python with pip
+# Requires JDK 25+ (application.java.min), Gradle 9.1+, and a Python with pip
 # for the PyGhidra type-stub wheel (the build shells out to `python3 -m pip`).
-DEPEND="virtual/jdk:25"
+DEPEND=">=virtual/jdk-25:*"
 RDEPEND=">=virtual/jre-25"
 BDEPEND="
 	${PYTHON_DEPS}
