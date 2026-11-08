@@ -17,9 +17,8 @@ SLOT="0"
 IUSE="+build-online"
 RESTRICT="test build-online? ( network-sandbox )"
 
-# Gradle 9 needs a JDK 17+ to run; cap at 21, newer JDKs break
-# the build scripts of some gradle-bin versions.
-DEPEND="|| ( virtual/jdk:21 virtual/jdk:17 )"
+# Gradle 9 needs a JDK 17+ to run.
+DEPEND=">=virtual/jdk-17:*"
 RDEPEND=">=virtual/jre-11"
 BDEPEND="
 	>=dev-java/gradle-bin-9.6
