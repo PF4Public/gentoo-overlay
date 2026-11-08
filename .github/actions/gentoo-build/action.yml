@@ -138,14 +138,38 @@ runs:
         # binpkgs (version-specific, useless to other runs); stream to the
         # job log too, the build is otherwise silent for hours; the || keeps
         # the rc in a conditional context, so the -e wrapper does not abort
-        # the step on a timeout before it can be handled
+        # the step on a timeout before it can be handled.
+        #
+        # Two minutes before the window ends, a deadline timer kills only the
+        # build orchestrators (ninja/make) in the container. The ebuild then
+        # fails through its normal failure path, where keepwork preserves the
+        # workdir, and the next job resumes right where this one stopped. A
+        # hard pkill of emerge/ebuild at the window end instead trips
+        # portage's kill cleanup, which drops the in-progress workdir and
+        # loses the job's whole progress (seen on electron, whose partial
+        # ninja state is the resume point). The hard timeout below remains as
+        # a backstop for a build that ignores the kill.
+        bt="${{ inputs.build-timeout }}"
+        deadline_file="${GITHUB_WORKSPACE}/deadline-hit"
+        rm -f "$deadline_file"
+        (
+          sleep $(( ( ${bt%m} - 2 ) * 60 ))
+          touch "$deadline_file"
+          docker exec gentoo bash -c 'pkill -x ninja; pkill -x make; pkill -x bmake' > /dev/null 2>&1 || true
+        ) &
+        deadline_pid=$!
         rc=0
-        timeout ${{ inputs.build-timeout }} docker exec gentoo \
+        timeout "${bt}" docker exec gentoo \
           emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ inputs.atom }}" \
           --autounmask --autounmask-write --autounmask-continue -v1 ${{ inputs.atom }} 2>&1 | tee build.log || rc=$?
+        kill "$deadline_pid" 2> /dev/null || true
         if [[ $rc -eq 0 ]]; then
           status="complete"
         elif [[ $rc -eq 124 ]]; then
+          status="timeout"
+        elif [[ -f "$deadline_file" ]]; then
+          # the deadline kill failed the in-progress ebuild; portage already
+          # reported it and exited, keepwork preserved the workdir
           status="timeout"
         else
           status="failed"
@@ -162,10 +186,12 @@ runs:
         if [[ $status == "timeout" ]]; then
           # kill lingering build processes and wait for the shutdown, so
           # the state/deps saves below do not race the dying processes
-          # (a tar reading a still-written ccache fails with "file changed")
+          # (a tar reading a still-written ccache fails with "file changed");
+          # on a deadline timeout the orchestrators are already dead and only
+          # orphaned compiler jobs may still be flushing translation units
           docker exec gentoo pkill -f 'ninja|emerge|ebuild' > /dev/null 2>&1 || true
-          for i in $(seq 30); do
-            docker exec gentoo pgrep -f 'emerge|ninja|ebuild' > /dev/null 2>&1 || break
+          for i in $(seq 60); do
+            docker exec gentoo pgrep -f 'ninja|emerge|ebuild|clang' > /dev/null 2>&1 || break
             sleep 2
           done
         fi
