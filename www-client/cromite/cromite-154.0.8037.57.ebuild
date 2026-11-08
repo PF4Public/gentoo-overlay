@@ -477,14 +477,14 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
-	if use pgo; then
-		eerror
-		eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
-		eerror
-		if [ -z "${NODIE}" ]; then
-			die "Build will fail with pgo"
-		fi
-	fi
+	# if use pgo; then
+	# 	eerror
+	# 	eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
+	# 	eerror
+	# 	if [ -z "${NODIE}" ]; then
+	# 		die "Build will fail with pgo"
+	# 	fi
+	# fi
 }
 
 pkg_setup() {
