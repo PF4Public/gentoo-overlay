@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghidra
+GenericName=Reverse Engineering Framework
+Comment=Software reverse engineering (SRE) framework
+Exec=ghidra
+Icon=ghidra
+Terminal=false
+Categories=Development;IDE;
