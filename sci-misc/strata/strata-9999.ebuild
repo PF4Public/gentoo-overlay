@@ -8,8 +8,6 @@ REPO="https://github.com/Niko1221/Strata"
 # statically into the engine, and CMake would FetchContent the same commit
 # from the network at configure time, so the ebuild fetches it in src_unpack
 LLAMA_REPO="https://github.com/ggml-org/llama.cpp"
-# system-ggml: the sci-ml/ggml package to link (bump with its bumps)
-GGML_PV="0.28.0"
 
 ROCM_VERSION="7.2"
 
@@ -29,9 +27,7 @@ KEYWORDS=""
 EGIT_REPO_URI="${REPO}.git"
 
 # the engine is built for one GPU backend; the terminal (the strata command,
-# the monitor and the API server) installs in every case. system-ggml links
-# the installed sci-ml/ggml instead of building the pinned commit's ggml
-# (files/strata-9999-system-ggml.patch adds the STRATA_SYSTEM_GGML option).
+# the monitor and the API server) installs in every case.
 # desktop is the tauri app (apps/desktop): the Rust shell plus the host web
 # shell, the system node runtime and the control component (its python parts
 # run on the system python, one of PYTHON_COMPAT); the tauri shell locates
@@ -50,7 +46,7 @@ EGIT_REPO_URI="${REPO}.git"
 # "Permission denied: /usr/lib64/strata/install/third_party" of setup.py).
 # The packaged engine is a read-only store instead, linked into the user's own
 # component store by the /usr/bin launchers (files/strata-launcher.in).
-IUSE="build-online cuda desktop hip old-cpu system-ggml tui"
+IUSE="build-online cuda desktop hip old-cpu tui"
 REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
@@ -60,9 +56,7 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 # same layout as upstream's terminal archive, which is also what makes
 # `strata install` run setup.py in its download-only Control mode); these
 # are the packages its requirements.txt pins, the any-dep group is what
-# python_setup checks at pkg_setup; with system-ggml the engine links sci-ml/ggml,
-# whose install also carries the source tree (src/ + include/) with the
-# internal headers and the ggml-cuda MMQ sources strata compiles itself
+# python_setup checks at pkg_setup.
 COMMON_DEPEND="
 	$(python_gen_any_dep '
 		dev-python/jinja2[${PYTHON_USEDEP}]
@@ -114,7 +108,6 @@ COMMON_DEPEND="
 		>=sci-libs/hipBLASLt-${ROCM_VERSION}:=
 		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
 	)
-	system-ggml? ( sci-ml/ggml:0/${GGML_PV}[src] )
 "
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
@@ -151,20 +144,7 @@ BDEPEND="
 	dev-util/wget
 "
 
-# the live tree's CMakeLists drifts from the released one, so the patch is
-# separate from strata-0.2.7's (both add STRATA_SYSTEM_GGML)
-PATCHES=( "${FILESDIR}/strata-9999-system-ggml.patch" )
-
 pkg_pretend() {
-	if use cuda && use system-ggml; then
-		# the K-quant MMQ kernels are compiled from the pinned llama.cpp fork's
-		# ggml (its mul_mat_q_case and pool API), which vanilla sci-ml/ggml is
-		# neither API- nor content-compatible with
-		die "cuda + system-ggml cannot build; K-quant MMQ kernels need the pinned llama.cpp fork (build with -system-ggml)"
-	fi
-	if use hip && use system-ggml; then
-		ewarn "hip + system-ggml likely fails the same way (same pinned-fork ggml API); build with -system-ggml"
-	fi
 	if use cuda && [[ -z ${CUDA_ARCHITECTURES} ]]; then
 		einfo "CUDA_ARCHITECTURES is unset, so strata builds its default set of"
 		einfo "CUDA compute capabilities (75/86/89/120 SASS, 120 PTX), which is slow."
@@ -238,25 +218,23 @@ pkg_setup() {
 src_unpack() {
 	git-r3_src_unpack
 
-	if ! use system-ggml; then
-		# the pinned llama.cpp, fetched so the build needs no network at configure
-		local commit
-		commit=$(awk 'NR==1 { print $1 }' "${S}/third_party/ggml/VERSION.txt")
-		[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from third_party/ggml/VERSION.txt"
-		wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
-			"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
-		tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
-		# a pin predating upstream llama.cpp 9145ddb9556c has bf16 wmma
-		# fragments the amdgcn builtins take as short vectors, not __bf16:
-		# the hip build cannot compile its mma.cuh (bit-identical, the bytes
-		# reach the builtin only through a reinterpret_cast)
-		if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
-			"${WORKDIR}/llama.cpp-${commit}/ggml/src/ggml-cuda/mma.cuh"; then
-			patch -d "${WORKDIR}/llama.cpp-${commit}" -p1 \
-				< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
-		fi
-		LLAMA_COMMIT="${commit}"
+	# the pinned llama.cpp, fetched so the build needs no network at configure
+	local commit
+	commit=$(awk 'NR==1 { print $1 }' "${S}/third_party/ggml/VERSION.txt")
+	[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from third_party/ggml/VERSION.txt"
+	wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
+		"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
+	tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
+	# a pin predating upstream llama.cpp 9145ddb9556c has bf16 wmma
+	# fragments the amdgcn builtins take as short vectors, not __bf16:
+	# the hip build cannot compile its mma.cuh (bit-identical, the bytes
+	# reach the builtin only through a reinterpret_cast)
+	if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
+		"${WORKDIR}/llama.cpp-${commit}/ggml/src/ggml-cuda/mma.cuh"; then
+		patch -d "${WORKDIR}/llama.cpp-${commit}" -p1 \
+			< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
 	fi
+	LLAMA_COMMIT="${commit}"
 
 	if use desktop; then
 		# the tauri shell's crates, fetched at build time (the live tree's
@@ -295,23 +273,21 @@ src_configure() {
 		cargo_src_configure --manifest-path "${S}/apps/desktop/src-tauri/Cargo.toml"
 	fi
 
-	local ggml_dir
-	if use system-ggml; then
-		# the sci-ml/ggml install: the libraries to link + the source tree
-		ggml_dir="/usr/$(get_libdir)/ggml-${GGML_PV}"
-	else
-		ggml_dir="${WORKDIR}/llama.cpp-${LLAMA_COMMIT}"
-	fi
+	# TODO(system-ggml): dropped — upstream rewrote the ggml build (0.2.13+,
+	# cmake/strata_ggml.cmake: vendored third_party/strata-ggml + STRATA_GGML_DIR),
+	# so the find_package(ggml)+ALIAS strata-9999-system-ggml.patch no longer
+	# applies. Re-add the flag, the sci-ml/ggml dep, and -DSTRATA_SYSTEM_GGML
+	# once reimplemented against the new structure.
+	local ggml_dir="${WORKDIR}/llama.cpp-${LLAMA_COMMIT}"
 
 	local mycmakeargs=(
 		-DSTRATA_NATIVE_EXPERTS=ON
 		-DSTRATA_Q6K_EXPERTS=ON
 		-DSTRATA_MMQ_KQUANTS=ON
 		-DSTRATA_BUILD_TESTS=OFF
-		# the ggml source (the pinned llama.cpp, or sci-ml/ggml's install);
-		# without it CMake would fetch the pinned commit from the network
+		# the pinned llama.cpp ggml source; without it CMake would fetch
+		# the pinned commit from the network
 		-DSTRATA_GGML_DIR="${ggml_dir}"
-		-DSTRATA_SYSTEM_GGML=$(usex system-ggml)
 	)
 	# portable: the AVX2-baseline ggml-cpu instead of the build host's
 	# -march=native; strata's own kernels are per-file and CPU-dispatched
