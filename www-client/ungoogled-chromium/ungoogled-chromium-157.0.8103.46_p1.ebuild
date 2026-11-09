@@ -69,7 +69,7 @@ RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it t
 GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
 GC_CHECKOUT_DIR="${WORKDIR}"
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 multiprocessing ninja-utils pax-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm-r2 multiprocessing ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gclient-r1
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
@@ -532,7 +532,7 @@ pkg_setup() {
 		# to a sane value.
 		# This is effectively the 'force-clang' path if GCC support is re-added.
 		if use !bundled-toolchain; then
-			llvm-r1_pkg_setup
+			llvm-r2_pkg_setup
 			rust_pkg_setup
 
 			if tc-ld-is-mold; then
