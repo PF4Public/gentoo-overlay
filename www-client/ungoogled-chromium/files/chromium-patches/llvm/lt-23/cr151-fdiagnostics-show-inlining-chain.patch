@@ -1,0 +1,25 @@
+From 419993efc0c4521a400513f09bdfc13db07b8ef9 Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Tue, 16 Jun 2026 13:41:24 +1000
+Subject: [PATCH] drop LLVM23 `-fdiagnostics-show-inlining-chain`
+
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -576,14 +576,6 @@ config("compiler") {
+   if (is_clang) {
+     # Flags for diagnostics.
+     cflags += [ "-fcolor-diagnostics" ]
+-    if (!is_wasm) {
+-      if (!is_win) {
+-        cflags += [ "-fdiagnostics-show-inlining-chain" ]
+-      } else {
+-        # Combine after https://github.com/llvm/llvm-project/pull/192241
+-        cflags += [ "/clang:-fdiagnostics-show-inlining-chain" ]
+-      }
+-    }
+     if (diagnostics_print_source_range_info && !is_win) {
+       cflags += [ "-fdiagnostics-print-source-range-info" ]
+     }
+-- 
+2.54.0

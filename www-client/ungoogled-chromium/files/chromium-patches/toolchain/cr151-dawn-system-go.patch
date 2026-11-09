@@ -1,0 +1,110 @@
+From 1d35fd2d39dbfa04356f39f75aaba150fcf77de5 Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Tue, 16 Jun 2026 18:40:11 +1000
+Subject: [PATCH] third_party/dawn: add GN opt-in for system Go in Tint source
+ generation
+
+Introduce a GN-controlled path to use a system Go binary for Tint's
+generate_sources action, instead of requiring Dawn's bundled CIPD Go.
+
+- Add `tint_use_system_go` (default false)
+- Add `tint_system_go_executable` (default "go")
+- Pass `--go-binary` from `src/tint/BUILD.gn` when opt-in is enabled
+- Extend `tools/generate-sources-gn.py` to accept optional `--go-binary`
+
+Default behavior is unchanged: when not opted in, bundled Dawn Go is still
+used.
+
+This helps unbundled/toolchain-managed builds that do not ship
+`third_party/dawn/tools/golang/...`.
+
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+Signed-off-by: Emi <reedy.sailors.8t@icloud.com>
+diff --git a/third_party/dawn/scripts/tint_overrides_with_defaults.gni b/third_party/dawn/scripts/tint_overrides_with_defaults.gni
+index 22f56c15ed..e4d4030f1e 100644
+--- a/third_party/dawn/scripts/tint_overrides_with_defaults.gni
++++ b/third_party/dawn/scripts/tint_overrides_with_defaults.gni
+@@ -157,6 +157,16 @@ declare_args() {
+     tint_build_benchmarks = true
+   }
+ 
++  # Use system Go for Tint source generation instead of bundled CIPD Go.
++  if (!defined(tint_use_system_go)) {
++    tint_use_system_go = false
++  }
++
++  # Executable used when tint_use_system_go=true.
++  if (!defined(tint_system_go_executable)) {
++    tint_system_go_executable = "go"
++  }
++
+   # Enable building Mesa as part of Tint fuzzers
+   if (!defined(tint_build_mesa)) {
+     tint_build_mesa = false
+diff --git a/third_party/dawn/src/tint/BUILD.gn b/third_party/dawn/src/tint/BUILD.gn
+index 00b528eaa4..ff297e7c72 100644
+--- a/third_party/dawn/src/tint/BUILD.gn
++++ b/third_party/dawn/src/tint/BUILD.gn
+@@ -222,7 +222,14 @@ action("generate_sources") {
+   script = "${dawn_root}/tools/generate-sources-gn.py"
+   inputs = tint_generation_dependencies
+   outputs = tint_generated_sources
+-  args = [ rebase_path(root_gen_dir, root_build_dir) ]
++  args = []
++  if (tint_use_system_go) {
++    args += [
++      "--go-binary",
++      tint_system_go_executable,
++    ]
++  }
++  args += [ rebase_path(root_gen_dir, root_build_dir) ]
+ }
+ 
+ if (tint_build_benchmarks) {
+diff --git a/third_party/dawn/tools/generate-sources-gn.py b/third_party/dawn/tools/generate-sources-gn.py
+index 85d11bbd84..ec950e67b6 100644
+--- a/third_party/dawn/tools/generate-sources-gn.py
++++ b/third_party/dawn/tools/generate-sources-gn.py
+@@ -27,6 +27,7 @@
+ # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ import os
++import argparse
+ import subprocess
+ import sys
+ 
+@@ -40,10 +41,21 @@ from tools.python import cipd_deps
+ 
+ 
+ def main() -> int:
+-    go_binary = os.path.join(DAWN_ROOT, 'tools', 'golang',
+-                             cipd_deps.get_cipd_platform(), 'bin', 'go')
+-    if sys.platform == 'win32':
+-        go_binary += '.exe'
++    parser = argparse.ArgumentParser()
++    parser.add_argument(
++        '--go-binary',
++        default='',
++        help='Optional Go executable path (defaults to bundled CIPD Go).')
++    parser.add_argument('output_dir')
++    args = parser.parse_args()
++
++    if args.go_binary:
++        go_binary = args.go_binary
++    else:
++        go_binary = os.path.join(DAWN_ROOT, 'tools', 'golang',
++                                 cipd_deps.get_cipd_platform(), 'bin', 'go')
++        if sys.platform == 'win32':
++            go_binary += '.exe'
+ 
+     tool_dir = os.path.relpath(os.path.join(CMD_DIR, 'gen', 'sources'),
+                                DAWN_ROOT)
+@@ -58,7 +70,7 @@ def main() -> int:
+         go_binary,
+         'run',
+         tool_dir,
+-        os.path.join(os.getcwd(), sys.argv[1]),
++        os.path.join(os.getcwd(), args.output_dir),
+     ]
+ 
+     # Force Go modules to be ON so package imports within the dawn module

@@ -1,0 +1,169 @@
+https://chromium-review.googlesource.com/c/chromium/src/+/7790840
+From: Matt Jolly <kangie@gentoo.org>
+Date: Thu, 26 Feb 2026 15:44:57 +1000
+Subject: [PATCH] chrome: Add enable_channel_branding GN flag for channel-aware
+ builds
+
+Add a new GN build flag `enable_channel_branding` (default:
+is_chrome_branded) that allows non-Chrome-branded builds to use
+channel-aware behavior: separate user data directories, desktop files,
+and environment variable suffixes for beta, dev, and canary channels.
+
+This benefits downstreams like Gentoo that support slotted packages,
+enabling simultaneous installation of different channels with isolated
+profile directories and protecting end users from unintentional
+incompatible profile up/downgrades.
+
+When disabled (the default for Chromium), behavior is unchanged.
+
+Fixed: https://crbug.com/393183848
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+--- a/build/BUILD.gn
++++ b/build/BUILD.gn
+@@ -33,6 +33,10 @@ buildflag_header("branding_buildflags") {
+     ]
+   }
+ 
++  flags += [
++    "ENABLE_CHANNEL_BRANDING=$enable_channel_branding",
++  ]
++
+   if (is_chrome_for_testing) {
+     assert(!is_chrome_branded,
+            "`is_chrome_for_testing` is incompatible with `is_chrome_branded`")
+--- a/build/config/chrome_build.gni
++++ b/build/config/chrome_build.gni
+@@ -68,6 +68,11 @@ declare_args() {
+   # Whether to apply size->speed trade-offs to the secondary toolchain.
+   # Relevant only for 64-bit target_cpu.
+   is_high_end_android_secondary_toolchain = false
++
++  # Enables channel branding. This is always true for Chrome branded builds,
++  # but can be optionally enabled for non-Chrome builds (e.g. Chromium) to
++  # allow "beta", "dev" channels with separate user data directories.
++  enable_channel_branding = is_chrome_branded
+ }
+ 
+ assert(!is_chrome_for_testing || !is_chrome_branded,
+--- a/chrome/browser/ui/webui/current_channel_logo.cc
++++ b/chrome/browser/ui/webui/current_channel_logo.cc
+@@ -29,7 +29,9 @@ int CurrentChannelLogoResourceId() {
+     case version_info::Channel::DEV:
+     case version_info::Channel::BETA:
+     case version_info::Channel::STABLE:
++#if !BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+       CHECK_IS_TEST();
++#endif
+       [[fallthrough]];
+ #endif
+     case version_info::Channel::UNKNOWN:
+--- a/chrome/common/channel_info_posix.cc
++++ b/chrome/common/channel_info_posix.cc
+@@ -27,23 +27,24 @@ struct ChannelState {
+   bool is_extended_stable;
+ };
+ 
+-#if !BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if !BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+ std::string GetChannelEnv() {
+   auto env = base::Environment::Create();
+   std::optional<std::string> channel_env =
+       env->GetVar(version_info::nix::kChromeVersionExtra);
+   return channel_env.value_or(std::string());
+ }
+-#endif  // !BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#endif  // !BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+ 
+ // Returns the channel state for the browser based on branding and the
+ // CHROME_VERSION_EXTRA environment variable. In unbranded (Chromium) builds,
+ // this function unconditionally returns `channel` = UNKNOWN and
+-// `is_extended_stable` = false. In branded (Google Chrome) builds, this
+-// function returns `channel` = UNKNOWN and `is_extended_stable` = false for any
++// `is_extended_stable` = false. In branded (Google Chrome or
++// enable_channel_branding=true) builds, this function returns
++// `channel` = UNKNOWN and `is_extended_stable` = false for any
+ // unexpected $CHROME_VERSION_EXTRA value.
+ ChannelState GetChannelImpl() {
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+   auto env = base::Environment::Create();
+   return {version_info::nix::GetChannel(*env),
+           version_info::nix::IsExtendedStable(*env)};
+@@ -55,11 +56,19 @@ ChannelState GetChannelImpl() {
+ }  // namespace
+ 
+ std::string GetChannelName(WithExtendedStable with_extended_stable) {
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+   const auto channel_state = GetChannelImpl();
+   switch (channel_state.channel) {
+     case version_info::Channel::UNKNOWN:
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+       return "unknown";
++#else
++    {
++      auto env = base::Environment::Create();
++      return env->GetVar(version_info::nix::kChromeVersionExtra)
++          .value_or(std::string());
++    }
++#endif
+     case version_info::Channel::CANARY:
+       return "canary";
+     case version_info::Channel::DEV:
+@@ -72,9 +81,9 @@ std::string GetChannelName(WithExtendedStable with_extended_stable) {
+       }
+       return std::string();
+   }
+-#else   // BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#else   // BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+   return GetChannelEnv();
+-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#endif  // BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+ }
+ 
+ std::string GetChannelSuffixForDataDir() {
+@@ -94,7 +103,7 @@ std::string GetChannelSuffixForDataDir() {
+ 
+ #if BUILDFLAG(IS_LINUX)
+ std::string GetChannelSuffixForExtraFlagsEnvVarName() {
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+   const auto channel_state = GetChannelImpl();
+   switch (channel_state.channel) {
+     case version_info::Channel::CANARY:
+@@ -108,12 +117,12 @@ std::string GetChannelSuffixForExtraFlagsEnvVarName() {
+     default:
+       return std::string();
+   }
+-#else   // BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#else   // BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+   std::string channel_name = GetChannelEnv();
+   return channel_name.empty()
+              ? std::string()
+              : base::StrCat({"_", base::ToUpperASCII(channel_name)});
+-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#endif  // BUILDFLAG(ENABLE_CHANNEL_BRANDING)
+ }
+ #endif  // BUILDFLAG(IS_LINUX)
+ 
+@@ -148,6 +157,18 @@ std::string GetDesktopName(base::Environment* env) {
+   if (name.has_value() && !name.value().empty()) {
+     return name.value();
+   }
++#if BUILDFLAG(ENABLE_CHANNEL_BRANDING)
++  switch (GetChannel()) {
++    case version_info::Channel::CANARY:
++      return "chromium-browser-canary.desktop";
++    case version_info::Channel::DEV:
++      return "chromium-browser-unstable.desktop";
++    case version_info::Channel::BETA:
++      return "chromium-browser-beta.desktop";
++    default:
++      break;
++  }
++#endif
+   return "chromium-browser.desktop";
+ #endif
+ }
+-- 
+2.53.0

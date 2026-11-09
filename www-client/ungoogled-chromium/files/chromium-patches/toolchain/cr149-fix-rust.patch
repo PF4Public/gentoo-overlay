@@ -1,0 +1,35 @@
+https://chromium-review.googlesource.com/c/chromium/src/+/7726290
+From: LN Liberda <lauren@selfisekai.rocks>
+Date: Sun, 26 Apr 2026 03:33:25 +0200
+Subject: [PATCH] Use rust_sysroot instead of hardcoding //third_party/rust-toolchain
+
+Bug: 491242305
+Change-Id: I180054d544402126f854e7b73406f7f5574b3f70
+--- a/build/rust/cargo_crate.gni
++++ b/build/rust/cargo_crate.gni
+@@ -464,9 +464,9 @@
+       ]
+ 
+       if (host_os == "win") {
+-        inputs += [ "//third_party/rust-toolchain/bin/rustc.exe" ]
++        inputs += [ "$rust_sysroot/bin/rustc.exe" ]
+       } else {
+-        inputs += [ "//third_party/rust-toolchain/bin/rustc" ]
++        inputs += [ "$rust_sysroot/bin/rustc" ]
+       }
+ 
+       build_script_target = ":${_build_script_name}($rust_macro_toolchain)"
+--- a/build/rust/std/BUILD.gn
++++ b/build/rust/std/BUILD.gn
+@@ -269,9 +269,9 @@
+       out_depfile = rebase_path(depfile, root_build_dir)
+ 
+       if (host_os == "win") {
+-        inputs = [ "//third_party/rust-toolchain/bin/rustc.exe" ]
++        inputs = [ "$rust_sysroot/bin/rustc.exe" ]
+       } else {
+-        inputs = [ "//third_party/rust-toolchain/bin/rustc" ]
++        inputs = [ "$rust_sysroot/bin/rustc" ]
+       }
+ 
+       # For the rustc sysroot we must include even the rlibs we don't pass to

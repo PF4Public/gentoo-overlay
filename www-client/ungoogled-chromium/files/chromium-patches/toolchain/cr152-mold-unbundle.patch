@@ -1,0 +1,136 @@
+From c238b8064b2fcc98ed9e7e6e6abcea63a226c43e Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Sat, 22 Aug 2026 16:05:06 +1000
+Subject: [PATCH] cr152 mold patch
+
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -761,7 +761,7 @@ config("compiler") {
+   # [0]: https://pinpoint-dot-chromeperf.appspot.com/job/15efb0313e0000
+   # [1]: https://pinpoint-dot-chromeperf.appspot.com/job/157f0b42be0000
+   if (!is_debug && use_thin_lto && is_a_target_toolchain) {
+-    assert(use_lld, "LTO is only supported with lld")
++    assert(use_lld || use_mold, "LTO is only supported with lld or mold")
+ 
+     cflags += [
+       "-flto=thin",
+--- a/build/config/compiler/compiler.gni
++++ b/build/config/compiler/compiler.gni
+@@ -56,13 +56,27 @@ if (!is_win && !is_mac && !is_ios) {
+         (current_os == "android" || current_os == "linux") &&
+         (current_cpu == "x64" || current_cpu == "arm64" ||
+          current_cpu == "x86" || current_cpu == "arm")
++
++        # Optional path to a linker binary (for example, a local mold binary).
++        # If non-empty, this takes precedence over normal linker selection below.
++        # Leave empty to keep regular ld/lld behavior.
++        linker_path = ""
+   }
+ }
+ 
+-linker_path = experimental_linker_path
+-use_mold = defined(use_mold) && use_mold
+-if (use_mold && linker_path == "") {
+-  linker_path = "//buildtools/third_party/mold/cipd/mold"
++if (!defined(use_mold)) {
++  use_mold = false
++}
++if (!defined(linker_path)) {
++  linker_path = ""
++}
++
++if (linker_path == "") {
++  if (use_mold) {
++    linker_path = "//buildtools/third_party/mold/cipd/mold"
++  } else {
++    linker_path = experimental_linker_path
++  }
+ }
+ 
+ declare_args() {
+--- a/build/toolchain/android/BUILD.gn
++++ b/build/toolchain/android/BUILD.gn
+@@ -35,8 +35,12 @@ template("android_clang_toolchain") {
+     # generate_linker_map=true.
+     enable_linker_map = true
+ 
+-    use_mold_separate_debug_file = true
+-    strip = rebase_path("$clang_base_path/bin/llvm-strip", root_build_dir)
++    # Mold emits the split debug file directly. Other linkers still rely on a
++    # separate strip step, including explicit linker_path overrides that do not
++    # go through use_lld.
++    if (!use_mold) {
++      strip = rebase_path("$clang_base_path/bin/llvm-strip", root_build_dir)
++    }
+ 
+     use_unstripped_as_runtime_outputs = android_unstripped_runtime_outputs
+ 
+--- a/build/toolchain/gcc_toolchain.gni
++++ b/build/toolchain/gcc_toolchain.gni
+@@ -333,9 +333,13 @@ template("single_gcc_toolchain") {
+     enable_linker_map = defined(invoker.enable_linker_map) &&
+                         invoker.enable_linker_map && generate_linker_map
+ 
+-    use_mold_separate_debug_file =
+-        defined(invoker.use_mold_separate_debug_file) &&
+-        invoker.use_mold_separate_debug_file && toolchain_args.use_mold
++    # Default to mold's separate-debug-file behavior when use_mold is enabled.
++    # Individual toolchains can still override this explicitly.
++    use_mold_separate_debug_file = use_mold
++    if (defined(invoker.use_mold_separate_debug_file)) {
++      use_mold_separate_debug_file = invoker.use_mold_separate_debug_file
++    }
++
+     if (use_mold_separate_debug_file) {
+       not_needed(invoker, [ "strip" ])
+     }
+--- a/build/toolchain/linux/unbundle/README.md
++++ b/build/toolchain/linux/unbundle/README.md
+@@ -39,3 +39,43 @@ v8_snapshot_toolchain="//build/toolchain/linux/unbundle:host"
+ 
+ Note: when cross-compiling for a 32-bit target, a matching 32-bit toolchain
+ may be needed.
++
++## Linker Selection
++
++The unbundle toolchain uses the C++ compiler to perform linking (via compiler
++flags). The default linker is LLD (for clang builds).
++
++### Using Mold
++
++To use mold as the linker:
++
++```bash
++gn gen out/Default --args='
++custom_toolchain="//build/toolchain/linux/unbundle:default"
++use_mold=true
++'
++```
++
++This uses the mold binary from CIPD. For separate debug symbols (faster
++linking), the build automatically enables separate debug file handling when
++using mold.
++
++### Using a System Mold Binary
++
++To use a locally-installed mold instead of the CIPD-bundled one, set both
++`use_mold=true` and `linker_path` to the mold binary path:
++
++```bash
++gn gen out/Default --args='
++custom_toolchain="//build/toolchain/linux/unbundle:default"
++use_mold=true
++linker_path="/usr/bin/mold"
++'
++```
++
++`use_mold=true` is required: it enables separate-debug-file handling and
++allows ThinLTO. Setting only `linker_path` without `use_mold=true` will
++use the binary as a generic non-mold linker (no mold-specific optimisations).
++
++This also works for cross-compilation builds that use the unbundle host
++toolchain.
+-- 
+2.55.0
+

@@ -1,0 +1,56 @@
+From 7ca59d30fde32f7b815dee92fef1fbe16d5336b8 Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Sun, 19 Apr 2026 08:42:04 +1000
+Subject: [PATCH] build: gate -fsanitize-ignore-for-ubsan-feature behind
+ clang_has_ubsan_feature_ignore
+
+The -fsanitize-ignore-for-ubsan-feature flag was added in LLVM 23. Older
+toolchains reject it as an unknown argument, breaking the build when the
+ubsan_hardening() template is used.
+
+Add a clang_has_ubsan_feature_ignore GN arg (default true) that gates
+emission of the flag. Set it to false for toolchains predating LLVM 23.
+
+The -fsanitize= and -fsanitize-trap= flags remain unconditional, so the
+actual hardening still applies on older compilers.
+
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+--- a/build/config/sanitizers/sanitizers.gni
++++ b/build/config/sanitizers/sanitizers.gni
+@@ -495,6 +495,12 @@ if ((is_apple || is_win) && (is_asan || is_ubsan_any)) {
+   clang_rt_dso = get_path_info(clang_rt_dso_path, "file")
+ }
+ 
++declare_args() {
++  # Set to false when using a Clang that predates
++  # -fsanitize-ignore-for-ubsan-feature (added in LLVM 23).
++  clang_has_ubsan_feature_ignore = true
++}
++
+ # Adds hardening by way of UBSan instrumentation. No handling is
+ # provided: your target will crash when the undefined behavior is
+ # detected.
+@@ -534,14 +540,17 @@ template("ubsan_hardening") {
+       cflags = [
+         "-fsanitize=${invoker.sanitizer}",
+         "-fsanitize-trap=${invoker.sanitizer}",
+-
++      ]
++      if (clang_has_ubsan_feature_ignore) {
+         # Prevents `__has_feature(undefined_behavior_sanitizer)`
+         # from evaluating true. Configs defined here are intended to
+         # be usable even in release builds, i.e. as widely as possible.
+         # It's important not to have full-on UBSan workarounds activate
+         # just because we built support for a specific sanitizer.
+-        "-fsanitize-ignore-for-ubsan-feature=${invoker.sanitizer}",
+-      ]
++        cflags += [
++          "-fsanitize-ignore-for-ubsan-feature=${invoker.sanitizer}",
++        ]
++      }
+       if (defined(invoker.cflags)) {
+         cflags += invoker.cflags
+       }
+-- 
+2.53.0
+

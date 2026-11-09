@@ -74,15 +74,8 @@ inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gc
 
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
-PPC64_HASH="7aae8a84e327fc2078ce1625c9c70bfda77d626f"
-PATCH_V="152"
-# PATCH_V="${PV%%\.*}"
-COPIUM_COMMIT="3c7e56fb4523b43b47595bb3a22f77178fc76293"
-SRC_URI="https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
-	!bundled-toolchain? (
-		https://codeberg.org/selfisekai/copium/archive/${COPIUM_COMMIT}.tar.gz
-			-> chromium-patches-copium-${COPIUM_COMMIT:0:10}.tar.gz
-	)
+PPC64_HASH="fccedec8b13e2b874cda5746097065dac26286a2"
+SRC_URI="
 	bundled-toolchain? (
 		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/clang-${BUNDLED_CLANG_VER}.tar.xz
 			-> chromium-clang-${BUNDLED_CLANG_VER}.tar.xz
@@ -642,11 +635,6 @@ src_unpack() {
 		# unpack chromium-${PV/_*}-${CHROMIUM_TARBALL}.tar.xz (lite or linux)
 		unpack "${CHROMIUM_TARBALL_FILE}"
 	fi
-	unpack chromium-patches-${PATCH_V}.tar.bz2
-	# These should only be required when we're not using the official toolchain
-	if use !bundled-toolchain; then
-		unpack chromium-patches-copium-${COPIUM_COMMIT:0:10}.tar.gz
-	fi
 
 	if use test; then
 		# This just contains a bunch of font files that need to be unpacked (or moved) to the correct location.
@@ -741,16 +729,10 @@ src_prepare() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
-	# We'll fill this in as we go. Patches go in chromium-patches.
+	# We'll fill this in as we go.
 	local PATCHES=()
 
 	FAILED_PATCHES=()
-
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr131-unbundle-icu-target.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/common/cr152-revert-to-rollup-wasm.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr149-bindgen-libclang-paths.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-fix-rust-2-oxidize-harder.patch"
-	rm "${WORKDIR}/chromium-patches-${PATCH_V}/toolchain/cr152-compiler.patch"
 
 	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
@@ -761,7 +743,7 @@ src_prepare() {
 	# sed -i '/no-experimental-lifetime-safety-tu-analysis/d' third_party/dawn/src/utils/BUILD.gn || die
 
 	PATCHES+=(
-		"${WORKDIR}/chromium-patches-${PATCH_V}/common/"
+		"${FILESDIR}/chromium-patches/common/"
 		"${FILESDIR}/restore-x86-r4.patch"
 		"${FILESDIR}/chromium-152-ffmpeg-fix.patch"
 		"${FILESDIR}/chromium-157-ffmpeg-it35-revert.patch"
@@ -829,52 +811,17 @@ src_prepare() {
 
 		# Copium patches go here.
 		PATCHES+=(
-			"${WORKDIR}/copium/cr143-libsync-__BEGIN_DECLS.patch"
+			"${FILESDIR}/copium/cr143-libsync-__BEGIN_DECLS.patch"
 		)
 
-		# Automate conditional application of chromium-patches
-		# The directory structure is expected to be something like:
-		# chromium-patches-145/
-		# ├── toolchain/
-		# │   ├── cr123-foo.patch
-		# │   └── cr135-bar.patch
-		# ├── llvm/
-		# │   ├── cr144-baz.patch
-		# │   └── lt-23/
-		# │       └── cr145-bleeding-edge-llvm-feature.patch
-		# Where `lt-23` means "apply this patch if the LLVM version is less than 23".
-		# Only categories in `slot_map` will be checked for version constraints.
-		shopt -s nullglob
-		local -A slot_map=( [llvm]="${LLVM_SLOT}" [rust]="${RUST_SLOT}" )
-
-		for category in "${WORKDIR}/chromium-patches-${PATCH_V}"/*/; do
-			local category_name="${category%/}"
-			category_name="${category_name##*/}"
-
-			# Skip arch-specific categories
-			if [[ "${category_name}" == "ppc64le" ]]; then
-				use ppc64 || continue
-			fi
-
-			# We applied common patches above, no need to apply them again here
-			[[ "${category_name}" == "common" ]] && continue
-
-			# Unconditional patches for this category
-			local category_patches=( "${category}"*.patch )
-			[[ ${#category_patches[@]} -gt 0 ]] && PATCHES+=( "${category}" )
-
-			# Version-constrained subdirectories (e.g., llvm/lt-23/)
-			for constraint_dir in "${category}"*/; do
-				local dir_name="${constraint_dir%/}"
-				dir_name="${dir_name##*/}"
-				if [[ "${dir_name}" =~ ^lt-(.*)$ && -v slot_map[${category_name}] ]]; then
-					ver_test "${slot_map[${category_name}]}" -lt "${BASH_REMATCH[1]}" &&
-						PATCHES+=( "${constraint_dir}" )
-				fi
-			done
-		done
-
-		shopt -u nullglob
+		# Chromium build patches (vendored in files/chromium-patches), applied per category
+		PATCHES+=( "${FILESDIR}/chromium-patches/toolchain/" )
+		if [[ "${LLVM_SLOT}" -lt 23 ]]; then
+			PATCHES+=( "${FILESDIR}/chromium-patches/llvm/lt-23/" )
+		fi
+		if use ppc64; then
+			PATCHES+=( "${FILESDIR}/chromium-patches/ppc64le/" )
+		fi
 
 		# Strictly speaking this doesn't need to be gated (no bundled toolchain for ppc64); it keeps the logic together
 		if use ppc64; then

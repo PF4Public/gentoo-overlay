@@ -1,0 +1,56 @@
+From ef65c92144d30f04f560902fabbcfa8387d84163 Mon Sep 17 00:00:00 2001
+From: Matt Jolly <kangie@gentoo.org>
+Date: Thu, 26 Mar 2026 15:32:06 +1000
+Subject: [PATCH] [sandbox] Fix link failure with CFI builds due to missing
+ sanitizer runtime
+
+The V8_USE_ANY_SANITIZER macro, introduced in cd1ff840fbf, includes
+V8_USE_UNDEFINED_BEHAVIOR_SANITIZER in its condition. This causes
+__sanitizer_set_death_callback (from the sanitizer common interface)
+to be referenced whenever any UBSan-family check is active.
+
+CFI is implemented as a UBSan check in Clang, so
+__has_feature(undefined_behavior_sanitizer) returns true when CFI is
+enabled. However, Chromium's CFI builds use trapping mode by default
+(-fsanitize-trap=cfi), which does NOT link the sanitizer runtime.
+This results in an undefined symbol error for
+__sanitizer_set_death_callback at link time.
+
+This was previously masked by 3138277894 ("Move sanitizer defines
+into GN"), which tied V8_USE_UNDEFINED_BEHAVIOR_SANITIZER to GN's
+is_ubsan flag rather than __has_feature detection. That commit was
+reverted in d3f0ec122bd, restoring the __has_feature-based detection
+in macros.h and re-exposing this issue.
+
+Only define V8_USE_ANY_SANITIZER when ASan or MSan is present,
+as these sanitizers unconditionally link the runtime that provides
+__sanitizer_set_death_callback. UBSan alone cannot be relied upon
+since there is no preprocessor way to distinguish trapping mode
+(no runtime) from diagnostic mode (has runtime).
+
+Bug: 430178746
+Signed-off-by: Matt Jolly <kangie@gentoo.org>
+--- a/v8/src/sandbox/testing.cc
++++ b/v8/src/sandbox/testing.cc
+@@ -37,8 +37,17 @@
+ #include <sanitizer/asan_interface.h>
+ #endif
+ 
+-#if defined(V8_USE_ADDRESS_SANITIZER) || defined(V8_USE_MEMORY_SANITIZER) || \
+-    defined(V8_USE_UNDEFINED_BEHAVIOR_SANITIZER)
++// Note: CFI is implemented as a UBSan check in Clang, so
++// __has_feature(undefined_behavior_sanitizer) is true when CFI is enabled and
++// V8_USE_UNDEFINED_BEHAVIOR_SANITIZER will be defined. However, CFI in trapping
++// mode (Chromium's default) does NOT link the sanitizer runtime, so symbols
++// like __sanitizer_set_death_callback are unavailable. Only ASan and MSan
++// unconditionally link the sanitizer runtime that provides the common interface.
++// UBSan only links its runtime in non-trapping (diagnostic) mode, and there is
++// no reliable preprocessor check to distinguish trapping vs non-trapping UBSan.
++// Therefore, only define V8_USE_ANY_SANITIZER when ASan or MSan is present,
++// which guarantees the common sanitizer runtime is linked.
++#if defined(V8_USE_ADDRESS_SANITIZER) || defined(V8_USE_MEMORY_SANITIZER)
+ #define V8_USE_ANY_SANITIZER 1
+ #include <sanitizer/common_interface_defs.h>
+ #endif
+-- 
+2.52.0
