@@ -51,20 +51,34 @@ KEYWORDS="amd64"
 # the installed sci-ml/ggml instead of building the pinned commit's ggml
 # (files/strata-system-ggml.patch adds the STRATA_SYSTEM_GGML option).
 # desktop is the tauri app (apps/desktop): the Rust shell plus the host web
-# shell, the system node runtime, the control component (its python parts run
-# on the system python, one of PYTHON_COMPAT) and (with cuda/hip) the engine
-# bundle; the tauri shell locates the resources in <bindir>/../lib/strata-
-# desktop, so the layout below is fixed.
+# shell, the system node runtime and the control component (its python parts
+# run on the system python, one of PYTHON_COMPAT); the tauri shell locates
+# the resources beside its own binary or in <bindir>/../lib/strata-desktop,
+# so the layout below is fixed.
 # build-online permits the npm fetch for the host UI (implied by desktop)
+#
+# Where Strata writes (upstream's layout, kept as it is): one per-user folder,
+# $XDG_DATA_HOME/strata, with components/ (engines), install/ (run configs,
+# logs, third_party/), app-settings.json and shell-prefs.json, plus ~/.strata
+# (the desktop's state and chats), $XDG_CONFIG_HOME/strata and
+# $XDG_STATE_HOME/strata. Strata derives ALL of the first folder from
+# STRATA_COMPONENTS_DIR (<components>/../install, ...), so that variable must
+# never name the read-only /usr/$(get_libdir)/strata/components: that sent
+# every write to /usr/lib64/strata (#533, Niko1221/Strata#5591, the
+# "Permission denied: /usr/lib64/strata/install/third_party" of setup.py).
+# The packaged engine is a read-only store instead, linked into the user's own
+# component store by the /usr/bin launchers (files/strata-launcher.in).
 IUSE="build-online cuda desktop hip old-cpu system-ggml tui"
 REQUIRED_USE="?? ( cuda hip ) desktop? ( build-online )"
 # the host UI build (desktop) fetches npm packages at build time
 RESTRICT="mirror build-online? ( network-sandbox )"
 
-# the terminal runs on the system python3 (the bin/strata launcher); these
+# the terminal runs on the system python3 (the bin/strata launcher finds it
+# as <libdir>/strata/python/bin/python3, a shim written in src_install; the
+# same layout as upstream's terminal archive, which is also what makes
+# `strata install` run setup.py in its download-only Control mode); these
 # are the packages its requirements.txt pins, the any-dep group is what
-# python_setup checks at pkg_setup and pins via STRATA_PYTHON (the 90strata
-# env.d in src_install); with system-ggml the engine links sci-ml/ggml,
+# python_setup checks at pkg_setup; with system-ggml the engine links sci-ml/ggml,
 # whose install also carries the source tree (src/ + include/) with the
 # internal headers and the ggml-cuda MMQ sources strata compiles itself.
 # The desktop's gui stack is the set the tauri shell links (best effort:
@@ -436,10 +450,21 @@ EOF
 	# the terminal's own version label
 	echo "${PV}" > "${D}/${libdir}/VERSION"
 
-	# the launcher takes $STRATA_PYTHON (the 90strata env.d; the
-	# implementation python_setup picked) and falls back to a python3
-	# (3.10+) on the PATH
-	dosym "../$(get_libdir)/strata/bin/strata" /usr/bin/strata
+	# the interpreter the terminal runs on: upstream's launcher (bin/strata)
+	# looks for <root>/python/bin/python3, the terminal archive's private
+	# runtime, before any python on the PATH; a shim there starts the
+	# implementation python_setup picked, with the user's site-packages kept
+	# out (the launcher does that for this path). With python/ and VERSION
+	# in place the terminal is upstream's archive layout, so `strata install`
+	# hands setup.py its STRATA_CONTROL_INSTALL=1 mode (downloads and prepares
+	# the model, writes a run config naming the engine component; no pip, no
+	# compiler) instead of the source-checkout mode, which would try to build
+	# an engine into /usr/$(get_libdir)/strata
+	python_shims "${D}/${libdir}/python/bin" "/${libdir}/python/bin"
+
+	# /usr/bin/strata is not a symlink to bin/strata: it first links the
+	# packaged engine into the user's own component store (see the header)
+	strata_launcher strata "the Strata terminal" "/${libdir}/bin/strata"
 
 	# ---- the engine: an engine component the terminal verifies before a start ----
 	if use cuda || use hip; then
@@ -529,29 +554,24 @@ EOF
 		dostrip -x "/${libdir}/components/engine"
 	fi
 
-	# env.d files are parsed as flat KEY=VALUE configs, so the export must
-	# carry the value on the same line; the terminal's launcher takes
-	# STRATA_PYTHON as its first-choice interpreter (bin/strata)
-	local envd="${T}/90strata"
-	cat > "${envd}" <<-EOF
-	export STRATA_PYTHON="${PYTHON}"
-	EOF
-	if use cuda || use hip; then
-		echo "export STRATA_COMPONENTS_DIR=\"/usr/$(get_libdir)/strata/components\"" >> "${envd}"
-	fi
-	doenvd "${envd}"
+	# No env.d: the terminal finds its interpreter through the python/ shim
+	# above, and STRATA_COMPONENTS_DIR must stay unset (header). A system-wide
+	# export of it is what broke every install and the desktop app (#533).
 
 	# ---- the desktop: the tauri shell + the resources it locates beside it ----
 	if use desktop; then
-		# the shell hardcodes the packaged layout <bindir>/../lib/strata-desktop
-		# (a literal lib, not $(get_libdir)); nothing else is tried before the
-		# compile-time source tree, so this location is not optional
+		# the shell looks for its resources (host/server/index.mjs) in its own
+		# folder first, then in <bindir>/../lib/strata-desktop (a literal lib,
+		# not $(get_libdir)); nothing else is tried before the compile-time
+		# source tree, so this location is not optional
 		local desktopdir="usr/lib/strata-desktop"
 
-		cp "${S}/apps/desktop/src-tauri/target/release/strata-desktop" "${T}/strata-desktop" || die
-		insinto /usr/bin
-		doins "${T}/strata-desktop"
-		fperms 0755 /usr/bin/strata-desktop
+		# the binary lives with its resources; /usr/bin/strata-desktop (the
+		# menu entry's command) is the launcher that links the packaged engine
+		# into the user's component store first
+		exeinto "/${desktopdir}"
+		doexe "${S}/apps/desktop/src-tauri/target/release/strata-desktop"
+		strata_launcher strata-desktop "the Strata desktop app" "/${desktopdir}/strata-desktop"
 
 		# the web shell + engine host: node starts host/server/index.mjs
 		insinto "/${desktopdir}/host"
@@ -579,38 +599,20 @@ EOF
 
 		# the launcher the tauri shell expects (control/python/bin/python3),
 		# pointing at the system interpreter picked in pkg_setup
-		local pbin="${D}/${desktopdir}/control/python/bin"
-		mkdir -p "${pbin}" || die
-		local pname
-		for pname in python python3 "${EPYTHON}"; do
-			cat > "${pbin}/${pname}" <<-EOF
-			#!/bin/sh
-			# Strata control: starts the system python (${PYTHON})
-			export PYTHONNOUSERSITE=1
-			export PYTHONDONTWRITEBYTECODE=1
-			exec ${PYTHON} "\$@"
-			EOF
-			fperms 0755 "/${desktopdir}/control/python/bin/${pname}"
-		done
+		python_shims "${D}/${desktopdir}/control/python/bin" "/${desktopdir}/control/python/bin"
 
 		# the system python has to run the control: fail the build, not the app
 		( cd "${D}/${desktopdir}/control" || die
 			PYTHONNOUSERSITE=1 ./python/bin/python3 strata.py --version ) \
 			|| die "the control component does not run on the system python (${PYTHON})"
 
-		# the engine bundle: the same component the terminal installs, so
-		# the app ships with its engine
-		if use cuda || use hip; then
-			local comp
-			mkdir -p "${D}/${desktopdir}/engine-bundle" || die
-			for comp in "${D}/${libdir}/components/engine"/*; do
-				[[ -e ${comp} ]] || continue
-				cp -a "${comp}" "${D}/${desktopdir}/engine-bundle/" || die
-			done
-			# the bundle's manifest hashes the unstripped binaries, so this
-			# copy must survive the strip like the terminal component
-			dostrip -x "/${desktopdir}/engine-bundle"
-		fi
+		# No engine-bundle/: the app's host copies a bundle into the user's
+		# component store at every start that finds none there, and once the
+		# store holds it, deletes the bundle from the install folder (apps/host/
+		# server/bundled-engine.mjs removeVerifiedBundle). The launcher links
+		# the packaged engine into the store instead, so the app has its engine
+		# without a 2nd copy on disk and without a root run deleting package
+		# files (a root run of 0.2.12-r0 did exactly that).
 
 		# the application menu entry + the icon (hicolor, the size is
 		# detected from the image)
@@ -623,6 +625,41 @@ EOF
 	dodoc README.md
 }
 
+# python_shims <staging dir> <image path>: the python, python3 and ${EPYTHON}
+# launchers that start the implementation python_setup picked, without the
+# user's site-packages (the layout upstream's bundles have at python/bin/)
+python_shims() {
+	local stage="$1" image="$2" pname
+	mkdir -p "${stage}" || die
+	for pname in python python3 "${EPYTHON}"; do
+		cat > "${stage}/${pname}" <<-EOF || die
+		#!/bin/sh
+		# Strata: starts the system python (${PYTHON})
+		export PYTHONNOUSERSITE=1
+		export PYTHONDONTWRITEBYTECODE=1
+		exec ${PYTHON} "\$@"
+		EOF
+		fperms 0755 "${image}/${pname}"
+	done
+}
+
+# strata_launcher <name> <what> <target>: /usr/bin/<name> from
+# files/strata-launcher.in, running <target> after linking the packaged
+# engine store into the user's component store
+strata_launcher() {
+	local name="$1" what="$2" target="$3"
+	sed -e "s|@NAME@|${name}|g" -e "s|@WHAT@|${what}|g" -e "s|@TARGET@|${target}|g" \
+		-e "s|@SYSCOMPS@|/usr/$(get_libdir)/strata/components|g" \
+		"${FILESDIR}/strata-launcher.in" > "${T}/${name}" || die
+	newbin "${T}/${name}" "${name}"
+}
+
+pkg_preinst() {
+	# remembered for pkg_postinst: the old version's env.d is still here now
+	[[ -f ${EROOT}/etc/env.d/90strata ]] && STRATA_OLD_ENVD=1
+	return 0
+}
+
 pkg_postinst() {
 	if use desktop; then
 		xdg_icon_cache_update
@@ -633,6 +670,31 @@ pkg_postinst() {
 		ewarn "NVIDIA / AMD GPU). The strata terminal is installed, but"
 		ewarn "'strata launch' needs an engine: re-emerge sci-misc/strata with"
 		ewarn "[cuda] or [hip] to build one."
+	fi
+
+	elog "Strata writes only to per-user folders: \$XDG_DATA_HOME/strata (the"
+	elog "component store, install/ with the run configs and logs, the desktop's"
+	elog "settings), ~/.strata (the desktop's state and chats), \$XDG_CONFIG_HOME/"
+	elog "strata and \$XDG_STATE_HOME/strata; models go where you point them"
+	elog "(default: ~/Documents/Strata). Removing those folders resets Strata."
+	elog "The packaged engine (/usr/$(get_libdir)/strata/components/engine) is"
+	elog "linked into your component store by the strata and strata-desktop"
+	elog "commands, so start Strata through them. Never start Strata as root."
+
+	# the versions before this exported STRATA_COMPONENTS_DIR system-wide, which
+	# sent every write of Strata into /usr/$(get_libdir)/strata; a root run then
+	# created install/ there. Any session that is still open keeps the variable
+	# (pkg_preinst saw the env.d file before the old version was unmerged).
+	if [[ ${STRATA_OLD_ENVD} == 1 ]]; then
+		ewarn "The version replaced exported STRATA_COMPONENTS_DIR and STRATA_PYTHON from"
+		ewarn "/etc/env.d/90strata. Already-open sessions still carry them: log out and"
+		ewarn "in again (or: unset STRATA_COMPONENTS_DIR STRATA_PYTHON). Until then the"
+		ewarn "strata and strata-desktop launchers ignore the old STRATA_COMPONENTS_DIR."
+	fi
+	if [[ -d ${EROOT}/usr/$(get_libdir)/strata/install ]]; then
+		ewarn "${EROOT}/usr/$(get_libdir)/strata/install exists: a Strata run as root under the"
+		ewarn "old layout created it. It is not part of this package; remove it:"
+		ewarn "  rm -r ${EROOT}/usr/$(get_libdir)/strata/install"
 	fi
 }
 

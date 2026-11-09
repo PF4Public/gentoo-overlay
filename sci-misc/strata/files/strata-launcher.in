@@ -1,0 +1,61 @@
+#!/bin/sh
+# Gentoo launcher for @WHAT@ (sci-misc/strata).
+#
+# Strata keeps everything it writes in one per-user folder, $XDG_DATA_HOME/strata
+# (components/, install/, app-settings.json, shell-prefs.json, logs/), and it
+# derives all of that folder from STRATA_COMPONENTS_DIR: <components>/../install
+# is where setup.py writes run configs, logs and third_party/, <components>/../
+# app-settings.json is the desktop's settings file, and so on. So the packaged
+# engine cannot be announced through that variable: pointing it at the read-only
+# @SYSCOMPS@ made every write of Strata land there
+# (PF4Public/gentoo-overlay#533, Niko1221/Strata#5591).
+#
+# Instead this launcher links the packaged engine into the user's own component
+# store (the default place, or the STRATA_COMPONENTS_DIR the user chose) before
+# handing over, and leaves everything else to Strata's own per-user defaults.
+set -u
+
+if [ "$(id -u)" = 0 ] && [ "${STRATA_ALLOW_ROOT:-}" != 1 ]; then
+	echo "@NAME@: refusing to run as root. Strata writes per-user files, and a root run leaves" >&2
+	echo "@NAME@: files your own user cannot open. Run it as your own user (STRATA_ALLOW_ROOT=1 overrides)." >&2
+	exit 1
+fi
+
+syscomps="@SYSCOMPS@"
+store="$syscomps/engine"
+
+# the variable an older sci-misc/strata exported system-wide (/etc/env.d/90strata):
+# still set in a session that predates the upgrade. It is the read-only store, so
+# nothing could be written there; Strata's default per-user store is used instead.
+case ${STRATA_COMPONENTS_DIR:-} in
+	"$syscomps"|"$syscomps"/)
+		echo "@NAME@: ignoring STRATA_COMPONENTS_DIR=$STRATA_COMPONENTS_DIR (the read-only system store, set by an older sci-misc/strata; log in again to clear it)" >&2
+		unset STRATA_COMPONENTS_DIR
+		;;
+esac
+
+components="${STRATA_COMPONENTS_DIR:-${XDG_DATA_HOME:-${HOME:?HOME is not set}/.local/share}/strata/components}"
+engines="$components/engine"
+
+if [ -d "$store" ]; then
+	# a link left by an earlier package version, whose engine folder is gone
+	for link in "$engines"/*; do
+		[ -L "$link" ] || continue
+		case $(readlink "$link") in
+			"$store"/*) [ -e "$link" ] || rm -f "$link" ;;
+		esac
+	done
+	# every packaged engine, as a link in the user's store (a real folder there,
+	# e.g. an engine `strata update` installed, is left alone)
+	for pkg in "$store"/*/; do
+		pkg=${pkg%/}
+		[ -f "$pkg/engine-component.json" ] || continue
+		dest="$engines/${pkg##*/}"
+		if [ ! -e "$dest" ] && [ ! -L "$dest" ]; then
+			mkdir -p "$engines" && ln -s "$pkg" "$dest" \
+				|| echo "@NAME@: cannot link $pkg into $engines; Strata will not find the packaged engine" >&2
+		fi
+	done
+fi
+
+exec "@TARGET@" "$@"
