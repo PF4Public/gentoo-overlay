@@ -269,7 +269,7 @@ COMMON_SNAPSHOT_DEPEND="
 	>=media-libs/openh264-2.6.0:=
 	system-av1? (
 		>=media-libs/dav1d-1.0.0:=
-		>=media-libs/libaom-3.7.0:=
+		>=media-libs/libaom-3.14.0
 	)
 	sys-libs/zlib:=
 	!headless? (
