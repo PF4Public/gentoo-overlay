@@ -323,6 +323,27 @@ src_configure() {
 		node_modules/@typescript/native/lib/tsc.js || die
 	grep -qF 'if (false) {' node_modules/@typescript/native/lib/tsc.js || ewarn "tsgo execve-disable sed did not match"
 
+	if has_version -b ">=dev-util/electron-45.2.3:${ELECTRON_SLOT}" \
+		|| has_version -b ">=dev-util/electron-bin-45.2.3:${ELECTRON_SLOT}"; then
+		# Electron 45.2.3 backports the Chromium ParseFont rewrite which
+		# rejects canvas font strings with leading whitespace
+		# (electron/electron#55616). xterm's webgl addon builds the glyph
+		# font as " normal 24px ..." for non-italic glyphs, so the canvas
+		# silently keeps 10px sans-serif and the terminal renders tiny
+		# glyphs (xtermjs/xterm.js#6297). Attach the separator to the
+		# italic branch so the string is always valid.
+		einfo "Fixing xterm webgl canvas font strings (leading space) #6297"
+		local xterm_file
+		for xterm_file in node_modules/@xterm/addon-webgl/lib/addon-webgl.js \
+			node_modules/@xterm/addon-webgl/lib/addon-webgl.mjs; do
+			perl -pi -e 's/(\?)"italic":""/$1"italic ":""/g;
+			s/(this\._tmpCtx\.font=`\$\{[^}]+\}) (\$\{[^}]+\})/$1$2/;
+			s/(\?"italic ":""\}) (\$\{)/$1$2/' "$xterm_file" || die
+			grep -qF '?"italic ":""' "$xterm_file" || \
+				ewarn "xterm webgl font patch did not match in ${xterm_file}"
+		done
+	fi
+
 	# einfo "Copying @vscode/vsce-sign"
 	# cp -r build/node_modules/@vscode/vsce* node_modules/@vscode/ || die
 
