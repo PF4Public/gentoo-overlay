@@ -27,8 +27,8 @@ GN_MIN_VER=0.2562 # exactly this version
 # chromium-tools/get-chromium-toolchain-strings.py (or just use Chromicler)
 # Node for M145+ should be 24.12.0 but that's not packaged in Gentoo yet. See #969145
 TEST_FONT="9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9"
-BUNDLED_CLANG_VER="llvmorg-23-init-19482-g53d18800-1"
-BUNDLED_RUST_VER="b998449636a48e2c4a362809085b600a0174e1f2-2"
+BUNDLED_CLANG_VER="llvmorg-24-init-7747-g62397f8b-67"
+BUNDLED_RUST_VER="1edd55dcfcd573872c727fa3e086369a71661ee0-1125"
 RUST_SHORT_HASH=${BUNDLED_RUST_VER:0:10}-${BUNDLED_RUST_VER##*-}
 NODE_VER="24.12.0"
 GO_MIN_VER="1.25.0"
@@ -40,7 +40,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-UGC_COMMIT_ID="de09e0c70c6bc1ac83d4ecdfd0e82c7e250c9a3c"
+UGC_COMMIT_ID="f5d393f22a60fa4f79f42dbb26acd0bcc01995ae"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
@@ -734,7 +734,9 @@ src_prepare() {
 
 	FAILED_PATCHES=()
 
-	if ver_test "${RUST_SLOT}" -ge "1.95.0"; then
+	# This is a workaround for a system rustc newer than the one pinned in DEPS, so it
+	# does not apply to the bundled toolchain (where RUST_SLOT is not set at all).
+	if use !bundled-toolchain && ver_test "${RUST_SLOT}" -ge "1.95.0"; then
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/zeroable.rs || die
 		sed -i '/SupportedLaneCount/d' third_party/rust/chromium_crates_io/vendor/bytemuck-v1/src/pod.rs || die
 	fi
@@ -1230,6 +1232,14 @@ src_prepare() {
 		"${UGC_WD}/utils/prune_binaries.py" || die
 	sed -i "\!third_party/node/linux!d" \
 		"${UGC_WD}/utils/prune_binaries.py" || die
+	if use bundled-toolchain; then
+		# We symlink the bundled Clang/Rust into these (see src_prepare), so they
+		# must not be removed from the contingent paths or the build loses its toolchain
+		sed -i "/'third_party\/llvm-build\/'/d" \
+			"${UGC_WD}/utils/prune_binaries.py" || die
+		sed -i "/'third_party\/rust-toolchain\/'/d" \
+			"${UGC_WD}/utils/prune_binaries.py" || die
+	fi
 
 	local ugc_p ugc_dir
 	for p in "${ugc_unneeded[@]}"; do
