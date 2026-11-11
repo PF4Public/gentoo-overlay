@@ -139,7 +139,6 @@ src_prepare() {
 	# sed -i '/"typescript-web-server"/d' extensions/typescript-language-features/package.json || die
 
 	einfo "Editing preinstall.ts"
-	sed -i 's/const npmVersionMatch =.*/const npmVersionMatch = false;/' build/npm/preinstall.ts || die
 	sed -i '/installHeaders();/d' build/npm/preinstall.ts || die
 
 	einfo "Editing postinstall.ts"
@@ -254,36 +253,27 @@ src_configure() {
 	# 	sed -i 's$"resolutions": {$"resolutions": {"nan": "^2.17.0",$' package.json || die;
 	# fi
 
-	# #TODO: temp fix
-	# if use electron-32 || use electron-33 || use electron-35 || use electron-36 || use electron-38; then
-		CPPFLAGS="${CPPFLAGS} -std=c++20";
-		use build-online || eerror "build-online should be enabled for node-addon-api substitution to work" || die;
-		sed -i 's$"resolutions": {$"resolutions": {"node-addon-api": "^7.1.0",$' package.json || die;
-	# fi
-
-	# if use build-online; then
-	# 	sed -i 's$"dependencies":$"resolutions": {"nan": "^2.18.0"},"dependencies":$' package.json || die;
-	# else
-	# 	ewarn "If have enabled electron-28/29 and the build fails, try enabling build-online"
-	# fi
+	CPPFLAGS="${CPPFLAGS} -std=c++20";
 
 	einfo "Installing node_modules"
-	# yarn config set yarn-offline-mirror ${T}/yarn_cache || die
 	#! vvvvvv mongodb-js/kerberos fixed in main (> 2.1.0)
 	export CXXFLAGS="${CXXFLAGS} -DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT"
 	#! ^^^^^^ mongodb-js/kerberos fixed in main (> 2.1.0)
 	export VSCODE_SKIP_NODE_VERSION_CHECK=1
 	export VSCODE_SKIP_PRELAUNCH=1
-	npm config set update-notifier false || die
-	# echo "$PATH"
-	# yarn config set disable-self-update-check true || die
-	# yarn config set nodedir /usr/include/electron-${ELECTRON_SLOT}/node || die
-	# if ! use build-online; then
-	# 	ONLINE_OFFLINE="--offline"
-	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
-	# fi
-	npm install --frozen-lockfile --legacy-peer-deps ${ONLINE_OFFLINE} \
-		--arch=${VSCODE_ARCH} --no-progress || die
+	export npm_config_arch=${VSCODE_ARCH}
+	local pnpm_ver
+	pnpm_ver=$(node -p "require('./package.json').packageManager.replace('pnpm@','") || die
+	OLD_PATH=$PATH
+	PATH="$T/pnpm/node_modules/.bin:$PATH"
+	export PATH
+	mkdir "$T/pnpm" || die
+	pushd "$T/pnpm" > /dev/null || die
+		npm init -y || die
+		npm install "pnpm@${pnpm_ver}" || die
+	popd > /dev/null || die
+	einfo "Using node $(node --version) and pnpm $(pnpm --version) ($(command -v pnpm))"
+	pnpm install --no-frozen-lockfile || die
 	# --ignore-optional
 	# --ignore-engines
 	# --production=true
