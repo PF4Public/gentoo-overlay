@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="lidarr"
+description="Lidarr is a music collection manager for usenet and bit-torrent users"
+
+command="/usr/bin/lidarr"
+command_user="lidarr:lidarr"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
