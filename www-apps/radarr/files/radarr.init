@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="radarr"
+description="Movie organizer/manager for usenet and torrent users"
+
+command="/usr/bin/radarr"
+command_user="radarr:radarr"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
