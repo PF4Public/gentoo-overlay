@@ -164,6 +164,7 @@ src_prepare() {
 	# sed -i 's$// Build$process.noAsar = true;$' build/gulpfile.vscode.ts || die
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
 	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
+	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.reh.ts || die
 	# 1.144+ pre-generates the node compile cache by spawning the packaged
 	# binary; the package ships without the electron binary (system
 	# electron-r1), so disable the task
