@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="jackett"
+description="API support for your favorite torrent trackers"
+
+command="/usr/bin/jackett"
+command_user="jackett:jackett"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
