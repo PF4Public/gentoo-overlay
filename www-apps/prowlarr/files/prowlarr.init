@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="prowlarr"
+description="Prowlarr is an indexer manager/proxy to integrate with your various PVR apps"
+
+command="/usr/bin/prowlarr"
+command_user="prowlarr:prowlarr"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
