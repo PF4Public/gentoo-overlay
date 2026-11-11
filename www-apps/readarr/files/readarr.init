@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="readarr"
+description="Readarr is an ebook and audiobook manager for usenet and bit-torrent users"
+
+command="/usr/bin/readarr"
+command_user="readarr:readarr"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
