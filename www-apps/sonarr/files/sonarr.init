@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+name="sonarr"
+description="Sonarr is a smart PVR for newsgroup and bittorrent users"
+
+command="/usr/bin/sonarr"
+command_user="sonarr:sonarr"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+depend() {
+	need net
+}
