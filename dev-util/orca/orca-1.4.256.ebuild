@@ -86,7 +86,7 @@ src_prepare() {
 	# flag, strip its extraResources entry so electron-builder does not fail on
 	# the missing file (0002). With the flag the helper is built natively below.
 	if ! use wayland; then
-		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard.patch" || die
+		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard-1.4.256.patch" || die
 	fi
 
 	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);
