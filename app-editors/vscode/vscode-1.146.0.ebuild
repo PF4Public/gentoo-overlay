@@ -354,6 +354,8 @@ src_compile() {
 		fi
 	fi
 	export BUILD_SOURCEVERSION="${COMMIT_ID}"
+	PATH="$T/pnpm/node_modules/.bin:$PATH"
+	export PATH
 
 	local myarch="$(tc-arch)"
 
@@ -404,6 +406,8 @@ src_compile() {
 }
 
 src_install() {
+	PATH="$T/pnpm/node_modules/.bin:$PATH"
+	export PATH
 
 	#TODO --experimental-strip-types until node>=22.18 stabilised
 	if use temp-fix; then
