@@ -263,7 +263,7 @@ src_configure() {
 	export VSCODE_SKIP_PRELAUNCH=1
 	export npm_config_arch=${VSCODE_ARCH}
 	local pnpm_ver
-	pnpm_ver=$(node -p "require('./package.json').packageManager.replace('pnpm@','") || die
+	pnpm_ver=$(node -p 'require("./package.json").packageManager.replace("pnpm@","")') || die
 	OLD_PATH=$PATH
 	PATH="$T/pnpm/node_modules/.bin:$PATH"
 	export PATH
