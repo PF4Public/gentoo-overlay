@@ -282,7 +282,7 @@ src_configure() {
 	# 	ONLINE_OFFLINE="--offline"
 	# 	yarn config set yarn-offline-mirror "${DISTDIR}" || die
 	# fi
-	npm install --frozen-lockfile ${ONLINE_OFFLINE} \
+	npm install --frozen-lockfile --legacy-peer-deps ${ONLINE_OFFLINE} \
 		--arch=${VSCODE_ARCH} --no-progress || die
 	# --ignore-optional
 	# --ignore-engines
