@@ -376,7 +376,7 @@ src_install() {
 
 	# ---- the terminal: the strata command, the API server, the model installer ----
 	insinto "/${libdir}"
-	doins strata.py setup.py chat.py highlight.py requirements.txt requirements-monitor.txt
+	doins strata.py setup.py requirements.txt requirements-monitor.txt
 	doins -r strata_cli strata_control serve
 	doins -r data
 
@@ -413,6 +413,9 @@ tools = pt.local_imports(pt.ROOT, tuple(sorted(names)))
 [print(name[:-3] if name.endswith(".py") else name) for name in sorted(set(tools) | set(pt.TOOLS_SUBSET))]
 EOF
 	)
+	# chat.py/highlight.py: by-path tools package_terminal.py does not bundle
+	# (the terminal paths never import them); they moved to tools/ in 0.2.13
+	cp --parents tools/chat.py tools/highlight.py "${stage}/"
 	doins -r "${stage}/tools"
 
 	# the tarball ships it 0775
