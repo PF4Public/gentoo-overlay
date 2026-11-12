@@ -10,6 +10,7 @@ on:
     paths:
     - 'www-apps/lidarr/*.ebuild'
     - 'www-apps/lidarr/files/**'
+  workflow_dispatch:
 
 jobs:
   filter:
@@ -24,9 +25,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      # a manual dispatch has no changed-file context; build the package's
+      # last two ebuilds (9999 + newest release) so the build can be re-run
+      # on demand
+      - name: Resolve (manual dispatch)
+        id: resolve
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          echo "ebuilds=$(ls www-apps/lidarr/*.ebuild | sort -V | tail -2 | tr '\n' ' ' | sed 's/ $//')" >> "$GITHUB_OUTPUT"
+
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ steps.resolve.outputs.ebuilds }}
 
   build:
     needs: filter
@@ -75,6 +88,17 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
+          # the vendored UI node_modules tarball is committed under files/ but
+          # is not on any public mirror; seed it into the fresh DISTDIR first
+          # (the in-repo distfile), exactly as a local seed does
+          shopt -s nullglob
+          mkdir -p "$GITHUB_WORKSPACE/distfiles"
+          deps=("$GITHUB_WORKSPACE"/www-apps/lidarr/files/*-deps.tar.xz)
+          if (( ${#deps[@]} == 0 )); then
+            echo "::error::no -deps.tar.xz in files/, cannot seed DISTDIR" >&2
+            exit 1
+          fi
+          cp -v "${deps[@]}" "$GITHUB_WORKSPACE/distfiles/"
           # getbinpkg pulls the (stable) dependencies from the binhost, the
           # atom itself is built from source; the nupkgs come from the
           # nuget.org + Azure feeds named in the ebuild (RESTRICT has no "fetch")
