@@ -28,7 +28,7 @@ env:
     -system-icu -system-jsoncpp -system-libevent -system-libusb
     -system-openh264 -system-png -system-re2 -system-snappy -system-libvpx
     -system-openjpeg -system-zstd -qt5 -qt6 -hevc convert-dict pulseaudio
-    vaapi optimize-thinlto thinlto widevine enable-driver -wayland
+    vaapi optimize-thinlto thinlto widevine enable-driver -wayland -screencast
   # Extra USE flags, kept separate so pgo can be toggled with one line
   # (pgo roughly doubles the build time).
   BUILD_USE_EXTRA: "pgo"
