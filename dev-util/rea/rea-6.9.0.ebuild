@@ -28,12 +28,14 @@ SLOT="0"
 IUSE="+build-online"
 RESTRICT="mirror test build-online? ( network-sandbox )"
 
+# pin the 24 series: node 26 dropped stripTypeScriptTypes' transform mode,
+# which the build's metadata:check step needs
 BDEPEND="
 	dev-vcs/git
-	>=net-libs/nodejs-24.22.1[npm]
+	>=net-libs/nodejs-24.22.1:0/24[npm]
 "
 RDEPEND="
-	>=net-libs/nodejs-24.22.1[npm]
+	>=net-libs/nodejs-24.22.1:0/24[npm]
 	sys-process/procps
 "
 
@@ -51,7 +53,7 @@ src_compile() {
 	local -x HUSKY=0
 	# upstream pins exact node versions with engine-strict; use the system node
 	local -x npm_config_engine_strict=false
-	npm ci --no-progress --no-audit --no-fund
+	npm ci --no-progress --no-audit --no-fund || die
 	# npm >= 11.16 gates package lifecycle scripts, so fetch frida's
 	# prebuild explicitly; the frida integration is optional upstream
 	if [[ -d node_modules/frida ]]; then
@@ -59,7 +61,7 @@ src_compile() {
 			node node_modules/frida/scripts/install.js || \
 			ewarn "frida prebuild download failed; the frida integration will be unavailable"
 	fi
-	npm run build:cached
+	npm run build:cached || die
 }
 
 src_install() {
