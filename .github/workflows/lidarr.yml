@@ -28,33 +28,63 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
-  default:
+  build:
     needs: filter
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          # convert the resolved ebuilds to =cat/pkg-pv atoms, skipping the
+          # live 9999 ebuild (its KEYWORDS="" is not mergeable); a files/
+          # change falls back to 9999 + newest release, only the release builds
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            base=$(basename "$e")
+            [[ "$base" == *-9999.ebuild ]] && continue
+            catpkg=$(dirname "$e")
+            pkg=$(basename "$catpkg")
+            pv=$(echo "$base" | sed -E "s/^${pkg}-//; s/\.ebuild$//")
+            atoms+="=${catpkg}-${pv} "
+          done
+          atoms="${atoms% }"
+          echo "atoms=${atoms}" >> "$GITHUB_OUTPUT"
+          echo "building: ${atoms:-<nothing, 9999-only change>}"
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
         with:
-          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+          accept-keywords: www-apps/lidarr ~amd64
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
-
-      - name: Install ${{ github.workflow }} with default USE-flags
-        uses: pf4public/gentoo-docker-action@master
-        with:
-            modified: ${{ steps.setup.outputs.ebuilds }}
-            tool: ebuild
-            action: compile
-            params: ' '
-
-      - name: Save cache
-        if: ${{ always() }}
-        uses: ./.github/actions/cache-save
+      - name: Build
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          # getbinpkg pulls the (stable) dependencies from the binhost, the
+          # atom itself is built from source; the nupkgs come from the
+          # nuget.org + Azure feeds named in the ebuild (RESTRICT has no "fetch")
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
