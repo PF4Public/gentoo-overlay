@@ -327,7 +327,7 @@ S="${WORKDIR}/Prowlarr-2.7.0.5723"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="test fetch"
+RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Prowlarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(

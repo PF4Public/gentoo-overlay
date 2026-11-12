@@ -183,7 +183,7 @@ S="${WORKDIR}/${P}"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS=""
-RESTRICT="test fetch"
+RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Prowlarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
