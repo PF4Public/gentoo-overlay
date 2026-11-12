@@ -55,6 +55,15 @@ UGC_WD="${WORKDIR}/${UGC_PF}"
 
 GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
 GC_CHECKOUT_DIR="${WORKDIR}"
+GC_REVISION="${CHROMIUM_VERSION}"
+GC_DEPS_ACTIONS=1
+GC_EXTRA_FLAGS="--ignore-dep-type cipd"
+GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False rust_force_head_revision=True llvm_force_head_revision=True"
+GC_SKIP_DEPS_ACTIONS="rust_tot clang_tot"
+GC_CUSTOM_DEPS="
+	src/third_party/crossbench-web-tests=None
+	src/third_party/angle/third_party/VK-GL-CTS/src=None
+"
 
 inherit check-reqs chromium-2 desktop flag-o-matic llvm-r2 multiprocessing ninja-utils pax-utils
 inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gclient-r1
@@ -108,16 +117,6 @@ REQUIRED_USE="
 	optimize-thinlto? ( thinlto )
 	x86? ( !thinlto )
 	vaapi? ( !system-av1 !system-libvpx )
-"
-
-GC_REVISION="${CHROMIUM_VERSION}"
-GC_DEPS_ACTIONS=1
-GC_EXTRA_FLAGS="--ignore-dep-type cipd"
-GC_CUSTOM_VARS="checkout_configuration=\"small\" checkout_x64=False checkout_x86=False rust_force_head_revision=True llvm_force_head_revision=True"
-GC_SKIP_DEPS_ACTIONS="rust_tot clang_tot"
-GC_CUSTOM_DEPS="
-	src/third_party/crossbench-web-tests=None
-	src/third_party/angle/third_party/VK-GL-CTS/src=None
 "
 PROPERTIES+=" gclient? ( live )"
 
