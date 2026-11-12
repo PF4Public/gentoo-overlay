@@ -10,7 +10,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/morluto/rea.git"
 else
 	SRC_URI="https://github.com/morluto/rea/archive/refs/tags/rea-agents-${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 	# codeload names the top-level directory after the tag
 	S="${WORKDIR}/rea-rea-agents-${PV}"
 fi
