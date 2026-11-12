@@ -28,14 +28,12 @@ SLOT="0"
 IUSE="+build-online"
 RESTRICT="mirror test build-online? ( network-sandbox )"
 
-# pin the 24 series: node 26 dropped stripTypeScriptTypes' transform mode,
-# which the build's metadata:check step needs
 BDEPEND="
 	dev-vcs/git
-	>=net-libs/nodejs-24.22.1:0/24[npm]
+	>=net-libs/nodejs-24.22.1[npm]
 "
 RDEPEND="
-	>=net-libs/nodejs-24.22.1:0/24[npm]
+	>=net-libs/nodejs-24.22.1[npm]
 	sys-process/procps
 "
 
@@ -61,12 +59,29 @@ src_compile() {
 			node node_modules/frida/scripts/install.js || \
 			ewarn "frida prebuild download failed; the frida integration will be unavailable"
 	fi
+	# node 26 dropped stripTypeScriptTypes' transform mode, so the source
+	# loader cannot import the .ts files the metadata scripts need; compile
+	# those files to .js next to the sources and point the scripts at the
+	# .js, leaving the .ts files intact for the build (which ignores .js)
+	if ! node -e 'require("node:module").stripTypeScriptTypes("let x: number = 1", { mode: "transform" });' \
+		2>/dev/null; then
+		./node_modules/.bin/tsc --ignoreConfig src/domain/skillManifest.ts \
+			--module esnext --target esnext --outDir src/domain || die
+		sed -i 's/skillManifest\.ts/skillManifest.js/' \
+			scripts/generate-package-metadata.mjs scripts/generate-skill-metadata.mjs
+	fi
 	npm run build:cached || die
 }
 
 src_install() {
+	# upstream pins exact node versions with engine-strict; use the system node
+	local -x npm_config_engine_strict=false
 	# only ship the runtime dependencies, not the development toolchain
 	npm prune --omit=dev --no-audit --no-fund
+
+	# the npm files list may reference npm-shrinkwrap.json without the source
+	# shipping it; regenerate it from the package lock, as the release does
+	[[ -e npm-shrinkwrap.json ]] || npm shrinkwrap --no-audit --no-fund || die
 
 	# doins installs files by basename only, so stage the npm package
 	# layout (the files list in package.json) to keep subdirectories
