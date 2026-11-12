@@ -390,7 +390,7 @@ S="${WORKDIR}/Readarr-0.4.18.2805"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Readarr.sln" )
