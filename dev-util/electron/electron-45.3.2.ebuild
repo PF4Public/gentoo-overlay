@@ -976,10 +976,12 @@ src_prepare() {
 		sed -i '/chrome_file_system_access_permission_context.cc/,+166d' \
 			"${UGC_WD}/patches/core/ungoogled-chromium/fix-building-without-safebrowsing.patch" || die
 
+		# image_capture_impl_unittest.cc: the google.com test URL sits in the
+		# context of cherry-pick-a955c3d9a39a.patch, substitution breaks it.
 		UGC_SKIP_SUBSTITUTION="${UGC_SKIP_SUBSTITUTION} flag-metadata.json histograms.xml \
 			chrome_file_system_access_permission_context.cc layer_tree_view.cc http_response_headers.cc \
 			http_cache_transaction.cc graph_builder_tflite.cc password_manual_fallback_flow_unittest.cc \
-			_api_features.json"
+			image_capture_impl_unittest.cc _api_features.json"
 
 		local ugc_unneeded=(
 			# GN bootstrap
