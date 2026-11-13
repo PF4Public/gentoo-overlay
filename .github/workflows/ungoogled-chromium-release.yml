@@ -506,7 +506,7 @@ jobs:
           echo "outcome=exhausted" >> "$GITHUB_OUTPUT"
 
       - name: Delete trigger tag
-        if: steps.check.outputs.outcome != 'complete'
+        if: github.event_name == 'push' && steps.check.outputs.outcome != 'complete'
         run: |
           # a re-pointed or already deleted tag is no business of this run
           if git ls-remote --exit-code origin "refs/tags/${{ github.ref_name }}" > /dev/null; then
