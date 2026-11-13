@@ -357,7 +357,7 @@ SLOT="0"
 KEYWORDS=""
 RESTRICT="test"
 
-DOTNET_PKG_PROJECTS=( "src/Jackett.sln" )
+DOTNET_PKG_PROJECTS=( "src/Jackett.Server/Jackett.Server.csproj" )
 DOTNET_PKG_BAD_PROJECTS=(
 	"src/Jackett.Service/Jackett.Service.csproj"
 	"src/Jackett.Tray/Jackett.Tray.csproj"
@@ -384,7 +384,7 @@ pkg_setup() {
 
 src_prepare() {
 	dotnet-pkg_src_prepare
-	dotnet-pkg_remove-bad "${DOTNET_PKG_PROJECTS[0]}"
+	dotnet-pkg_remove-bad "src/Jackett.sln"
 }
 
 src_install() {
