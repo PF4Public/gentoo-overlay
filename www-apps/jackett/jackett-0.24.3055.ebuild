@@ -123,7 +123,7 @@ SRC_URI="
 	${NUGET_URIS}
 "
 
-S="${WORKDIR}/Jackett-0.24.3036"
+S="${WORKDIR}/Jackett-${PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
