@@ -1,0 +1,359 @@
+# Copyright 1999-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+DOTNET_PKG_COMPAT="8.0"
+NUGET_APIS=(
+	"https://api.nuget.org/v3-flatcontainer"
+	"https://pkgs.dev.azure.com/Lidarr/Lidarr/_packaging/Taglib/nuget/v3/flat2"
+	"https://pkgs.dev.azure.com/Servarr/Servarr/_packaging/dotnet-bsd-crossbuild/nuget/v3/flat2"
+	"https://pkgs.dev.azure.com/Servarr/Servarr/_packaging/Mono.Posix.NETStandard/nuget/v3/flat2"
+)
+NUGETS="
+autofixture@4.17.0
+bouncycastle.cryptography@2.6.2
+castle.core@5.1.1
+coverlet.collector@6.0.4
+dapper@2.1.79
+diacritical.net@1.0.4
+dryioc.dll@5.4.3
+dryioc.microsoft.dependencyinjection@6.2.0
+dynamitey@3.0.3
+equ@2.3.0
+fare@2.1.1
+fluentassertions@7.2.2
+fluentmigrator.abstractions@6.2.0
+fluentmigrator.extensions.postgres@6.2.0
+fluentmigrator.runner.core@6.2.0
+fluentmigrator.runner.postgres@6.2.0
+fluentmigrator.runner.sqlite@6.2.0
+fluentmigrator@6.2.0
+fluentvalidation@9.5.4
+ical.net@4.3.1
+impromptuinterface@8.0.6
+ipaddressrange@6.3.0
+mailkit@4.16.0
+microsoft.applicationinsights@2.23.0
+microsoft.aspnetcore.connections.abstractions@8.0.27
+microsoft.aspnetcore.cryptography.internal@8.0.27
+microsoft.aspnetcore.cryptography.keyderivation@8.0.27
+microsoft.aspnetcore.http.connections.client@8.0.27
+microsoft.aspnetcore.http.connections.common@8.0.27
+microsoft.aspnetcore.signalr.client.core@8.0.27
+microsoft.aspnetcore.signalr.client@8.0.27
+microsoft.aspnetcore.signalr.common@8.0.27
+microsoft.aspnetcore.signalr.protocols.json@8.0.27
+microsoft.codecoverage@17.10.0
+microsoft.csharp@4.3.0
+microsoft.csharp@4.7.0
+microsoft.extensions.configuration.abstractions@8.0.0
+microsoft.extensions.configuration.binder@8.0.2
+microsoft.extensions.configuration.commandline@8.0.0
+microsoft.extensions.configuration.environmentvariables@8.0.0
+microsoft.extensions.configuration.fileextensions@8.0.1
+microsoft.extensions.configuration.json@8.0.1
+microsoft.extensions.configuration.usersecrets@8.0.1
+microsoft.extensions.configuration@8.0.0
+microsoft.extensions.dependencyinjection.abstractions@7.0.0
+microsoft.extensions.dependencyinjection.abstractions@8.0.0
+microsoft.extensions.dependencyinjection.abstractions@8.0.2
+microsoft.extensions.dependencyinjection@8.0.1
+microsoft.extensions.dependencymodel@8.0.2
+microsoft.extensions.diagnostics.abstractions@8.0.1
+microsoft.extensions.diagnostics@8.0.1
+microsoft.extensions.features@8.0.27
+microsoft.extensions.fileproviders.abstractions@8.0.0
+microsoft.extensions.fileproviders.physical@8.0.0
+microsoft.extensions.filesystemglobbing@8.0.0
+microsoft.extensions.hosting.abstractions@8.0.1
+microsoft.extensions.hosting.windowsservices@8.0.1
+microsoft.extensions.hosting@8.0.1
+microsoft.extensions.logging.abstractions@8.0.2
+microsoft.extensions.logging.abstractions@8.0.3
+microsoft.extensions.logging.configuration@8.0.1
+microsoft.extensions.logging.console@8.0.1
+microsoft.extensions.logging.debug@8.0.1
+microsoft.extensions.logging.eventlog@8.0.1
+microsoft.extensions.logging.eventsource@8.0.1
+microsoft.extensions.logging@8.0.1
+microsoft.extensions.options.configurationextensions@8.0.0
+microsoft.extensions.options@8.0.0
+microsoft.extensions.options@8.0.2
+microsoft.extensions.primitives@8.0.0
+microsoft.net.test.sdk@17.10.0
+microsoft.netcore.platforms@1.1.0
+microsoft.netcore.platforms@5.0.0
+microsoft.netcore.targets@1.1.0
+microsoft.openapi@1.6.25
+microsoft.testing.extensions.telemetry@2.3.3
+microsoft.testing.extensions.trxreport.abstractions@2.3.3
+microsoft.testing.extensions.vstestbridge@2.3.3
+microsoft.testing.platform.msbuild@2.3.3
+microsoft.testing.platform@2.3.3
+microsoft.testplatform.objectmodel@17.10.0
+microsoft.testplatform.objectmodel@18.4.0
+microsoft.testplatform.testhost@17.10.0
+microsoft.win32.primitives@4.3.0
+microsoft.win32.registry@5.0.0
+microsoft.win32.systemevents@6.0.0
+microsoft.win32.systemevents@8.0.0
+mimekit@4.16.0
+mono.nat@3.0.0
+mono.posix.netstandard@5.20.1.34-servarr20
+monotorrent@3.0.2
+moq@4.18.4
+nbuilder@6.1.0
+netstandard.library@1.6.1
+newtonsoft.json@10.0.3
+newtonsoft.json@13.0.1
+newtonsoft.json@13.0.4
+nlog.extensions.logging@5.5.0
+nlog.layouts.clefjsonlayout@1.0.5
+nlog.targets.syslog@7.0.0
+nlog@5.5.1
+nodatime@3.2.0
+npgsql@9.0.5
+nunit3testadapter@6.3.0
+nunit@4.5.1
+nunitxml.testlogger@8.0.0
+polly.contrib.waitandretry@1.1.1
+polly.core@8.6.6
+polly@8.6.6
+restsharp.serializers.systemtextjson@106.15.0
+restsharp@106.15.0
+reusabletasks@4.0.0
+runtime.any.system.collections@4.3.0
+runtime.any.system.diagnostics.tools@4.3.0
+runtime.any.system.diagnostics.tracing@4.3.0
+runtime.any.system.globalization.calendars@4.3.0
+runtime.any.system.globalization@4.3.0
+runtime.any.system.io@4.3.0
+runtime.any.system.reflection.extensions@4.3.0
+runtime.any.system.reflection.primitives@4.3.0
+runtime.any.system.reflection@4.3.0
+runtime.any.system.resources.resourcemanager@4.3.0
+runtime.any.system.runtime.handles@4.3.0
+runtime.any.system.runtime.interopservices@4.3.0
+runtime.any.system.runtime@4.3.0
+runtime.any.system.text.encoding.extensions@4.3.0
+runtime.any.system.text.encoding@4.3.0
+runtime.any.system.threading.tasks@4.3.0
+runtime.any.system.threading.timer@4.3.0
+runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.native.system.io.compression@4.3.0
+runtime.native.system.net.http@4.3.0
+runtime.native.system.security.cryptography.apple@4.3.0
+runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.native.system@4.3.0
+runtime.opensuse.13.2-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.opensuse.42.1-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.osx.10.10-x64.runtime.native.system.security.cryptography.apple@4.3.0
+runtime.osx.10.10-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.rhel.7-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.ubuntu.14.04-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl@4.3.0
+runtime.unix.microsoft.win32.primitives@4.3.0
+runtime.unix.system.console@4.3.0
+runtime.unix.system.diagnostics.debug@4.3.0
+runtime.unix.system.io.filesystem@4.3.0
+runtime.unix.system.net.primitives@4.3.0
+runtime.unix.system.net.sockets@4.3.0
+runtime.unix.system.private.uri@4.3.0
+runtime.unix.system.runtime.extensions@4.3.0
+selenium.support@3.141.0
+selenium.webdriver.chromedriver@134.0.6998.16500
+selenium.webdriver@3.141.0
+sentry@5.16.3
+sharpziplib@1.4.2
+sixlabors.imagesharp@3.1.12
+sourcegear.sqlite3@3.53.4
+spotifyapi.web@5.1.1
+stylecop.analyzers.unstable@1.2.0.556
+swashbuckle.aspnetcore.annotations@9.0.6
+swashbuckle.aspnetcore.swagger@9.0.6
+swashbuckle.aspnetcore.swaggergen@9.0.6
+system.appcontext@4.3.0
+system.buffers@4.3.0
+system.collections.concurrent@4.3.0
+system.collections.immutable@8.0.0
+system.collections.nongeneric@4.3.0
+system.collections.specialized@4.3.0
+system.collections@4.3.0
+system.componentmodel.annotations@4.3.0
+system.componentmodel.annotations@5.0.0
+system.componentmodel.primitives@4.3.0
+system.componentmodel.typeconverter@4.3.0
+system.componentmodel@4.3.0
+system.configuration.configurationmanager@6.0.0
+system.console@4.3.0
+system.data.sqlite@2.0.4
+system.diagnostics.debug@4.3.0
+system.diagnostics.diagnosticsource@4.3.0
+system.diagnostics.diagnosticsource@5.0.0
+system.diagnostics.eventlog@6.0.0
+system.diagnostics.eventlog@8.0.1
+system.diagnostics.tools@4.3.0
+system.diagnostics.tracing@4.3.0
+system.drawing.common@6.0.0
+system.drawing.common@8.0.27
+system.dynamic.runtime@4.3.0
+system.formats.asn1@8.0.1
+system.globalization.calendars@4.3.0
+system.globalization.extensions@4.3.0
+system.globalization@4.3.0
+system.io.abstractions.testinghelpers@17.0.24
+system.io.abstractions@17.0.24
+system.io.compression.zipfile@4.3.0
+system.io.compression@4.3.0
+system.io.filesystem.accesscontrol@5.0.0
+system.io.filesystem.primitives@4.3.0
+system.io.filesystem@4.3.0
+system.io.pipelines@8.0.0
+system.io@4.3.0
+system.linq.expressions@4.3.0
+system.linq@4.3.0
+system.net.http@4.3.0
+system.net.nameresolution@4.3.0
+system.net.primitives@4.3.0
+system.net.sockets@4.3.0
+system.objectmodel@4.3.0
+system.private.uri@4.3.0
+system.reflection.emit.ilgeneration@4.3.0
+system.reflection.emit.lightweight@4.3.0
+system.reflection.emit@4.3.0
+system.reflection.emit@4.7.0
+system.reflection.extensions@4.3.0
+system.reflection.metadata@1.6.0
+system.reflection.metadata@8.0.0
+system.reflection.primitives@4.3.0
+system.reflection.typeextensions@4.3.0
+system.reflection@4.3.0
+system.resources.resourcemanager@4.3.0
+system.runtime.extensions@4.3.0
+system.runtime.handles@4.3.0
+system.runtime.interopservices.runtimeinformation@4.3.0
+system.runtime.interopservices@4.3.0
+system.runtime.loader@4.3.0
+system.runtime.numerics@4.3.0
+system.runtime.serialization.formatters@4.3.0
+system.runtime.serialization.primitives@4.3.0
+system.runtime@4.3.0
+system.security.accesscontrol@5.0.0
+system.security.accesscontrol@6.0.0
+system.security.claims@4.3.0
+system.security.cryptography.algorithms@4.3.0
+system.security.cryptography.cng@4.3.0
+system.security.cryptography.csp@4.3.0
+system.security.cryptography.encoding@4.3.0
+system.security.cryptography.openssl@4.3.0
+system.security.cryptography.pkcs@8.0.1
+system.security.cryptography.primitives@4.3.0
+system.security.cryptography.protecteddata@6.0.0
+system.security.cryptography.x509certificates@4.3.0
+system.security.permissions@6.0.0
+system.security.principal.windows@4.3.0
+system.security.principal.windows@5.0.0
+system.security.principal@4.3.0
+system.serviceprocess.servicecontroller@8.0.1
+system.text.encoding.codepages@8.0.0
+system.text.encoding.extensions@4.3.0
+system.text.encoding@4.3.0
+system.text.json@5.0.2
+system.text.json@8.0.6
+system.text.regularexpressions@4.3.0
+system.threading.channels@8.0.0
+system.threading.tasks.extensions@4.3.0
+system.threading.tasks@4.3.0
+system.threading.threadpool@4.3.0
+system.threading.timer@4.3.0
+system.threading@4.3.0
+system.valuetuple@4.5.0
+system.valuetuple@4.6.2
+system.windows.extensions@6.0.0
+system.xml.readerwriter@4.3.0
+system.xml.xdocument@4.3.0
+system.xml.xmldocument@4.3.0
+taglibsharp-lidarr@2.2.0.27
+"
+
+inherit dotnet-pkg systemd
+
+DESCRIPTION="Lidarr is a music collection manager for usenet and bit-torrent users"
+HOMEPAGE="https://lidarr.video"
+SRC_URI="
+	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+	${P}-deps.tar.xz
+	${NUGET_URIS}
+"
+
+S="${WORKDIR}/Lidarr-3.1.6.5079"
+
+LICENSE="GPL-3+"
+SLOT="0"
+KEYWORDS="~amd64"
+RESTRICT="test"
+
+DOTNET_PKG_PROJECTS=( "src/Lidarr.sln" )
+DOTNET_PKG_BAD_PROJECTS=(
+	"src/NzbDrone.Automation.Test/Lidarr.Automation.Test.csproj"
+	"src/NzbDrone.Host.Test/Lidarr.Host.Test.csproj"
+	"src/NzbDrone.Integration.Test/Lidarr.Integration.Test.csproj"
+	"src/NzbDrone.Windows.Test/Lidarr.Windows.Test.csproj"
+	"src/NzbDrone.Windows/Lidarr.Windows.csproj"
+	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
+	"src/ServiceHelpers/ServiceUninstall/ServiceUninstall.csproj"
+)
+
+RDEPEND="
+	acct-group/lidarr
+	acct-user/lidarr
+	dev-db/sqlite
+	media-video/mediainfo
+"
+BDEPEND="
+	sys-apps/yarn
+"
+
+PATCHES=(
+	"${FILESDIR}/lidarr-3.1.6.5079-look-up-package_info-in-the-startup-folder.patch"
+)
+
+pkg_setup() {
+	dotnet-pkg_pkg_setup
+
+	export DOTNET_PKG_BUILD_EXTRA_ARGS=(
+		-p:"AssemblyConfiguration=develop"
+		-p:"AssemblyVersion=${PV}"
+		-p:"RuntimeIdentifiers=${DOTNET_PKG_RUNTIME}"
+		-p:"SentryUploadSymbols=false"
+		-t:"PublishAllRids"
+	)
+}
+
+src_prepare() {
+	dotnet-pkg_src_prepare
+	dotnet-pkg_remove-bad "${DOTNET_PKG_PROJECTS[0]}"
+}
+
+src_compile() {
+	dotnet-pkg_src_compile
+
+	yarn run build --env production --no-stats || die
+	cp -r "${S}/_output/UI" "${DOTNET_PKG_OUTPUT}" || die
+}
+
+src_install() {
+	dotnet-pkg_src_install
+
+	# This disables the built-in update feature
+	insinto "/usr/share/${P}"
+	echo "PackageVersion=${PV}" | cat "${FILESDIR}/package_info" - > package_info
+	doins package_info
+
+	systemd_newunit "${FILESDIR}/lidarr.service" "lidarr.service"
+	newinitd "${FILESDIR}/lidarr.init" "lidarr"
+}
