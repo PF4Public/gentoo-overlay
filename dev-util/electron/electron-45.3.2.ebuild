@@ -1074,7 +1074,20 @@ src_prepare() {
 			electron/patches/node/src_add_perfetto_trace_agent.patch || die
 	fi
 
+	# The v45.3.2 patch set was rebased against chromium 156.0.8078.100 (DEPS)
+	# while the tarball is 156.0.8078.80, so these two do not apply. The
+	# v45.2.3 versions carry the identical changes with 156.0.8078.80 context
+	# and the electron shell requires both (printing API, blocklist exposure).
+	cp "${FILESDIR}/printing-45.2.3.patch" \
+		electron/patches/chromium/printing.patch || die
+	cp "${FILESDIR}/refactor_expose_file_system_access_blocklist-45.2.3.patch" \
+		electron/patches/chromium/refactor_expose_file_system_access_blocklist.patch || die
+
 	declare -A skipped_patches=(
+		["cherry-pick-ffae953f7ec8.patch"]="due to... reasons..."
+		["cherry-pick-85e50e76a6db.patch"]="due to... reasons..."
+		["cherry-pick-c553b337ecaf.patch"]="due to... reasons..."
+		["cherry-pick-08887dc29edc.patch"]="due to... reasons..."
 		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
 		["desktop_media_list.patch"]="due to... reasons..."
 	)
@@ -1138,6 +1151,7 @@ src_prepare() {
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="*/javatests/*" \
 				--exclude="test/mjsunit/*" --exclude="test/inspector/*" \
+				--exclude="chrome/android/*" --exclude="android_webview/*" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
