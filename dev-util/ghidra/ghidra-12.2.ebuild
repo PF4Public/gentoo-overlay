@@ -15,7 +15,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	SRC_URI="https://github.com/NationalSecurityAgency/ghidra/archive/refs/tags/Ghidra_${PV}_build.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/ghidra-Ghidra_${PV}_build"
-	KEYWORDS="~amd64" 
+	KEYWORDS="amd64" 
 fi
 
 DESCRIPTION="Ghidra is a software reverse engineering (SRE) framework"
