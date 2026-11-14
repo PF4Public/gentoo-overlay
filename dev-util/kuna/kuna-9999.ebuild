@@ -5,7 +5,7 @@ EAPI=8
 
 RUST_MIN_VER="1.90"
 
-inherit cargo git-r3
+inherit cargo git-r3 multiprocessing
 
 DESCRIPTION="Agent-first decompiler, a Rust port of Ghidra"
 HOMEPAGE="https://kuna.noelo.org/ https://github.com/Noelo-Lab/kuna"
@@ -16,23 +16,25 @@ LICENSE="Apache-2.0"
 # Dependent crate licenses
 LICENSE+=" Apache-2.0-with-LLVM-exceptions BSD-2 LGPL-2.1+ MIT Unlicense"
 SLOT="0"
-RESTRICT="test"
-
-DOCS=(
-	NOTICE
-	README.md
-	docs/
-)
+RESTRICT="test network-sandbox"
 
 src_unpack() {
 	git-r3_src_unpack
 
-	# The cargo workspace lives in decompiler/; cargo_live_src_unpack runs
-	# cargo fetch/vendor in ${S}, so point it there for the fetch.
-	local _S="${S}"
-	S="${S}/decompiler"
-	cargo_live_src_unpack
-	S="${_S}"
+	# cargo_env requires the eclass's cargo config, which this git ebuild
+	# does not get from cargo_src_unpack. Run it, then replace the
+	# generated config with a minimal online one: the eclass pins cargo
+	# offline against a local directory source, but this package resolves
+	# the in-tree Cargo.lock against crates.io at build time (RESTRICT
+	# network-sandbox).
+	cargo_gen_config
+
+	mkdir -p "${ECARGO_HOME}" || die
+	cat > "${ECARGO_HOME}/config.toml" <<- _EOF_ || die
+	[build]
+	jobs = $(makeopts_jobs)
+	incremental = false
+	_EOF_
 }
 
 src_configure() {
@@ -42,12 +44,12 @@ src_configure() {
 }
 
 src_compile() {
-	# Upstream release CI bakes the version via KUNA_VERSION (option_env!);
-	# dev/live builds intentionally report the workspace Cargo version.
+	# Dev builds report the workspace Cargo version; the release ebuilds
+	# bake KUNA_VERSION (option_env!) into the binary instead.
 	cd "${S}/decompiler" || die
 
-	# The SLEIGH compiler compiles the vendored .slaspec tree that the
-	# embed-specs feature of the CLI then bakes in.
+	# The SLEIGH compiler compiles the .slaspec tree that the embed-specs
+	# feature of the CLI then bakes in.
 	cargo_env "${CARGO}" build $(usex debug "" --release) -p kuna-slacomp || die
 	"$(cargo_target_dir)/slacomp" -a "${S}/specs" || die
 
@@ -55,10 +57,11 @@ src_compile() {
 }
 
 src_install() {
-	(
-		cd "${S}/decompiler/crates/kuna-cli" || die
-		cargo_src_install
-	)
+	# The upstream docs tree ships .gz copies of some of its files, which
+	# QA rejects as extraneous compressed variants, so stage it without.
+	local docs="${T}/docs"
+	cp -r "${S}/docs" "${docs}" || die
+	find "${docs}" -name '*.gz' -delete || die
 
-	dodoc -r "${DOCS[@]}"
+	dodoc -r NOTICE README.md "${docs}"
 }
