@@ -393,7 +393,7 @@ S="${WORKDIR}/Sonarr-4.0.20.3014"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64" 
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Sonarr.sln" )
