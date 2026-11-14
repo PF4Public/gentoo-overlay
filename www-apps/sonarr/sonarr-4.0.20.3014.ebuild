@@ -380,20 +380,28 @@ system.xml.xpath.xmldocument@4.3.0
 "
 
 inherit dotnet-pkg systemd
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/Sonarr/Sonarr.git"
+	EGIT_BRANCH="develop"
+	S="${WORKDIR}/${P}"
+	GITHUB_SRC=""
+else
+	KEYWORDS="amd64"
+	S="${WORKDIR}/Sonarr-${PV}"
+	GITHUB_SRC="
+	https://github.com/Sonarr/Sonarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+fi
 
 DESCRIPTION="Sonarr is a smart PVR for newsgroup and bittorrent users"
 HOMEPAGE="https://sonarr.tv"
-SRC_URI="
-	https://github.com/Sonarr/Sonarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+SRC_URI="${GITHUB_SRC}
 	${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 
-S="${WORKDIR}/Sonarr-4.0.20.3014"
-
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="amd64" 
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Sonarr.sln" )
