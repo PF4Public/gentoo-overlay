@@ -101,7 +101,7 @@ src_prepare() {
 	# the main-process clipboard callers through a compat module that speaks
 	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
 	# path degrades to a reported failure on 44+.
-	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.255.patch" || die
+	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.259.patch" || die
 
 	# The saveImageAsTempFile handler's direct readClipboardImageSource /
 	# readClipboardNativeImage calls are not in the patch: 1.4.252 refactored
@@ -111,7 +111,7 @@ src_prepare() {
 	sed -i \
 		-e 's/^\([[:space:]]*\)const source = readClipboardImageSource(clipboard)$/\1const source = await readClipboardImageSource(clipboardReader)/' \
 		-e 's/^\([[:space:]]*\)const image = readClipboardNativeImage()$/\1const image = await readClipboardNativeImage()/' \
-		src/main/window/clipboard-ipc-handlers.ts || die
+		src/main/window/clipboard/clipboard-ipc-handlers.ts || die
 
 	# The final writeImage call of the clipboard:writeImage handler is not in
 	# the patch: newer upstream trees wrap the handler body in
@@ -120,7 +120,7 @@ src_prepare() {
 	# agnostic substitution instead — the promise is awaited by ipcMain.handle
 	# (and by the publish queue on the wrapped trees).
 	sed -i 's/^\([[:space:]]*\)clipboard\.writeImage(image)$/\1return writeClipboardImage(image)/' \
-		src/main/window/clipboard-ipc-handlers.ts || die
+		src/main/window/clipboard/clipboard-ipc-handlers.ts || die
 }
 
 src_compile() {
