@@ -280,22 +280,29 @@ system.xml.xmldocument@4.3.0
 taglibsharp-lidarr@2.2.0.27
 "
 
-inherit dotnet-pkg git-r3 systemd
+inherit dotnet-pkg systemd
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/Lidarr/Lidarr.git"
+	EGIT_BRANCH="develop"
+	S="${WORKDIR}/${P}"
+	GITHUB_SRC=""
+else
+	KEYWORDS="~amd64"
+	S="${WORKDIR}/Lidarr-${PV}"
+	GITHUB_SRC="
+	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+fi
 
-EGIT_REPO_URI="https://github.com/Lidarr/Lidarr.git"
-EGIT_BRANCH="develop"
 DESCRIPTION="Lidarr is a music collection manager for usenet and bit-torrent users"
 HOMEPAGE="https://lidarr.video"
-SRC_URI="
+SRC_URI="${GITHUB_SRC}
 	${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 
-S="${WORKDIR}/${P}"
-
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS=""
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Lidarr.sln" )

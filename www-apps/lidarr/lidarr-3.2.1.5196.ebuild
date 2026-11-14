@@ -281,20 +281,28 @@ taglibsharp-lidarr@2.2.0.27
 "
 
 inherit dotnet-pkg systemd
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/Lidarr/Lidarr.git"
+	EGIT_BRANCH="develop"
+	S="${WORKDIR}/${P}"
+	GITHUB_SRC=""
+else
+	KEYWORDS="~amd64"
+	S="${WORKDIR}/Lidarr-${PV}"
+	GITHUB_SRC="
+	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+fi
 
 DESCRIPTION="Lidarr is a music collection manager for usenet and bit-torrent users"
 HOMEPAGE="https://lidarr.video"
-SRC_URI="
-	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+SRC_URI="${GITHUB_SRC}
 	${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 
-S="${WORKDIR}/Lidarr-3.1.6.5079"
-
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~amd64" 
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Lidarr.sln" )
@@ -319,7 +327,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/lidarr-3.1.6.5079-look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/lidarr-3.2.1.5196-look-up-package_info-in-the-startup-folder.patch"
 )
 
 pkg_setup() {
