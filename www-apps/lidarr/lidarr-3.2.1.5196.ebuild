@@ -288,7 +288,7 @@ if [[ ${PV} = *9999* ]]; then
 	S="${WORKDIR}/${P}"
 	GITHUB_SRC=""
 else
-	KEYWORDS="~amd64"
+	KEYWORDS="amd64"
 	S="${WORKDIR}/Lidarr-${PV}"
 	GITHUB_SRC="
 	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
