@@ -313,20 +313,28 @@ yamldotnet@16.3.0
 "
 
 inherit dotnet-pkg systemd
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/Prowlarr/Prowlarr.git"
+	EGIT_BRANCH="develop"
+	S="${WORKDIR}/${P}"
+	GITHUB_SRC=""
+else
+	KEYWORDS="amd64"
+	S="${WORKDIR}/Prowlarr-${PV}"
+	GITHUB_SRC="
+	https://github.com/Prowlarr/Prowlarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+fi
 
 DESCRIPTION="Prowlarr is an indexer manager/proxy to integrate with your various PVR apps"
 HOMEPAGE="https://prowlarr.com"
-SRC_URI="
-	https://github.com/Prowlarr/Prowlarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+SRC_URI="${GITHUB_SRC}
 	${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 
-S="${WORKDIR}/Prowlarr-2.7.0.5723"
-
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="amd64" 
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Prowlarr.sln" )
