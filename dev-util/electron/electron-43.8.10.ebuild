@@ -1076,7 +1076,25 @@ src_prepare() {
 				[ "$i" = "cherry-pick-d6247827bfd0.patch" ]||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
 				[ "$i" = "fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch" ]||
-				[ "$i" = "desktop_media_list.patch" ]; then
+				[ "$i" = "desktop_media_list.patch" ]||
+				[ "$i" = "cherry-pick-85124738f5.patch" ]||
+				[ "$i" = "cherry-pick-2c09344f1530.patch" ]||
+				[ "$i" = "cherry-pick-3ff89910a24e.patch" ]||
+				[ "$i" = "cherry-pick-bd5b925e0678.patch" ]||
+				[ "$i" = "cherry-pick-ea2f03dfff2d.patch" ]||
+				[ "$i" = "cherry-pick-cdea97f48c9f.patch" ]||
+				[ "$i" = "cherry-pick-0a35d208b1a4.patch" ]||
+				[ "$i" = "cherry-pick-819e8c405b13.patch" ]||
+				[ "$i" = "cherry-pick-e0e5a9bc99a7.patch" ]||
+				[ "$i" = "cherry-pick-bea9f5ec4d25.patch" ]||
+				[ "$i" = "cherry-pick-cc779fd26616.patch" ]||
+				[ "$i" = "cherry-pick-85e50e76a6db.patch" ]||
+				[ "$i" = "cherry-pick-2cfdd6153dcf.patch" ]||
+				[ "$i" = "cherry-pick-c553b337ecaf.patch" ]||
+				[ "$i" = "cherry-pick-ffa67bc6b5b0.patch" ]||
+				[ "$i" = "cherry-pick-9c58c948fa47.patch" ]||
+				[ "$i" = "cherry-pick-f6a48fca8842.patch" ]||
+				[ "$i" = "cherry-pick-856bdd2ab3f0.patch" ]; then
 				ewarn "Skipping ${i} due to... reasons..."
 				continue;
 			fi
@@ -1104,8 +1122,9 @@ src_prepare() {
 				--exclude="*/uv/test/*" --exclude="*.rst" --exclude="test/tint/*" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
-				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
-				--exclude="test/mjsunit/es6/classes-subclass-builtins.js" \
+				--exclude="*/__config_site" --exclude="test/mjsunit/*" \
+				--exclude="test/inspector/*" --exclude="chrome/android/*" \
+				--exclude="chromecast/*" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
