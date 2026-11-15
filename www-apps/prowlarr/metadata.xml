@@ -9,6 +9,7 @@
 		<bugs-to>https://github.com/Prowlarr/Prowlarr/issues</bugs-to>
 	</upstream>
 	<use>
+		<flag name="build-online">the live ebuild installs the UI deps at build time (unused by the released ebuilds)</flag>
 		<flag name="debug">Build with the debug configuration (Debug instead of Release)</flag>
 	</use>
 </pkgmetadata>
