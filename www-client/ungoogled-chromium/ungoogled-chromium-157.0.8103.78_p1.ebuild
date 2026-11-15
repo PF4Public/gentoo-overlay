@@ -349,7 +349,7 @@ RDEPEND="${COMMON_DEPEND}
 "
 # For M149+ pipewire is a mandatory build-time dependency, but it's optional at runtime for most configurations.
 DEPEND="${COMMON_DEPEND}
-	media-libs/vulkan
+	dev-util/vulkan-headers
 	!headless? (
 		media-video/pipewire
 		gtk4? ( gui-libs/gtk:4[X?,wayland?] )
