@@ -176,22 +176,29 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_BRANCH="develop"
 	S="${WORKDIR}/${P}"
 	GITHUB_SRC=""
+	DEPS_SRC=""
 else
 	KEYWORDS="amd64"
 	S="${WORKDIR}/Sonarr-${PV}"
 	GITHUB_SRC="
 	https://github.com/Sonarr/Sonarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+	DEPS_SRC="
+	https://github.com/PF4Public/gentoo-overlay/releases/download/sonarr/${PV}/${P}-deps.tar.xz"
 fi
 
 DESCRIPTION="Sonarr is a smart PVR for newsgroup and bittorrent users"
 HOMEPAGE="https://sonarr.tv"
 SRC_URI="${GITHUB_SRC}
+	${DEPS_SRC}
 	${NUGET_URIS}
 "
 
 LICENSE="GPL-3+"
 SLOT="0"
-RESTRICT="test"
+# build-online: the live ebuild installs the UI deps at build time (yarn
+# install); the released ebuilds are offline (prebuilt node_modules distfile)
+IUSE="+build-online"
+RESTRICT="test build-online? ( network-sandbox )"
 
 DOTNET_PKG_PROJECTS=( "src/Sonarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
@@ -231,9 +238,16 @@ pkg_setup() {
 }
 
 src_unpack() {
-	dotnet-pkg_src_unpack
-	# the generated node_modules tarball is a build input kept in files/
-	unpack "${FILESDIR}/${P}-deps.tar.xz"
+	if [[ ${PV} = *9999* ]]; then
+		git-r3_src_unpack
+		# the live tree's UI deps, installed at build time (build-online);
+		# the released ebuilds unpack the prebuilt node_modules distfile
+		( cd "${S}" && yarn install --frozen-lockfile ) || die
+	else
+		# dotnet-pkg_src_unpack unpacks the source and the
+		# ${P}-deps.tar.xz distfile (the prebuilt UI node_modules)
+		dotnet-pkg_src_unpack
+	fi
 }
 
 src_prepare() {
