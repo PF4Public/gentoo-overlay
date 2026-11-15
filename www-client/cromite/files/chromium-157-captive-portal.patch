@@ -1,0 +1,30 @@
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -1534,6 +1534,6 @@
+   if (is_win || is_mac || is_linux || is_chromeos) {
+     deps += [
+-      "//chrome/browser/captive_portal",
++      #"//chrome/browser/captive_portal",
+       "//chrome/browser/headless:headless_extra_parts",
+       "//chrome/browser/indigo/onboarding",
+       "//chrome/browser/media/router/discovery/access_code:access_code_sink_service",
+--- a/chrome/browser/ssl/chrome_security_blocking_page_factory.cc
++++ b/chrome/browser/ssl/chrome_security_blocking_page_factory.cc
+@@ -84,17 +84,2 @@
+ void OpenLoginPage(content::WebContents* web_contents) {
+-#if !BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
+-  // OpenLoginTabForWebContents() is not available on Android (the only
+-  // platform on which captive portal detection is not enabled). Simply open
+-  // the platform's portal detection URL in a new tab.
+-  const std::string url = security_interstitials::GetCaptivePortalServerUrl(
+-      base::android::AttachCurrentThread());
+-  content::OpenURLParams params =
+-      content::OpenURLParams::CreateBrowserInitiated(
+-          GURL(url), WindowOpenDisposition::NEW_FOREGROUND_TAB,
+-          ui::PAGE_TRANSITION_LINK);
+-  web_contents->OpenURL(params, /*navigation_handle_callback=*/{});
+-#else
+-  ChromeSecurityBlockingPageFactory::OpenLoginTabForWebContents(web_contents,
+-                                                                true);
+-#endif  // !BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
+ }

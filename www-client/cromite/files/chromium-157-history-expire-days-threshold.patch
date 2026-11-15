@@ -1,0 +1,54 @@
+--- a/chrome/browser/history/history_service_factory.cc
++++ b/chrome/browser/history/history_service_factory.cc
+@@ -27,5 +27,7 @@
+       /*device_info_tracker=*/nullptr, /*local_device_info_provider=*/nullptr);
+   history_service->Init(history::HistoryDatabaseParamsForPath(
+       context->GetPath(), chrome::GetChannel()));
++  Profile* profile = Profile::FromBrowserContext(context);
++  history_service->InitFromPreferences(profile->GetPrefs());
+   return history_service;
+ }
+--- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
++++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
+@@ -12,4 +12,6 @@
+ import 'chrome://resources/cr_elements/cr_toast/cr_toast.js';
++import '../controls/settings_dropdown_menu.js';
++import type {DropdownMenuOptionList} from '../controls/settings_dropdown_menu.js';
+ import '../icons.html.js';
+ import '../privacy_icons.html.js';
+ import '../settings_page/settings_section.js';
+@@ -74,4 +76,6 @@
+   static override get properties() {
+     return {
++      historyExpireDaysThresholdOptions_: {type: Array},
++
+       showClearBrowsingDataDialog_: {type: Boolean},
+       showPrivacyGuideDialog_: {type: Boolean},
+@@ -89,3 +93,14 @@
++  protected accessor historyExpireDaysThresholdOptions_:
++      DropdownMenuOptionList = [
++        {value: 0, name: loadTimeData.getString('noHistory')},
++        {value: 1, name: '1 ' + loadTimeData.getString('dayHistory')},
++        {value: 7, name: '7 ' + loadTimeData.getString('daysHistory')},
++        {value: 15, name: '15 ' + loadTimeData.getString('daysHistory')},
++        {value: 30, name: '30 ' + loadTimeData.getString('daysHistory')},
++        {value: 60, name: '60 ' + loadTimeData.getString('daysHistory')},
++        {value: 90, name: '90 ' + loadTimeData.getString('daysHistory')},
++        {value: 0xFFFF, name: loadTimeData.getString('foreverHistory')},
++      ];
+   protected accessor showClearBrowsingDataDialog_: boolean = false;
+   protected accessor showPrivacyGuideDialog_: boolean = false;
+   protected accessor dbdDeletionConfirmationToastLabel_: string = '';
+--- a/components/history/core/browser/history_backend.h
++++ b/components/history/core/browser/history_backend.h
+@@ -211,10 +211,6 @@
+   // Check if the transition should increment the typed_count of a visit.
+   static bool IsTypedIncrement(ui::PageTransition transition);
+ 
+-  // The number of days old a history entry can be before it is considered "old"
+-  // and is deleted.
+-  static constexpr int kExpireDaysThreshold = 90;
+-
+   // The maximum redirect chain depth to traverse before stopping. Prevents
+   // quadratic sql query floods on unbounded client-redirect chains.
+   static constexpr size_t kMaxRedirectChainLength = 30;

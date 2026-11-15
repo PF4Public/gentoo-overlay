@@ -1,0 +1,14 @@
+--- a/content/child/runtime_features.cc
++++ b/content/child/runtime_features.cc
+@@ -514,9 +514,8 @@
+   if (!base::FeatureList::IsEnabled(blink::features::kFencedFrames) &&
+       base::FeatureList::IsEnabled(
+           blink::features::kFencedFramesLocalUnpartitionedDataAccess)) {
+-    LOG_IF(
+-        WARNING,
+-        WebRuntimeFeatures::IsFencedFramesLocalUnpartitionedDataAccessEnabled())
++    CHECK(
++        !WebRuntimeFeatures::IsFencedFramesLocalUnpartitionedDataAccessEnabled())
+         << "Fenced frames must be enabled in order to enable local "
+            "unpartitioned "
+         << "data access. Use --" << switches::kEnableFeatures << "="

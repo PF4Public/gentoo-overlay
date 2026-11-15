@@ -1,0 +1,13 @@
+--- a/components/gwp_asan/client/gwp_asan.cc
++++ b/components/gwp_asan/client/gwp_asan.cc
+@@ -542,4 +542,4 @@
+   std::ignore = internal::kGwpAsanMalloc;
+-  DLOG(WARNING) << "GWP-ASan for malloc is disabled without PartitionAlloc as "
++  LOG(WARNING) << "MemorySystem: GWP-ASan for malloc is disabled without PartitionAlloc as "
+                    "malloc.";
+ #endif  // PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
+@@ -574,3 +574,3 @@
+   std::ignore = internal::kGwpAsanPartitionAlloc;
+-  DLOG(WARNING) << "GWP-ASan for PartitionAlloc is disabled in this build.";
++  LOG(WARNING) << "MemorySystem: GWP-ASan for PartitionAlloc is disabled in this build.";
+ #endif  // PA_BUILDFLAG(USE_PARTITION_ALLOC) &&

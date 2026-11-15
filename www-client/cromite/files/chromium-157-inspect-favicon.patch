@@ -1,0 +1,9 @@
+--- a/chrome/browser/resources/inspect/inspect.js
++++ b/chrome/browser/resources/inspect/inspect.js
+@@ -603,5 +603,5 @@
+   if (data['faviconUrl']) {
+     const internalURL = new URL('chrome://favicon2/');
+     internalURL.searchParams.set('iconUrl', data['faviconUrl']);
+-    favicon.src = internalURL;
++    //favicon.src = internalURL;
+   }

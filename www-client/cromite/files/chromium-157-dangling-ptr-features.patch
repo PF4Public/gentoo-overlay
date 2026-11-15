@@ -1,0 +1,26 @@
+--- a/base/allocator/partition_alloc_features.cc
++++ b/base/allocator/partition_alloc_features.cc
+@@ -100,6 +100,7 @@
+                    partition_alloc::internal::SlotSpanRingMaxSize::kMedium);
+ 
+ BASE_FEATURE(kPartitionAllocWithAdvancedChecks, FEATURE_ENABLED_BY_DEFAULT);
++SET_CROMITE_FEATURE_ENABLED(kPartitionAllocWithAdvancedChecks);
+ constexpr FeatureParam<PartitionAllocWithAdvancedChecksEnabledProcesses>::Option
+     kPartitionAllocWithAdvancedChecksEnabledProcessesOptions[] = {
+         {PartitionAllocWithAdvancedChecksEnabledProcesses::kBrowserOnly,
+@@ -177,6 +178,7 @@
+              FEATURE_DISABLED_BY_DEFAULT
+ #endif
+ );
++SET_CROMITE_FEATURE_ENABLED(kPartitionAllocBackupRefPtr);
+ 
+ constexpr FeatureParam<BackupRefPtrEnabledProcesses>::Option
+     kBackupRefPtrEnabledProcessesOptions[] = {
+@@ -227,6 +229,7 @@
+              FEATURE_DISABLED_BY_DEFAULT
+ #endif
+ );
++SET_CROMITE_FEATURE_DISABLED(kPartitionAllocMemoryTagging);
+ 
+ constexpr FeatureParam<MemtagMode>::Option kMemtagModeOptions[] = {
+     {MemtagMode::kSync, "sync"},

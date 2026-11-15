@@ -1,0 +1,347 @@
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -121,6 +121,7 @@
+ #include "components/enterprise/network_header_injection/core/features.h"
+ #include "components/error_page/common/error_page_switches.h"
+ #include "components/facilitated_payments/core/features/features.h"
++#include "components/favicon/core/favicon_database.h"
+ #include "components/feature_engagement/public/feature_constants.h"
+ #include "components/feature_engagement/public/feature_list.h"
+ #include "components/feed/feed_feature_list.h"
+--- a/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.css
++++ b/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.css
+@@ -54,6 +54,8 @@
+ 
+ #deleteBrowsingDataDialog::part(dialog) {
+   max-height: var(--dbd-dialog-max-height);
++  top: 300px;
++  width: 590px;
+ }
+ 
+ #deletingDataAlert {
+--- a/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.html.ts
++++ b/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.html.ts
+@@ -12,17 +12,24 @@
+     show-on-attach ignore-popstate ignore-enter-key
+     ?hidden="${this.showOtherGoogleDataDialog_}"
+     @cancel="${this.onDialogCancel_}">
+-  <div slot="title" class="dialog-title">$i18n{clearBrowsingData}</div>
++  ${this.clearBrowsingDialogAtClose ? html`
++    <div slot="title" class="dialog-title">$i18n{clearBrowsingDataAtClose}</div>
++  ` : html`
++    <div slot="title" class="dialog-title">$i18n{clearBrowsingData}</div>
++  `}
+   <div slot="header">
+-    <settings-clear-browsing-data-time-picker id="timePicker"
+-        @selected-time-period-change="${this.onSelectedTimePeriodChange_}">
+-    </settings-clear-browsing-data-time-picker>
++    ${!this.clearBrowsingDialogAtClose ? html`
++      <settings-clear-browsing-data-time-picker id="timePicker"
++          @selected-time-period-change="${this.onSelectedTimePeriodChange_}">
++      </settings-clear-browsing-data-time-picker>
++    ` : ''
+   </div>
+   <div slot="body">
+     <div id="checkboxContainer">
+       ${this.expandedBrowsingDataTypeOptionsList_.map(item => html`
+-        <settings-checkbox pref-key="${item.prefKey}" no-set-pref
+-            .subLabelHtml="${item.subLabel || ''}"
++        <settings-checkbox pref-key="${item.prefKey}"
++            ?no-set-pref="${!this.clearBrowsingDialogAtClose}"
++            .subLabelHtml="${this.shouldShowSubLabel_(item.subLabel || '')}"
+             ?disabled="${this.isDeletionInProgress_}"
+             @sub-label-link-clicked="${this.onSubLabelLinkClicked_}">
+           <div class="checkbox-title">${item.label}</div>
+@@ -31,8 +38,9 @@
+       <div id="moreOptionsList">
+         ${this.dataTypesExpanded_ ? html`
+           ${this.moreBrowsingDataTypeOptionsList_.map(item => html`
+-            <settings-checkbox pref-key="${item.prefKey}" no-set-pref
+-                .subLabelHtml="${item.subLabel || ''}"
++            <settings-checkbox pref-key="${item.prefKey}"
++                ?no-set-pref="${!this.clearBrowsingDialogAtClose}"
++                .subLabelHtml="${this.shouldShowSubLabel_(item.subLabel || '')}"
+                 ?disabled="${this.isDeletionInProgress_}"
+                 @sub-label-link-clicked="${this.onSubLabelLinkClicked_}">
+               <div class="checkbox-title">${item.label}</div>
+@@ -48,12 +56,14 @@
+           role="presentation">
+       </cr-icon>
+     </cr-button>
+-    <cr-link-row id="manageOtherGoogleDataRow"
+-        label="${this.computeOtherGoogleDataRowLabel_()}"
+-        sub-label="${this.computeOtherGoogleDataRowSubLabel_()}"
+-        @click="${this.onManageOtherGoogleDataRowClick_}"
+-        role-description="$i18n{subpageArrowRoleDescription}">
+-    </cr-link-row>
++    ${!this.clearBrowsingDialogAtClose ? html`
++      <cr-link-row id="manageOtherGoogleDataRow"
++          label="${this.computeOtherGoogleDataRowLabel_()}"
++          sub-label="${this.computeOtherGoogleDataRowSubLabel_()}"
++          @click="${this.onManageOtherGoogleDataRowClick_}"
++          role-description="$i18n{subpageArrowRoleDescription}">
++      </cr-link-row>
++    ` : ''
+   </div>
+   <div slot="button-container" class="row-aligned">
+ <if expr="not is_chromeos">
+@@ -65,9 +75,10 @@
+     <cr-button id="cancelButton" class="cancel-button"
+         @click="${this.onCancelClick_}"
+         ?disabled="${this.isDeletionInProgress_}" autofocus>
+-      $i18n{cancel}
++      $i18n{close}
+     </cr-button>
+     <cr-button id="deleteButton" class="action-button"
++        ?hidden="${this.clearBrowsingDialogAtClose}"
+         @click="${this.onDeleteBrowsingDataClick_}"
+         ?disabled="${this.shouldDisableDeleteButton_()}">
+       ${this.computeDeleteButtonLabel_()}
+--- a/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.ts
++++ b/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_dialog.ts
+@@ -92,6 +92,16 @@
+ ];
+ 
+ /** The list of Browsing Data types that should be expanded by default. */
++const ALL_BROWSING_DATATYPES_LIST_AT_CLOSE: BrowsingDataType[] = [
++  BrowsingDataType.HISTORY,
++  BrowsingDataType.SITE_DATA,
++  BrowsingDataType.CACHE,
++  BrowsingDataType.DOWNLOADS,
++  BrowsingDataType.FORM_DATA,
++  BrowsingDataType.SITE_SETTINGS,
++  BrowsingDataType.PASSWORDS,
++  BrowsingDataType.HOSTED_APPS_DATA,
++];
+ const DEFAULT_BROWSING_DATATYPES_LIST: BrowsingDataType[] = [
+   BrowsingDataType.HISTORY,
+   BrowsingDataType.SITE_DATA,
+@@ -120,6 +130,8 @@
+       return loadTimeData.getString('clearDownloadHistory');
+     case BrowsingDataType.HOSTED_APPS_DATA:
+       return loadTimeData.getString('clearHostedAppData');
++    case BrowsingDataType.PASSWORDS:
++      return loadTimeData.getString('clearPasswords');
+     case BrowsingDataType.SKILLS:
+       return loadTimeData.getString('clearSkills');
+     default:
+@@ -127,7 +139,30 @@
+   }
+ }
+ 
+-export function getDataTypePrefName(datatypes: BrowsingDataType) {
++export function getDataTypePrefName(
++    datatypes: BrowsingDataType, atclose: boolean = false) {
++  if (atclose) {
++    switch (datatypes) {
++      case BrowsingDataType.HISTORY:
++        return 'browser.clear_data.browsing_history_at_start';
++      case BrowsingDataType.CACHE:
++        return 'browser.clear_data.cache_at_start';
++      case BrowsingDataType.SITE_DATA:
++        return 'browser.clear_data.cookies_at_start';
++      case BrowsingDataType.FORM_DATA:
++        return 'browser.clear_data.form_data_at_start';
++      case BrowsingDataType.SITE_SETTINGS:
++        return 'browser.clear_data.site_settings_at_start';
++      case BrowsingDataType.DOWNLOADS:
++        return 'browser.clear_data.download_history_at_start';
++      case BrowsingDataType.HOSTED_APPS_DATA:
++        return 'browser.clear_data.hosted_apps_data_at_start';
++      case BrowsingDataType.PASSWORDS:
++        return 'browser.clear_data.passwords_at_start';
++      default:
++        assertNotReachedCase(datatypes);
++    }
++  }
+   switch (datatypes) {
+     case BrowsingDataType.HISTORY:
+       return 'browser.clear_data.browsing_history';
+@@ -143,6 +178,8 @@
+       return 'browser.clear_data.download_history';
+     case BrowsingDataType.HOSTED_APPS_DATA:
+       return 'browser.clear_data.hosted_apps_data';
++    case BrowsingDataType.PASSWORDS:
++      return 'browser.clear_data.passwords';
+     case BrowsingDataType.SKILLS:
+       return 'browser.clear_data.skills';
+     default:
+@@ -169,6 +206,11 @@
+ 
+   static override get properties() {
+     return {
++      clearBrowsingDialogAtClose: {
++        type: Boolean,
++        value: false,
++        reflectToAttribute: true,
++      },
+       dataTypesExpanded_: {type: Boolean},
+       deletingDataAlertString_: {type: String},
+       isDeletionInProgress_: {type: Boolean},
+@@ -182,6 +224,7 @@
+     };
+   }
+ 
++  protected accessor clearBrowsingDialogAtClose: boolean = false;
+   protected accessor dataTypesExpanded_: boolean = false;
+   protected accessor deletingDataAlertString_: string = '';
+   protected accessor isDeletionInProgress_: boolean = false;
+@@ -279,7 +322,10 @@
+     const expandedOptionsList: BrowsingDataTypeOption[] = [];
+     const moreOptionsList: BrowsingDataTypeOption[] = [];
+ 
+-    ALL_BROWSING_DATATYPES_LIST.forEach((datatype) => {
++    const list = this.clearBrowsingDialogAtClose ?
++        ALL_BROWSING_DATATYPES_LIST_AT_CLOSE : ALL_BROWSING_DATATYPES_LIST;
++
++    list.forEach((datatype) => {
+       // The Skills data type is only available when the Skills feature is
+       // enabled for this profile.
+       if (datatype === BrowsingDataType.SKILLS &&
+@@ -289,7 +335,7 @@
+ 
+       const datatypeOption: BrowsingDataTypeOption = {
+         label: getDataTypeLabel(datatype),
+-        prefKey: getDataTypePrefName(datatype),
++        prefKey: getDataTypePrefName(datatype, this.clearBrowsingDialogAtClose),
+       };
+ 
+       if (this.shouldDataTypeBeExpanded_(datatype)) {
+@@ -344,8 +390,13 @@
+   private shouldDataTypeBeExpanded_(datatype: BrowsingDataType) {
+     return DEFAULT_BROWSING_DATATYPES_LIST.includes(datatype) ||
+         PrefService.getInstance()
+-            .getPref<boolean>(getDataTypePrefName(datatype))
++            .getPref<boolean>(
++                getDataTypePrefName(datatype, this.clearBrowsingDialogAtClose))
+             .value;
++  }
++
++  private shouldShowSubLabel_(value: string) {
++    return this.clearBrowsingDialogAtClose ? '' : value;
+   }
+ 
+   protected computeDeleteButtonLabel_() {
+--- a/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_time_picker.ts
++++ b/chrome/browser/resources/settings/clear_browsing_data_dialog/clear_browsing_data_time_picker.ts
+@@ -92,19 +92,19 @@
+     };
+   }
+ 
+-  private accessor selectedTimePeriod_: TimePeriod = TimePeriod.LAST_HOUR;
++  private accessor selectedTimePeriod_: TimePeriod = TimePeriod.ALL_TIME;
+ 
+   /**
+    * The list of all available Time Periods ordered by duration in ascending
+    * order.
+    */
+   private allTimePeriodList_: TimePeriod[] = [
++    TimePeriod.ALL_TIME,
+     TimePeriod.LAST_15_MINUTES,
+     TimePeriod.LAST_HOUR,
+     TimePeriod.LAST_DAY,
+     TimePeriod.LAST_WEEK,
+     TimePeriod.FOUR_WEEKS,
+-    TimePeriod.ALL_TIME,
+   ];
+ 
+   /**
+@@ -123,7 +123,7 @@
+    * Maximum number of expanded chips to be shown, this should be less than
+    * or equal to the `allTimePeriodList_.length` and greater than 0.
+    */
+-  private accessor maxChipsShown_: number = 4;
++  private accessor maxChipsShown_: number = 6;
+ 
+   private accessor timePeriodPref_:
+       chrome.settingsPrivate.PrefObject<TimePeriod>|undefined;
+--- a/chrome/browser/resources/settings/privacy_page/privacy_page.html
++++ b/chrome/browser/resources/settings/privacy_page/privacy_page.html
+@@ -1,6 +1,13 @@
+   <settings-section page-title="$i18n{privacyPageTitle}">
+     ${this.showClearBrowsingDataDialog_ ? html`
+       <settings-clear-browsing-data-dialog
++          @close="${this.onCbdDialogClose_}"
++          @browsing-data-deleted="${this.onBrowsingDataDeleted_}">
++      </settings-clear-browsing-data-dialog>
++    ` : ''}
++    ${this.showClearBrowsingAtCloseDataDialog_ ? html`
++      <settings-clear-browsing-data-dialog
++          clear-browsing-dialog-at-close="true"
+           @close="${this.onCbdDialogClose_}"
+           @browsing-data-deleted="${this.onBrowsingDataDeleted_}">
+       </settings-clear-browsing-data-dialog>
+@@ -15,6 +22,11 @@
+         label="$i18n{clearBrowsingData}"
+         sub-label="$i18n{clearBrowsingDataDescription}"
+         @click="${this.onClearBrowsingDataClick_}"></cr-link-row>
++    <cr-link-row id="clearBrowsingDataAtClose"
++        start-icon="cr:delete"
++        label="$i18n{clearBrowsingDataAtClose}"
++        sub-label="$i18n{clearBrowsingDataAtCloseDescription}"
++        @click="${this.onClearBrowsingDataAtCloseClick_}"></cr-link-row>
+     ${this.isPrivacyGuideAvailable ? html`
+       <cr-link-row id="privacyGuideLinkRow" class="hr"
+           start-icon="privacy20:signpost"
+--- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
++++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
+@@ -74,6 +74,7 @@
+   static override get properties() {
+     return {
+       showClearBrowsingDataDialog_: {type: Boolean},
++      showClearBrowsingAtCloseDataDialog_: {type: Boolean},
+       showPrivacyGuideDialog_: {type: Boolean},
+ 
+       // The label of the confirmation toast that is displayed after deletion
+@@ -87,6 +88,7 @@
+   }
+ 
+   protected accessor showClearBrowsingDataDialog_: boolean = false;
++  protected accessor showClearBrowsingAtCloseDataDialog_: boolean = false;
+   protected accessor showPrivacyGuideDialog_: boolean = false;
+   protected accessor dbdDeletionConfirmationToastLabel_: string = '';
+   private accessor showUniversalOptOutSettings_: boolean =
+@@ -109,6 +111,8 @@
+ 
+     this.showClearBrowsingDataDialog_ =
+         Router.getInstance().getCurrentRoute() === routes.CLEAR_BROWSER_DATA;
++    this.showClearBrowsingAtCloseDataDialog_ =
++        Router.getInstance().getCurrentRoute() === routes.CLEAR_BROWSER_DATA_AT_CLOSE;
+     this.showPrivacyGuideDialog_ =
+         Router.getInstance().getCurrentRoute() === routes.PRIVACY_GUIDE &&
+         this.isPrivacyGuideAvailable;
+@@ -118,6 +122,12 @@
+     this.interactedWithPage_();
+ 
+     Router.getInstance().navigateTo(routes.CLEAR_BROWSER_DATA);
++  }
++
++  protected onClearBrowsingDataAtCloseClick_() {
++    this.interactedWithPage_();
++
++    Router.getInstance().navigateTo(routes.CLEAR_BROWSER_DATA_AT_CLOSE);
+   }
+ 
+   protected onCookiesClick_() {
+--- a/components/browsing_data/core/BUILD.gn
++++ b/components/browsing_data/core/BUILD.gn
+@@ -62,6 +62,11 @@
+     sources = [ "browsing_data_utils.h" ]
+   }
+ 
++  java_cpp_enum("clear_browsing_data_tab_javagen") {
++    visibility = [ ":*" ]
++    sources = [ "clear_browsing_data_tab.h" ]
++  }
++
+   java_cpp_enum("cookie_or_cache_deletion_choice_javagen") {
+     # External code should depend on ":java" instead.
+     visibility = [ ":*" ]
+@@ -71,6 +76,7 @@
+   android_library("java") {
+     srcjar_deps = [
+       ":browsing_data_utils_javagen",
++      ":clear_browsing_data_tab_javagen",
+       ":cookie_or_cache_deletion_choice_javagen",
+     ]
+     deps = [ "//third_party/androidx:androidx_annotation_annotation_java" ]

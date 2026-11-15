@@ -1,0 +1,29 @@
+--- a/chrome/browser/resources/new_tab_page/app.html
++++ b/chrome/browser/resources/new_tab_page/app.html
+@@ -44,25 +44,5 @@
+       <div id="searchboxContainer"
+           @focusin="${this.onSearchboxContainerFocusin_}"
+           @focusout="${this.onSearchboxContainerFocusout_}">
+-        <ntp-searchbox id="searchbox" ?is-dark="${this.isThemeDark_()}"
+-            placeholder-text="$i18n{searchBoxPlaceholder}"
+-            ?color-source-is-baseline="${this.colorSourceIsBaseline}"
+-            @open-composebox="${this.onOpenComposebox_}"
+-            @open-lens-search="${this.onOpenLensSearch_}"
+-            @open-voice-search="${this.onOpenVoiceSearch_}" ?shown="${this.realboxShown_}"
+-            @context-menu-entrypoint-click="${this.onContextMenuEntrypointClick_}"
+-            ?can-show-secondary-side="${this.realboxCanShowSecondarySide}"
+-            ?compose-button-enabled="${this.composeButtonEnabled}"
+-            ?composebox-enabled="${this.composeboxEnabled}"
+-            .hasVoiceSearchError="${this.hasVoiceSearchError}"
+-            searchbox-layout-mode="${this.ntpRealboxNextEnabled_ ? 'Compact' : ''}"
+-            .inVoiceSearchMode="${this.showVoiceSearchOverlay_}"
+-            ?ntp-realbox-next-enabled="${this.ntpRealboxNextEnabled_}"
+-            ?cycling-placeholders="${this.searchboxCyclingPlaceholders_}"
+-            context-menu-glif-animation-state="${this.contextMenuGlifAnimationState_}"
+-            .energyEffectAnimationEnabled="${this.energyEffectAnimationEnabled_}"
+-            .contextManagementInComposeboxEnabled="${this.contextManagementInComposeboxEnabled_}"
+-            ?multi-line-enabled="${this.multiLineEnabled_}"
+-            ?inert="${!this.realboxShown_}">
+-        </ntp-searchbox>
++        <div id="searchbox"></div>
+         <div id="dialogAnchor"></div>

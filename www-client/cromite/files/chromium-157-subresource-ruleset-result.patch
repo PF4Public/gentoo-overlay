@@ -1,0 +1,10 @@
+--- a/components/subresource_filter/content/browser/ruleset_service.cc
++++ b/components/subresource_filter/content/browser/ruleset_service.cc
+@@ -52,6 +52,5 @@
+ void RecordIndexAndWriteRulesetResult(
+     std::string_view uma_tag,
+     RulesetService::IndexAndWriteRulesetResult result) {
+-  base::UmaHistogramEnumeration(
+-      base::StrCat({uma_tag, ".WriteRuleset.Result"}), result);
++  VLOG(1) << "SubresourceFilter.WriteRuleset.Result: " << static_cast<int>(result);
+ }

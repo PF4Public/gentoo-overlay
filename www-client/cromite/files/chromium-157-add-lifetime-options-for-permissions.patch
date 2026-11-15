@@ -1,0 +1,84 @@
+--- a/chrome/browser/permissions/one_time_permissions_tracker.cc
++++ b/chrome/browser/permissions/one_time_permissions_tracker.cc
+@@ -23,6 +23,9 @@
+ #include "components/permissions/permission_util.h"
+ #include "content/public/browser/visibility.h"
+ #include "url/gurl.h"
++#include "components/content_settings/core/browser/host_content_settings_map.h"
++#include "components/content_settings/core/common/content_settings_utils.h"
++#include "components/permissions/permissions_client.h"
+ 
+ namespace {
+ 
+@@ -38,9 +41,29 @@ class MultipleTrackerCondition : public OneTimePermissionsTracker::Condition {
+   std::array<scoped_refptr<OneTimePermissionsConditionTracker>, size> trackers_;
+ };
+ 
++// Remove all sessions content setting by origin and type
++void RemoveSessionSettings(HostContentSettingsMap* content_settings,
++                           const url::Origin& origin,
++                           ContentSettingsType type) {
++  ContentSettingsForOneType session_settings =
++      content_settings->GetSettingsForOneType(
++          type, content_settings::mojom::SessionModel::USER_SESSION);
++
++  GURL url = origin.GetURL();
++  for (ContentSettingPatternSource& entry : session_settings) {
++    if (content_settings::IsConstraintSessionExpiration(
++            entry, content_settings::mojom::LifetimeMode::UNTIL_ORIGIN_CLOSED) &&
++        entry.primary_pattern.Matches(url)) {
++      content_settings->SetWebsiteSettingCustomScope(
++          entry.primary_pattern, entry.secondary_pattern, type, base::Value());
++    }
++  }
++}
++
+ }  // namespace
+ 
+-OneTimePermissionsTracker::OneTimePermissionsTracker() {
++OneTimePermissionsTracker::OneTimePermissionsTracker(content::BrowserContext* context)
++    : context_(context) {
+   active_page_tracker_factory_ =
+       std::make_unique<OneTimePermissionsConditionTracker::Factory>(
+           base::BindRepeating(
+@@ -144,6 +167,12 @@ void OneTimePermissionsTracker::NotifyLastPageFromOriginClosed(
+   for (auto& observer : observer_list_) {
+     observer.OnLastPageFromOriginClosed(origin);
+   }
++  HostContentSettingsMap* content_settings =
++          permissions::PermissionsClient::Get()->GetSettingsMap(context_);
++  RemoveSessionSettings(content_settings, origin, ContentSettingsType::GEOLOCATION);
++  RemoveSessionSettings(content_settings, origin, ContentSettingsType::GEOLOCATION_WITH_OPTIONS);
++  RemoveSessionSettings(content_settings, origin, ContentSettingsType::MEDIASTREAM_MIC);
++  RemoveSessionSettings(content_settings, origin, ContentSettingsType::MEDIASTREAM_CAMERA);
+ }
+ 
+ void OneTimePermissionsTracker::NotifyBackgroundTimerExpired(
+--- a/chrome/browser/permissions/one_time_permissions_tracker.h
++++ b/chrome/browser/permissions/one_time_permissions_tracker.h
+@@ -15,6 +15,7 @@
+ #include "base/timer/timer.h"
+ #include "chrome/browser/permissions/one_time_permissions_condition_tracker.h"
+ #include "chrome/browser/permissions/one_time_permissions_tracker_observer.h"
++#include "chrome/browser/profiles/profile.h"
+ #include "components/content_settings/core/common/content_settings_pattern.h"
+ #include "components/content_settings/core/common/content_settings_types.h"
+ #include "components/keyed_service/core/keyed_service.h"
+@@ -31,7 +32,7 @@ class OneTimePermissionsTracker : public KeyedService {
+       void (OneTimePermissionsTracker::*)(const url::Origin&);
+ 
+  public:
+-  OneTimePermissionsTracker();
++  OneTimePermissionsTracker(content::BrowserContext* context);
+   ~OneTimePermissionsTracker() override;
+ 
+   OneTimePermissionsTracker(const OneTimePermissionsTracker&) = delete;
+@@ -83,7 +84,7 @@ class OneTimePermissionsTracker : public KeyedService {
+       video_capturing_tracker_factory_;
+   std::unique_ptr<OneTimePermissionsConditionTracker::Factory>
+       audio_capturing_tracker_factory_;
+-
++  raw_ptr<content::BrowserContext> context_;
+   base::WeakPtrFactory<OneTimePermissionsTracker> weak_factory_{this};
+ };
+ 

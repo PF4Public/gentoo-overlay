@@ -1,0 +1,26 @@
+--- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.h
++++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.h
+@@ -108,6 +108,7 @@
+   AiModeButtonService* GetAiModeButtonService() const override;
+ 
+   bool IsOffTheRecord() const override;
++  bool IsAlwaysIncognitoEnabled() const override;
+   bool IsPrimaryOTRProfileWithRegularParent() const override;
+   bool IsIncognitoProfile() const override;
+   bool IsGuestSession() const override;
+--- a/chrome/browser/offline_pages/recent_tab_helper.cc
++++ b/chrome/browser/offline_pages/recent_tab_helper.cc
+@@ -416,11 +416,12 @@
+         downloads_latest_saved_snapshot_info_->request_id,
+         downloads_latest_saved_snapshot_info_->origin);
+     std::vector<int64_t> ids{downloads_latest_saved_snapshot_info_->request_id};
+-    ContinueSnapshotWithIdsToPurge(downloads_ongoing_snapshot_info_.get(), ids);
++    ContinueSnapshotWithIdsToPurge(downloads_ongoing_snapshot_info_.get(), /*user_requested*/ true, ids);
+   } else {
+     // Otherwise go straight to saving the page.
+     CHECK(downloads_ongoing_snapshot_info_, base::NotFatalUntil::M161);
+     ContinueSnapshotAfterPurge(downloads_ongoing_snapshot_info_.get(),
++                               /*user_requested*/ true,
+                                OfflinePageModel::DeletePageResult::SUCCESS);
+   }
+ }

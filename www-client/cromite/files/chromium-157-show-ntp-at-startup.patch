@@ -1,0 +1,31 @@
+--- a/chrome/browser/ui/tabs/tab_strip_model.cc
++++ b/chrome/browser/ui/tabs/tab_strip_model.cc
+@@ -5915,11 +5915,27 @@
+ 
+     // Third preference is the block's opener.
+     for (size_t i = block_tabs.start(); i < block_tabs.end(); ++i) {
+-      tabs::TabInterface* opener = GetTabModelAtIndex(i)->opener();
++      tabs::TabModel* tab = GetTabModelAtIndex(i);
++      tabs::TabInterface* opener = tab->opener();
+       int opener_index = opener ? GetIndexOfTab(opener) : kNoTab;
+       if (opener_index != kNoTab &&
+           !block_tabs.Contains(gfx::Range(opener_index)) &&
+           is_eligible(opener_index)) {
++
++        tabs::TabInterface* tab_interface = tab;
++        const tabs::TabCollection* parent = tab_interface ? tab_interface->GetParentCollection() : nullptr;
++
++        bool is_detached_root_tab = parent &&
++                                    parent->type() != tabs::TabCollection::Type::GROUP &&
++                                    parent->type() != tabs::TabCollection::Type::SPLIT;
++
++        if (opener_index == 0 && is_detached_root_tab) {
++          if (block_tabs.start() > 0) {
++            int left_tab_index = static_cast<int>(block_tabs.start()) - 1;
++            return GetTabIndexAfterClosing(left_tab_index, block_tabs);
++          }
++        }
++
+         return GetTabIndexAfterClosing(opener_index, block_tabs);
+       }
+     }

@@ -1,0 +1,80 @@
+--- a/chrome/browser/profiles/BUILD.gn
++++ b/chrome/browser/profiles/BUILD.gn
+@@ -433,6 +433,9 @@ source_set("profile") {
+     "//content/public/browser",
+     "//extensions/buildflags",
+   ]
++  if (is_android) {
++    deps += [ "//components/user_scripts/browser" ]
++  }
+   if (enable_extensions_core) {
+     deps += [ "//extensions/browser" ]
+   }
+--- a/chrome/browser/profiles/profile_manager.cc
++++ b/chrome/browser/profiles/profile_manager.cc
+@@ -1562,6 +1562,13 @@ void ProfileManager::DoFinalInitForServices(Profile* profile,
+ 
+   TRACE_EVENT0("browser", "ProfileManager::DoFinalInitForServices");
+ 
++#if BUILDFLAG(IS_ANDROID)
++  user_scripts::UserScriptsBrowserClient* userscript_client =
++      user_scripts::UserScriptsBrowserClient::GetInstance();
++  if (userscript_client) {
++    userscript_client->SetProfile(profile);
++  }
++#endif
+ #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
+   bool extensions_enabled = !go_off_the_record;
+ #if BUILDFLAG(IS_CHROMEOS)
+--- a/chrome/browser/profiles/renderer_updater.cc
++++ b/chrome/browser/profiles/renderer_updater.cc
+@@ -96,6 +96,12 @@ RendererUpdater::RendererUpdater(Profile* profile)
+       prefs::kAllowedDomainsForApps,
+       base::BindRepeating(&RendererUpdater::UpdateAllRenderers,
+                           base::Unretained(this)));
++#if BUILDFLAG(IS_ANDROID)
++  pref_change_registrar_.Add(
++      user_scripts::prefs::kUserScriptsEnabled,
++      base::BindRepeating(&RendererUpdater::UpdateAllRenderers,
++                          base::Unretained(this)));
++#endif
+ 
+ #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+   if (auto* platform_runtime_host =
+@@ -249,7 +255,12 @@ chrome::mojom::DynamicParamsPtr RendererUpdater::CreateRendererDynamicParams()
+       GetBoundSessionThrottlerParams(),
+ #endif
+       force_google_safesearch_.GetValue(), force_youtube_restrict_.GetValue(),
+-      allowed_domains_for_apps_.GetValue()
++      allowed_domains_for_apps_.GetValue(),
++#if BUILDFLAG(IS_ANDROID)
++      activate_userscripts_.GetValue()
++#else
++      false
++#endif
+ #if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+           ,
+       GetPlatformRuntimeHeaders()
+--- a/chrome/browser/ui/webui/chrome_web_ui_configs.cc
++++ b/chrome/browser/ui/webui/chrome_web_ui_configs.cc
+@@ -49,6 +49,10 @@
+ #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.h"
+ #include "chrome/browser/ui/webui/policy/policy_ui.h"
+ #include "chrome/browser/ui/webui/predictors/predictors_ui.h"
++
++#if BUILDFLAG(IS_ANDROID)
++#include "components/user_scripts/browser/ui/user_scripts_ui.h"
++#endif
+ #include "chrome/browser/ui/webui/regional_capabilities_internals/regional_capabilities_internals_ui.h"
+ #include "chrome/browser/ui/webui/saved_tab_groups_unsupported/saved_tab_groups_unsupported_ui.h"
+ #include "chrome/browser/ui/webui/segmentation_internals/segmentation_internals_ui.h"
+--- a/chrome/common/renderer_configuration.mojom
++++ b/chrome/common/renderer_configuration.mojom
+@@ -33,6 +33,7 @@ struct DynamicParams {
+   bool force_safe_search = true;
+   int32 youtube_restrict = 0;
+   string allowed_domains_for_apps;
++  bool allow_userscript = false;
+ 
+   // Request headers produced by the Platform Runtime library. Empty until the
+   // browser has a value.

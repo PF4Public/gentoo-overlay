@@ -1,0 +1,17 @@
+--- a/third_party/blink/renderer/core/frame/navigator_ua_data.cc
++++ b/third_party/blink/renderer/core/frame/navigator_ua_data.cc
+@@ -68,4 +68,8 @@
+ void NavigatorUAData::SetFullVersionList(
+     const UserAgentBrandList& full_version_list) {
+-  AppendBrandVersions(full_version_list, full_version_list_);
++  for (const auto& brand_version : full_version_list) {
++    full_version_list_.push_back(
++        MakeBrandVersion(String::FromUtf8(brand_version.brand),
++                         GetReducedVersionNumber(brand_version.version)));
++  }
+ }
+@@ -90,3 +94,3 @@
+ void NavigatorUAData::SetUAFullVersion(String ua_full_version) {
+-  ua_full_version_ = std::move(ua_full_version);
++  ua_full_version_ = GetReducedVersionNumber(ua_full_version.Ascii());
+ }

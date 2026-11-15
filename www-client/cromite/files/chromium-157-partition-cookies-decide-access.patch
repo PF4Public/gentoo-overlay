@@ -1,0 +1,35 @@
+--- a/components/content_settings/core/common/cookie_settings_base.cc
++++ b/components/content_settings/core/common/cookie_settings_base.cc
+@@ -405,32 +405,11 @@
+         ThirdPartyCookieAllowMechanism::kAllowByGlobalSetting};
+   }
+ 
+-  if (IsThirdPartyCookiesAllowedScheme(first_party_url.GetScheme())) {
+-    return AllowAllCookies{ThirdPartyCookieAllowMechanism::kAllowByScheme};
+-  }
+-
+-  // Site controlled mechanisms (ex: web APIs, deprecation trial):
+-  if (IsAllowedByTopLevelStorageAccessGrant(url, first_party_url, overrides)) {
+-    return AllowAllCookies{
+-        ThirdPartyCookieAllowMechanism::kAllowByTopLevelStorageAccess,
+-    };
+-  }
+   if (IsAllowedByStorageAccessGrant(url, first_party_url, overrides)) {
+     return AllowAllCookies{
+         ThirdPartyCookieAllowMechanism::kAllowByStorageAccess,
+     };
+   }
+-  if (IsAllowedBySandboxValue(url, first_party_url, overrides)) {
+-    return AllowAllCookies{
+-        ThirdPartyCookieAllowMechanism::kAllowBySandboxValue};
+-  }
+-
+-  // Enterprise Policies:
+-  if (is_explicit_setting && setting_info.source == SettingSource::kPolicy) {
+-    return AllowAllCookies{ThirdPartyCookieAllowMechanism::
+-                               kAllowByEnterprisePolicyCookieAllowedForUrls};
+-  }
+-
+   if (is_explicit_setting) {
+     return AllowAllCookies{
+         ThirdPartyCookieAllowMechanism::kAllowByExplicitSetting};

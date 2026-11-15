@@ -1,0 +1,12 @@
+--- a/chrome/browser/push_messaging/push_messaging_service_factory.cc
++++ b/chrome/browser/push_messaging/push_messaging_service_factory.cc
+@@ -28,8 +28,7 @@
+ // static
+ PushMessagingServiceImpl* PushMessagingServiceFactory::GetForProfile(
+     content::BrowserContext* context) {
+-  return static_cast<PushMessagingServiceImpl*>(
+-      GetInstance()->GetServiceForBrowserContext(context, true));
++  return nullptr;
+ }
+ 
+ // static

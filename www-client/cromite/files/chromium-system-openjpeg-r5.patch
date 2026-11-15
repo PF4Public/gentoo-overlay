@@ -1,0 +1,35 @@
+description: build using system openjpeg
+author: Michael Gilbert <mgilbert@debian.org>
+
+--- a/third_party/pdfium/BUILD.gn
++++ b/third_party/pdfium/BUILD.gn
+@@ -19,7 +19,7 @@ config("pdfium_common_config") {
+   cflags = []
+   cflags_cc = []
+   ldflags = []
+-  include_dirs = [ "." ]
++  include_dirs = [ ".", "/usr/include/openjpeg-2.4", "/usr/include/openjpeg-2.5" ]
+   inputs = [ "unsafe_buffers_paths.txt" ]
+   defines = []
+ 
+--- a/third_party/pdfium/core/fpdfapi/render/BUILD.gn
++++ b/third_party/pdfium/core/fpdfapi/render/BUILD.gn
+@@ -45,6 +45,7 @@ source_set("render") {
+     "../parser",
+   ]
+   deps = [
++    "../../../third_party:libopenjpeg2",
+     "../../../constants",
+     "../../fxcodec",
+     "../font",
+--- a/third_party/pdfium/core/fxcodec/jpx/cjpx_decoder.h
++++ b/third_party/pdfium/core/fxcodec/jpx/cjpx_decoder.h
+@@ -14,7 +14,7 @@
+ #include "core/fxcrt/raw_span.h"
+ #include "core/fxcrt/span.h"
+ 
+-#if defined(USE_SYSTEM_LIBOPENJPEG2)
++#if 1
+ #include <openjpeg.h>
+ #else
+ #include "third_party/libopenjpeg/openjpeg.h"

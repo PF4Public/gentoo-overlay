@@ -1,0 +1,26 @@
+--- a/components/embedder_support/content_settings_utils.cc
++++ b/components/embedder_support/content_settings_utils.cc
+@@ -78,6 +78,11 @@
+       scope, site_for_cookies, top_frame_origin, net::CookieSettingOverrides(),
+       storage_key.ToCookiePartitionKey());
+ 
++  if (!allow_cookies && (!top_frame_origin.has_value()
++        || !top_frame_origin->IsSameOriginWith(scope))) {
++    return content::AllowServiceWorkerResult::No();
++  }
++
+   return content::AllowServiceWorkerResult::FromPolicy(!allow_javascript,
+                                                        !allow_cookies);
+ }
+@@ -96,6 +101,11 @@
+       worker_url, site_for_cookies, top_frame_origin,
+       net::CookieSettingOverrides(), storage_key.ToCookiePartitionKey());
+ 
++  if (!allow && (!top_frame_origin.has_value()
++        || !top_frame_origin->IsSameOriginWith(worker_url))) {
++    return false;
++  }
++
+   content_settings::PageSpecificContentSettings::SharedWorkerAccessed(
+       render_process_id, render_frame_id, worker_url, name, storage_key,
+       same_site_cookies, !allow);

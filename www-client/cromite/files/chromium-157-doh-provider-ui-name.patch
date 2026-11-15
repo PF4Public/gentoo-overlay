@@ -1,0 +1,11 @@
+--- a/chrome/browser/net/secure_dns_util.cc
++++ b/chrome/browser/net/secure_dns_util.cc
+@@ -35,7 +35,7 @@
+         return country_codes::CountryId(country_code) == country_id;
+       });
+   if (matches) {
+-    CHECK(!entry->ui_name.empty(), base::NotFatalUntil::M161);
++    CHECK(!entry->ui_name_cromite.empty(), base::NotFatalUntil::M161);
+     CHECK(!entry->privacy_policy.empty(), base::NotFatalUntil::M161);
+   }
+   return matches;

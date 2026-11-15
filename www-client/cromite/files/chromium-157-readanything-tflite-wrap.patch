@@ -1,0 +1,9 @@
+--- a/chrome/renderer/accessibility/read_anything/read_anything_app_controller.cc
++++ b/chrome/renderer/accessibility/read_anything/read_anything_app_controller.cc
+@@ -2668,4 +2668,6 @@
+ void ReadAnythingAppController::PreprocessTextForSpeech() {
++#if false /*BUILDFLAG(BUILD_WITH_TFLITE_LIB)*/
+   read_aloud_model_.PreprocessTextForSpeech(IsPdf(), model_.IsDocs(),
+                                             model_.GetCurrentlyVisibleNodes());
++#endif
+ }

@@ -1,0 +1,56 @@
+--- a/content/browser/renderer_host/render_frame_host_impl.cc
++++ b/content/browser/renderer_host/render_frame_host_impl.cc
+@@ -15154,6 +15154,16 @@ void RenderFrameHostImpl::BindTrustTokenQueryAnswerer(
+     return;
+   }
+ 
++  // flags are enforced in benign renderers by the
++  // RuntimeEnabled=PrivateStateTokens IDL attribute (the base::Feature's value
++  // is tied to the RuntimeEnabledFeature's).
++  if ((true)) {
++    mojo::ReportBadMessage(
++        "Attempted to get a TrustTokenQueryAnswerer with Private State Tokens "
++        "disabled.");
++    return;
++  }
++
+   // TODO(crbug.com/40729410): Document.hasPrivateToken is restricted to
+   // secure contexts, so we could additionally add a check verifying that the
+   // bind request "is coming from a secure context"---but there's currently no
+--- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
++++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
+@@ -768,8 +768,8 @@
+       status: "stable",
+     },
+     {
+-      name: "AttributionReporting",
+-      status: "stable",
++      name: "AttributionReporting", // keep disabled
++      status: "experimental",       // keep disabled
+       base_feature: "none",
+       public: true,
+     },
+@@ -5193,8 +5193,8 @@
+       base_feature: "none",
+     },
+     {
+-      name: "PrivateStateTokens",
+-      status: "stable",
++      name: "PrivateStateTokens", // disabled
++      status: "experimental",     // by default
+       base_feature: "none",
+       public: true,
+     },
+@@ -6737,10 +6737,10 @@
+       status: "experimental",
+     },
+     {
+-      name: "TopicsAPI",
++      name: "TopicsAPI",       // keep disabled
+       base_feature: "none",
+       public: true,
+-      status: "stable",
++      status: "experimental",  // keep disabled
+     },
+     // This feature allows touch dragging and a context menu to occur
+     // simultaneously, with the assumption that the menu is non-modal.  Without

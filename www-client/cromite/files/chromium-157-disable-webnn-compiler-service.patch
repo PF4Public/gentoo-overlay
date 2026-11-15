@@ -1,0 +1,7 @@
+--- a/content/utility/services.cc
++++ b/content/utility/services.cc
+@@ -413,3 +413,3 @@
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+-  services.Add(RunWebNNCompilerService);
++  // services.Add(RunWebNNCompilerService);
+ #endif
