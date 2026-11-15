@@ -1091,6 +1091,19 @@ src_prepare() {
 		["revert_enable_crel_for_arm32_targets.patch"]="due to... reasons..."
 		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
 		["desktop_media_list.patch"]="due to... reasons..."
+		["handle_deferred_writepixels_failure.patch"]="doesn't apply"
+		["cherry-pick-f311246998aa.patch"]="doesn't apply"
+		["reland_parser_only_classify_arrow_parameters_and_set_initializers.patch"]="doesn't apply"
+		["defer_debugger_break_in_optimized_wasm_frames.patch"]="doesn't apply"
+		["cherry-pick-c2129805543e.patch"]="doesn't apply"
+		["gpu_check_graphics_reset_status_before_delivering_readback_results.patch"]="doesn't apply"
+		["cachestorage_treat_opaque_responses_as_credentialed_for_corp.patch"]="doesn't apply"
+		["apply_check_graphics_reset_status_after_readback_to_all_mali_gpus.patch"]="doesn't apply"
+		["cherry-pick-1547936923aa.patch"]="doesn't apply"
+		["cherry-pick-9f85e246754e.patch"]="doesn't apply"
+		["cherry-pick-55fb677befdd.patch"]="doesn't apply"
+		["cherry-pick-856bdd2ab3f0.patch"]="doesn't apply"
+		["cherry-pick-f6ac76278f27.patch"]="doesn't apply"
 		# ["cherry-pick-5902d1aa722a.patch"]="no files to patch"
 		# ["cherry-pick-b173791bf402.patch"]="already applied"
 	)
@@ -1151,8 +1164,9 @@ src_prepare() {
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
-				--exclude="*/__config_site" --exclude="test/mjsunit/mjsunit.status" \
-				--exclude="test/mjsunit/es6/classes-subclass-builtins.js" \
+				--exclude="*/__config_site" --exclude="test/mjsunit/*" \
+				--exclude="*_unittest.cc" --exclude="*_test.cc" \
+				--exclude="chrome/android/*" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
