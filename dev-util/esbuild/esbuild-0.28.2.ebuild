@@ -12,7 +12,7 @@ SRC_URI="https://github.com/evanw/esbuild/archive/v${PV}.tar.gz -> ${P}.tar.gz
 
 LICENSE="BSD MIT"
 SLOT="${PV}"
-KEYWORDS="~amd64 ~arm64"
+KEYWORDS="amd64 ~arm64"
 
 RESTRICT="test" # tests require more work, but chromium needs esbuild already.
 
