@@ -1006,6 +1006,12 @@ src_prepare() {
 		["electron/patches/dawn"]="third_party/dawn"
 		# ["electron/patches/pdfium"]="third_party/pdfium"
 	)
+	ung_exclude=()
+	if use ungoogled; then
+		ung_exclude=(--exclude="*_unittest.cc" --exclude="*browsertest.cc" \
+			--exclude="front_end/models/persistence/NetworkPersistenceManager.test.ts" \
+			--exclude="front_end/models/persistence/NetworkPersistenceManager.ts")
+	fi
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
@@ -1099,7 +1105,12 @@ src_prepare() {
 				continue;
 			fi
 			if [ "$i" = "sysroot.patch" ] ||
-				[ "$i" = "build_disable_print_content_analysis.patch" ]; then
+				[ "$i" = "build_disable_print_content_analysis.patch" ] ||
+				[ "$i" = "cherry-pick-6a2ce41c631e.patch" ] ||
+				[ "$i" = "cherry-pick-baeba815b067.patch" ] ||
+				[ "$i" = "cherry-pick-32d4f02a0016.patch" ] ||
+				[ "$i" = "cherry-pick-c2153bf24a44.patch" ] ||
+				[ "$i" = "cherry-pick-6c25c4672f7e.patch" ]; then
 				if use ungoogled; then
 					ewarn "Skipping ${i} due to ungoogled."
 					continue;
@@ -1124,7 +1135,7 @@ src_prepare() {
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="test/mjsunit/*" \
 				--exclude="test/inspector/*" --exclude="chrome/android/*" \
-				--exclude="chromecast/*" \
+				--exclude="chromecast/*" "${ung_exclude[@]}" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
