@@ -9,7 +9,8 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/voidmind-io/voidllm.git"
 else
-	SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		https://github.com/PF4Public/gentoo-overlay/releases/download/voidllm/${PV}/${P}-vendor.tar.xz"
 	KEYWORDS="amd64 ~arm64"
 fi
 
@@ -47,8 +48,9 @@ src_unpack() {
 		git-r3_src_unpack
 		go-module_live_vendor
 	else
-		# vendor must exist before go-module_src_unpack, or it runs `go mod verify` (network)
-		tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
+		# the vendored Go modules (the gentoo-overlay release distfile) must
+		# exist before go-module_src_unpack, or it runs `go mod verify` (network)
+		tar -xJf "${DISTDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
 		go-module_src_unpack
 	fi
 }
