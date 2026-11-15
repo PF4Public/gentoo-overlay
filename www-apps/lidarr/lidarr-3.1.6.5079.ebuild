@@ -286,7 +286,7 @@ DESCRIPTION="Lidarr is a music collection manager for usenet and bit-torrent use
 HOMEPAGE="https://lidarr.video"
 SRC_URI="
 	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	${P}-deps.tar.xz
+	https://github.com/PF4Public/gentoo-overlay/releases/download/lidarr/${PV}/${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 

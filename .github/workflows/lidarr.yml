@@ -88,17 +88,11 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          # the vendored UI node_modules tarball is a build input kept in
-          # files/ (the ebuild unpacks it from there; it is not a distfile)
-          shopt -s nullglob
-          deps=("$GITHUB_WORKSPACE"/www-apps/lidarr/files/*-deps.tar.xz)
-          if (( ${#deps[@]} == 0 )); then
-            echo "::error::no -deps.tar.xz in files/, missing build input" >&2
-            exit 1
-          fi
           # getbinpkg pulls the (stable) dependencies from the binhost, the
           # atom itself is built from source; the nupkgs come from the
-          # nuget.org + Azure feeds named in the ebuild (RESTRICT has no "fetch")
+          # nuget.org + Azure feeds and the UI deps tarball from the
+          # gentoo-overlay release, all named in the ebuild (RESTRICT has
+          # no "fetch")
           rc=0
           docker exec gentoo \
             emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 \
