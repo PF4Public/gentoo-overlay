@@ -8,6 +8,7 @@ inherit edo ninja-utils python-any-r1 toolchain-funcs
 
 DESCRIPTION="GN is a meta-build system that generates build files for Ninja"
 HOMEPAGE="https://gn.googlesource.com/"
+SRC_URI="https://github.com/PF4Public/gentoo-overlay/releases/download/gn/${PV}/${P}.tar.xz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -27,9 +28,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	# The distfile is kept in ${FILESDIR} because deps.gentoo.zip is not
-	# publicly fetchable
-	tar -xJf "${FILESDIR}/${P}.tar.xz" -C "${WORKDIR}"
+	# the source (built from the unfetchable deps.gentoo.zip) is published
+	# as the gentoo-overlay release distfile
+	tar -xJf "${DISTDIR}/${P}.tar.xz" -C "${WORKDIR}"
 }
 
 src_configure() {

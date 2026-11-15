@@ -4,4 +4,8 @@
 	<maintainer type="person">
 		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
+	<upstream>
+		<remote-id type="github">google/gn</remote-id>
+		<doc>https://gn.googlesource.com/chromium/gn</doc>
+	</upstream>
 </pkgmetadata>
