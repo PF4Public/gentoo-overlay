@@ -573,11 +573,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add www-client/ungoogled-chromium-bin/
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
           git commit -m "www-client/ungoogled-chromium-bin: ${{ needs.resolve.outputs.pv }}"
           git push origin HEAD:master || {
             git pull --rebase origin master
             git push origin HEAD:master
           }
+          # pushes by github-actions[bot] do not trigger workflows, so the
+          # -bin package's CI run is started explicitly, at the bump commit
+          GH_TOKEN="$GITHUB_TOKEN" gh workflow run ungoogled-chromium-bin.yml \
+            --ref "$(git rev-parse HEAD)" -f ebuild="www-client/ungoogled-chromium-bin/ungoogled-chromium-bin-${{ needs.resolve.outputs.pv }}.ebuild"
 
   dump-failures:
     needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]

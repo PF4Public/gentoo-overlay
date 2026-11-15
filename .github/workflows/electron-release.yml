@@ -583,13 +583,21 @@ jobs:
           fi
 
           git add "$dir"
-          git diff --cached --quiet || git commit -m "dev-util/electron-bin: ${pv}"
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "dev-util/electron-bin: ${pv}"
           git push origin HEAD:master || {
             # master moved again between the fetch and the push
             git fetch origin master
             git rebase origin/master
             git push origin HEAD:master
           }
+          # pushes by github-actions[bot] do not trigger workflows, so the
+          # -bin package's CI run is started explicitly, at the bump commit
+          GH_TOKEN="$GITHUB_TOKEN" gh workflow run "${pn}-bin.yml" \
+            --ref "$(git rev-parse HEAD)" -f ebuild="${dir}/${pn}-${pv}.ebuild"
 
   dump-failures:
     needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]

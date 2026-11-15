@@ -10,6 +10,12 @@ on:
     paths:
     - 'www-client/ungoogled-chromium-bin/*.ebuild'
     - 'www-client/ungoogled-chromium-bin/files/**'
+  workflow_dispatch:
+    inputs:
+      ebuild:
+        description: Ebuild to build (default: newest)
+        required: false
+        default: ''
 
 jobs:
   filter:
@@ -24,9 +30,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Select ebuild
+        id: select
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          # a dispatched run has no event diff for changed-files to work on,
+          # so the ebuild to build is given explicitly (or the newest one)
+          e="${{ github.event.inputs.ebuild }}"
+          [[ -n "$e" ]] || e=$(ls www-client/ungoogled-chromium-bin/*.ebuild | sort -V | tail -1)
+          echo "ebuilds=$e" >> "$GITHUB_OUTPUT"
+
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ steps.select.outputs.ebuilds }}
 
   default:
     needs: filter
