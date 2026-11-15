@@ -1113,6 +1113,9 @@ src_prepare() {
 			["build_disable_print_content_analysis.patch"]="due to ungoogled."
 			["cherry-pick-6a2ce41c631e.patch"]="due to ungoogled."
 			["cherry-pick-2ed13d0826b0.patch"]="due to ungoogled."
+			["cherry-pick-1138e496a919.patch"]="due to ungoogled."
+			["cherry-pick-ccf9bb2b18e5.patch"]="due to ungoogled."
+			["run_after-write_checks_after_popup_teardown.patch"]="due to ungoogled."
 		)
 	fi
 	declare -A patches=(
@@ -1131,6 +1134,10 @@ src_prepare() {
 		["electron/patches/libyuv"]="third_party/libyuv"
 		["electron/patches/skia"]="third_party/skia"
 	)
+	ung_exclude=()
+	if use ungoogled; then
+		ung_exclude=(--exclude="*browsertest.cc")
+	fi
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
@@ -1166,7 +1173,7 @@ src_prepare() {
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="test/mjsunit/*" \
 				--exclude="*_unittest.cc" --exclude="*_test.cc" \
-				--exclude="chrome/android/*" \
+				--exclude="chrome/android/*" "${ung_exclude[@]}" \
 				-p1 "${S}/${patch_folder}/$i"
 			# eend $? || die
 			popd > /dev/null || die
