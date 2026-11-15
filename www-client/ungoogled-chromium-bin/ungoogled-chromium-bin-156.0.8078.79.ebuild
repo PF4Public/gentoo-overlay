@@ -21,7 +21,7 @@ RESTRICT="mirror"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="convert-dict widevine"
 
 REQUIRED_USE="
