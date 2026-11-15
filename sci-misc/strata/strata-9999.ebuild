@@ -6,25 +6,50 @@ EAPI=8
 REPO="https://github.com/Niko1221/Strata"
 # the llama.cpp pin third_party/ggml/VERSION.txt points at: its ggml is built
 # statically into the engine, and CMake would FetchContent the same commit
-# from the network at configure time, so the ebuild fetches it in src_unpack
+# from the network at configure time
 LLAMA_REPO="https://github.com/ggml-org/llama.cpp"
+LLAMA_COMMIT="3cf03257f219afbe7334045ff7c6a06ac68c627d"
+# the commit the v${PV} tag points at; the desktop control staging needs it
+# (the tarball has no .git, so STRATA_COMMIT supplies it; the 9999 build
+# reads it from the .git instead)
+STRATA_TAG_COMMIT="d2f096475817d4666c364c820b0ca830f751cfc5"
 
 ROCM_VERSION="7.2"
+
+# the desktop (apps/desktop) tauri shell, from apps/desktop/src-tauri/
+# Cargo.lock; the crates are not listed as distfiles but packed into the
+# single strata-desktop-${PV}-crates.tar.xz distfile (the gentoo-overlay
+# release, expanded in src_unpack) — the 9999 build fetches the live
+# tree's crates at build time instead (the lock drifts, so there is no
+# offline list)
+CRATES="
+"
 
 RUST_MIN_VER="1.77"
 
 PYTHON_COMPAT=( python3_{11..15} )
 
-inherit cargo cmake cuda desktop git-r3 linux-info python-any-r1 rocm xdg-utils
+inherit cargo cmake cuda desktop linux-info python-any-r1 rocm xdg-utils
+
+if [[ ${PV} = *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="${REPO}.git"
+else
+	KEYWORDS="amd64"
+	SRC_URI="
+		${CARGO_CRATE_URIS}
+		${REPO}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		${LLAMA_REPO}/archive/${LLAMA_COMMIT}.tar.gz -> ${P}-ggml-${LLAMA_COMMIT}.tar.gz
+		https://github.com/PF4Public/gentoo-overlay/releases/download/strata/${PV}/strata-desktop-${PV}-crates.tar.xz
+	"
+	S="${WORKDIR}/Strata-${PV}"
+fi
 
 DESCRIPTION="Local LLM inference engine with an OpenAI/Anthropic-compatible API"
 HOMEPAGE="https://github.com/Niko1221/Strata"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
-
-EGIT_REPO_URI="${REPO}.git"
 
 # the engine is built for one GPU backend; the terminal (the strata command,
 # the monitor and the API server) installs in every case.
@@ -57,6 +82,8 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 # `strata install` run setup.py in its download-only Control mode); these
 # are the packages its requirements.txt pins, the any-dep group is what
 # python_setup checks at pkg_setup.
+# The desktop's gui stack is the set the tauri shell links (best effort:
+# the tauri build is not testable in CI)
 COMMON_DEPEND="
 	$(python_gen_any_dep '
 		dev-python/jinja2[${PYTHON_USEDEP}]
@@ -141,8 +168,13 @@ BDEPEND="
 			dev-python/urllib3[${PYTHON_USEDEP}]
 			')
 	)
-	dev-util/wget
 "
+if [[ ${PV} = *9999* ]]; then
+	# the live tree's pinned llama.cpp is fetched in src_unpack
+	BDEPEND+="
+		dev-util/wget
+	"
+fi
 
 pkg_pretend() {
 	if use cuda && [[ -z ${CUDA_ARCHITECTURES} ]]; then
@@ -216,33 +248,52 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
+	if [[ ${PV} = *9999* ]]; then
+		git-r3_src_unpack
 
-	# the pinned llama.cpp, fetched so the build needs no network at configure
-	local commit
-	commit=$(awk 'NR==1 { print $1 }' "${S}/third_party/ggml/VERSION.txt")
-	[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from third_party/ggml/VERSION.txt"
-	wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
-		"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
-	tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
-	# a pin predating upstream llama.cpp 9145ddb9556c has bf16 wmma
+		# the pinned llama.cpp, fetched so the build needs no network at
+		# configure time
+		local commit
+		commit=$(awk 'NR==1 { print $1 }' "${S}/third_party/ggml/VERSION.txt")
+		[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from third_party/ggml/VERSION.txt"
+		wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
+			"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
+		tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
+		LLAMA_COMMIT="${commit}"
+	else
+		cargo_src_unpack
+
+		# the pinned llama.cpp ggml (fetched as a distfile; CMake would
+		# otherwise fetch the commit from the network at configure time)
+		mkdir -p "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" || die
+		tar xzf "${DISTDIR}/${P}-ggml-${LLAMA_COMMIT}.tar.gz" \
+			-C "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" --strip-components=1 || die
+	fi
+
+	# the pin predates upstream llama.cpp 9145ddb9556c, whose bf16 wmma
 	# fragments the amdgcn builtins take as short vectors, not __bf16:
-	# the hip build cannot compile its mma.cuh (bit-identical, the bytes
+	# the hip build cannot compile the mma.cuh (bit-identical, the bytes
 	# reach the builtin only through a reinterpret_cast)
 	if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
-		"${WORKDIR}/llama.cpp-${commit}/ggml/src/ggml-cuda/mma.cuh"; then
-		patch -d "${WORKDIR}/llama.cpp-${commit}" -p1 \
+		"${WORKDIR}/llama.cpp-${LLAMA_COMMIT}/ggml/src/ggml-cuda/mma.cuh"; then
+		patch -d "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" -p1 \
 			< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
 	fi
-	LLAMA_COMMIT="${commit}"
 
 	if use desktop; then
-		# the tauri shell's crates, fetched at build time (the live tree's
-		# Cargo.lock drifts, so there is no offline CRATES list)
-		local _S="${S}"
-		S="${S}/apps/desktop/src-tauri"
-		cargo_live_src_unpack
-		S="${_S}"
+		if [[ ${PV} = *9999* ]]; then
+			# the tauri shell's crates, fetched at build time (the live
+			# tree's Cargo.lock drifts, so there is no offline CRATES list)
+			local _S="${S}"
+			S="${S}/apps/desktop/src-tauri"
+			cargo_live_src_unpack
+			S="${_S}"
+		else
+			# the desktop crates (self-generated, the gentoo-overlay release
+			# distfile); expanded onto ${WORKDIR} without stripping so the
+			# cargo_home/gentoo prefix lands on the cargo eclass' vendor dir
+			tar xJf "${DISTDIR}/strata-desktop-${PV}-crates.tar.xz" -C "${WORKDIR}" || die
+		fi
 	fi
 }
 
@@ -352,9 +403,10 @@ src_compile() {
 		# at compile time; harness is never staged (the app runs without it)
 		mkdir -p "${S}/apps/desktop/src-tauri/resources/harness" || die
 
-		# the node runtime is the system node (src_install symlinks it into the
-		# bundled path); resources/node already exists in the tree, so tauri's
-		# bundle.resources is satisfied without fetching a binary
+		# the node runtime is the system node (src_install installs a
+		# wrapper into the bundled path); resources/node already exists in
+		# the tree, so tauri's bundle.resources is satisfied without
+		# fetching a binary
 		cargo_src_compile
 	fi
 
@@ -414,7 +466,8 @@ EOF
 	cp --parents tools/chat.py tools/highlight.py "${stage}/"
 	doins -r "${stage}/tools"
 
-	# the git checkout ships it 0755, but keep the mode explicit
+	# the tarball ships it 0775, the git checkout 0755 — keep the mode
+	# explicit
 	fperms 0755 "${libdir}/bin/strata"
 
 	# the terminal's own version label
@@ -563,7 +616,11 @@ EOF
 		# control: the python parts of strata, no interpreter and no wheels:
 		# they run on the system python (the one of PYTHON_COMPAT that
 		# python_setup picked in pkg_setup) and the desktop's python set
-		local -x STRATA_COMMIT="$(git -C "${S}" rev-parse HEAD)"
+		if [[ ${PV} = *9999* ]]; then
+			local -x STRATA_COMMIT="$(git -C "${S}" rev-parse HEAD)"
+		else
+			local -x STRATA_COMMIT="${STRATA_TAG_COMMIT}"
+		fi
 		python3 "${FILESDIR}/stage-control.py" \
 			"${S}" "${D}/${desktopdir}/control" || die
 
