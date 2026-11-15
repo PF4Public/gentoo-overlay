@@ -83,7 +83,9 @@ RESTRICT="mirror build-online? ( network-sandbox )"
 # are the packages its requirements.txt pins, the any-dep group is what
 # python_setup checks at pkg_setup.
 # The desktop's gui stack is the set the tauri shell links (best effort:
-# the tauri build is not testable in CI)
+# the tauri build is not testable in CI); its control is the terminal's own
+# server (strata.py's serve role), so it needs exactly the any-dep above and
+# the tauri shell / node host add no python of their own
 COMMON_DEPEND="
 	$(python_gen_any_dep '
 		dev-python/jinja2[${PYTHON_USEDEP}]
@@ -101,32 +103,6 @@ COMMON_DEPEND="
 		>=net-libs/nodejs-24
 		dev-libs/glib
 		net-libs/webkit-gtk:4.1
-		$(python_gen_any_dep '
-			dev-python/certifi[${PYTHON_USEDEP}]
-			dev-python/charset-normalizer[${PYTHON_USEDEP}]
-			dev-python/idna[${PYTHON_USEDEP}]
-			dev-python/jinja2[${PYTHON_USEDEP}]
-			dev-python/linkify-it-py[${PYTHON_USEDEP}]
-			dev-python/markdown-it-py[${PYTHON_USEDEP}]
-			dev-python/markupsafe[${PYTHON_USEDEP}]
-			dev-python/mdit-py-plugins[${PYTHON_USEDEP}]
-			dev-python/mdurl[${PYTHON_USEDEP}]
-			dev-python/numpy[${PYTHON_USEDEP}]
-			dev-python/pillow[${PYTHON_USEDEP}]
-			dev-python/platformdirs[${PYTHON_USEDEP}]
-			dev-python/psutil[${PYTHON_USEDEP}]
-			dev-python/pygments[${PYTHON_USEDEP}]
-			dev-python/pyyaml[${PYTHON_USEDEP}]
-			dev-python/regex[${PYTHON_USEDEP}]
-			dev-python/requests[${PYTHON_USEDEP}]
-			dev-python/rich[${PYTHON_USEDEP}]
-			dev-python/setuptools[${PYTHON_USEDEP}]
-			dev-python/textual[${PYTHON_USEDEP}]
-			dev-python/tqdm[${PYTHON_USEDEP}]
-			dev-python/truststore[${PYTHON_USEDEP}]
-			dev-python/typing-extensions[${PYTHON_USEDEP}]
-			dev-python/urllib3[${PYTHON_USEDEP}]
-			')
 		x11-libs/gtk+:3
 	)
 	hip? (
@@ -139,34 +115,18 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
+	$(python_gen_any_dep '
+		dev-python/jinja2[${PYTHON_USEDEP}]
+		dev-python/numpy[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/psutil[${PYTHON_USEDEP}]
+		dev-python/pyyaml[${PYTHON_USEDEP}]
+		dev-python/regex[${PYTHON_USEDEP}]
+		dev-python/requests[${PYTHON_USEDEP}]
+		dev-python/tqdm[${PYTHON_USEDEP}]
+		')
 	desktop? (
 		>=net-libs/nodejs-24[npm]
-		$(python_gen_any_dep '
-			dev-python/certifi[${PYTHON_USEDEP}]
-			dev-python/charset-normalizer[${PYTHON_USEDEP}]
-			dev-python/idna[${PYTHON_USEDEP}]
-			dev-python/jinja2[${PYTHON_USEDEP}]
-			dev-python/linkify-it-py[${PYTHON_USEDEP}]
-			dev-python/markdown-it-py[${PYTHON_USEDEP}]
-			dev-python/markupsafe[${PYTHON_USEDEP}]
-			dev-python/mdit-py-plugins[${PYTHON_USEDEP}]
-			dev-python/mdurl[${PYTHON_USEDEP}]
-			dev-python/numpy[${PYTHON_USEDEP}]
-			dev-python/pillow[${PYTHON_USEDEP}]
-			dev-python/platformdirs[${PYTHON_USEDEP}]
-			dev-python/psutil[${PYTHON_USEDEP}]
-			dev-python/pygments[${PYTHON_USEDEP}]
-			dev-python/pyyaml[${PYTHON_USEDEP}]
-			dev-python/regex[${PYTHON_USEDEP}]
-			dev-python/requests[${PYTHON_USEDEP}]
-			dev-python/rich[${PYTHON_USEDEP}]
-			dev-python/setuptools[${PYTHON_USEDEP}]
-			dev-python/textual[${PYTHON_USEDEP}]
-			dev-python/tqdm[${PYTHON_USEDEP}]
-			dev-python/truststore[${PYTHON_USEDEP}]
-			dev-python/typing-extensions[${PYTHON_USEDEP}]
-			dev-python/urllib3[${PYTHON_USEDEP}]
-			')
 	)
 "
 if [[ ${PV} = *9999* ]]; then
@@ -188,8 +148,8 @@ pkg_pretend() {
 }
 
 python_check_deps() {
-	# the terminal runs on the checked implementation: all of its packages
-	# must be built for it
+	# the terminal - and the desktop's control, the same server - runs on the
+	# checked implementation: all of its packages must be built for it
 	python_has_version \
 		"dev-python/jinja2[${PYTHON_USEDEP}]" \
 		"dev-python/numpy[${PYTHON_USEDEP}]" \
@@ -199,35 +159,6 @@ python_check_deps() {
 		"dev-python/regex[${PYTHON_USEDEP}]" \
 		"dev-python/requests[${PYTHON_USEDEP}]" \
 		"dev-python/tqdm[${PYTHON_USEDEP}]"
-	if use desktop; then
-		# the control has to run on the checked implementation: all of its
-		# packages must be built for it
-		python_has_version \
-			"dev-python/certifi[${PYTHON_USEDEP}]" \
-			"dev-python/charset-normalizer[${PYTHON_USEDEP}]" \
-			"dev-python/idna[${PYTHON_USEDEP}]" \
-			"dev-python/jinja2[${PYTHON_USEDEP}]" \
-			"dev-python/linkify-it-py[${PYTHON_USEDEP}]" \
-			"dev-python/markdown-it-py[${PYTHON_USEDEP}]" \
-			"dev-python/markupsafe[${PYTHON_USEDEP}]" \
-			"dev-python/mdit-py-plugins[${PYTHON_USEDEP}]" \
-			"dev-python/mdurl[${PYTHON_USEDEP}]" \
-			"dev-python/numpy[${PYTHON_USEDEP}]" \
-			"dev-python/pillow[${PYTHON_USEDEP}]" \
-			"dev-python/platformdirs[${PYTHON_USEDEP}]" \
-			"dev-python/psutil[${PYTHON_USEDEP}]" \
-			"dev-python/pygments[${PYTHON_USEDEP}]" \
-			"dev-python/pyyaml[${PYTHON_USEDEP}]" \
-			"dev-python/regex[${PYTHON_USEDEP}]" \
-			"dev-python/requests[${PYTHON_USEDEP}]" \
-			"dev-python/rich[${PYTHON_USEDEP}]" \
-			"dev-python/setuptools[${PYTHON_USEDEP}]" \
-			"dev-python/textual[${PYTHON_USEDEP}]" \
-			"dev-python/tqdm[${PYTHON_USEDEP}]" \
-			"dev-python/truststore[${PYTHON_USEDEP}]" \
-			"dev-python/typing-extensions[${PYTHON_USEDEP}]" \
-			"dev-python/urllib3[${PYTHON_USEDEP}]"
-	fi
 }
 
 pkg_setup() {
@@ -334,6 +265,9 @@ src_configure() {
 	local mycmakeargs=(
 		-DSTRATA_NATIVE_EXPERTS=ON
 		-DSTRATA_Q6K_EXPERTS=ON
+		# strata_mmq / strata_kq (the libstrata_kq.so dlopen lib) are gated on
+		# this (default OFF); MMQ_KQUANTS picks the quant types
+		-DSTRATA_MMQ=ON
 		-DSTRATA_MMQ_KQUANTS=ON
 		-DSTRATA_BUILD_TESTS=OFF
 		# the pinned llama.cpp ggml source; without it CMake would fetch
