@@ -186,7 +186,6 @@ fi
 DESCRIPTION="Sonarr is a smart PVR for newsgroup and bittorrent users"
 HOMEPAGE="https://sonarr.tv"
 SRC_URI="${GITHUB_SRC}
-	${P}-deps.tar.xz
 	${NUGET_URIS}
 "
 
@@ -229,6 +228,12 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+}
+
+src_unpack() {
+	default_src_unpack
+	# the generated node_modules tarball is a build input kept in files/
+	unpack "${FILESDIR}/${P}-deps.tar.xz"
 }
 
 src_prepare() {
