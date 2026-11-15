@@ -17,7 +17,8 @@ ROCM_VERSION="7.2"
 
 # the desktop (apps/desktop) tauri shell, from apps/desktop/src-tauri/
 # Cargo.lock; the crates are not listed as distfiles but packed into the
-# single files/strata-desktop-${PV}-crates.tar.xz (expanded in src_unpack)
+# single strata-desktop-${PV}-crates.tar.xz distfile (the gentoo-overlay
+# release, expanded in src_unpack)
 CRATES="
 "
 
@@ -34,6 +35,7 @@ SRC_URI="
 	${CARGO_CRATE_URIS}
 	${REPO}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	${LLAMA_REPO}/archive/${LLAMA_COMMIT}.tar.gz -> ${P}-ggml-${LLAMA_COMMIT}.tar.gz
+	https://github.com/PF4Public/gentoo-overlay/releases/download/strata/${PV}/strata-desktop-${PV}-crates.tar.xz
 "
 
 S="${WORKDIR}/Strata-${PV}"
@@ -250,11 +252,11 @@ src_unpack() {
 			< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
 	fi
 
-	# the desktop crates (self-generated, kept in files/ like the wheelhouse);
-	# expanded onto ${WORKDIR} without stripping so the cargo_home/gentoo
-	# prefix lands on the cargo eclass' vendor dir
+	# the desktop crates (self-generated, the gentoo-overlay release
+	# distfile); expanded onto ${WORKDIR} without stripping so the
+	# cargo_home/gentoo prefix lands on the cargo eclass' vendor dir
 	if use desktop; then
-		tar xJf "${FILESDIR}/strata-desktop-${PV}-crates.tar.xz" -C "${WORKDIR}" || die
+		tar xJf "${DISTDIR}/strata-desktop-${PV}-crates.tar.xz" -C "${WORKDIR}" || die
 	fi
 }
 
