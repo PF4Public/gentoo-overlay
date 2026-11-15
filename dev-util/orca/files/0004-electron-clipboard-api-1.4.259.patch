@@ -1,6 +1,6 @@
 diff -ruN a/src/main/window/clipboard/clipboard-compat.ts b/src/main/window/clipboard/clipboard-compat.ts
 --- a/src/main/window/clipboard/clipboard-compat.ts	1970-01-01 01:00:00.000000000 +0100
-+++ b/src/main/window/clipboard/clipboard-compat.ts	2026-11-15 00:28:53.047150683 +0100
++++ b/src/main/window/clipboard/clipboard-compat.ts	2026-11-15 01:26:11.255882769 +0100
 @@ -0,0 +1,181 @@
 +import * as Electron from 'electron'
 +import type { NativeImage } from 'electron'
@@ -184,8 +184,8 @@ diff -ruN a/src/main/window/clipboard/clipboard-compat.ts b/src/main/window/clip
 +  has: hasClipboardFormat
 +}
 diff -ruN a/src/main/window/clipboard/clipboard-copied-file-paths.ts b/src/main/window/clipboard/clipboard-copied-file-paths.ts
---- a/src/main/window/clipboard/clipboard-copied-file-paths.ts	2026-11-15 00:28:53.046240846 +0100
-+++ b/src/main/window/clipboard/clipboard-copied-file-paths.ts	2026-11-15 00:28:53.047303780 +0100
+--- a/src/main/window/clipboard/clipboard-copied-file-paths.ts	2026-11-15 01:27:44.472973523 +0100
++++ b/src/main/window/clipboard/clipboard-copied-file-paths.ts	2026-11-15 01:26:11.257642983 +0100
 @@ -1,7 +1,9 @@
  import { fileURLToPath } from 'node:url'
  import { readWindowsCopiedFilePath } from './clipboard-windows-image-file'
@@ -269,8 +269,8 @@ diff -ruN a/src/main/window/clipboard/clipboard-copied-file-paths.ts b/src/main/
      return []
    }
 diff -ruN a/src/main/window/clipboard/clipboard-image-source.ts b/src/main/window/clipboard/clipboard-image-source.ts
---- a/src/main/window/clipboard/clipboard-image-source.ts	2026-11-15 00:28:53.046390217 +0100
-+++ b/src/main/window/clipboard/clipboard-image-source.ts	2026-11-15 00:28:53.047450150 +0100
+--- a/src/main/window/clipboard/clipboard-image-source.ts	2026-11-15 01:27:44.473036981 +0100
++++ b/src/main/window/clipboard/clipboard-image-source.ts	2026-11-15 01:26:11.718778509 +0100
 @@ -1,15 +1,10 @@
  import { clipboardFormatsIncludeImage } from '../../../shared/clipboard-image'
 +import type { ClipboardReader } from './clipboard-compat'
@@ -322,14 +322,12 @@ diff -ruN a/src/main/window/clipboard/clipboard-image-source.ts b/src/main/windo
    }
    return windowsFileFormats ? { kind: 'windows-file', windowsFileFormats } : null
 diff -ruN a/src/main/window/clipboard/clipboard-ipc-handlers.ts b/src/main/window/clipboard/clipboard-ipc-handlers.ts
---- a/src/main/window/clipboard/clipboard-ipc-handlers.ts	2026-11-15 00:28:53.046508198 +0100
-+++ b/src/main/window/clipboard/clipboard-ipc-handlers.ts	2026-11-15 00:28:53.047674970 +0100
-@@ -50,11 +50,19 @@
-   publishClipboardOperation,
+--- a/src/main/window/clipboard/clipboard-ipc-handlers.ts	2026-11-15 01:27:44.473075653 +0100
++++ b/src/main/window/clipboard/clipboard-ipc-handlers.ts	2026-11-15 01:26:11.718936601 +0100
+@@ -51,6 +51,12 @@
    publishClipboardText
  } from './clipboard-text-publisher'
--import { restoreNativeChatPastes } from '../../native-chat/paste-files/native-chat-paste-files'
-+import { restoreNativeChatPastes } from './native-chat-paste-files'
+ import { restoreNativeChatPastes } from '../../native-chat/paste-files/native-chat-paste-files'
 +import {
 +  clipboardReader,
 +  readSelectionText,
@@ -339,13 +337,7 @@ diff -ruN a/src/main/window/clipboard/clipboard-ipc-handlers.ts b/src/main/windo
  import { savePastedTextAsFile, type SavePastedTextAsFileArgs } from './native-chat-pasted-text-file'
  import { agentSessionPastedImageName } from '../../../shared/agent-session/agent-session-attachments'
  import type { AgentSessionAttachmentStore } from '../../native-chat/agent-session-attachments/agent-session-attachment-store'
- 
-+export { setTrustedClipboardRendererWebContentsId } from './clipboard-ipc-sender-trust'
-+
- type ClipboardWriteFileRequest = {
-   filePath: string
-   connectionId?: string
-@@ -136,7 +144,7 @@
+@@ -136,7 +142,7 @@
      'clipboard:readSelectionText',
      async (event, options?: ReadClipboardTextOptions) => {
        assertTrustedClipboardSender(event)
@@ -354,7 +346,7 @@ diff -ruN a/src/main/window/clipboard/clipboard-ipc-handlers.ts b/src/main/windo
      }
    )
    ipcMain.handle('clipboard:restoreNativeChatPastes', (event, paths: unknown) => {
-@@ -144,23 +152,26 @@
+@@ -144,23 +150,26 @@
      return restoreNativeChatPastes(paths)
    })
    // Preview in memory so the composer responds before the slower save completes.
@@ -393,7 +385,7 @@ diff -ruN a/src/main/window/clipboard/clipboard-ipc-handlers.ts b/src/main/windo
    })
    // Give image-aware terminal tools a saved image path, or null when no image exists.
    ipcMain.handle(
-@@ -245,10 +256,7 @@
+@@ -245,10 +254,7 @@
    })
    ipcMain.handle('clipboard:writeSelectionText', async (event, text: string) => {
      assertTrustedClipboardSender(event)
@@ -406,8 +398,8 @@ diff -ruN a/src/main/window/clipboard/clipboard-ipc-handlers.ts b/src/main/windo
    ipcMain.handle('clipboard:writeImage', (event, dataUrl: string) => {
      assertTrustedClipboardSender(event)
 diff -ruN a/src/main/window/clipboard/clipboard-native-image.ts b/src/main/window/clipboard/clipboard-native-image.ts
---- a/src/main/window/clipboard/clipboard-native-image.ts	2026-11-15 00:28:53.046638506 +0100
-+++ b/src/main/window/clipboard/clipboard-native-image.ts	2026-11-15 00:28:53.047829598 +0100
+--- a/src/main/window/clipboard/clipboard-native-image.ts	2026-11-15 01:27:44.473122524 +0100
++++ b/src/main/window/clipboard/clipboard-native-image.ts	2026-11-15 01:26:11.719008530 +0100
 @@ -1,17 +1,18 @@
 -import { clipboard, nativeImage, type NativeImage } from 'electron'
 +import { nativeImage, type NativeImage } from 'electron'
