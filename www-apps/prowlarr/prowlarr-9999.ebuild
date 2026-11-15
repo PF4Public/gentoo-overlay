@@ -228,7 +228,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	default_src_unpack
+	dotnet-pkg_src_unpack
 	# the generated node_modules tarball is a build input kept in files/
 	unpack "${FILESDIR}/${P}-deps.tar.xz"
 }
