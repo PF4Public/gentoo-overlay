@@ -7,7 +7,8 @@ inherit go-module
 
 DESCRIPTION="A modern, extremely fast, JavaScript and CSS bundler and minifier"
 HOMEPAGE="https://esbuild.github.io/"
-SRC_URI="https://github.com/evanw/esbuild/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/evanw/esbuild/archive/v${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/PF4Public/gentoo-overlay/releases/download/esbuild/${PV}/${P}-vendor.tar.xz"
 
 LICENSE="BSD MIT"
 SLOT="${PV}"
@@ -17,7 +18,7 @@ RESTRICT="test" # tests require more work, but chromium needs esbuild already.
 
 src_unpack() {
 	# vendor must exist before go-module_src_unpack, or it runs `go mod verify` (network)
-	tar -xJf "${FILESDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
+	tar -xJf "${DISTDIR}/${P}-vendor.tar.xz" -C "${WORKDIR}"
 	go-module_src_unpack
 }
 
