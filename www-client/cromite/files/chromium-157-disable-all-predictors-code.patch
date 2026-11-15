@@ -212,19 +212,6 @@
 -             : nullptr;
 +  return nullptr;
  }
---- a/chrome/renderer/accessibility/read_anything/read_anything_app_controller.cc
-+++ b/chrome/renderer/accessibility/read_anything/read_anything_app_controller.cc
-@@ -2660,8 +2660,10 @@
- }
- 
- void ReadAnythingAppController::PreprocessTextForSpeech() {
-+#if false /*BUILDFLAG(BUILD_WITH_TFLITE_LIB)*/
-   read_aloud_model_.PreprocessTextForSpeech(IsPdf(), model_.IsDocs(),
-                                             model_.GetCurrentlyVisibleNodes());
-+#endif
- }
- 
- void ReadAnythingAppController::MovePositionToNextGranularity() {
 --- a/components/autofill/core/browser/BUILD.gn
 +++ b/components/autofill/core/browser/BUILD.gn
 @@ -1000,18 +1000,18 @@
@@ -344,17 +331,6 @@
  #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
    services.Add(RunWebNNCompilerService);
  #endif
---- a/content/utility/services.cc
-+++ b/content/utility/services.cc
-@@ -423,7 +423,7 @@
-   services.Add(RunOnDeviceModel);
- 
- #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
--  services.Add(RunWebNNCompilerService);
-+  // services.Add(RunWebNNCompilerService);
- #endif
- 
- #if BUILDFLAG(IS_WIN) || (BUILDFLAG(GOOGLE_CHROME_BRANDING) && \
 --- a/services/webnn/webnn_context_provider_impl.cc
 +++ b/services/webnn/webnn_context_provider_impl.cc
 @@ -921,25 +921,6 @@

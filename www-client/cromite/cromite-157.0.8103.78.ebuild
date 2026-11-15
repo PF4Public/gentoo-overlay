@@ -1173,7 +1173,10 @@ src_prepare() {
 		fi
 		# No-ops for the desktop build: every file these touch is excluded by
 		# the shared list (android/test/docs), so the filtered patch is empty.
-		# Applying an empty filter dies the build; skip them.
+		# Applying an empty filter dies the build; skip them. The last seven
+		# only add android files (flag .inc, .grdp, drawables): filterdiff
+		# matches --exclude against new-file paths, so they are excluded
+		# there too and the filter comes out empty.
 		if [ "$i" = "Add-a-GN-flag-to-disable-trybot-verification.patch" ] ||
 			[ "$i" = "Add-Alt-D-hotkey-to-focus-address-bar.patch" ] ||
 			[ "$i" = "Add-exit-menu-item.patch" ] ||
@@ -1183,16 +1186,22 @@ src_prepare() {
 			[ "$i" = "Add-support-for-ISupportHelpAndFeedback.patch" ] ||
 			[ "$i" = "Add-support-for-writing-URIs.patch" ] ||
 			[ "$i" = "Always-open-browser-controls-in-new-tab.patch" ] ||
+			[ "$i" = "Block-Intents-While-Locked.patch" ] ||
 			[ "$i" = "Bookmarks-select-all-menu-entry.patch" ] ||
 			[ "$i" = "Bromite-package-name.patch" ] ||
+			[ "$i" = "Cromite-Branding--improve-settings-ui.patch" ] ||
 			[ "$i" = "Dictionary-suggestions-for-the-Omnibox.patch" ] ||
+			[ "$i" = "Disable-Accessibility-service-by-default.patch" ] ||
+			[ "$i" = "Disable-Android-Tab-Declutter.patch" ] ||
 			[ "$i" = "Disable-AppRating.patch" ] ||
 			[ "$i" = "Disable-Paint-Preview-by-default.patch" ] ||
+			[ "$i" = "Disable-smart-selection-by-default.patch" ] ||
 			[ "$i" = "Disable-update-scheduler.patch" ] ||
 			[ "$i" = "disable-WebView-variations-support.patch" ] ||
 			[ "$i" = "do-not-add-suffix-to-package-name.patch" ] ||
 			[ "$i" = "Do-not-ignore-download-location-prompt-setting.patch" ] ||
 			[ "$i" = "Enable-snackbar-swipe.patch" ] ||
+			[ "$i" = "Final-patch-for-chromium-vanilla.patch" ] ||
 			[ "$i" = "Fix-chromium-vanilla.patch" ] ||
 			[ "$i" = "Ignore-enterprise-policies-for-secure-DNS.patch" ] ||
 			[ "$i" = "Keep-disabled-WebViewMediaIntegrityApi.patch" ] ||
@@ -1210,6 +1219,7 @@ src_prepare() {
 			[ "$i" = "Temp-disable-predictive-back-gesture.patch" ] ||
 			[ "$i" = "Use-64-bit-WebView-processes.patch" ] ||
 			[ "$i" = "Use-dummy-DFM-installer.patch" ] ||
+			[ "$i" = "Use-list-mode-for-tab-switcher.patch" ] ||
 			[ "$i" = "webview-Hard-no-to-persistent-histograms.patch" ] ||
 			[ "$i" = "eyeo-133.0.6943.49-android_settings.patch" ]; then
 			ewarn "Skipping ${i} (no-op: all files excluded)"

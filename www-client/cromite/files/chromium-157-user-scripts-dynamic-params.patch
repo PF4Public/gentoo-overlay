@@ -57,7 +57,7 @@
        GetPlatformRuntimeHeaders()
 --- a/chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_configs.cc
-@@ -49,6 +49,10 @@
+@@ -49,7 +49,11 @@
  #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.h"
  #include "chrome/browser/ui/webui/policy/policy_ui.h"
  #include "chrome/browser/ui/webui/predictors/predictors_ui.h"
@@ -65,6 +65,7 @@
 +#if BUILDFLAG(IS_ANDROID)
 +#include "components/user_scripts/browser/ui/user_scripts_ui.h"
 +#endif
+ #include "chrome/browser/ui/webui/proxy_config_ui.h"
  #include "chrome/browser/ui/webui/regional_capabilities_internals/regional_capabilities_internals_ui.h"
  #include "chrome/browser/ui/webui/saved_tab_groups_unsupported/saved_tab_groups_unsupported_ui.h"
  #include "chrome/browser/ui/webui/segmentation_internals/segmentation_internals_ui.h"
