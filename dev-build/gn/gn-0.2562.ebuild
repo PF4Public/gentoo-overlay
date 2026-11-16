@@ -28,7 +28,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	# the source (built from the unfetchable deps.gentoo.zip) is published
+	# the source (built from the upstream gn git repo) is published
 	# as the gentoo-overlay release distfile
 	tar -xJf "${DISTDIR}/${P}.tar.xz" -C "${WORKDIR}"
 }
