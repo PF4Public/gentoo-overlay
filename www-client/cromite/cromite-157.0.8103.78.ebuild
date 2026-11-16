@@ -1298,6 +1298,14 @@ src_prepare() {
 				# dep is moot on desktop)
 				extra_excludes+=(--exclude="chrome/browser/ui/BUILD.gn")
 				;;
+			"eyeo-133.0.6943.49-android_api.patch")
+				# the chrome/browser/BUILD.gn hunk adds the android-only
+				# tab_id_translator_jni.cc source for the if (is_android) block;
+				# 157 restructured the core sources list, so it fuzz-lands in the
+				# desktop-active if (!is_win && !is_android) block and desktop
+				# would pull in the excluded JNI file. is_android no-op on desktop.
+				extra_excludes+=(--exclude="chrome/browser/BUILD.gn")
+				;;
 			"Add-bookmark-import-export-actions.patch")
 				# the chrome/browser/BUILD.gn hunk adds the android-only
 				# importer sources after a 154 sources-list line 157 no
