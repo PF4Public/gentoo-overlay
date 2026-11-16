@@ -242,6 +242,11 @@ src_prepare() {
 		eapply "${FILESDIR}/strata-wmma-bf16.patch"
 	fi
 
+	# the ebuild provides updates: disable both the tauri app updater (no
+	# endpoints) and the engine feed (no default URL, so the control's
+	# update check finds no feed)
+	eapply "${FILESDIR}/strata-disable-updater.patch"
+
 	# the engine version for the component folder name and the manifest
 	ENGINE_PV=$(sed -n 's/^[[:space:]]*project([^)]*VERSION[[:space:]]*\([0-9][0-9.]*\).*/\1/p' \
 		"${S}/CMakeLists.txt" | head -n 1)

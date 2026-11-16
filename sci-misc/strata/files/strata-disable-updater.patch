@@ -1,0 +1,23 @@
+--- a/apps/desktop/src-tauri/tauri.conf.json
++++ b/apps/desktop/src-tauri/tauri.conf.json
+@@ -65,9 +65,7 @@
+   "plugins": {
+     "updater": {
+       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI2QjA5OTk5MDU1MjFGNUUKUldSZUgxSUZtWm13dHNGRU40N2xOUjdZZGpvcGl0NTB2WGxnS3VTc2RlakpSbnBxUkxndHNFY0oK",
+-      "endpoints": [
+-        "https://github.com/Niko1221/Strata/releases/latest/download/latest.json"
+-      ],
++      "endpoints": [],
+       "windows": {
+         "installMode": "passive"
+       }
+--- a/strata_cli/update_cmd.py
++++ b/strata_cli/update_cmd.py
+@@ -32,7 +32,7 @@ from pathlib import Path
+ 
+ #: Where the feed is read when nothing else is set: the files of the latest GitHub release of Niko1221/Strata (the same folder the
+ #: one-line installers use). Only a feed signed with a key in update_keys.json (or STRATA_UPDATE_TRUSTED_KEYS) is accepted.
+-DEFAULT_FEED = "https://github.com/Niko1221/Strata/releases/latest/download/strata-feed.json"
++DEFAULT_FEED = ""
+ ENV_FEED = "STRATA_UPDATE_FEED"
+ 
