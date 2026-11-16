@@ -551,6 +551,8 @@ jobs:
       # the publish (the release itself is already out at that point)
       - name: Commit and push
         if: steps.check.outputs.outcome == 'complete'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -598,7 +600,7 @@ jobs:
           }
           # pushes by github-actions[bot] do not trigger workflows, so the
           # -bin package's CI run is started explicitly, at the bump commit
-          GH_TOKEN="$GITHUB_TOKEN" gh workflow run "${pn}-bin.yml" \
+          gh workflow run "${pn}-bin.yml" \
             --ref "$(git rev-parse HEAD)" -f ebuild="${dir}/${pn}-${pv}.ebuild"
 
   dump-failures:

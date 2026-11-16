@@ -571,6 +571,8 @@ jobs:
 
       - name: Commit and push
         if: steps.check.outputs.outcome == 'complete'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -586,7 +588,7 @@ jobs:
           }
           # pushes by github-actions[bot] do not trigger workflows, so the
           # -bin package's CI run is started explicitly, at the bump commit
-          GH_TOKEN="$GITHUB_TOKEN" gh workflow run ungoogled-chromium-bin.yml \
+          gh workflow run ungoogled-chromium-bin.yml \
             --ref "$(git rev-parse HEAD)" -f ebuild="www-client/ungoogled-chromium-bin/ungoogled-chromium-bin-${{ needs.resolve.outputs.pv }}.ebuild"
 
   dump-failures:
