@@ -80,13 +80,13 @@ src_prepare() {
 	# matches on both trees (a no-op where the line is absent).
 	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
 		config/electron-builder.config.cjs || die
-	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
+	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-9999.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
 	# the missing file (0002). With the flag the helper is built natively below.
 	if ! use wayland; then
-		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard-1.4.256.patch" || die
+		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard-9999.patch" || die
 	fi
 
 	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);

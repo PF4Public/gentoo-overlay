@@ -77,7 +77,9 @@ src_prepare() {
 	# requirements, so relax them (0001).
 	# main additionally gained a verifyPackagedPluginTypings call beside the
 	# plugin-resources check 0001 removes; strip it first so the hunk context
-	# matches on both trees (a no-op where the line is absent).
+	# matches on both trees (a no-op where the line is absent). The live ebuild
+	# uses -9999 variants of 0001/0002 instead: main restructured this
+	# CI-verification config (provider-exec) beyond the -251/-256 patches.
 	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
 		config/electron-builder.config.cjs || die
 	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
