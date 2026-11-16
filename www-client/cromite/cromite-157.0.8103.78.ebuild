@@ -1221,7 +1221,13 @@ src_prepare() {
 			[ "$i" = "Use-dummy-DFM-installer.patch" ] ||
 			[ "$i" = "Use-list-mode-for-tab-switcher.patch" ] ||
 			[ "$i" = "webview-Hard-no-to-persistent-histograms.patch" ] ||
-			[ "$i" = "eyeo-133.0.6943.49-android_settings.patch" ]; then
+			[ "$i" = "eyeo-133.0.6943.49-android_settings.patch" ] ||
+			[ "$i" = "eyeo-133.0.6943.49-android_api.patch" ]; then
+			# android_api's only non-android file is the chrome/browser/BUILD.gn
+			# hunk, which fuzz-lands in the desktop-active
+			# if (!is_win && !is_android) block on 157 (pulling in the excluded
+			# tab_id_translator_jni.cc JNI source); it is an is_android no-op on
+			# desktop, so skip the whole patch (all other files are android).
 			ewarn "Skipping ${i} (no-op: all files excluded)"
 			continue;
 		fi
@@ -1297,14 +1303,6 @@ src_prepare() {
 				# re-based in files/ after the loop (the android java_bindings
 				# dep is moot on desktop)
 				extra_excludes+=(--exclude="chrome/browser/ui/BUILD.gn")
-				;;
-			"eyeo-133.0.6943.49-android_api.patch")
-				# the chrome/browser/BUILD.gn hunk adds the android-only
-				# tab_id_translator_jni.cc source for the if (is_android) block;
-				# 157 restructured the core sources list, so it fuzz-lands in the
-				# desktop-active if (!is_win && !is_android) block and desktop
-				# would pull in the excluded JNI file. is_android no-op on desktop.
-				extra_excludes+=(--exclude="chrome/browser/BUILD.gn")
 				;;
 			"Add-bookmark-import-export-actions.patch")
 				# the chrome/browser/BUILD.gn hunk adds the android-only
