@@ -115,18 +115,18 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
-	$(python_gen_any_dep '
-		dev-python/jinja2[${PYTHON_USEDEP}]
-		dev-python/numpy[${PYTHON_USEDEP}]
-		dev-python/pillow[${PYTHON_USEDEP}]
-		dev-python/psutil[${PYTHON_USEDEP}]
-		dev-python/pyyaml[${PYTHON_USEDEP}]
-		dev-python/regex[${PYTHON_USEDEP}]
-		dev-python/requests[${PYTHON_USEDEP}]
-		dev-python/tqdm[${PYTHON_USEDEP}]
-		')
 	desktop? (
 		>=net-libs/nodejs-24[npm]
+		$(python_gen_any_dep '
+			dev-python/jinja2[${PYTHON_USEDEP}]
+			dev-python/numpy[${PYTHON_USEDEP}]
+			dev-python/pillow[${PYTHON_USEDEP}]
+			dev-python/psutil[${PYTHON_USEDEP}]
+			dev-python/pyyaml[${PYTHON_USEDEP}]
+			dev-python/regex[${PYTHON_USEDEP}]
+			dev-python/requests[${PYTHON_USEDEP}]
+			dev-python/tqdm[${PYTHON_USEDEP}]
+			')
 	)
 "
 if [[ ${PV} = *9999* ]]; then
