@@ -10,6 +10,7 @@ on:
     paths:
     - 'sci-misc/strata/*.ebuild'
     - 'sci-misc/strata/files/**'
+  workflow_dispatch:
 
 jobs:
   filter:
@@ -24,81 +25,135 @@ jobs:
         with:
           fetch-depth: 0
 
+      # a manual dispatch has no changed-file context; build the package's
+      # last two ebuilds (9999 + newest release) so the build can be re-run
+      # on demand
+      - name: Resolve (manual dispatch)
+        id: resolve
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          echo "ebuilds=$(ls sci-misc/strata/*.ebuild | sort -V | tail -2 | tr '\n' ' ' | sed 's/ $//')" >> "$GITHUB_OUTPUT"
+
       - name: Setup
         id: setup
         uses: ./.github/actions/setup
+        with:
+          ebuilds: ${{ steps.resolve.outputs.ebuilds }}
 
   default:
     needs: filter
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          # convert the resolved ebuilds to =cat/pkg-pv atoms, skipping the
+          # live 9999 ebuild (its KEYWORDS="" is not mergeable)
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            base=$(basename "$e")
+            [[ "$base" == *-9999.ebuild ]] && continue
+            catpkg=$(dirname "$e")
+            pkg=$(basename "$catpkg")
+            pv=$(echo "$base" | sed -E "s/^${pkg}-//; s/\.ebuild$//")
+            atoms+="=${catpkg}-${pv} "
+          done
+          atoms="${atoms% }"
+          echo "atoms=${atoms}" >> "$GITHUB_OUTPUT"
+          echo "building: ${atoms:-<nothing, 9999-only change>}"
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
         with:
-          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+          accept-keywords: sci-misc/strata ~amd64
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
+      # no cuda/hip job: the engine builds need a GPU toolkit, they are
+      # for GPU systems
+      - name: Build
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
 
-      # no cuda/hip job: the docker image carries no GPU toolkit, the
-      # engine builds are for GPU systems
-      - name: Install ${{ github.workflow }} with default USE-flags
-        uses: pf4public/gentoo-docker-action@master
-        with:
-            modified: ${{ steps.setup.outputs.ebuilds }}
-            tool: ebuild
-            action: compile
-            params: ' '
-
-      - name: Save cache
-        if: ${{ always() }}
-        uses: ./.github/actions/cache-save
-
-  ebuild:
+  desktop:
     needs: [filter, default]
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental || false }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # experimental: the docker image carries no GTK/webkit2gtk stack,
-          # so the desktop build fails until the image gets it (build-online
-          # is named explicitly: ebuild compile does not apply REQUIRED_USE)
-          - use: 'desktop build-online'
-            experimental: true
-
+    continue-on-error: true
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            base=$(basename "$e")
+            [[ "$base" == *-9999.ebuild ]] && continue
+            catpkg=$(dirname "$e")
+            pkg=$(basename "$catpkg")
+            pv=$(echo "$base" | sed -E "s/^${pkg}-//; s/\.ebuild$//")
+            atoms+="=${catpkg}-${pv} "
+          done
+          atoms="${atoms% }"
+          echo "atoms=${atoms}" >> "$GITHUB_OUTPUT"
+          echo "building: ${atoms:-<nothing, 9999-only change>}"
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
         with:
-          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+          accept-keywords: sci-misc/strata ~amd64
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
-
-      - name: Install ${{ github.workflow }} with "${{ matrix.use }}"
-        uses: pf4public/gentoo-docker-action@master
-        with:
-            modified: ${{ steps.setup.outputs.ebuilds }}
-            tool: ebuild
-            action: compile
-            params: ${{ matrix.use }}
-
-      - name: Save cache
-        if: ${{ always() }}
-        uses: ./.github/actions/cache-save
+      - name: Build (desktop)
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          docker exec gentoo bash -c \
+            'echo "sci-misc/strata desktop build-online" > /etc/portage/package.use/strata'
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
