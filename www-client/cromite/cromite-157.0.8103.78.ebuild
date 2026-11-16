@@ -1289,6 +1289,22 @@ src_prepare() {
 				# re-based in files/ after the loop
 				extra_excludes+=(--exclude="chrome/browser/resources/new_tab_page/app.html")
 				;;
+			"eyeo-133.0.6943.49-chrome_integration.patch")
+				# 157 dissolved the static_library("ui") monolith this patch
+				# keys its BUILD.gn hunks on, so under -F 3 they fuzz-apply to
+				# the wrong targets (or off the end of one, a gn parse error);
+				# the header note + the tab_helpers_impl content dep are
+				# re-based in files/ after the loop (the android java_bindings
+				# dep is moot on desktop)
+				extra_excludes+=(--exclude="chrome/browser/ui/BUILD.gn")
+				;;
+			"Add-bookmark-import-export-actions.patch")
+				# the chrome/browser/BUILD.gn hunk adds the android-only
+				# importer sources after a 154 sources-list line 157 no
+				# longer has; under -F 3 it fuzz-lands mid-deps-list (a gn
+				# parse error). It is an is_android no-op on desktop.
+				extra_excludes+=(--exclude="chrome/browser/BUILD.gn")
+				;;
 			"Supporting-Dangling-Ptr-Detection-via-BackupRefPtr.patch")
 				# 157 removed the desktop-Android BackupRefPtr exception the
 				# IS_DESKTOP_ANDROID_CROMITE rename targets, so that hunk is moot;
@@ -1664,6 +1680,25 @@ src_prepare() {
 	# New() signature with GetPlatformRuntimeHeaders(), so the arg-add hunk
 	# rejected. Pass the value at the field's (fuzz-placed) position 2.
 	eapply_wrapper "${FILESDIR}/chromium-157-user-scripts-dynamic-params.patch"
+
+	# Experimental-user-scripts-support: current GN no longer reads
+	# disable_variants in mojom targets ("Assignment had no effect"); it is
+	# dead anyway with is_component_build=false.
+	eapply_wrapper "${FILESDIR}/chromium-157-user-scripts-disable-variants.patch"
+
+	# Experimental-support-for-extensions-on-Android renames
+	# is_desktop_android to is_desktop_android_cromite and
+	# enable_desktop_android_extensions to _cromite/_false; 157 upstream
+	# added new references to the old names (webui_features.gni, the
+	# extensions API BUILD files, ...). Keep the old names defined with the
+	# same values instead of re-basing every usage.
+	eapply_wrapper "${FILESDIR}/chromium-157-desktop-android-rename.patch"
+
+	# eyeo chrome_integration's chrome/browser/ui/BUILD.gn hunks are excluded
+	# from the loop (they fuzz-apply to the wrong 157 targets); re-base the
+	# header note and put the content dep where 157 compiles the patched
+	# tab_helpers.cc.
+	eapply_wrapper "${FILESDIR}/chromium-157-adblock-ui-deps.patch"
 
 	# Disable-UA-full-version: 157 refactored SetFullVersionList to delegate to
 	# the shared AppendBrandVersions helper (so the patch's inline-loop hunk

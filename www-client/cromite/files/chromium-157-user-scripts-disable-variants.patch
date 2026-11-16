@@ -1,0 +1,12 @@
+--- a/components/user_scripts/common/BUILD.gn
++++ b/components/user_scripts/common/BUILD.gn
+@@ -44,8 +44,6 @@
+   ]
+ }
+ 
+ mojom("mojom") {
+-  disable_variants = true
+-
+   sources = [
+     "mojom/renderer.mojom",
+   ]

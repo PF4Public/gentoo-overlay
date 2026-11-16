@@ -1,0 +1,19 @@
+--- a/chrome/browser/ui/BUILD.gn
++++ b/chrome/browser/ui/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+
+ import("//build/config/buildflags_paint_preview.gni")
+ import("//build/config/chrome_build.gni")
+@@ -1401,5 +1404,6 @@
+     "//chrome/common:buildflags",
+     "//chrome/common:chrome_features",
+     "//chrome/common:non_code_constants",
++    "//components/adblock/content:browser",
+     "//components/breadcrumbs/core:status",
+     "//components/captive_portal/core:buildflags",

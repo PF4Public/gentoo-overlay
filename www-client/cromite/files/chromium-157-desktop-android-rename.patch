@@ -1,0 +1,20 @@
+--- a/build/config/chrome_build.gni
++++ b/build/config/chrome_build.gni
+@@ -71,6 +71,8 @@
+   # Disable for non-android secondary toolchains.
+   is_desktop_android_cromite = is_android
+ }
++# 157 upstream added new references to the pre-rename name; keep it defined
++is_desktop_android = is_desktop_android_cromite
+
+ declare_args() {
+   # Whether to apply size->speed trade-offs to the secondary toolchain.
+--- a/extensions/buildflags/buildflags.gni
++++ b/extensions/buildflags/buildflags.gni
+@@ -51,4 +51,6 @@
+   # Don't use this directly. See note above.
+   enable_desktop_android_extensions_cromite = is_android
+   enable_desktop_android_extensions_false = false
++  # 157 upstream references the pre-rename name in new API BUILD files
++  enable_desktop_android_extensions = is_android
+ }
