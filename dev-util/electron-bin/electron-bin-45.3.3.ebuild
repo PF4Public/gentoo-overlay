@@ -15,7 +15,7 @@ LICENSE="Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Base64 Boost-1.0 C
 LICENSE+=" IJG ISC LGPL-2 LGPL-2.1 MIT MPL-1.1 MPL-2.0 Ms-PL PSF-2 SGI-B-2.0 SSLeay SunSoft Unicode-3.0"
 LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
 SLOT="$(ver_cut 1)/$(ver_cut 2-)"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 RESTRICT="mirror"
 
 RDEPEND="
