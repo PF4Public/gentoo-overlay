@@ -1609,6 +1609,18 @@ src_prepare() {
 		fi
 	done
 
+	# The shared */android/* filter drops the two desktop-android feature-list
+	# placeholder.txt (their path contains /flags/android/) but keeps
+	# cromite_flags/BUILD.gn, which lists them as the inputs to its
+	# cpp_bromite_include targets; recreate them so the inputs resolve (the
+	# generator walks the dir for .inc files only, so the content is moot).
+	local _d _f
+	for _d in chrome_feature_list_cc chrome_feature_list_h; do
+		_f="cromite_flags/chrome/browser/flags/android/${_d}/placeholder.txt"
+		mkdir -p "${_f%/*}" || die
+		printf 'this file is intentionally empty\n' > "${_f}" || die
+	done
+
 	# Re-add the content_settings dep dropped above (157 restructured the ui target).
 	sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
 		chrome/browser/ui/BUILD.gn || die
