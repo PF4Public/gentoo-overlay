@@ -166,7 +166,7 @@ if [[ ${PV} = *9999* ]]; then
 	GITHUB_SRC=""
 	DEPS_SRC=""
 else
-	KEYWORDS="~amd64"
+	KEYWORDS="amd64"
 	S="${WORKDIR}/Radarr-${PV}"
 	GITHUB_SRC="
 	https://github.com/Radarr/Radarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
