@@ -18,20 +18,20 @@
    for (size_t i = 0; i < args.size(); ++i) {
      vargs[i] = args[i].c_str();
 
- --- a/chrome/browser/BUILD.gn
- +++ b/chrome/browser/BUILD.gn
- @@ -2733,7 +2733,6 @@
-      "//chrome/browser/feedback",
-      "//chrome/browser/first_run",
-      "//chrome/browser/first_run:impl",
- -    "//chrome/browser/google",
-      "//chrome/browser/headless",
-      "//chrome/browser/history_embeddings",
-      "//chrome/browser/image_fetcher",
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -2733,7 +2733,6 @@
+     "//chrome/browser/feedback",
+     "//chrome/browser/first_run",
+     "//chrome/browser/first_run:impl",
+-    "//chrome/browser/google",
+     "//chrome/browser/headless",
+     "//chrome/browser/history_embeddings",
+     "//chrome/browser/image_fetcher",
 
- --- a/chrome/browser/feedback/BUILD.gn
- +++ b/chrome/browser/feedback/BUILD.gn
- @@ -124,7 +124,6 @@
+--- a/chrome/browser/feedback/BUILD.gn
++++ b/chrome/browser/feedback/BUILD.gn
+@@ -124,7 +124,6 @@
        "//chrome/browser/devtools",
        "//chrome/browser/extensions",
        "//chrome/browser/feedback/report_unsafe_site",
@@ -51,27 +51,27 @@
        "//chrome/browser/net",
        "//chrome/browser/prefs:util",
        "//chrome/browser/profiles:profile",
- 
- --- a/chrome/browser/profile_resetter/BUILD.gn
- +++ b/chrome/browser/profile_resetter/BUILD.gn
- @@ -122,7 +122,6 @@
-      deps = [
-        ":impl",
-        "//chrome/browser/browsing_data:constants",
- -      "//chrome/browser/google",
-        "//chrome/browser/search/background",
-        "//chrome/browser/search_engines",
-        "//chrome/test:test_support",
- @@ -204,7 +203,6 @@
-        "//chrome/browser/content_settings:content_settings_factory",
-        "//chrome/browser/extensions",
-        "//chrome/browser/extensions:test_support",
- -      "//chrome/browser/google",
-        "//chrome/browser/prefs",
-        "//chrome/browser/prefs:util",
-        "//chrome/browser/search/background",
 
- --- a/chrome/browser/resources/settings/autofill_page/autofill_page.html.ts
+--- a/chrome/browser/profile_resetter/BUILD.gn
++++ b/chrome/browser/profile_resetter/BUILD.gn
+@@ -122,7 +122,6 @@
+     deps = [
+       ":impl",
+       "//chrome/browser/browsing_data:constants",
+-      "//chrome/browser/google",
+       "//chrome/browser/search/background",
+       "//chrome/browser/search_engines",
+       "//chrome/test:test_support",
+@@ -204,7 +203,6 @@
+       "//chrome/browser/content_settings:content_settings_factory",
+       "//chrome/browser/extensions",
+       "//chrome/browser/extensions:test_support",
+-      "//chrome/browser/google",
+       "//chrome/browser/prefs",
+       "//chrome/browser/prefs:util",
+       "//chrome/browser/search/background",
+
+--- a/chrome/browser/resources/settings/autofill_page/autofill_page.html.ts
 +++ b/chrome/browser/resources/settings/autofill_page/autofill_page.html.ts
 @@ -68,21 +68,5 @@
    <collapsible-autofill-settings-card></collapsible-autofill-settings-card>
@@ -143,18 +143,18 @@
      "//chrome/browser/history:unit_tests",
      "//chrome/browser/history_clusters:unit_tests",
 
- --- a/components/domain_reliability/BUILD.gn
- +++ b/components/domain_reliability/BUILD.gn
- @@ -96,7 +96,6 @@
-    ]
-  
-    deps = [
- -    ":bake_in_configs",
-      ":domain_reliability",
-      "//base",
-      "//base/test:test_support",
+--- a/components/domain_reliability/BUILD.gn
++++ b/components/domain_reliability/BUILD.gn
+@@ -96,7 +96,6 @@
+   ]
 
- --- a/components/domain_reliability/bake_in_configs.py
+   deps = [
+-    ":bake_in_configs",
+    ":domain_reliability",
+    "//base",
+    "//base/test:test_support",
+
+--- a/components/domain_reliability/bake_in_configs.py
 +++ b/components/domain_reliability/bake_in_configs.py
 @@ -487,9 +487,7 @@
          domain = origin[8:-1]
