@@ -150,9 +150,9 @@
 
    deps = [
 -    ":bake_in_configs",
-    ":domain_reliability",
-    "//base",
-    "//base/test:test_support",
+     ":domain_reliability",
+     "//base",
+     "//base/test:test_support",
 
 --- a/components/domain_reliability/bake_in_configs.py
 +++ b/components/domain_reliability/bake_in_configs.py
