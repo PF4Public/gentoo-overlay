@@ -100,8 +100,10 @@ src_prepare() {
 	# breaks paste on the 44/45 slots (upstream pins electron 43). 0004 routes
 	# the main-process clipboard callers through a compat module that speaks
 	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
-	# path degrades to a reported failure on 44+.
-	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.259.patch" || die
+	# path degrades to a reported failure on 44+. 1.4.261 drifted the
+	# clipboard-image-source / clipboard-native-image imports, so this variant
+	# (regenerated from the 261 tree) is used by 261 and the live ebuild.
+	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.261.patch" || die
 
 	# The saveImageAsTempFile handler's direct readClipboardImageSource /
 	# readClipboardNativeImage calls are not in the patch: 1.4.252 refactored
