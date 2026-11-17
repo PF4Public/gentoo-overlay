@@ -1627,6 +1627,12 @@ src_prepare() {
 		printf 'this file is intentionally empty\n' > "${_f}" || die
 	done
 
+	# 157 removed kThirdPartyPartitionedStorageAllowedByDefault (third-party
+	# storage partitioning is on by default now); the Partitioning-all-cookies
+	# flag .inc still references the gone feature and fails to compile.
+	find cromite_flags -name '*.inc' -exec sed -i \
+		'/kThirdPartyPartitionedStorageAllowedByDefault/s|^|// |' {} + || die
+
 	# Re-add the content_settings dep dropped above (157 restructured the ui target).
 	sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
 		chrome/browser/ui/BUILD.gn || die
