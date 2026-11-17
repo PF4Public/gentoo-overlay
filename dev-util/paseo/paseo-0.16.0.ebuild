@@ -56,7 +56,7 @@ src_prepare() {
 	# resources dir, which is the electron dist under the system-electron
 	# layout; resolve it from process.resourcesPath instead, which
 	# resources-path-override.cjs pins to the install dir.
-	patch -p1 -i "${FILESDIR}/0001-cli-shim-path.patch" || die
+	patch -p1 -i "${FILESDIR}/cli-shim-path.patch" || die
 }
 
 src_compile() {

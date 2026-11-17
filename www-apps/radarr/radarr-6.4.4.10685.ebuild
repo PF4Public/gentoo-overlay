@@ -325,7 +325,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/radarr-6.4.4.10685-look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/look-up-package_info-in-the-startup-folder.patch"
 )
 
 pkg_setup() {

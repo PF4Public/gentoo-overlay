@@ -429,8 +429,8 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/readarr-0.4.18.2805-look-up-package_info-in-the-startup-folder.patch"
-	"${FILESDIR}/readarr-0.4.18.2805-drop-packageSourceMapping.patch"
+	"${FILESDIR}/look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/drop-packageSourceMapping.patch"
 )
 
 pkg_setup() {

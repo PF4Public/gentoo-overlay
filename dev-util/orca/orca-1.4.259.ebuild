@@ -80,19 +80,19 @@ src_prepare() {
 	# matches on both trees (a no-op where the line is absent).
 	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
 		config/electron-builder.config.cjs || die
-	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
+	patch -p1 -i "${FILESDIR}/relax-ci-verification-hooks.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
 	# the missing file (0002). With the flag the helper is built natively below.
 	if ! use wayland; then
-		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard-1.4.256.patch" || die
+		patch -p1 -i "${FILESDIR}/strip-wayland-clipboard.patch" || die
 	fi
 
 	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);
 	# src_compile pins the source commit (git HEAD for this live build, tracking
 	# each update) so the app's skill installs resolve to this build.
-	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env-1.4.251.patch" || die
+	patch -p1 -i "${FILESDIR}/honor-build-commit-env.patch" || die
 
 	# Electron 44 removed the legacy clipboard surface (availableFormats,
 	# readBuffer, readImage, writeImage, writeBuffer, the 'selection' argument
@@ -102,7 +102,7 @@ src_prepare() {
 	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
 	# path degrades to a reported failure on 44+. 1.4.259 moved the clipboard
 	# module into src/main/window/clipboard/; the -1.4.259 patch targets it.
-	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.259.patch" || die
+	patch -p1 -i "${FILESDIR}/electron-clipboard-api-r1.patch" || die
 
 	# The saveImageAsTempFile handler's direct readClipboardImageSource /
 	# readClipboardNativeImage calls are not in the patch: 1.4.252 refactored

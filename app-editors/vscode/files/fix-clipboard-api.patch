@@ -4,12 +4,12 @@
  
  import * as fs from 'fs';
  import { exec } from 'child_process';
--import { app, BrowserWindow, clipboard, contentTracing, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
-+import { app, BrowserWindow, clipboard, ClipboardItem, contentTracing, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
+-import { app, BrowserWindow, clipboard, contentTracing, desktopCapturer, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, nativeImage, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
++import { app, BrowserWindow, clipboard, ClipboardItem, contentTracing, desktopCapturer, Display, Menu, MessageBoxOptions, MessageBoxReturnValue, nativeImage, Notification, OpenDevToolsOptions, OpenDialogOptions, OpenDialogReturnValue, powerMonitor, powerSaveBlocker, SaveDialogOptions, SaveDialogReturnValue, screen, shell, systemPreferences, webContents } from 'electron';
  import { arch, cpus, freemem, loadavg, platform, release, totalmem, type } from 'os';
  import { promisify } from 'util';
  import { memoize } from '../../../base/common/decorators.js';
-@@ -997,7 +997,8 @@
+@@ -1088,7 +1088,8 @@
  
  	async readClipboardText(windowId: number | undefined, type?: 'selection' | 'clipboard'): Promise<string> {
  		this.logService.trace(`readClipboardText in window ${windowId} with type:`, type);
@@ -19,7 +19,7 @@
  		this.logService.trace(`clipboardText.length :`, clipboardText.length);
  		return clipboardText;
  	}
-@@ -1009,31 +1010,74 @@
+@@ -1100,7 +1101,22 @@
  	}
  
  	async readImage(): Promise<Uint8Array> {
@@ -40,6 +40,10 @@
 +			}
 +		}
 +		return new Uint8Array(0);
+ 	}
+ 
+ 	async writeImage(windowId: number | undefined, data: VSBuffer): Promise<void> {
+@@ -1108,27 +1124,55 @@
  	}
  
  	async writeClipboardText(windowId: number | undefined, text: string, type?: 'selection' | 'clipboard'): Promise<void> {

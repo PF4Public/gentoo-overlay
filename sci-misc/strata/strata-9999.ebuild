@@ -208,7 +208,7 @@ src_unpack() {
 	if grep -q "bf16x16_t = __attribute__((ext_vector_type(16))) __bf16" \
 		"${WORKDIR}/llama.cpp-${LLAMA_COMMIT}/ggml/src/ggml-cuda/mma.cuh"; then
 		patch -d "${WORKDIR}/llama.cpp-${LLAMA_COMMIT}" -p1 \
-			< "${FILESDIR}/strata-llama-wmma-bf16.patch" || die
+			< "${FILESDIR}/llama-wmma-bf16.patch" || die
 	fi
 
 	if use desktop; then
@@ -239,7 +239,7 @@ src_prepare() {
 	# or bit-cast); upstream main still carries the bug
 	if use hip && grep -q "typedef __bf16 hb16 __attribute__((ext_vector_type(16)));" \
 		"${S}/src/prefill/wmma_gemm.cu"; then
-		eapply "${FILESDIR}/strata-wmma-bf16.patch"
+		eapply "${FILESDIR}/wmma-bf16.patch"
 	fi
 
 	# the ebuild provides updates: disable both the tauri app updater (no

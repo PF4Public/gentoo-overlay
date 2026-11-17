@@ -56,7 +56,7 @@ src_prepare() {
 	# resources dir, which is the electron dist under the system-electron
 	# layout; resolve it from process.resourcesPath instead, which
 	# resources-path-override.cjs pins to the install dir.
-	patch -p1 -i "${FILESDIR}/0001-cli-shim-path.patch" || die
+	patch -p1 -i "${FILESDIR}/cli-shim-path.patch" || die
 
 	# The desktop app's electron-updater integration polls the upstream
 	# GitHub releases feed, auto-downloads, and installs on quit. Force the

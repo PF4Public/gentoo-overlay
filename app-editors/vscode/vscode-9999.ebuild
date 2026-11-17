@@ -222,7 +222,7 @@ src_prepare() {
 	# readImage, readBuffer, ...) and added read()/write()/ClipboardItem
 	if [[ ${ELECTRON_SLOT} -ge 44 ]]; then
 		einfo "Fixing Clipboard API"
-		patch -p1 -i "${FILESDIR}/fix-clipboard-api-1.144.patch" || die
+		patch -p1 -i "${FILESDIR}/fix-clipboard-api.patch" || die
 	else
 		einfo "Keeping old clipboard API (electron ${ELECTRON_SLOT})"
 	fi

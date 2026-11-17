@@ -78,23 +78,23 @@ src_prepare() {
 	# main additionally gained a verifyPackagedPluginTypings call beside the
 	# plugin-resources check 0001 removes; strip it first so the hunk context
 	# matches on both trees (a no-op where the line is absent). The live ebuild
-	# uses -9999 variants of 0001/0002 instead: main restructured this
-	# CI-verification config (provider-exec) beyond the -251/-256 patches.
+	# uses the -r1 variants of 0001/0002 instead: main restructured this
+	# CI-verification config (provider-exec) beyond the release patches.
 	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
 		config/electron-builder.config.cjs || die
-	patch -p1 -i "${FILESDIR}/0001-relax-ci-verification-hooks-1.4.251.patch" || die
+	patch -p1 -i "${FILESDIR}/relax-ci-verification-hooks.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
 	# the missing file (0002). With the flag the helper is built natively below.
 	if ! use wayland; then
-		patch -p1 -i "${FILESDIR}/0002-strip-wayland-clipboard-1.4.256.patch" || die
+		patch -p1 -i "${FILESDIR}/strip-wayland-clipboard.patch" || die
 	fi
 
 	# Honor an explicit ORCA_BUILD_COMMIT env in resolveBuildSourceCommit() (0003);
 	# src_compile pins the source commit (git HEAD for this live build, tracking
 	# each update) so the app's skill installs resolve to this build.
-	patch -p1 -i "${FILESDIR}/0003-honor-build-commit-env-1.4.251.patch" || die
+	patch -p1 -i "${FILESDIR}/honor-build-commit-env.patch" || die
 
 	# Electron 44 removed the legacy clipboard surface (availableFormats,
 	# readBuffer, readImage, writeImage, writeBuffer, the 'selection' argument
@@ -105,7 +105,7 @@ src_prepare() {
 	# path degrades to a reported failure on 44+. 1.4.261 drifted the
 	# clipboard-image-source / clipboard-native-image imports, so this variant
 	# (regenerated from the 261 tree) is used by 261 and the live ebuild.
-	patch -p1 -i "${FILESDIR}/0004-electron-clipboard-api-1.4.261.patch" || die
+	patch -p1 -i "${FILESDIR}/electron-clipboard-api-r2.patch" || die
 
 	# The saveImageAsTempFile handler's direct readClipboardImageSource /
 	# readClipboardNativeImage calls are not in the patch: 1.4.252 refactored

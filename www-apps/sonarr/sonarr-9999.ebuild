@@ -222,7 +222,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/sonarr-4.0.20.3014-look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/look-up-package_info-in-the-startup-folder.patch"
 )
 
 pkg_setup() {
