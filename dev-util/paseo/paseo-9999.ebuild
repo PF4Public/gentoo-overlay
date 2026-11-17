@@ -57,6 +57,12 @@ src_prepare() {
 	# layout; resolve it from process.resourcesPath instead, which
 	# resources-path-override.cjs pins to the install dir.
 	patch -p1 -i "${FILESDIR}/0001-cli-shim-path.patch" || die
+
+	# The desktop app's electron-updater integration polls the upstream
+	# GitHub releases feed, auto-downloads, and installs on quit. Force the
+	# update service's isPackaged gate off so it never checks or installs;
+	# the app is kept current through the distro.
+	eapply "${FILESDIR}/disable-self-update.patch"
 }
 
 src_compile() {

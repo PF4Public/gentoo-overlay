@@ -1,0 +1,11 @@
+--- a/packages/desktop/src/features/auto-updater.ts
++++ b/packages/desktop/src/features/auto-updater.ts
+@@ -224,7 +224,7 @@
+ 
+ const appUpdateService = createAppUpdateService({
+   runtime: new ElectronAppUpdateRuntime(),
+-  isPackaged: () => app.isPackaged,
++  isPackaged: () => false,
+   now: () => Date.now(),
+   bucket: async () => bucketFromStagingUserId(await getStagingUserId()),
+   reportCheckError: (error) => {
