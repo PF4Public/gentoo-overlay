@@ -1,0 +1,12 @@
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index 7aedb9d..98c232c 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -112,7 +112,6 @@ else()
+     if (WHISPER_SDL2)
+         add_subdirectory(stream)
+         add_subdirectory(command)
+-        add_subdirectory(talk-llama)
+         add_subdirectory(lsp)
+         if (GGML_SYCL)
+             add_subdirectory(sycl)

@@ -1,0 +1,31 @@
+--- a/src/prefill/wmma_gemm.cu
++++ b/src/prefill/wmma_gemm.cu
+@@ -77,7 +77,7 @@
+ 
+ template <>
+ struct WmmaTraits<__bf16> {
+-    using vec_t = __bf16 __attribute__((ext_vector_type(16)));
++    using vec_t = short __attribute__((ext_vector_type(16)));
+     __device__ static inline v8fp32 mma(vec_t a, vec_t b, v8fp32 c) {
+ #if defined(__gfx1100__) || defined(__gfx1101__) || defined(__gfx1102__) || defined(__gfx1103__) || defined(__gfx1150__) || defined(__gfx1151__)
+         return __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a, b, c);
+@@ -486,7 +486,7 @@
+ // so xn16 is read once.  128 x 128 blocks, the BK 64 single-buffer scheme of kernel_bk64.  s23/hcdown_probe.hip,
+ // 16K tokens: 3.60 / 3.77 ms (hipBLASLt in the engine: down 6.78 + inject 1.81).  FP32 accumulation in another k
+ // order than hipBLASLt: rounding-level.
+-typedef __bf16 hb16 __attribute__((ext_vector_type(16)));
++typedef short hb16 __attribute__((ext_vector_type(16)));
+ __device__ __forceinline__ hb16 bfrag(const uint16_t* p) {
+     const uint4 a = *reinterpret_cast<const uint4*>(p), b = *reinterpret_cast<const uint4*>(p + 8);
+     const uint32_t w[8] = {a.x, a.y, a.z, a.w, b.x, b.y, b.z, b.w};
+--- a/src/prefill/kernels.cu
++++ b/src/prefill/kernels.cu
+@@ -2551,7 +2551,7 @@
+ // mix (x_c = R * rs * w, sum of x_c * sigmoid(gated_c), / 4) runs in registers, in gr_mix_r_kernel's order.  The
+ // GEMM sums K in another order than hipBLASLt: rounding-level, hence opt-in and quality-gated.
+ #if defined(__HIPCC__)
+-typedef __bf16 um_b16 __attribute__((ext_vector_type(16)));
++typedef short um_b16 __attribute__((ext_vector_type(16)));
+ typedef float um_f8 __attribute__((ext_vector_type(8)));
+ __device__ __forceinline__ um_f8 um_wmma(um_b16 a, um_b16 b, um_f8 c) {
+ #if defined(__gfx1100__) || defined(__gfx1101__) || defined(__gfx1102__) || defined(__gfx1103__) || defined(__gfx1150__) || defined(__gfx1151__)

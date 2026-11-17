@@ -1,0 +1,15 @@
+diff --git a/config/electron-builder.config.cjs b/config/electron-builder.config.cjs
+index b4655ee8..a450f0b7 100644
+--- a/config/electron-builder.config.cjs
++++ b/config/electron-builder.config.cjs
+@@ -695,10 +695,6 @@
+       ...commonExtraResources,
+       ...createPackagedRuntimeNodeModuleResources('linux'),
+       {
+-        from: 'native/wayland-clipboard/.build/${arch}/orca-wayland-clipboard',
+-        to: 'bin/orca-wayland-clipboard'
+-      },
+-      {
+         from: 'resources/linux/bin/orca-ide',
+         to: 'bin/orca-ide'
+       },

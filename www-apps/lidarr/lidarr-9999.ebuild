@@ -333,7 +333,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/lidarr-3.2.1.5196-look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/look-up-package_info-in-the-startup-folder.patch"
 )
 
 pkg_setup() {

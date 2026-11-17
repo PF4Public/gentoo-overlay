@@ -1,0 +1,30 @@
+diff --git a/src/NuGet.config b/src/NuGet.config
+index 44ac030..e5d04cc 100644
+--- a/src/NuGet.config
++++ b/src/NuGet.config
+@@ -9,25 +9,4 @@
+     <add key="coverlet-nightly" value="https://pkgs.dev.azure.com/Servarr/coverlet/_packaging/coverlet-nightly/nuget/v3/index.json" />
+     <add key="FluentMigrator" value="https://pkgs.dev.azure.com/Servarr/Servarr/_packaging/FluentMigrator/nuget/v3/index.json" />
+   </packageSources>
+-  <packageSourceMapping>
+-  <!-- key value for <packageSource> should match key values from <packageSources> element -->
+-  <packageSource key="nuget.org">
+-    <package pattern="*" />
+-  </packageSource>
+-  <packageSource key="dotnet-bsd-crossbuild">
+-    <package pattern="*" />
+-  </packageSource>
+-  <packageSource key="Mono.Posix.NETStandard">
+-    <package pattern="Mono.Posix.NETStandard" />
+-  </packageSource>
+-  <packageSource key="SQLite">
+-    <package pattern="System.Data.SQLite.Core.Servarr" />
+-  </packageSource>
+-  <packageSource key="coverlet-nightly">
+-    <package pattern="coverlet.*" />
+-  </packageSource>
+-  <packageSource key="FluentMigrator">
+-    <package pattern="Servarr.FluentMigrator*"/>
+-  </packageSource>
+-</packageSourceMapping>
+ </configuration>
