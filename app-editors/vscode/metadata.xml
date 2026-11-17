@@ -16,6 +16,7 @@
 		<flag name="api-proposals">Enable API proposals !WARNING! Enabling them might be forbidden by Microsoft licensing terms!</flag>
 		<flag name="badge-providers">Allow various badge providers</flag>
 		<flag name="build-online">Disable network-sandbox and open Pandora's box!</flag>
+		<flag name="copilot">Build the bundled GitHub Copilot chat extension</flag>
 		<flag name="openvsx">Use Eclipse Open VSX instead of Visual Studio Marketplace</flag>
 		<flag name="reh">Build Remote Extension Host</flag>
 		<flag name="reh-web">Build Remote Extension Host for Web</flag>

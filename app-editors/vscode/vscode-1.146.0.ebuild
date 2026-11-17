@@ -20,7 +20,7 @@ SRC_URI="
 
 REPO="https://github.com/microsoft/vscode"
 #CODE_COMMIT_ID="ae245c9b1f06e79cec4829f8cd1555206b0ec8f2"
-IUSE="api-proposals badge-providers openvsx reh reh-web substitute-urls temp-fix"
+IUSE="api-proposals badge-providers copilot openvsx reh reh-web substitute-urls temp-fix"
 
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
@@ -165,6 +165,15 @@ src_prepare() {
 	sed -i '/.pipe(electron(electronConfig))/d' build/gulpfile.vscode.ts || die
 	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.vscode.ts || die
 	sed -i '/prepareBuiltInCopilotRipgrepShim(platform,/d' build/gulpfile.reh.ts || die
+
+	if ! use copilot; then
+		einfo "Disabling the bundled copilot extension"
+		# drop the copilot pnpm root (also its chat-lib member) so its deps are not installed
+		sed -i "/'extensions\/copilot'/d" build/npm/dirs.ts || die
+		# skip the task that packages the copilot extension into the build
+		sed -i '/compileCopilotExtensionBuildTask,/d' build/gulpfile.vscode.ts || die
+		sed -i '/compileCopilotExtensionBuildTask,/d' build/gulpfile.reh.ts || die
+	fi
 	# 1.144+ pre-generates the node compile cache by spawning the packaged
 	# binary; the package ships without the electron binary (system
 	# electron-r1), so disable the task
@@ -207,8 +216,9 @@ src_prepare() {
 
 	if use substitute-urls; then
 	ebegin "Substituting urls"
-		#Taken from VSCodium
-		TELEMETRY_URLS="[^/]+\.data\.microsoft\.com"
+		#Taken from VSCodium; also the vscode-cdn.net source-map CDN, which the
+		#build rewrites into the shipped node_modules (rewriteSourceMappingURL)
+		TELEMETRY_URLS="([^/]+\.data\.microsoft\.com|vscode-cdn\.net)"
 		REPLACEMENT="s/$TELEMETRY_URLS/0\.0\.0\.0/g"
 		grep -rl --exclude-dir=.git -E $TELEMETRY_URLS . | xargs sed -i -E $REPLACEMENT
 	eend $? || die
