@@ -1,0 +1,116 @@
+diff --git a/src/application/Update.ts b/src/application/Update.ts
+index a1b1ca7..dbe808a 100644
+--- a/src/application/Update.ts
++++ b/src/application/Update.ts
+@@ -156,32 +156,16 @@ export const runUpdate = async (
+   host: UpdateHost,
+   output: UpdateOutput = "human",
+ ): Promise<UpdateResult> => {
+-  let result: UpdateResult | undefined;
+-  let primaryFailure: unknown;
+-  let failed = false;
+-  try {
+-    result = await runUpdateWorkflow(currentVersion, host, output);
+-  } catch (cause: unknown) {
+-    failed = true;
+-    primaryFailure = cause;
+-  }
+-  let cleanupFailure: string | undefined;
+-  try {
+-    cleanupFailure = await host.close?.();
+-  } catch (cause: unknown) {
+-    cleanupFailure = `Update resource cleanup failed: ${errorMessage(cause)}`;
+-  }
+-  if (failed) {
+-    if (cleanupFailure !== undefined)
+-      throw new AggregateError(
+-        [primaryFailure, new Error(cleanupFailure)],
+-        "Update failed and its resource cleanup remains incomplete.",
+-        { cause: primaryFailure },
+-      );
+-    throw primaryFailure;
+-  }
+-  if (result === undefined) throw new Error("Update result was not produced.");
+-  return cleanupFailure === undefined ? result : { ...result, cleanupFailure };
++  // Self-update is disabled in this build; the package manager owns the
++  // installed release.
++  return {
++    status: "failed",
++    currentVersion,
++    latestVersion: null,
++    reason: "version-check",
++    remediation:
++      "Self-update is disabled in this build. Update dev-util/rea with portage (emerge dev-util/rea).",
++  };
+ };
+ 
+ const runUpdateWorkflow = async (
+diff --git a/src/cli/updateNotice.ts b/src/cli/updateNotice.ts
+index ba9855f..a3bf8c5 100644
+--- a/src/cli/updateNotice.ts
++++ b/src/cli/updateNotice.ts
+@@ -278,21 +278,8 @@ export const availableUpdate = (
+   version: string,
+   environment: UpdateEnvironment,
+ ): AvailableUpdate | undefined => {
+-  if (notificationsDisabled(environment)) return undefined;
+-  const target = updatePackage(cli, version);
+-  if (target === undefined) return undefined;
+-  const file = cacheFile(environment, target.name);
+-  if (file === undefined) return undefined;
+-  const cached = readCache(file);
+-  const checkedAt = Date.now();
+-  if (
+-    cached === undefined ||
+-    checkedAt - cached.checkedAt >= REFRESH_INTERVAL_MS
+-  )
+-    scheduleRefresh(file, checkedAt, cached?.latest, environment);
+-  if (!cached?.latest || !isNewerVersion(cached.latest, target.current))
+-    return undefined;
+-  return { name: target.name, current: target.current, latest: cached.latest };
++  // Self-update is disabled in this build; never report a newer release.
++  return undefined;
+ };
+ 
+ /** The notice's suggested-command block for an available update. */
+@@ -312,39 +299,5 @@ export const refreshUpdateCache = async (
+   version: string,
+   environment: UpdateEnvironment,
+ ): Promise<void> => {
+-  try {
+-    const target = updatePackage(cli, version);
+-    if (target === undefined) return;
+-    const file = cacheFile(environment, target.name);
+-    if (file === undefined) return;
+-    const registry =
+-      variable(environment, "npm_config_registry") ||
+-      "https://registry.npmjs.org";
+-    const response = await fetch(
+-      new URL(
+-        encodeURIComponent(target.name),
+-        registry.endsWith("/") ? registry : `${registry}/`,
+-      ),
+-      {
+-        headers: {
+-          accept:
+-            "application/vnd.npm.install-v1+json; q=1.0, application/json; q=0.8, */*",
+-        },
+-        signal: AbortSignal.timeout(REGISTRY_TIMEOUT_MS),
+-      },
+-    );
+-    if (!response.ok) return;
+-    const metadata = (await response.json()) as {
+-      readonly "dist-tags"?: { readonly latest?: unknown };
+-    };
+-    const latest = metadata["dist-tags"]?.latest;
+-    if (typeof latest !== "string" || parseVersion(latest) === undefined)
+-      return;
+-    writeCache(file, {
+-      checkedAt: Date.now(),
+-      latest,
+-    });
+-  } catch {
+-    // A failed refresh leaves the cache marked checked until the next day.
+-  }
++  // Self-update is disabled in this build; never fetch the registry.
+ };

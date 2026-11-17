@@ -1,0 +1,70 @@
+diff --git a/src/application/Update.ts b/src/application/Update.ts
+index 685f3e5..50c101f 100644
+--- a/src/application/Update.ts
++++ b/src/application/Update.ts
+@@ -151,32 +151,16 @@ export const runUpdate = async (
+   host: UpdateHost,
+   output: UpdateOutput = "human",
+ ): Promise<UpdateResult> => {
+-  let result: UpdateResult | undefined;
+-  let primaryFailure: unknown;
+-  let failed = false;
+-  try {
+-    result = await runUpdateWorkflow(currentVersion, host, output);
+-  } catch (cause: unknown) {
+-    failed = true;
+-    primaryFailure = cause;
+-  }
+-  let cleanupFailure: string | undefined;
+-  try {
+-    cleanupFailure = await host.close?.();
+-  } catch (cause: unknown) {
+-    cleanupFailure = `Update resource cleanup failed: ${cause instanceof Error ? cause.message : String(cause)}`;
+-  }
+-  if (failed) {
+-    if (cleanupFailure !== undefined)
+-      throw new AggregateError(
+-        [primaryFailure, new Error(cleanupFailure)],
+-        "Update failed and its resource cleanup remains incomplete.",
+-        { cause: primaryFailure },
+-      );
+-    throw primaryFailure;
+-  }
+-  if (result === undefined) throw new Error("Update result was not produced.");
+-  return cleanupFailure === undefined ? result : { ...result, cleanupFailure };
++  // Self-update is disabled in this build; the package manager owns the
++  // installed release.
++  return {
++    status: "failed",
++    currentVersion,
++    latestVersion: null,
++    reason: "version-check",
++    remediation:
++      "Self-update is disabled in this build. Update dev-util/rea with portage (emerge dev-util/rea).",
++  };
+ };
+ 
+ const runUpdateWorkflow = async (
+diff --git a/src/cli.ts b/src/cli.ts
+index b288cef..347b2ae 100644
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -144,15 +144,9 @@ export const createCli = (
+         "Ask what software, artifact, protocol, or behavior the user wants to understand, then choose the available investigation capabilities that can produce evidence.",
+     },
+     sync: false,
+-    update: {
+-      // Incur's update:false only suppresses notices. Reject its explicit
+-      // installer so ambiguous flags cannot bypass REA's verified workflow.
+-      install: () => {
+-        throw new Error(
+-          "Use 'rea update' to update the identified installation. The '--update' alias accepts only global output flags.",
+-        );
+-      },
+-    },
++    // update-check is disabled in this build: no background registry lookup,
++    // no update notice, and no Incur self-installer.
++    update: false,
+   });
+ 
+   timedCli.use(async (context, next) => {

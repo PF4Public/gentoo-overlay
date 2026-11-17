@@ -46,6 +46,13 @@ DOCS=(
 	THIRD_PARTY_NOTICES.md
 )
 
+src_prepare() {
+	default_src_prepare
+	# disable self-update: no background registry lookup or update notice, and
+	# `rea update` reports that updates come from the package manager
+	eapply "${FILESDIR}/disable-incur-self-update.patch"
+}
+
 src_compile() {
 	# the prepare script installs husky git hooks; ${S} is not a repository
 	local -x HUSKY=0
