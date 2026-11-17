@@ -1100,7 +1100,6 @@ src_prepare() {
 		["cachestorage_treat_opaque_responses_as_credentialed_for_corp.patch"]="doesn't apply"
 		["apply_check_graphics_reset_status_after_readback_to_all_mali_gpus.patch"]="doesn't apply"
 		["cherry-pick-1547936923aa.patch"]="doesn't apply"
-		["cherry-pick-9f85e246754e.patch"]="doesn't apply"
 		["cherry-pick-55fb677befdd.patch"]="doesn't apply"
 		["cherry-pick-856bdd2ab3f0.patch"]="doesn't apply"
 		["cherry-pick-f6ac76278f27.patch"]="doesn't apply"
@@ -1138,6 +1137,8 @@ src_prepare() {
 	if use ungoogled; then
 		ung_exclude=(--exclude="*browsertest.cc")
 	fi
+	cp "${FILESDIR}/gpu-drain-gl-errors.patch" \
+		"${S}/electron/patches/chromium/cherry-pick-9f85e246754e.patch" || die
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"

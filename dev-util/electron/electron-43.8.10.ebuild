@@ -1012,6 +1012,8 @@ src_prepare() {
 			--exclude="front_end/models/persistence/NetworkPersistenceManager.test.ts" \
 			--exclude="front_end/models/persistence/NetworkPersistenceManager.ts")
 	fi
+	cp "${FILESDIR}/angle-powervr-driver-version.patch" \
+		"${S}/electron/patches/angle/cherry-pick-311c502e88d9.patch" || die
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
@@ -1077,7 +1079,6 @@ src_prepare() {
 				[ "$i" = "cherry-pick-c3ede28106e9.patch" ]||
 				[ "$i" = "cherry-pick-292e993b4a84.patch" ]||
 				[ "$i" = "cherry-pick-a17d5224d83f.patch" ]||
-				[ "$i" = "cherry-pick-311c502e88d9.patch" ]||
 				[ "$i" = "cherry-pick-318948133839.patch" ]||
 				[ "$i" = "cherry-pick-d6247827bfd0.patch" ]||
 				[ "$i" = "revert_enable_crel_for_arm32_targets.patch" ]||
