@@ -121,6 +121,14 @@ src_prepare() {
 	# (and by the publish queue on the wrapped trees).
 	sed -i 's/^\([[:space:]]*\)clipboard\.writeImage(image)$/\1return writeClipboardImage(image)/' \
 		src/main/window/clipboard/clipboard-ipc-handlers.ts || die
+
+	# The in-app auto-updater (electron-updater) feeds from the GitHub releases
+	# and polls on an interval, on resume, and on window focus, then nags. On an
+	# unpacked (non-AppImage) install it classifies the package type as "unusable"
+	# and can never install, so it only adds feed phone-home and nags. Updates are
+	# managed by portage; make setupAutoUpdater() a no-op so no feed URL is set and
+	# nothing is scheduled (the same state as the !app.isPackaged / dev early-return).
+	patch -p1 -i "${FILESDIR}/disable-in-app-auto-update.patch" || die
 }
 
 src_compile() {

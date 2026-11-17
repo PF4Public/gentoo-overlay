@@ -1,0 +1,19 @@
+--- a/src/main/updater/lifecycle/updater-setup.ts	2026-11-17 19:24:44.521471982 +0100
++++ b/src/main/updater/lifecycle/updater-setup.ts	2026-11-17 19:24:44.537521833 +0100
+@@ -140,9 +140,13 @@
+       this.sendErrorStatus(`The server update did not complete: ${serveHandoffFailure}`, true)
+     }
+ 
+-    if (!app.isPackaged) {
+-      return
+-    }
++    // Gentoo: the in-app auto-updater is disabled. Orca is installed and
++    // upgraded via portage, and on an unpacked (non-AppImage) install the
++    // updater classifies the package type as "unusable" — it can only poll
++    // the GitHub release feed and nag, never install. Return unconditionally
++    // (the same state as !app.isPackaged / dev) so no feed URL is set and no
++    // background check, resume/focus check, or update nudge is scheduled.
++    return
+ 
+     const autoUpdater = this.getAutoUpdater()
+     configureMacShipItScheduling()
