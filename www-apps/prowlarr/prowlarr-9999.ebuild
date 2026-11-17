@@ -219,7 +219,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/prowlarr-3.0.2.5780-look-up-package_info-in-the-startup-folder.patch"
+	"${FILESDIR}/look-up-package_info-in-the-startup-folder.patch"
 )
 
 pkg_setup() {
