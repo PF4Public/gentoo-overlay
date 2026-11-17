@@ -16,7 +16,7 @@
           a.force_viewport_meta == b.force_viewport_meta &&
 -         a.force_text_size_adjust == b.force_text_size_adjust;
 +         a.force_text_size_adjust == b.force_text_size_adjust &&
-++         a.force_mobile_calc == b.force_mobile_calc;
++         a.force_mobile_calc == b.force_mobile_calc;
  }
  
  }  // namespace blink

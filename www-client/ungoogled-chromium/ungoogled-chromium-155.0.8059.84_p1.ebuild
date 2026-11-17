@@ -1022,7 +1022,7 @@ src_prepare() {
 		filterdiff -p1 "${BR_PA_PATH}/Viewport-Protection-flag.patch" --exclude="third_party/blink/public/common/widget/device_emulation_params.h" \
 			> "${BR_PA_PATH}/Viewport-Protection-flag.patch1"
 		mv -f "${BR_PA_PATH}/Viewport-Protection-flag.patch1" "${BR_PA_PATH}/Viewport-Protection-flag.patch"
-		eapply_wrapper "${FILESDIR}/chromite-viewport-protection-fix.patch"
+		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-fix.patch"
 		#TODO remove after cromite update
 
 		BROMITE_PATCHES=(
@@ -1074,7 +1074,7 @@ src_prepare() {
 		#* popups (select/date/color pickers); round the screen de-emulation so
 		#* the emulated->screen->emulated round-trip is a fixed point and the
 		#* popup stops drifting toward the top-left corner
-		eapply_wrapper "${FILESDIR}/chromite-viewport-protection-popup-rounding.patch"
+		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-popup-rounding.patch"
 
 		#! conflicting patches
 		sed -i '/browser_features.cc/,+17d' \
