@@ -1655,7 +1655,7 @@ src_prepare() {
 	#* popups (select/date/color pickers); round the screen de-emulation so
 	#* the emulated->screen->emulated round-trip is a fixed point and the
 	#* popup stops drifting toward the top-left corner
-	eapply_wrapper "${FILESDIR}/chromite-viewport-protection-popup-rounding.patch"
+	eapply_wrapper "${FILESDIR}/cromite-viewport-protection-popup-rounding.patch"
 
 	# 157 moved the alternative-navigation probe (the background HEAD request
 	# for single-word omnibox entries) into the observer base class; this is
