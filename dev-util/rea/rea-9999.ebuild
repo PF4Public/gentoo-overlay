@@ -51,6 +51,9 @@ src_prepare() {
 	# disable self-update: no update notice or registry refresh, and `rea
 	# update` reports that updates come from the package manager
 	eapply "${FILESDIR}/disable-self-update.patch"
+	# newer Node dropped the source loader's TS transform mode, so it must not
+	# refuse such a runtime; import the .js the src_compile shim pre-compiles
+	eapply "${FILESDIR}/source-loader-fallback-import.patch"
 }
 
 src_compile() {

@@ -1,0 +1,23 @@
+diff --git a/scripts/lib/verifier-source-loader.mjs b/scripts/lib/verifier-source-loader.mjs
+index 5269926..d64ffa0 100644
+--- a/scripts/lib/verifier-source-loader.mjs
++++ b/scripts/lib/verifier-source-loader.mjs
+@@ -180,13 +180,14 @@ const loadSource = (url, context, nextLoad) => {
+  */
+ export const importVerifierSource = async (url, parent) => {
+   transformTypeScript ??= supportedTransform();
+-  if (
+-    typeof nodeModule.registerHooks !== "function" ||
+-    transformTypeScript === undefined
+-  )
++  if (typeof nodeModule.registerHooks !== "function")
+     throw new Error(
+       "This REA source loader requires the Node.js version pinned in .nvmrc; run nvm use and invoke source build and verifier scripts with node and npm. Installed REA packages have separate runtime support.",
+     );
++  // newer Node dropped the on-the-fly transform, so the build pre-compiles
++  // the verifier source to .js and a plain import needs no hooks
++  if (transformTypeScript === undefined)
++    return import(new URL(url, parent).href);
+   hooks ??= nodeModule.registerHooks({
+     resolve: resolveSource,
+     load: loadSource,
