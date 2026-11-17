@@ -127,7 +127,7 @@ S="${WORKDIR}/Jackett-${PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Jackett.Server/Jackett.Server.csproj" )
