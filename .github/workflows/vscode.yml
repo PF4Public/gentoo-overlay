@@ -76,6 +76,8 @@ jobs:
         include:
           - use: 'openvsx'
             experimental: true
+          - use: 'copilot'
+            experimental: true
           - use: '-build-online'
             experimental: true
           - use: 'reh reh-web'
