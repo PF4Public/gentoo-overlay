@@ -1505,7 +1505,6 @@ src_prepare() {
 		third_party/jsoncpp
 	)
 	keeplibs+=(
-		third_party/khronos
 		third_party/lens_server_proto
 		third_party/leveldatabase
 		third_party/libaddressinput
@@ -1515,7 +1514,6 @@ src_prepare() {
 		third_party/libpfm4
 		third_party/libphonenumber
 		third_party/libpng
-		third_party/libsecret
 		third_party/libsrtp
 		third_party/libsync
 		third_party/libtess2/libtess2
