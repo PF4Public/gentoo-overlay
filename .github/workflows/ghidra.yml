@@ -25,9 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      # a manual dispatch has no changed-file context; build the package's
-      # last two ebuilds (9999 + newest release) so the build can be re-run
-      # on demand
+      # a manual dispatch has no changed-file context; provide the package's
+      # ebuilds (the build job picks the newest release) so the build can be
+      # re-run on demand
       - name: Resolve (manual dispatch)
         id: resolve
         if: github.event_name == 'workflow_dispatch'
