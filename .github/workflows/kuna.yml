@@ -28,33 +28,78 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
-  default:
+  build:
     needs: filter
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          # build this package's newest release ebuild only: the filter's
+          # resolved list can span other packages and several versions of
+          # this one (a same-slot pair conflicts in one emerge), so derive
+          # the atom from the package dir itself, skipping 9999 (KEYWORDS=""
+          # is not mergeable)
+          pkgdir="dev-util/kuna"
+          eb=$(ls -1 "$pkgdir"/*.ebuild 2>/dev/null | grep -v -- '-9999.ebuild$' | sort -V | tail -n1 || true)
+          if [[ -z "$eb" || ! -f "$eb" ]]; then
+            echo "atoms=" >> "$GITHUB_OUTPUT"
+            echo "no release ebuild in $pkgdir (9999-only), nothing to build"
+            exit 0
+          fi
+          pv=$(basename "$eb" .ebuild | sed -E "s/^$(basename "$pkgdir")-//")
+          atoms="=$pkgdir-$pv"
+          echo "atoms=$atoms" >> "$GITHUB_OUTPUT"
+          echo "building: $atoms"
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/deps-restore
         with:
-          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+          prefix: ci
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
-
-      - name: Install ${{ github.workflow }} with default USE-flags
-        uses: pf4public/gentoo-docker-action@master
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
         with:
-            modified: ${{ steps.setup.outputs.ebuilds }}
-            tool: ebuild
-            action: compile
-            params: ' '
+          accept-keywords: dev-util/kuna ~amd64
 
-      - name: Save cache
-        if: ${{ always() }}
-        uses: ./.github/actions/cache-save
+      - name: Build
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          # getbinpkg pulls the (stable) rust toolchain from the binhost;
+          # the cargo build resolves the in-tree Cargo.lock against
+          # crates.io (the ebuild carries RESTRICT network-sandbox)
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg-exclude "${{ steps.atoms.outputs.atoms }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always() && steps.atoms.outputs.atoms != ''
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ci
