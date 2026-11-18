@@ -41,7 +41,7 @@ CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et 
 	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
 	vi zh-CN zh-HK zh-TW zu"
 
-UGC_COMMIT_ID="1ecbe2a11bf60e19ee21c04d07269fa1f325169f"
+UGC_COMMIT_ID="76f39e0fead37326b9ba0440831336b198a17246"
 # UGC_PR_COMMITS=(
 # 	c917e096342e5b90eeea91ab1f8516447c8756cf
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
