@@ -1151,12 +1151,13 @@ src_prepare() {
 		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
 	fi
 
-	# The base skia already carries electron's skia patch set, but not the
-	# GrDirectContext::FlushResult API that the chromium patches
-	# (cherry-pick-5b4e99232ee1, cherry-pick-de4926eaa4d8) consume via
-	# .fSuccess/.fSubmitted. Backport it (an M152 cherry-pick adapted to this
-	# base) so those call sites compile; its implicit GrSemaphoresSubmitted
-	# cast keeps the base's old-style flush callers working.
+	# electron's skia patch set is not applied (it is not in the patch folders
+	# above), and the base skia is otherwise sufficient - except that the
+	# chromium patches (cherry-pick-5b4e99232ee1, cherry-pick-de4926eaa4d8)
+	# consume the GrDirectContext::FlushResult API, which the base lacks.
+	# Backport it (an M152 cherry-pick adapted to this base) so those call
+	# sites compile; its implicit GrSemaphoresSubmitted cast keeps the base's
+	# old-style flush callers working.
 	pushd third_party/skia > /dev/null || die
 	einfo "skia-flush-result.patch"
 	git_wrapper apply -p1 "${FILESDIR}/skia-flush-result.patch"
