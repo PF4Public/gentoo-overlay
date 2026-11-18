@@ -11,7 +11,7 @@ if [[ ${PV} = *9999* ]]; then
 else
 	SRC_URI="https://github.com/voidmind-io/voidllm/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 		https://github.com/PF4Public/gentoo-overlay/releases/download/voidllm/${PV}/${P}-vendor.tar.xz"
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Privacy-first LLM proxy and AI gateway"
