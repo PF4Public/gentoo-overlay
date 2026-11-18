@@ -57,25 +57,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # convert the resolved ebuilds to =cat/pkg-pv atoms, skipping the
-          # live 9999 ebuild (its KEYWORDS="" is not mergeable); a files/
-          # change falls back to 9999 + newest release, only the release builds
-          atoms=""
-          for e in ${{ needs.filter.outputs.ebuilds }}; do
-            base=$(basename "$e")
-            [[ "$base" == *-9999.ebuild ]] && continue
-            catpkg=$(dirname "$e")
-            pkg=$(basename "$catpkg")
-            pv=$(echo "$base" | sed -E "s/^${pkg}-//; s/\.ebuild$//")
-            atoms+="=${catpkg}-${pv} "
-          done
-          atoms="${atoms% }"
-          echo "atoms=${atoms}" >> "$GITHUB_OUTPUT"
-          echo "building: ${atoms:-<nothing, 9999-only change>}"
+          # build this package's newest release ebuild only: the filter's
+          # resolved list can span other packages and several versions of
+          # this one (a same-slot pair conflicts in one emerge), so derive
+          # the atom from the package dir itself, skipping 9999 (KEYWORDS=""
+          # is not mergeable)
+          pkgdir="www-apps/lidarr"
+          eb=$(ls -1 "$pkgdir"/*.ebuild 2>/dev/null | grep -v -- '-9999.ebuild$' | sort -V | tail -n1 || true)
+          if [[ -z "$eb" || ! -f "$eb" ]]; then
+            echo "atoms=" >> "$GITHUB_OUTPUT"
+            echo "no release ebuild in $pkgdir (9999-only), nothing to build"
+            exit 0
+          fi
+          pv=$(basename "$eb" .ebuild | sed -E "s/^$(basename "$pkgdir")-//")
+          atoms="=$pkgdir-$pv"
+          echo "atoms=$atoms" >> "$GITHUB_OUTPUT"
+          echo "building: $atoms"
 
       - name: Free space
         if: steps.atoms.outputs.atoms != ''
         uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ci
 
       - name: Gentoo setup
         if: steps.atoms.outputs.atoms != ''
@@ -95,7 +102,8 @@ jobs:
           # no "fetch")
           rc=0
           docker exec gentoo \
-            emerge --getbinpkg --autounmask --autounmask-write --autounmask-continue -v1 \
+            emerge --getbinpkg --buildpkg-exclude "${{ steps.atoms.outputs.atoms }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
             ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
           if [[ $rc -ne 0 ]]; then
             echo "build failed (rc=${rc})" >&2
@@ -103,3 +111,10 @@ jobs:
             exit 1
           fi
           echo "build succeeded"
+
+      - name: Save deps
+        if: always() && steps.atoms.outputs.atoms != ''
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ci
