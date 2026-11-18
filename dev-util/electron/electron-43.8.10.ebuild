@@ -1151,6 +1151,17 @@ src_prepare() {
 		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
 	fi
 
+	# The base skia already carries electron's skia patch set, but not the
+	# GrDirectContext::FlushResult API that the chromium patches
+	# (cherry-pick-5b4e99232ee1, cherry-pick-de4926eaa4d8) consume via
+	# .fSuccess/.fSubmitted. Backport it (an M152 cherry-pick adapted to this
+	# base) so those call sites compile; its implicit GrSemaphoresSubmitted
+	# cast keeps the base's old-style flush callers working.
+	pushd third_party/skia > /dev/null || die
+	einfo "skia-flush-result.patch"
+	git_wrapper apply -p1 "${FILESDIR}/skia-flush-result.patch"
+	popd > /dev/null || die
+
 	elog "Removing bundled binaries from source tree ..."
 	# Purge bundled ELF files: These are non-portable and will cause issues if used instead of system versions.
 	# Use `--wasm` to also remove WebAssembly binaries, if desired - they're portable so shouldn't break builds.
