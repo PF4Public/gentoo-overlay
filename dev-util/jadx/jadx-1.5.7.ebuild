@@ -12,7 +12,7 @@ SRC_URI="https://github.com/skylot/jadx/archive/refs/tags/v${PV}.tar.gz -> ${P}.
 LICENSE="Apache-2.0"
 LICENSE+=" BSD EPL-1.0 LGPL-3+ MIT OFL-1.1"
 SLOT="0"
-KEYWORDS="~amd64" 
+KEYWORDS="amd64" 
 IUSE="+build-online"
 RESTRICT="test build-online? ( network-sandbox )"
 
