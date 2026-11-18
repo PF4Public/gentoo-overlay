@@ -1,0 +1,28 @@
+--- a/internal/app/app.go
++++ b/internal/app/app.go
+@@ -47,7 +47,6 @@
+ 	"github.com/voidmind-io/voidllm/internal/router"
+ 	"github.com/voidmind-io/voidllm/internal/shutdown"
+ 	"github.com/voidmind-io/voidllm/internal/sso"
+-	"github.com/voidmind-io/voidllm/internal/update"
+ 	"github.com/voidmind-io/voidllm/internal/usage"
+ 	"github.com/voidmind-io/voidllm/pkg/crypto"
+ 	"github.com/voidmind-io/voidllm/pkg/keygen"
+@@ -1440,13 +1439,10 @@
+ 		a.stopFuncs = append(a.stopFuncs, stop)
+ 	}
+ 
+-	// Start update checker when running a real build (not dev).
+-	// The checker fires after a 5-minute initial delay to keep startup fast.
+-	if apihealth.Version != "dev" {
+-		updateChecker := update.NewChecker(apihealth.Version, a.database, a.log)
+-		a.stopFuncs = append(a.stopFuncs, updateChecker.Start())
+-		a.adminHandler.UpdateChecker = updateChecker
+-	}
++	// Update checks are disabled in this build: the distribution's package
++	// manager is the update channel, so no background GitHub release check
++	// is started. The admin update-status API reports needs_update: false
++	// while no checker is wired.
+ 
+ 	// pprof profiling is enabled in dev mode. Handlers are registered on a
+ 	// dedicated ServeMux so they are never reachable unless dev mode is
