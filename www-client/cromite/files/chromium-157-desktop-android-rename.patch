@@ -18,3 +18,23 @@
 +  # 157 upstream references the pre-rename name in new API BUILD files
 +  enable_desktop_android_extensions = is_android
  }
+--- a/build/BUILD.gn
++++ b/build/BUILD.gn
+@@ -117,4 +117,5 @@
+ buildflag_header("android_buildflags") {
+   header = "android_buildflags.h"
+-  flags = [ "IS_DESKTOP_ANDROID_CROMITE=$is_desktop_android_cromite", "IS_DESKTOP_ANDROID_FALSE=false" ]
++  # 157 upstream references the pre-rename name; keep the generated define
++  flags = [ "IS_DESKTOP_ANDROID_CROMITE=$is_desktop_android_cromite", "IS_DESKTOP_ANDROID_FALSE=false", "IS_DESKTOP_ANDROID=$is_desktop_android" ]
+ }
+--- a/extensions/buildflags/BUILD.gn
++++ b/extensions/buildflags/BUILD.gn
+@@ -17,6 +17,8 @@
+   flags = [
+     "ENABLE_EXTENSIONS=$enable_extensions",
+     "ENABLE_DESKTOP_ANDROID_EXTENSIONS_CROMITE=$enable_desktop_android_extensions_cromite",
+     "ENABLE_DESKTOP_ANDROID_EXTENSIONS_FALSE=false",
++    # 157 upstream references the pre-rename name; keep the generated define
++    "ENABLE_DESKTOP_ANDROID_EXTENSIONS=$enable_desktop_android_extensions",
+     "ENABLE_EXTENSIONS_CORE=$enable_extensions_core",
+     "ENABLE_PLATFORM_APPS=$enable_platform_apps",

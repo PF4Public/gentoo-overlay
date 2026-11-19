@@ -1079,6 +1079,11 @@ src_prepare() {
 	sed -i 's|SET_CROMITE_FEATURE_DISABLED(kLiveCaption)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kLiveCaption)|' \
 		"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch" || die
 
+	# 157 moved kResumeBackgroundVideo into the media:: namespace too; the
+	# video-playback-resume flag .inc must use the namespaced setter.
+	sed -i 's|SET_CROMITE_FEATURE_DISABLED(kResumeBackgroundVideo)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kResumeBackgroundVideo)|' \
+		"${BR_PA_PATH}/Add-flag-to-control-video-playback-resume-feature.patch" || die
+
 	filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" --exclude="content/browser/renderer_host/render_process_host_impl.cc" \
 		> "${BR_PA_PATH}/JIT-site-settings.patch1"
 	mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
@@ -1457,6 +1462,14 @@ src_prepare() {
 					--exclude="storage/browser/blob/blob_url_store_impl.h" \
 					--exclude="third_party/blink/public/mojom/blob/blob_url_store.mojom" \
 					--exclude="third_party/blink/renderer/core/fileapi/public_url_manager.cc")
+				;;
+			"Partition-MediaDeviceId-by-default.patch")
+				# 157 removed the kMediaDeviceIdPartitioning feature from
+				# media_device_salt_service.cc, so the salt setter hunk
+				# fuzz-lands against a gone feature; the other 3 files (the
+				# camera.inc, a comment, the webcam hiding) do not reference
+				# it
+				extra_excludes+=(--exclude="components/media_device_salt/media_device_salt_service.cc")
 				;;
 			"Partition-HSTS-cache-by-NAK.patch")
 				# partitioning the HSTS/PKP cache by
