@@ -760,6 +760,12 @@ src_unpack() {
 		unpack chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
 	fi
 
+	# The system-rust crubit source (src_prepare builds cc_bindings_from_rs
+	# from it when !bundled-toolchain)
+	if use !bundled-toolchain; then
+		unpack "crubit-${CRUBIT_REVISION}.tar.gz"
+	fi
+
 	# # This is a dirty hack, but we need rollup to build successfully and it's proving to be challenging
 	# # to build locally due to deps
 	# unpack rollup-wasm-node-${ROLLUP_VER}.tgz
