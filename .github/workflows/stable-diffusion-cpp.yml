@@ -104,7 +104,7 @@ jobs:
           # getbinpkg pulls the (stable) dependencies from the binhost, the
           # atom itself is built from source; default USE builds the bundled
           # (patched) ggml, whose sources come from the second distfile
-          # the matrix leg's USE combination (the default leg sets none)
+          # the matrix variant's USE combination (the default variant sets none)
           if [[ -n "${{ matrix.use }}" ]]; then
             docker exec gentoo bash -c 'mkdir -p /etc/portage/package.use && echo "sci-misc/stable-diffusion-cpp ${{ matrix.use }}" > /etc/portage/package.use/stable-diffusion-cpp'
           fi
