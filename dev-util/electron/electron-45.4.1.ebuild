@@ -2161,6 +2161,9 @@ src_configure() {
 		einfo "  ${flags} = \"${!flags}\""
 	done
 
+	# packager override for all.gn's v8-patch-fingerprint script (no V8 git metadata in the tarball)
+	export ELECTRON_V8_EMBEDDER_STRING="-electron.${PV}-${CHROMIUM_VERSION}"
+
 	einfo "Configuring Electron ..."
 	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
 	echo "$@"
