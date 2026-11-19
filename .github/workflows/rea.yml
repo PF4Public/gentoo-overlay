@@ -106,7 +106,7 @@ jobs:
           # getbinpkg pulls the (stable) nodejs from the binhost;
           # build-online is on by default, so npm ci and the frida
           # prebuild download run against the network
-          # the matrix leg's USE combination (the default leg sets none)
+          # the matrix variant's USE combination (the default variant sets none)
           if [[ -n "${{ matrix.use }}" ]]; then
             docker exec gentoo bash -c 'mkdir -p /etc/portage/package.use && echo "dev-util/rea ${{ matrix.use }}" > /etc/portage/package.use/rea'
           fi
