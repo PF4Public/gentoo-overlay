@@ -1092,6 +1092,9 @@ src_prepare() {
 		["cherry-pick-08887dc29edc.patch"]="due to... reasons..."
 		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
 		["desktop_media_list.patch"]="due to... reasons..."
+		["cherry-pick-b40b5946cd4c.patch"]="requires the skipped c553b337ecaf gl_features.json entry"
+		["cherry-pick-98e5b3bb0c4f.patch"]="does not apply against the 156.0.8078.80 base"
+		["cherry-pick-6da616e5ce5f.patch"]="does not apply against the 156.0.8078.80 base"
 	)
 	# if use ungoogled; then
 	#	skipped_patches+=(
@@ -1150,6 +1153,7 @@ src_prepare() {
 			git_wrapper apply --exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
 				--exclude="*/cctest/*" --exclude="*/tests/*" --exclude="*/unittests/*" \
+				--exclude="*_test.cc" \
 				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
 				--exclude="*/__config_site" --exclude="*/javatests/*" \
 				--exclude="test/mjsunit/*" --exclude="test/inspector/*" \
