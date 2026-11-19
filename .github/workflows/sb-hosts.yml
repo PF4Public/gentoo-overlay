@@ -106,7 +106,7 @@ jobs:
           set -uo pipefail
           # the package has no dependencies and no build, it only installs
           # a hosts file
-          # the matrix leg's USE combination (the default leg sets none)
+          # the matrix variant's USE combination (the default variant sets none)
           if [[ -n "${{ matrix.use }}" ]]; then
             docker exec gentoo bash -c 'mkdir -p /etc/portage/package.use && echo "net-misc/sb-hosts ${{ matrix.use }}" > /etc/portage/package.use/sb-hosts'
           fi
