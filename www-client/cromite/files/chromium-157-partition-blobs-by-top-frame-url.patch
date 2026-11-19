@@ -58,6 +58,55 @@
  mojo::PendingRemote<blink::mojom::Blob> BlobUrlRegistry::GetBlobFromUrl(
      const GURL& url) {
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+--- a/storage/browser/blob/blob_url_registry.h
++++ b/storage/browser/blob/blob_url_registry.h
+@@ -8,5 +8,6 @@
+ #include <map>
++#include <optional>
+ 
+ #include "base/component_export.h"
+ #include "base/functional/callback.h"
+ #include "base/sequence_checker.h"
+@@ -15,5 +16,6 @@
+ #include "mojo/public/cpp/bindings/unique_associated_receiver_set.h"
+ #include "mojo/public/cpp/bindings/unique_receiver_set.h"
++#include "net/schemeful_site.h"
+ #include "storage/browser/blob/blob_storage_constants.h"
+ #include "third_party/blink/public/common/storage_key/storage_key.h"
+ #include "third_party/blink/public/mojom/blob/blob.mojom.h"
+@@ -99,6 +101,8 @@
+                      mojo::PendingRemote<blink::mojom::Blob> blob,
+                      const blink::StorageKey& storage_key,
+                      const url::Origin& renderer_origin,
+-                     int render_process_host_id);
++                     int render_process_host_id,
++                     const base::UnguessableToken& unsafe_agent_cluster_id,
++                     const std::optional<net::SchemefulSite>& unsafe_top_level_site);
+ 
+   // Removes the given URL mapping associated with `storage_key`. Returns false
+@@ -108,7 +112,12 @@
+   // Returns whether the URL is mapped to a blob and whether the URL is
+   // associated with `storage_key`.
+   MappingStatus IsUrlMapped(const GURL& blob_url,
+                             const blink::StorageKey& storage_key) const;
+ 
++  std::optional<base::UnguessableToken> GetUnsafeAgentClusterID(
++      const GURL& blob_url) const;
++  std::optional<net::SchemefulSite> GetUnsafeTopLevelSite(
++      const GURL& blob_url) const;
++
+   // Returns the blob from the given url. Returns a null remote if the mapping
+   // doesn't exist.
+@@ -164,7 +173,9 @@
+     int render_process_host_id;
+   };
+ 
+   std::map<GURL, BlobUrlData> url_to_data_;
++  std::map<GURL, base::UnguessableToken> url_to_unsafe_agent_cluster_id_;
++  std::map<GURL, net::SchemefulSite> url_to_unsafe_top_level_site_;
+   std::map<base::UnguessableToken,
+            std::pair<GURL, mojo::PendingRemote<blink::mojom::Blob>>>
+       token_to_url_and_blob_;
 --- a/storage/browser/blob/blob_url_store_impl.cc
 +++ b/storage/browser/blob/blob_url_store_impl.cc
 @@ -116,8 +116,32 @@
