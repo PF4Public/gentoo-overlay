@@ -4,9 +4,9 @@
 EAPI=8
 
 REPO="https://github.com/Niko1221/Strata"
-# the llama.cpp pin third_party/ggml/VERSION.txt points at: its ggml is built
-# statically into the engine, and CMake would FetchContent the same commit
-# from the network at configure time
+# the llama.cpp pin engine/third_party/ggml/VERSION.txt points at: its ggml is
+# built statically into the engine, and CMake would FetchContent the same
+# commit from the network at configure time
 LLAMA_REPO="https://github.com/ggml-org/llama.cpp"
 LLAMA_COMMIT="3cf03257f219afbe7334045ff7c6a06ac68c627d"
 # the commit the v${PV} tag points at; the desktop control staging needs it
@@ -16,7 +16,7 @@ STRATA_TAG_COMMIT="d2f096475817d4666c364c820b0ca830f751cfc5"
 
 ROCM_VERSION="7.2"
 
-# the desktop (apps/desktop) tauri shell, from apps/desktop/src-tauri/
+# the desktop (app/desktop) tauri shell, from app/desktop/src-tauri/
 # Cargo.lock; the crates are not listed as distfiles but packed into the
 # single strata-desktop-${PV}-crates.tar.xz distfile (the gentoo-overlay
 # release, expanded in src_unpack) — the 9999 build fetches the live
@@ -53,7 +53,7 @@ SLOT="0"
 
 # the engine is built for one GPU backend; the terminal (the strata command,
 # the monitor and the API server) installs in every case.
-# desktop is the tauri app (apps/desktop): the Rust shell plus the host web
+# desktop is the tauri app (app/desktop): the Rust shell plus the host web
 # shell, the system node runtime and the control component (its python parts
 # run on the system python, one of PYTHON_COMPAT); the tauri shell locates
 # the resources beside its own binary or in <bindir>/../lib/strata-desktop,
@@ -185,8 +185,8 @@ src_unpack() {
 		# the pinned llama.cpp, fetched so the build needs no network at
 		# configure time
 		local commit
-		commit=$(awk 'NR==1 { print $1 }' "${S}/third_party/ggml/VERSION.txt")
-		[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from third_party/ggml/VERSION.txt"
+		commit=$(awk 'NR==1 { print $1 }' "${S}/engine/third_party/ggml/VERSION.txt")
+		[[ ${commit} =~ ^[0-9a-f]{40}$ ]] || die "cannot read the llama.cpp pin from engine/third_party/ggml/VERSION.txt"
 		wget -O "${WORKDIR}/llama.cpp-${commit}.tar.gz" \
 			"${LLAMA_REPO}/archive/${commit}.tar.gz" || die
 		tar xf "${WORKDIR}/llama.cpp-${commit}.tar.gz" -C "${WORKDIR}" || die
@@ -216,7 +216,7 @@ src_unpack() {
 			# the tauri shell's crates, fetched at build time (the live
 			# tree's Cargo.lock drifts, so there is no offline CRATES list)
 			local _S="${S}"
-			S="${S}/apps/desktop/src-tauri"
+			S="${S}/app/desktop/src-tauri"
 			cargo_live_src_unpack
 			S="${_S}"
 		else
@@ -230,6 +230,10 @@ src_unpack() {
 
 src_prepare() {
 	use cuda && cuda_src_prepare
+	# the engine's CMake project moved to engine/ in 0.2.16 (the repo root
+	# holds terminal/, app/, tools/ and docs/); cmake_prepare needs this set
+	# before it checks for ${CMAKE_USE_DIR}/CMakeLists.txt
+	CMAKE_USE_DIR="${S}/engine"
 	cmake_src_prepare
 
 	# strata's own RDNA3 wmma gemms (hip-only files) declare their bf16
@@ -238,7 +242,7 @@ src_prepare() {
 	# (bit-identical, the bytes reach the builtin only through a memcpy
 	# or bit-cast); upstream main still carries the bug
 	if use hip && grep -q "typedef __bf16 hb16 __attribute__((ext_vector_type(16)));" \
-		"${S}/src/prefill/wmma_gemm.cu"; then
+		"${S}/engine/src/prefill/wmma_gemm.cu"; then
 		eapply "${FILESDIR}/wmma-bf16.patch"
 	fi
 
@@ -249,15 +253,15 @@ src_prepare() {
 
 	# the engine version for the component folder name and the manifest
 	ENGINE_PV=$(sed -n 's/^[[:space:]]*project([^)]*VERSION[[:space:]]*\([0-9][0-9.]*\).*/\1/p' \
-		"${S}/CMakeLists.txt" | head -n 1)
+		"${S}/engine/CMakeLists.txt" | head -n 1)
 	if use cuda || use hip; then
-		[[ -n ${ENGINE_PV} ]] || die "cannot find the engine version in CMakeLists.txt"
+		[[ -n ${ENGINE_PV} ]] || die "cannot find the engine version in engine/CMakeLists.txt"
 	fi
 }
 
 src_configure() {
 	if use desktop; then
-		cargo_src_configure --manifest-path "${S}/apps/desktop/src-tauri/Cargo.toml"
+		cargo_src_configure --manifest-path "${S}/app/desktop/src-tauri/Cargo.toml"
 	fi
 
 	# TODO(system-ggml): dropped — upstream rewrote the ggml build (0.2.13+,
@@ -270,10 +274,9 @@ src_configure() {
 	local mycmakeargs=(
 		-DSTRATA_NATIVE_EXPERTS=ON
 		-DSTRATA_Q6K_EXPERTS=ON
-		# strata_mmq / strata_kq (the libstrata_kq.so dlopen lib) are gated on
-		# this (default OFF); MMQ_KQUANTS picks the quant types
-		-DSTRATA_MMQ=ON
-		-DSTRATA_MMQ_KQUANTS=ON
+		# 0.2.16 dropped the separate MMQ/strata_kq build (STRATA_MMQ and the
+		# libstrata_kq.so dlopen lib are gone): the prefill kernels are always
+		# compiled into the engine (strata_pf_own), so no MMQ flag is needed
 		-DSTRATA_BUILD_TESTS=OFF
 		# the pinned llama.cpp ggml source; without it CMake would fetch
 		# the pinned commit from the network
@@ -307,7 +310,6 @@ src_configure() {
 		rocm_use_clang
 		mycmakeargs+=(
 			-DSTRATA_ENABLE_HIP=ON
-			-DSTRATA_PREFILL_MMQ=ON
 			# the validated wave32 targets; RDNA2 (gfx103x) is upstream-
 			# experimental and left out
 			-DCMAKE_HIP_ARCHITECTURES="gfx1100;gfx1201"
@@ -326,12 +328,12 @@ src_compile() {
 		die "desktop needs build-online: the host UI build fetches npm packages (no offline mode is implemented)"
 	fi
 	if use desktop; then
-		# the host web shell (vite); the tauri shell embeds apps/host/dist at
+		# the host web shell (vite); the tauri shell embeds app/host/dist at
 		# compile time, so this runs before cargo
 		einfo "building the host UI"
 		local -x NPM_CONFIG_CACHE="${WORKDIR}/.npm"
 		(
-			cd "${S}/apps/host" || die
+			cd "${S}/app/host" || die
 			npm install --no-audit --no-fund || die
 			npm run build || die
 		)
@@ -340,7 +342,7 @@ src_compile() {
 		# embedded copy is unused on linux: at runtime the app reads
 		# <bindir>/../lib/strata-desktop), so every listed folder must exist
 		# at compile time; harness is never staged (the app runs without it)
-		mkdir -p "${S}/apps/desktop/src-tauri/resources/harness" || die
+		mkdir -p "${S}/app/desktop/src-tauri/resources/harness" || die
 
 		# the node runtime is the system node (src_install installs a
 		# wrapper into the bundled path); resources/node already exists in
@@ -349,11 +351,9 @@ src_compile() {
 		cargo_src_compile
 	fi
 
-	if use cuda; then
-		# strata_kq: the K-quant MMQ library the engine dlopens for the
-		# Unsloth UD-Q4/Q5/Q6_K_XL experts
-		cmake_src_compile strata strata_kq
-	elif use hip; then
+	if use cuda || use hip; then
+		# the strata engine executable; 0.2.16 dropped the separate strata_kq
+		# MMQ library, so both backends build only the binary
 		cmake_src_compile strata
 	fi
 }
@@ -362,19 +362,20 @@ src_install() {
 	local libdir="usr/$(get_libdir)/strata"
 
 	# ---- the terminal: the strata command, the API server, the model installer ----
+	# (0.2.16 moved the terminal tree under terminal/; docs/ stayed at the root)
 	insinto "/${libdir}"
-	doins strata.py setup.py requirements.txt requirements-monitor.txt
-	doins -r strata_cli strata_control serve
-	doins -r data
+	doins terminal/strata.py terminal/setup.py terminal/requirements.txt terminal/requirements-monitor.txt
+	doins -r terminal/strata_cli terminal/strata_control terminal/serve
+	doins -r terminal/data
 
 	insinto "/${libdir}/bench"
-	doins -r bench/prompts
+	doins -r terminal/bench/prompts
 
 	insinto "/${libdir}/bin"
-	doins bin/strata
+	doins terminal/bin/strata
 
 	insinto "/${libdir}/ref"
-	doins ref/load.py
+	doins terminal/ref/load.py
 
 	insinto "/${libdir}/docs"
 	doins docs/MANAGEMENT_PROTOCOL.md docs/TERMINAL_LAUNCH.md
@@ -382,17 +383,19 @@ src_install() {
 	insinto "/${libdir}"
 
 	# the tools modules the terminal paths import: the same closure
-	# packaging/package_terminal.py stages into its archive (under tools/,
-	# subdirectories included), computed from the sources
-	local stage t
+	# tools/packaging/package_terminal.py stages into its archive (under
+	# terminal/tools/, subdirectories included), computed from the sources
+	local stage t dest
 	stage="${T}/tools-stage"
-	mkdir -p "${stage}"
+	mkdir -p "${stage}/tools"
 	while IFS= read -r t; do
-		cp --parents "tools/${t}.py" "${stage}/"
+		dest="${stage}/tools/${t}.py"
+		mkdir -p "$(dirname "${dest}")"
+		cp "terminal/tools/${t}.py" "${dest}"
 	done < <(
 		python3 - "${S}" <<'EOF'
 import importlib.util, sys
-spec = importlib.util.spec_from_file_location("pt", sys.argv[1] + "/packaging/package_terminal.py")
+spec = importlib.util.spec_from_file_location("pt", sys.argv[1] + "/tools/packaging/package_terminal.py")
 pt = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pt)
 names = set(pt.INSTALLER_TOOLS) | set(pt.INSTALLER_SCRIPTS) | set(pt.setup_tool_imports(pt.ROOT))
@@ -401,8 +404,8 @@ tools = pt.local_imports(pt.ROOT, tuple(sorted(names)))
 EOF
 	)
 	# chat.py/highlight.py: by-path tools package_terminal.py does not bundle
-	# (the terminal paths never import them); they moved to tools/ in 0.2.13
-	cp --parents tools/chat.py tools/highlight.py "${stage}/"
+	# (the terminal paths never import them)
+	cp "terminal/tools/chat.py" "terminal/tools/highlight.py" "${stage}/tools/"
 	doins -r "${stage}/tools"
 
 	# the tarball ships it 0775, the git checkout 0755 — keep the mode
@@ -437,7 +440,6 @@ EOF
 		mkdir -p "${stage}"
 		cp "${BUILD_DIR}/strata" "${stage}/"
 		if use cuda; then
-			cp "${BUILD_DIR}/libstrata_kq.so" "${stage}/"
 			# the component's archs are what the build actually targeted
 			# (CUDA_ARCHITECTURES, see pkg_pretend)
 			local cuda_archs arch num tokens token
@@ -477,7 +479,7 @@ EOF
 		else
 			# the hipBLASLt version and the matching tuning tables for the
 			# package; the ROCm install's include tree is /usr
-			python3 "${S}/packaging/stage_tuning.py" --stage "${stage}" \
+			python3 "${S}/tools/packaging/stage_tuning.py" --stage "${stage}" \
 				--archs "gfx1100 gfx1201" --rocm /usr || die
 			arch_args=( --arch gfx1100 --arch gfx1201 )
 		fi
@@ -499,7 +501,7 @@ EOF
 		# the manifest (engine-component.json): strata hashes and verifies the
 		# whole component before a start. The picture reader is not shipped,
 		# so the image input stays off (the engine reports it as missing)
-		python3 "${S}/packaging/package_engine.py" \
+		python3 "${S}/tools/packaging/package_engine.py" \
 			--src "${stage}" \
 			--backend "${backend}" \
 			--version "${ENGINE_PV}" \
@@ -532,13 +534,13 @@ EOF
 		# menu entry's command) is the launcher that links the packaged engine
 		# into the user's component store first
 		exeinto "/${desktopdir}"
-		doexe "${S}/apps/desktop/src-tauri/target/release/strata-desktop"
+		doexe "${S}/app/desktop/src-tauri/target/release/strata-desktop"
 		strata_launcher strata-desktop "the Strata desktop app" "/${desktopdir}/strata-desktop"
 
 		# the web shell + engine host: node starts host/server/index.mjs
 		insinto "/${desktopdir}/host"
-		doins -r "${S}/apps/host/dist" "${S}/apps/host/server"
-		doins "${S}/apps/host/package.json"
+		doins -r "${S}/app/host/dist" "${S}/app/host/server"
+		doins "${S}/app/host/package.json"
 
 		# the host runs on the system node: the app only ever looks at the
 		# bundled <resources>/node/node, so point it at the system binary with
@@ -574,7 +576,7 @@ EOF
 
 		# No engine-bundle/: the app's host copies a bundle into the user's
 		# component store at every start that finds none there, and once the
-		# store holds it, deletes the bundle from the install folder (apps/host/
+		# store holds it, deletes the bundle from the install folder (app/host/
 		# server/bundled-engine.mjs removeVerifiedBundle). The launcher links
 		# the packaged engine into the store instead, so the app has its engine
 		# without a 2nd copy on disk and without a root run deleting package
@@ -582,7 +584,7 @@ EOF
 
 		# the application menu entry + the icon (hicolor, the size is
 		# detected from the image)
-		newicon "${S}/apps/desktop/src-tauri/icons/icon.png" strata-desktop.png
+		newicon "${S}/app/desktop/src-tauri/icons/icon.png" strata-desktop.png
 		make_desktop_entry --eapi9 "/usr/bin/strata-desktop" \
 			-n "Strata" -i "strata-desktop" \
 			-c "Development;Science;" -C "Local AI, tuned to one model."
