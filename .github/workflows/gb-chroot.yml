@@ -104,7 +104,7 @@ jobs:
           set -uo pipefail
           # the package is a set of scripts; app-portage/gentoolkit comes
           # from the binhost
-          # the matrix leg's USE combination (the default leg sets none)
+          # the matrix variant's USE combination (the default variant sets none)
           if [[ -n "${{ matrix.use }}" ]]; then
             docker exec gentoo bash -c 'mkdir -p /etc/portage/package.use && echo "app-admin/gb-chroot ${{ matrix.use }}" > /etc/portage/package.use/gb-chroot'
           fi
