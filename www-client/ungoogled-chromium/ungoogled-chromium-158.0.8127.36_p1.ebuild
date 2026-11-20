@@ -1980,8 +1980,8 @@ EOF
 		printf '[source.crates-io]\nreplace-with = "vendored-sources"\n\n[source.vendored-sources]\ndirectory = "%s"\n' \
 			"${crubit_vendor}" > "${crubit_src}/.cargo/config.toml" || die
 
-		# cc_bindings_from_rs: links the slot's rustc internals (hence
-		# USE=rustc-dev), with RUNPATH $ORIGIN/../lib so it finds the
+		# cc_bindings_from_rs links the slot's rustc internals (hence
+		# USE=rustc-dev); the RUNPATH $ORIGIN/../lib lets it find the
 		# librustc_driver staged next to it below
 		local cargo_bin rustc_bin
 		if [[ ${RUST_TYPE} == binary ]]; then
@@ -1991,12 +1991,29 @@ EOF
 			cargo_bin="${EPREFIX}/usr/bin/cargo-${RUST_SLOT}"
 			rustc_bin="${EPREFIX}/usr/bin/rustc-${RUST_SLOT}"
 		fi
+
+		local f driver=""
+		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
+				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
+			[[ -f ${f} ]] && { driver=${f}; break; }
+		done
+		[[ -n ${driver} ]] || die "librustc_driver not found under $(get_rust_prefix) (USE=rustc-dev required)"
+
+		# The driver's LLVM dep (libLLVM-23.so on some LLVM builds,
+		# libLLVM.so.23.1 on others) is not on the linker's default
+		# search path, so point the tool's final link at the dir the
+		# driver itself loads it from
+		local link_args="-Clink-args=-Wl,-rpath,\$ORIGIN/../lib"
+		local llvm_libdir
+		llvm_libdir=$(ldd "${driver}" | awk '$1 ~ /^libLLVM/ {print $3}' | head -1 | xargs -r -n1 dirname)
+		[[ -z ${llvm_libdir} ]] || link_args+=" -L${llvm_libdir} -Clink-args=-Wl,-rpath,${llvm_libdir}"
+
 		(
 			cd "${crubit_src}" || exit 1
 			env CARGO_HOME="${WORKDIR}/crubit-cargo-home" \
 				RUSTC="${rustc_bin}" \
 				RUSTC_BOOTSTRAP=1 \
-				RUSTFLAGS='-Clink-args=-Wl,-rpath,$ORIGIN/../lib' \
+				RUSTFLAGS="${link_args}" \
 				"${cargo_bin}" build --release --offline --locked --bin cc_bindings_from_rs
 		) || die
 
@@ -2006,12 +2023,7 @@ EOF
 		cp -r "${crubit_src}/support" "${crubit_root}/lib/third_party/crubit/" || die
 
 		# The tool runs against the slot's librustc_driver at runtime
-		local f driver="" libllvm=""
-		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
-				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
-			[[ -f ${f} ]] && { driver=${f}; break; }
-		done
-		[[ -n ${driver} ]] || die "librustc_driver not found under $(get_rust_prefix) (USE=rustc-dev required)"
+		local libllvm=""
 		cp "${driver}" "${crubit_root}/lib/" || die
 		for f in "$(get_rust_prefix)"/lib/libLLVM.so.*; do
 			[[ -f ${f} ]] && { libllvm=${f}; break; }
