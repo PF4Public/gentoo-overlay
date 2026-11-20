@@ -300,6 +300,10 @@ src_configure() {
 			# see pkg_pretend; the default is the upstream recipe: RTX 20 / 30
 			# / 40 / 50, the latest one with its PTX for forward compatibility
 			-DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES:-75-real;86-real;89-real;120-real;120-virtual}"
+			# nvcc hard-fails on host compilers newer than its support table
+			# (e.g. gcc 16 with CUDA 13); -allow-unsupported-compiler is a
+			# no-op for supported compilers
+			-DCMAKE_CUDA_FLAGS=-allow-unsupported-compiler
 		)
 		local -x CUDAHOSTCXX="$(cuda_gccdir)"
 		cuda_add_sandbox
