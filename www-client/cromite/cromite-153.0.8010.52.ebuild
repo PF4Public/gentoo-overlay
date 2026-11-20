@@ -1002,7 +1002,8 @@ src_prepare() {
 			[ "$i" = "Force-use-vpython3-for-all-scripts.patch" ] ||
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
-			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ]; then
+			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ] ||
+			[ "$i" = "ungoogled-chromium-no-special-hosts-domains.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
 		fi
