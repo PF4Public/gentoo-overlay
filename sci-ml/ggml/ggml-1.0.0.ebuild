@@ -162,7 +162,10 @@ src_configure() {
 		addpredict "/dev/char/"
 		cuda_sanitize
 		mycmakeargs+=(
-			-DCMAKE_CUDA_FLAGS="${NVCCFLAGS}"
+			# nvcc hard-fails on host compilers newer than its support table
+			# (e.g. gcc 16 with CUDA 13); -allow-unsupported-compiler is a
+			# no-op for supported compilers
+			-DCMAKE_CUDA_FLAGS="${NVCCFLAGS} -allow-unsupported-compiler"
 		)
 
 		# CUDA_ARCHITECTURES: restrict CUDA compute capabilities (see pkg_pretend)
