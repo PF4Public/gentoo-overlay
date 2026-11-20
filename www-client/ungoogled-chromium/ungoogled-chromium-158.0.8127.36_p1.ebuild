@@ -2017,6 +2017,9 @@ EOF
 				"${cargo_bin}" build --release --offline --locked --bin cc_bindings_from_rs
 		) || die
 
+		# The tool itself, in the canonical root the crubit gni points at
+		cp "${crubit_src}/target/release/cc_bindings_from_rs" "${crubit_root}/bin/" || die
+
 		# Support sources for //build/rust/crubit
 		mkdir -p "${crubit_root}/lib/third_party/crubit" || die
 		cp "${crubit_src}"/{BUILD.gn,crubit.gni,LICENSE} "${crubit_root}/lib/third_party/crubit/" || die
