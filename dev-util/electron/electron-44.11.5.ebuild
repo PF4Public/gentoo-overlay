@@ -809,7 +809,7 @@ src_prepare() {
 		#fi
 		eapply_wrapper "${FILESDIR}/misc-fixes-r1.patch"
 		eapply_wrapper "${FILESDIR}/ozone-detection-fix.patch"
-		eapply_wrapper "${FILESDIR}/electron-44-fix.patch"
+		eapply_wrapper "${FILESDIR}/electron-44-fix-r2.patch"
 
 		# if use pgo; then
 			python3 script/pgo/download-profiles.py --targets linux-x64,v8-builtins
@@ -1103,6 +1103,16 @@ src_prepare() {
 		["cherry-pick-55fb677befdd.patch"]="doesn't apply"
 		["cherry-pick-856bdd2ab3f0.patch"]="doesn't apply"
 		["cherry-pick-f6ac76278f27.patch"]="doesn't apply"
+		["cherry-pick-aa1365a4a2d1.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-7628505b506f.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-fb2af07952f5.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-4abf39e95876.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-25a7e6c75282.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-a4a389ea3bf0.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-7046eb88939d.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-f365a99c3ef7.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-342a8c8e8d7c.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-daa730f1859d.patch"]="new in 44.11.5, doesn't apply"
 		# ["cherry-pick-5902d1aa722a.patch"]="no files to patch"
 		# ["cherry-pick-b173791bf402.patch"]="already applied"
 	)
