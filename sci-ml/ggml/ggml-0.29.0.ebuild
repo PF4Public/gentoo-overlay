@@ -165,7 +165,8 @@ src_configure() {
 			-DCMAKE_CUDA_FLAGS="${NVCCFLAGS}"
 		)
 
-		# CUDA_ARCHITECTURES: restrict CUDA compute capabilities (see pkg_pretend)
+		# CUDA_ARCHITECTURES: restrict the compute capabilities (see
+		# pkg_pretend); without it ggml uses its own default arch list
 		if [[ -n ${CUDA_ARCHITECTURES} ]]; then
 			mycmakeargs+=( -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES}" )
 		fi
