@@ -89,6 +89,15 @@ DOCS=( AUTHORS CONTRIBUTING.md README.md )
 
 pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
+
+	if use cuda && ! use system-ggml && [[ -z ${CUDA_ARCHITECTURES} ]]; then
+		einfo "CUDA_ARCHITECTURES wasn't set, so whisper-cpp builds its full default set of"
+		einfo "CUDA compute capabilities (75/80/86/89/90/120a/121a)."
+		einfo "Set it to your GPU's compute capability to skip unused targets, e.g."
+		einfo 'CUDA_ARCHITECTURES="75-real" (several are separated with ";": "75-real;80-real")'
+		einfo "  find: nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
+		einfo "  suffixes: 75 (PTX+SASS), 75-real (SASS only), 75-virtual (PTX only)"
+	fi
 }
 
 pkg_setup() {
@@ -152,6 +161,12 @@ src_configure() {
 			local -x CUDAHOSTCXX="$(cuda_gccdir)"
 			cuda_add_sandbox
 			addpredict "/dev/char/"
+			# CUDA_ARCHITECTURES: restrict the compute capabilities (see
+			# pkg_pretend); the bundled ggml otherwise uses its own default
+			# arch list
+			if [[ -n ${CUDA_ARCHITECTURES} ]]; then
+				mycmakeargs+=( -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES}" )
+			fi
 			# nvcc hard-fails on host compilers newer than its support table
 			# (e.g. gcc 16 with CUDA 13); -allow-unsupported-compiler is a
 			# no-op for supported compilers
