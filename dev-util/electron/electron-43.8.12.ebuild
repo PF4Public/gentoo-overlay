@@ -1051,6 +1051,7 @@ src_prepare() {
 				[ "$i" = "cherry-pick-b40b5946cd4c.patch" ]||
 				[ "$i" = "cherry-pick-d9fcba36b9c9.patch" ]||
 				[ "$i" = "cherry-pick-ceae6307946c.patch" ]||
+				[ "$i" = "cherry-pick-1b92865510f1.patch" ]||
 				[ "$i" = "cherry-pick-069a204ae813.patch" ]||
 				[ "$i" = "cherry-pick-b280dcea4871.patch" ]||
 				[ "$i" = "cherry-pick-05b44a448820.patch" ]||
