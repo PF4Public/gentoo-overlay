@@ -2187,8 +2187,10 @@ EOF
 		# The rs_std gen action also formats the generated C++ with the
 		# clang-format upstream expects at buildtools/linux64-format
 		# (//buildtools:clang-format); point it at the slot's
+		local clang_format="$(get_llvm_prefix)/bin/clang-format"
+		[[ -x ${clang_format} ]] || die "clang-format not found at ${clang_format} (is llvm-core/clang:${LLVM_SLOT} installed?)"
 		mkdir -p buildtools/linux64-format
-		ln -sf "${EPREFIX}/usr/bin/clang-format-${LLVM_SLOT}" buildtools/linux64-format/clang-format || die
+		ln -sf "${clang_format}" buildtools/linux64-format/clang-format || die
 
 		# We already forced the "correct" clang via pkg_setup
 
