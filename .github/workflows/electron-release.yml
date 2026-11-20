@@ -48,11 +48,6 @@ env:
     dev-lang/rust ~amd64
     dev-lang/rust-bin ~amd64
 
-  # prefix for the deps artifacts (distfiles, binpkgs, ccache, ...); the
-  # release workflows do not use the actions cache (ref-scoped), the deps
-  # are passed between jobs and release runs as chunked artifacts
-  DEPS_PREFIX: electron
-
   # per-job build window, the jobs are chained until the build completes
   # (7 jobs x ~5h ~= 33h of build time)
   BUILD_TIMEOUT: "280m"
@@ -67,6 +62,12 @@ jobs:
       use: ${{ steps.env.outputs.use }}
       src-dir: ${{ steps.env.outputs.src-dir }}
       portage-dir: ${{ steps.env.outputs.portage-dir }}
+      # deps artifacts (distfiles, binpkgs, ccache, ...) are chunked
+      # artifacts passed between jobs and release runs (the actions cache
+      # is ref-scoped and not usable here); the prefix is scoped per major
+      # version, so release lines do not clobber each other's dependency
+      # closures
+      deps-prefix: ${{ steps.env.outputs.deps-prefix }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -159,6 +160,7 @@ jobs:
           use="${use% }${slot_flags}"
 
           echo "pv=${pv}" >> "$GITHUB_OUTPUT"
+          echo "deps-prefix=electron-${pv%%.*}" >> "$GITHUB_OUTPUT"
           echo "atom==dev-util/electron-${pv}" >> "$GITHUB_OUTPUT"
           echo "use=${use}" >> "$GITHUB_OUTPUT"
           echo "src-dir=${src_dir}" >> "$GITHUB_OUTPUT"
@@ -191,7 +193,7 @@ jobs:
       - name: Restore deps
         uses: ./.github/actions/deps-restore
         with:
-          prefix: ${{ env.DEPS_PREFIX }}
+          prefix: ${{ needs.resolve.outputs.deps-prefix }}
 
       - name: Gentoo setup
         uses: ./.github/actions/gentoo-setup
@@ -238,7 +240,7 @@ jobs:
         if: always()
         uses: ./.github/actions/deps-save
         with:
-          prefix: ${{ env.DEPS_PREFIX }}
+          prefix: ${{ needs.resolve.outputs.deps-prefix }}
 
   build-1:
     needs: resolve
@@ -267,7 +269,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 1
 
@@ -299,7 +301,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 2
 
@@ -331,7 +333,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 3
 
@@ -363,7 +365,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 4
 
@@ -395,7 +397,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 5
 
@@ -427,7 +429,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 6
 
@@ -459,7 +461,7 @@ jobs:
           use: ${{ needs.resolve.outputs.use }}
           src-dir: ${{ needs.resolve.outputs.src-dir }}
           portage-dir: ${{ needs.resolve.outputs.portage-dir }}
-          deps-prefix: ${{ env.DEPS_PREFIX }}
+          deps-prefix: ${{ needs.resolve.outputs.deps-prefix }}
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 7
 
@@ -649,7 +651,7 @@ jobs:
       - name: Restore deps
         uses: ./.github/actions/deps-restore
         with:
-          prefix: ${{ env.DEPS_PREFIX }}
+          prefix: ${{ needs.resolve.outputs.deps-prefix }}
 
       - name: Gentoo setup
         uses: ./.github/actions/gentoo-setup
