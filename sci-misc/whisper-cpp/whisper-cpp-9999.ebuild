@@ -152,6 +152,10 @@ src_configure() {
 			local -x CUDAHOSTCXX="$(cuda_gccdir)"
 			cuda_add_sandbox
 			addpredict "/dev/char/"
+			# nvcc hard-fails on host compilers newer than its support table
+			# (e.g. gcc 16 with CUDA 13); -allow-unsupported-compiler is a
+			# no-op for supported compilers
+			mycmakeargs+=( -DCMAKE_CUDA_FLAGS=-allow-unsupported-compiler )
 		fi
 	fi
 
