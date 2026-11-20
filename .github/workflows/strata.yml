@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
 
       # a manual dispatch has no changed-file context; provide the package's
-      # ebuilds (the build job picks the newest release) so the build can be
+      # ebuilds (the last two: newest release + live) so the build can be
       # re-run on demand
       - name: Resolve (manual dispatch)
         id: resolve
@@ -57,22 +57,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # build this package's newest release ebuild only: the filter's
-          # resolved list can span other packages and several versions of
-          # this one (a same-slot pair conflicts in one emerge), so derive
-          # the atom from the package dir itself, skipping 9999 (KEYWORDS=""
-          # is not mergeable)
+          # build the ebuilds the filter resolved for this package (the ones
+          # changed directly or via a changed files/ entry, the live 9999 among
+          # them when it changed). Same-slot versions (a release + the 9999)
+          # are not mergeable in one emerge, so emit one atom per line and let
+          # the Build step run one emerge per line.
           pkgdir="sci-misc/strata"
-          eb=$(ls -1 "$pkgdir"/*.ebuild 2>/dev/null | grep -v -- '-9999.ebuild$' | sort -V | tail -n1 || true)
-          if [[ -z "$eb" || ! -f "$eb" ]]; then
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            [[ "$e" == "$pkgdir"/*.ebuild ]] || continue
+            eb=$(basename "$e" .ebuild)
+            atoms+="=$pkgdir-${eb#$(basename "$pkgdir")-}"$'\n'
+          done
+          atoms=$(printf '%s' "$atoms" | sed '/^$/d' | sort -u)
+          if [[ -z "$atoms" ]]; then
             echo "atoms=" >> "$GITHUB_OUTPUT"
-            echo "no release ebuild in $pkgdir (9999-only), nothing to build"
+            echo "no ebuild of $pkgdir to build"
             exit 0
           fi
-          pv=$(basename "$eb" .ebuild | sed -E "s/^$(basename "$pkgdir")-//")
-          atoms="=$pkgdir-$pv"
-          echo "atoms=$atoms" >> "$GITHUB_OUTPUT"
-          echo "building: $atoms"
+          { echo "atoms<<EOATOMS"; echo "$atoms"; echo "EOATOMS"; } >> "$GITHUB_OUTPUT"
+          echo "building:"; echo "$atoms" | sed 's/^/  /'
 
       - name: Free space
         if: steps.atoms.outputs.atoms != ''
@@ -88,7 +92,7 @@ jobs:
         if: steps.atoms.outputs.atoms != ''
         uses: ./.github/actions/gentoo-setup
         with:
-          accept-keywords: sci-misc/strata ~amd64
+          accept-keywords: sci-misc/strata *
 
       # no cuda/hip job: the engine builds need a GPU toolkit, they are
       # for GPU systems
@@ -98,15 +102,19 @@ jobs:
         run: |
           set -uo pipefail
           rc=0
-          docker exec gentoo \
-            emerge --getbinpkg --buildpkg-exclude "${{ steps.atoms.outputs.atoms }}" \
-            --autounmask --autounmask-write --autounmask-continue -v1 \
-            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
-          if [[ $rc -ne 0 ]]; then
-            echo "build failed (rc=${rc})" >&2
-            tail -80 build.log
-            exit 1
-          fi
+          while IFS= read -r atom; do
+            [[ -n "$atom" ]] || continue
+            echo "building: $atom"
+            docker exec gentoo \
+              emerge --getbinpkg --buildpkg-exclude "$atom" \
+              --autounmask --autounmask-write --autounmask-continue -v1 \
+              "$atom" 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+            if [[ $rc -ne 0 ]]; then
+              echo "build failed for $atom (rc=${rc})" >&2
+              tail -80 build.log
+              exit 1
+            fi
+          done <<< "${{ steps.atoms.outputs.atoms }}"
           echo "build succeeded"
 
       - name: Save deps
@@ -133,22 +141,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # build this package's newest release ebuild only: the filter's
-          # resolved list can span other packages and several versions of
-          # this one (a same-slot pair conflicts in one emerge), so derive
-          # the atom from the package dir itself, skipping 9999 (KEYWORDS=""
-          # is not mergeable)
+          # build the ebuilds the filter resolved for this package (the ones
+          # changed directly or via a changed files/ entry, the live 9999 among
+          # them when it changed). Same-slot versions (a release + the 9999)
+          # are not mergeable in one emerge, so emit one atom per line and let
+          # the Build step run one emerge per line.
           pkgdir="sci-misc/strata"
-          eb=$(ls -1 "$pkgdir"/*.ebuild 2>/dev/null | grep -v -- '-9999.ebuild$' | sort -V | tail -n1 || true)
-          if [[ -z "$eb" || ! -f "$eb" ]]; then
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            [[ "$e" == "$pkgdir"/*.ebuild ]] || continue
+            eb=$(basename "$e" .ebuild)
+            atoms+="=$pkgdir-${eb#$(basename "$pkgdir")-}"$'\n'
+          done
+          atoms=$(printf '%s' "$atoms" | sed '/^$/d' | sort -u)
+          if [[ -z "$atoms" ]]; then
             echo "atoms=" >> "$GITHUB_OUTPUT"
-            echo "no release ebuild in $pkgdir (9999-only), nothing to build"
+            echo "no ebuild of $pkgdir to build"
             exit 0
           fi
-          pv=$(basename "$eb" .ebuild | sed -E "s/^$(basename "$pkgdir")-//")
-          atoms="=$pkgdir-$pv"
-          echo "atoms=$atoms" >> "$GITHUB_OUTPUT"
-          echo "building: $atoms"
+          { echo "atoms<<EOATOMS"; echo "$atoms"; echo "EOATOMS"; } >> "$GITHUB_OUTPUT"
+          echo "building:"; echo "$atoms" | sed 's/^/  /'
 
       - name: Free space
         if: steps.atoms.outputs.atoms != ''
@@ -164,7 +176,7 @@ jobs:
         if: steps.atoms.outputs.atoms != ''
         uses: ./.github/actions/gentoo-setup
         with:
-          accept-keywords: sci-misc/strata ~amd64
+          accept-keywords: sci-misc/strata *
 
       - name: Build (desktop)
         if: steps.atoms.outputs.atoms != ''
@@ -174,15 +186,19 @@ jobs:
           docker exec gentoo bash -c \
             'echo "sci-misc/strata desktop build-online" > /etc/portage/package.use/strata'
           rc=0
-          docker exec gentoo \
-            emerge --getbinpkg --buildpkg-exclude "${{ steps.atoms.outputs.atoms }}" \
-            --autounmask --autounmask-write --autounmask-continue -v1 \
-            ${{ steps.atoms.outputs.atoms }} 2>&1 | tee build.log || rc=${PIPESTATUS[0]}
-          if [[ $rc -ne 0 ]]; then
-            echo "build failed (rc=${rc})" >&2
-            tail -80 build.log
-            exit 1
-          fi
+          while IFS= read -r atom; do
+            [[ -n "$atom" ]] || continue
+            echo "building: $atom"
+            docker exec gentoo \
+              emerge --getbinpkg --buildpkg-exclude "$atom" \
+              --autounmask --autounmask-write --autounmask-continue -v1 \
+              "$atom" 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+            if [[ $rc -ne 0 ]]; then
+              echo "build failed for $atom (rc=${rc})" >&2
+              tail -80 build.log
+              exit 1
+            fi
+          done <<< "${{ steps.atoms.outputs.atoms }}"
           echo "build succeeded"
 
       - name: Save deps

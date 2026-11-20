@@ -14,9 +14,9 @@ outputs:
     value: ${{ steps.files.outputs.modified }}
   ebuilds:
     description: >-
-      Space-separated ebuilds to build - the ones changed directly, the ones
-      referencing a changed file, or (if nothing references the file) the
-      last two ebuilds of the package
+      Space-separated ebuilds to build - the ones changed directly, the ebuilds
+      referencing a changed files/ entry, and all ebuilds of a package a file
+      was deleted from
     value: ${{ steps.files.outputs.ebuilds }}
   build:
     description: Whether there is anything to build
@@ -53,41 +53,47 @@ runs:
         else
           # tj-actions emits a space-separated list; normalize to one file per line
           all=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n')
-          modified=$(echo "$all" | tr '\n' ' ')
+          # the changed (modified/added) non-ebuild files, captured before the
+          # deleted entries are folded into $all below
+          changed=$(printf '%s\n' "$all" | grep -vE '\.ebuild$' || true)
 
           # deleted files are a separate output - a deleted ebuild can no longer
-          # be built, but other deletions (files/, ...) still drive the
-          # resolution: a dangling reference to a deleted file fails the build
+          # be built; a deleted files/ entry is folded into $all (so it is still
+          # part of the changed-files list) and kept in $deleted for the
+          # resolution
+          deleted=""
           for d in ${{ steps.changed-files.outputs.deleted_files }}; do
             case "$d" in
               *.ebuild) ;;
-              *) all+=$'\n'"$d" ;;
+              *) all+=$'\n'"$d"; deleted+=$'\n'"$d" ;;
             esac
           done
+          modified=$(echo "$all" | tr '\n' ' ')
 
           # resolve the ebuilds to build:
           # - ebuilds changed directly
-          # - ebuilds referencing a changed non-ebuild file (the basename is
-          #   grepped in the package dir; for a deleted file the reference
-          #   still lives in the ebuild, so a dangling one fails the build)
-          # - a file nothing references falls back to the last two ebuilds
-          #   of the package (9999 + newest release)
+          # - a changed (modified/added) files/ entry ⇒ the ebuilds referencing
+          #   it (a file nothing references is dead - it builds nothing)
+          # - a deleted files/ entry ⇒ all the ebuilds of the package (a
+          #   dangling reference in any of them fails its build)
+          # - nothing but ebuilds deleted ⇒ nothing to build (build=false)
           ebuilds=$(printf '%s\n' "$all" | grep -E '\.ebuild$' || true)
           while IFS= read -r f; do
             [[ -n "$f" ]] || continue
             pkg=$(echo "$f" | cut -d/ -f1-2)
-            name=$(basename "$f")
             # package-level Manifest/metadata.xml are bookkeeping, never build
-            # inputs - they must not drive the resolution (a changed Manifest
-            # would otherwise fall back to the last two ebuilds of the package)
+            # inputs - they must not drive the resolution
             [[ "$f" = "$pkg/Manifest" || "$f" = "$pkg/metadata.xml" ]] && continue
-            if [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] \
-               && refs=$(grep -lP "(?<![A-Za-z0-9._-])${name//./\\.}" "${pkg}"/*.ebuild 2>/dev/null); then
-              ebuilds+=$'\n'"${refs}"
-              continue
-            fi
-            ebuilds+=$'\n'"$(ls "${pkg}"/*.ebuild 2>/dev/null | sort -V | tail -2 || true)"
-          done <<< "$(printf '%s\n' "$all" | grep -vE '\.ebuild$' || true)"
+            name=$(basename "$f")
+            [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] || continue
+            ebuilds+=$'\n'"$(grep -lP "(?<![A-Za-z0-9._-])${name//./\\.}" "${pkg}"/*.ebuild 2>/dev/null || true)"
+          done <<< "$changed"
+          while IFS= read -r f; do
+            [[ -n "$f" ]] || continue
+            pkg=$(echo "$f" | cut -d/ -f1-2)
+            [[ "$f" = "$pkg/Manifest" || "$f" = "$pkg/metadata.xml" ]] && continue
+            ebuilds+=$'\n'"$(ls "${pkg}"/*.ebuild 2>/dev/null || true)"
+          done <<< "$(printf '%s\n' "$deleted" || true)"
         fi
         ebuilds=$(echo "$ebuilds" | tr ' ' '\n' | grep -E '^[^ ]+\.ebuild$' | sort -du | tr '\n' ' ') || true
         ebuilds="${ebuilds% }"
