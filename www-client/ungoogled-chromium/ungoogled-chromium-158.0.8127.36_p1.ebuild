@@ -1939,112 +1939,6 @@ src_prepare() {
 	#! Fix for a phony target
 	mkdir -p third_party/rust-toolchain/bin
 	touch third_party/rust-toolchain/bin/rustc
-
-	if use !bundled-toolchain; then
-		# 158 requires a rust_crubit_root for system rustc builds: a tree-local
-		# root holding the cc_bindings_from_rs tool and the crubit support
-		# sources ($crubit_src_dir = <root>/lib/third_party/crubit, whose
-		# headers are included as "third_party/crubit/support/..." via
-		# <root>/lib). The bundled toolchain's crubit cannot read the system
-		# rust's rmetas, so build the tool against the system Rust and stage
-		# it in the phony //third_party/rust-toolchain created above, the
-		# canonical root crubit_shared_args.gni special-cases (it also enables
-		# rustfmt/clang-format on the generated bindings, as upstream does).
-		local crubit_src="${WORKDIR}/crubit-${CRUBIT_REVISION}"
-		local crubit_vendor="${WORKDIR}/crubit-vendor"
-		local crubit_root=third_party/rust-toolchain
-
-		# Vendored cargo sources for the offline tool build
-		mkdir -p "${crubit_vendor}" || die
-		for i in "${CRATES[@]}"; do
-			local crate_dir="${crubit_vendor}/${i// /_}"
-			mkdir -p "${crate_dir}" || die
-			tar xzf "${DISTDIR}/${i// /-}.crate" -C "${crate_dir}" --strip-components=1 || die
-			(
-				cd "${crate_dir}" || exit 1
-				python3 - "${DISTDIR}/${i// /-}.crate" <<'EOF'
-import hashlib, json, os, sys
-pkg = hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest()
-files = {}
-for root, _, names in os.walk("."):
-	for n in names:
-		p = os.path.join(root, n)
-		if os.path.relpath(p) == ".cargo-checksum.json":
-			continue
-		files[os.path.relpath(p)] = hashlib.sha256(open(p, "rb").read()).hexdigest()
-json.dump({"files": files, "package": pkg}, open(".cargo-checksum.json", "w"))
-EOF
-			) || die
-		done
-		mkdir -p "${crubit_src}/.cargo" || die
-		printf '[source.crates-io]\nreplace-with = "vendored-sources"\n\n[source.vendored-sources]\ndirectory = "%s"\n' \
-			"${crubit_vendor}" > "${crubit_src}/.cargo/config.toml" || die
-
-		# cc_bindings_from_rs links the slot's rustc internals (hence
-		# USE=rustc-dev); the RUNPATH $ORIGIN/../lib lets it find the
-		# librustc_driver staged next to it below
-		local cargo_bin rustc_bin
-		if [[ ${RUST_TYPE} == binary ]]; then
-			cargo_bin="$(get_rust_prefix)/bin/cargo"
-			rustc_bin="$(get_rust_prefix)/bin/rustc"
-		else
-			cargo_bin="${EPREFIX}/usr/bin/cargo-${RUST_SLOT}"
-			rustc_bin="${EPREFIX}/usr/bin/rustc-${RUST_SLOT}"
-		fi
-
-		local f driver=""
-		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
-				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
-			[[ -f ${f} ]] && { driver=${f}; break; }
-		done
-		[[ -n ${driver} ]] || die "librustc_driver not found under $(get_rust_prefix) (USE=rustc-dev required)"
-
-		# The driver's LLVM dep (libLLVM-23.so on some LLVM builds,
-		# libLLVM.so.23.1 on others) is not on the linker's default
-		# search path, so point the tool's final link at the dir the
-		# driver itself loads it from
-		local link_args="-Clink-args=-Wl,-rpath,\$ORIGIN/../lib"
-		local llvm_libdir
-		llvm_libdir=$(ldd "${driver}" | awk '$1 ~ /^libLLVM/ {print $3}' | head -1 | xargs -r -n1 dirname)
-		[[ -z ${llvm_libdir} ]] || link_args+=" -L${llvm_libdir} -Clink-args=-Wl,-rpath,${llvm_libdir}"
-
-		(
-			cd "${crubit_src}" || exit 1
-			env CARGO_HOME="${WORKDIR}/crubit-cargo-home" \
-				RUSTC="${rustc_bin}" \
-				RUSTC_BOOTSTRAP=1 \
-				RUSTFLAGS="${link_args}" \
-				"${cargo_bin}" build --release --offline --locked --bin cc_bindings_from_rs
-		) || die
-
-		# The tool itself, in the canonical root the crubit gni points at
-		cp "${crubit_src}/target/release/cc_bindings_from_rs" "${crubit_root}/bin/" || die
-
-		# Support sources for //build/rust/crubit
-		mkdir -p "${crubit_root}/lib/third_party/crubit" || die
-		cp "${crubit_src}"/{BUILD.gn,crubit.gni,LICENSE} "${crubit_root}/lib/third_party/crubit/" || die
-		cp -r "${crubit_src}/support" "${crubit_root}/lib/third_party/crubit/" || die
-
-		# The tool runs against the slot's librustc_driver at runtime
-		local libllvm=""
-		cp "${driver}" "${crubit_root}/lib/" || die
-		for f in "$(get_rust_prefix)"/lib/libLLVM.so.*; do
-			[[ -f ${f} ]] && { libllvm=${f}; break; }
-		done
-		# Toolchains shipping their own LLVM (rust-bin) need it alongside the
-		# driver; system-LLVM builds (dev-lang/rust) resolve it via ld.so.cache
-		[[ -z ${libllvm} ]] || cp "${libllvm}" "${crubit_root}/lib/" || die
-
-		# crubit formats generated bindings with the slot's rustfmt when the
-		# canonical root is used
-		local rustfmt
-		if [[ ${RUST_TYPE} == binary ]]; then
-			rustfmt="${EPREFIX}/usr/bin/rustfmt-bin-${RUST_SLOT}"
-		else
-			rustfmt="${EPREFIX}/usr/bin/rustfmt-${RUST_SLOT}"
-		fi
-		ln -sf "${rustfmt}" "${crubit_root}/bin/rustfmt" || die
-	fi
 }
 
 src_configure() {
@@ -2185,6 +2079,117 @@ src_configure() {
 	local myconf_gn=() # Tip: strings must be quoted, bools or numbers are fine
 
 	if use !bundled-toolchain; then
+		# 158 requires a rust_crubit_root for system rustc builds: a tree-local
+		# root holding the cc_bindings_from_rs tool and the crubit support
+		# sources ($crubit_src_dir = <root>/lib/third_party/crubit, whose
+		# headers are included as "third_party/crubit/support/..." via
+		# <root>/lib). The bundled toolchain's crubit cannot read the system
+		# rust's rmetas, so build the tool against the system Rust and stage
+		# it in the phony //third_party/rust-toolchain created in src_prepare,
+		# the canonical root crubit_shared_args.gni special-cases (it also
+		# enables rustfmt/clang-format on the generated bindings, as upstream
+		# does).
+		local crubit_src="${WORKDIR}/crubit-${CRUBIT_REVISION}"
+		local crubit_vendor="${WORKDIR}/crubit-vendor"
+		local crubit_root=third_party/rust-toolchain
+
+		# Vendored cargo sources for the offline tool build
+		mkdir -p "${crubit_vendor}" || die
+		for i in "${CRATES[@]}"; do
+			local crate_dir="${crubit_vendor}/${i// /_}"
+			mkdir -p "${crate_dir}" || die
+			tar xzf "${DISTDIR}/${i// /-}.crate" -C "${crate_dir}" --strip-components=1 || die
+			(
+				cd "${crate_dir}" || exit 1
+				python3 - "${DISTDIR}/${i// /-}.crate" <<'EOF'
+import hashlib, json, os, sys
+pkg = hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest()
+files = {}
+for root, _, names in os.walk("."):
+	for n in names:
+		p = os.path.join(root, n)
+		if os.path.relpath(p) == ".cargo-checksum.json":
+			continue
+		files[os.path.relpath(p)] = hashlib.sha256(open(p, "rb").read()).hexdigest()
+json.dump({"files": files, "package": pkg}, open(".cargo-checksum.json", "w"))
+EOF
+			) || die
+		done
+		mkdir -p "${crubit_src}/.cargo" || die
+		printf '[source.crates-io]\nreplace-with = "vendored-sources"\n\n[source.vendored-sources]\ndirectory = "%s"\n' \
+			"${crubit_vendor}" > "${crubit_src}/.cargo/config.toml" || die
+
+		# cc_bindings_from_rs links the slot's rustc internals (hence
+		# USE=rustc-dev); the RUNPATH $ORIGIN/../lib lets it find the
+		# librustc_driver staged next to it below
+		local cargo_bin rustc_bin
+		if [[ ${RUST_TYPE} == binary ]]; then
+			cargo_bin="$(get_rust_prefix)/bin/cargo"
+			rustc_bin="$(get_rust_prefix)/bin/rustc"
+		else
+			cargo_bin="${EPREFIX}/usr/bin/cargo-${RUST_SLOT}"
+			rustc_bin="${EPREFIX}/usr/bin/rustc-${RUST_SLOT}"
+		fi
+
+		local f driver=""
+		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
+				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
+			[[ -f ${f} ]] && { driver=${f}; break; }
+		done
+		[[ -n ${driver} ]] || die "librustc_driver not found under $(get_rust_prefix) (USE=rustc-dev required)"
+
+		# The driver's LLVM dep (libLLVM-23.so on some LLVM builds,
+		# libLLVM.so.23.1 on others) is not on the linker's default
+		# search path, so point the tool's final link at the dir the
+		# driver itself loads it from
+		local link_args="-Clink-args=-Wl,-rpath,\$ORIGIN/../lib"
+		local llvm_libdir
+		llvm_libdir=$(ldd "${driver}" | awk '$1 ~ /^libLLVM/ {print $3}' | head -1 | xargs -r -n1 dirname)
+		[[ -z ${llvm_libdir} ]] || link_args+=" -L${llvm_libdir} -Clink-args=-Wl,-rpath,${llvm_libdir}"
+
+		(
+			cd "${crubit_src}" || exit 1
+			env CARGO_HOME="${WORKDIR}/crubit-cargo-home" \
+				RUSTC="${rustc_bin}" \
+				RUSTC_BOOTSTRAP=1 \
+				RUSTFLAGS="${link_args}" \
+				"${cargo_bin}" build --release --offline --locked --bin cc_bindings_from_rs
+		) || die
+
+		# The tool itself, in the canonical root the crubit gni points at
+		cp "${crubit_src}/target/release/cc_bindings_from_rs" "${crubit_root}/bin/" || die
+
+		# Support sources for //build/rust/crubit
+		mkdir -p "${crubit_root}/lib/third_party/crubit" || die
+		cp "${crubit_src}"/{BUILD.gn,crubit.gni,LICENSE} "${crubit_root}/lib/third_party/crubit/" || die
+		cp -r "${crubit_src}/support" "${crubit_root}/lib/third_party/crubit/" || die
+
+		# The tool runs against the slot's librustc_driver at runtime
+		local libllvm=""
+		cp "${driver}" "${crubit_root}/lib/" || die
+		for f in "$(get_rust_prefix)"/lib/libLLVM.so.*; do
+			[[ -f ${f} ]] && { libllvm=${f}; break; }
+		done
+		# Toolchains shipping their own LLVM (rust-bin) need it alongside the
+		# driver; system-LLVM builds (dev-lang/rust) resolve it via ld.so.cache
+		[[ -z ${libllvm} ]] || cp "${libllvm}" "${crubit_root}/lib/" || die
+
+		# crubit formats generated bindings with the slot's rustfmt when the
+		# canonical root is used
+		local rustfmt
+		if [[ ${RUST_TYPE} == binary ]]; then
+			rustfmt="${EPREFIX}/usr/bin/rustfmt-bin-${RUST_SLOT}"
+		else
+			rustfmt="${EPREFIX}/usr/bin/rustfmt-${RUST_SLOT}"
+		fi
+		ln -sf "${rustfmt}" "${crubit_root}/bin/rustfmt" || die
+
+		# The rs_std gen action also formats the generated C++ with the
+		# clang-format upstream expects at buildtools/linux64-format
+		# (//buildtools:clang-format); point it at the slot's
+		mkdir -p buildtools/linux64-format
+		ln -sf "${EPREFIX}/usr/bin/clang-format-${LLVM_SLOT}" buildtools/linux64-format/clang-format || die
+
 		# We already forced the "correct" clang via pkg_setup
 
 		if tc-is-cross-compiler; then
@@ -2217,8 +2222,8 @@ src_configure() {
 			"rustc_version=\"${RUST_SLOT}\""
 			# 158 asserts rust_crubit_root is non-empty for system rustc builds
 			# (cpp_api_from_rust.gni). The bundled toolchain carries its own crubit,
-			# which cannot read the system rust's rmetas, so src_prepare builds the
-			# matching cc_bindings_from_rs against the system Rust and stages it in
+			# which cannot read the system rust's rmetas, so the block above builds
+			# the matching cc_bindings_from_rs against the system Rust and stages it in
 			# the (phony) //third_party/rust-toolchain, the canonical root crubit
 			# shared args special-case (it also enables rustfmt/clang-format on the
 			# generated bindings, as upstream does).
