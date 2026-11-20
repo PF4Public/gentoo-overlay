@@ -1129,6 +1129,12 @@ src_prepare() {
 			> "${BR_PA_PATH}/JIT-site-settings.patch1"
 		mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
 
+		# 158 rewrote the kExcludeAdsFromOriginIsolation comment in
+		# NavigationRequest::GetUrlInfo(); match its first line in the
+		# navigation_request.cc hunk context.
+		sed -i 's|    // When excluding ads from origin isolation, an ad navigation is treated as|    // After the final response, use the decision from|' \
+			"${BR_PA_PATH}/JIT-site-settings.patch" || die
+
 		#TODO remove after cromite update
 		filterdiff -p1 "${BR_PA_PATH}/Viewport-Protection-flag.patch" --exclude="third_party/blink/public/common/widget/device_emulation_params.h" \
 			> "${BR_PA_PATH}/Viewport-Protection-flag.patch1"
@@ -1152,6 +1158,36 @@ src_prepare() {
 		filterdiff -p1 "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" --exclude="chrome/browser/ui/webui/BUILD.gn" \
 			> "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1"
 		mv -f "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1" "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
+
+		# 158 turned the site-settings preference dispatch into a switch statement
+		# and gave PermissionSetting a source argument (createDefaultPermissionSetting),
+		# so this patch's SingleWebsiteSettings.java hunks can no longer apply
+		# (one of them even fuzz-misapplies). Drop the file; the re-based hunks are
+		# applied after the loop.
+		filterdiff -p1 "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch" \
+			--exclude="components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java" \
+			> "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch1"
+		mv -f "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch1" \
+			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
+
+		# 158 removed the Quota.TotalDiskSpaceIsZero histogram from
+		# quota_device_info_helper.cc, so the hunk's context no longer matches.
+		# Drop the file; the re-based hunk is applied after the loop.
+		filterdiff -p1 "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch" \
+			--exclude="storage/browser/quota/quota_device_info_helper.cc" \
+			> "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch1"
+		mv -f "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch1" \
+			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
+
+		# 158 dropped v8's kTemplatesWithMismatchedArguments list from
+		# MessageFormatter::TryFormat (and NewJSMessageObject now maps a null
+		# argument to the hole, so no list entry is needed anymore), so the
+		# messages.cc hunk is obsolete and fuzz-misapplies; drop the file.
+		filterdiff -p1 "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch" \
+			--exclude="v8/src/execution/messages.cc" \
+			> "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch1"
+		mv -f "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch1" \
+			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
 
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
@@ -1221,6 +1257,10 @@ src_prepare() {
 		#* the emulated->screen->emulated round-trip is a fixed point and the
 		#* popup stops drifting toward the top-left corner
 		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-popup-rounding.patch"
+
+		# 158 re-bases for the files excluded from the loop patches above
+		eapply_wrapper "${FILESDIR}/chromium-158-cookies-js-site-settings.patch"
+		eapply_wrapper "${FILESDIR}/chromium-158-quota-device-info-approximation.patch"
 
 		#! conflicting patches
 		sed -i '/browser_features.cc/,+17d' \
