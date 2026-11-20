@@ -65,7 +65,8 @@ src_prepare() {
 	# runs CI-only verification hooks even for a `--dir` (unpack) build:
 	#   beforePack: dark-build / native-variant / bundled-ripgrep / process-host
 	#               / orcad-template / mobile-web assertions, and the Docker-
-	#               built Wayland clipboard helper.
+	#               built native helpers (Wayland clipboard, provider-exec,
+	#               journal file-lock).
 	#   afterPack:  verifyLinuxGlibcFloor (hard-fails if any bundled native
 	#               binary, e.g. node-pty's pty.node, needs glibc > 2.31), the
 	#               Wayland helper finalize, and main-runtime-deps / skills-CLI
@@ -80,7 +81,7 @@ src_prepare() {
 	# matches on both trees (a no-op where the line is absent).
 	sed -i '/^    verifyPackagedPluginTypings(resourcesDir)$/d' \
 		config/electron-builder.config.cjs || die
-	patch -p1 -i "${FILESDIR}/relax-ci-verification-hooks-r1.patch" || die
+	patch -p1 -i "${FILESDIR}/relax-ci-verification-hooks-r2.patch" || die
 
 	# The Wayland clipboard helper is only used on native Wayland. Without the
 	# flag, strip its extraResources entry so electron-builder does not fail on
@@ -189,6 +190,22 @@ src_compile() {
 		chmod 0755 "${helperdir}/orca-wayland-clipboard" || die
 	fi
 
+	# Build the journal-file-lock helper natively (upstream compiles it in Docker
+	# only to force an old glibc floor, which is irrelevant on Gentoo). It is a
+	# single dependency-free C file that safely locks/retires the agent-session-
+	# journal SQLite DB; the config's extraResources entry ships it to
+	# resources/bin. Always built, unlike the Wayland helper which is
+	# Wayland-session-specific.
+	local arch
+	[[ ${CHOST} == *aarch64* ]] && arch=arm64 || arch=x64
+	local jfldir="native/journal-file-lock/.build/${arch}"
+	mkdir -p "${jfldir}" || die
+	einfo "Building the journal-file-lock helper natively"
+	gcc -O2 -fPIE -pie -Wl,-z,relro,-z,now \
+		native/journal-file-lock/main.c \
+		-o "${jfldir}/journal-file-lock" || die
+	chmod 0755 "${jfldir}/journal-file-lock" || die
+
 	# electron-builder must run with the SYSTEM node: the electron runtime's
 	# node wrapper breaks its yargs ("Unknown argument"). With pnpm,
 	# node_modules/.bin/electron-builder is a shell shim, so run the real CLI
@@ -243,6 +260,10 @@ src_install() {
 	if use wayland; then
 		fperms 0755 "${mydir}/bin/orca-wayland-clipboard" || die
 	fi
+
+	# The journal-file-lock helper is likewise staged via extraResources into
+	# resources/bin; doins strips the exec bit, so restore it.
+	fperms 0755 "${mydir}/bin/journal-file-lock" || die
 
 	# Launcher: run the app.asar with the selected system electron slot,
 	# forwarding user flags from ~/.config/orca-flags.conf.
