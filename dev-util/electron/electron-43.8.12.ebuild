@@ -1043,6 +1043,14 @@ src_prepare() {
 			# 		continue;
 			# fi
 			if [ "$i" = "cherry-pick-dd8e2822e507.patch" ] ||
+				[ "$i" = "cherry-pick-b82a564646a2.patch" ]||
+				[ "$i" = "cherry-pick-1ff891807e39.patch" ]||
+				[ "$i" = "cherry-pick-d9294ad1c051.patch" ]||
+				[ "$i" = "cherry-pick-e4a1c99109a4.patch" ]||
+				[ "$i" = "cherry-pick-fb5dacfe0f4c.patch" ]||
+				[ "$i" = "cherry-pick-b40b5946cd4c.patch" ]||
+				[ "$i" = "cherry-pick-d9fcba36b9c9.patch" ]||
+				[ "$i" = "cherry-pick-ceae6307946c.patch" ]||
 				[ "$i" = "cherry-pick-069a204ae813.patch" ]||
 				[ "$i" = "cherry-pick-b280dcea4871.patch" ]||
 				[ "$i" = "cherry-pick-05b44a448820.patch" ]||
@@ -1150,6 +1158,18 @@ src_prepare() {
 		done
 		die "Failed to apply ${#FAILED_PATCHES[@]} patch(es)"
 	fi
+
+	# electron's skia patch set is not applied (it is not in the patch folders
+	# above), and the base skia is otherwise sufficient - except that the
+	# chromium patches (cherry-pick-5b4e99232ee1, cherry-pick-de4926eaa4d8)
+	# consume the GrDirectContext::FlushResult API, which the base lacks.
+	# Backport it (an M152 cherry-pick adapted to this base) so those call
+	# sites compile; its implicit GrSemaphoresSubmitted cast keeps the base's
+	# old-style flush callers working.
+	pushd third_party/skia > /dev/null || die
+	einfo "skia-flush-result.patch"
+	git_wrapper apply -p1 "${FILESDIR}/skia-flush-result.patch"
+	popd > /dev/null || die
 
 	elog "Removing bundled binaries from source tree ..."
 	# Purge bundled ELF files: These are non-portable and will cause issues if used instead of system versions.
