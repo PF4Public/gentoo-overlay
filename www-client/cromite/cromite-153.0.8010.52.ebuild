@@ -698,11 +698,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-153-fix-devtools.patch"
 		"${FILESDIR}/chromium-153-cbor-fix.patch"
 		"${FILESDIR}/chromium-153-system-typescript.patch"
-		#* Viewport Protection's screen emulation misplaces page-anchored native
-		#* popups (select/date/color pickers); round the screen de-emulation so
-		#* the emulated->screen->emulated round-trip is a fixed point and the
-		#* popup stops drifting toward the top-left corner
-		"${FILESDIR}/chromite-viewport-protection-popup-rounding.patch"
 	)
 
 	# So many fontconfig magic numbers to cover
@@ -1003,7 +998,8 @@ src_prepare() {
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ] ||
-			[ "$i" = "ungoogled-chromium-no-special-hosts-domains.patch" ]; then
+			[ "$i" = "ungoogled-chromium-no-special-hosts-domains.patch" ] ||
+			[ "$i" = "Disable-Service-and-Shared-workers-on-3P-iframe.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
 		fi
