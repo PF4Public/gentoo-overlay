@@ -214,10 +214,14 @@ src_unpack() {
 	if use desktop; then
 		if [[ ${PV} = *9999* ]]; then
 			# the tauri shell's crates, fetched at build time (the live
-			# tree's Cargo.lock drifts, so there is no offline CRATES list)
+			# tree's Cargo.lock drifts, so there is no offline CRATES list);
+			# cargo_live_src_unpack runs cargo fetch in the phase cwd and
+			# reassigning S does not move it, so the shell must cd in too
 			local _S="${S}"
 			S="${S}/app/desktop/src-tauri"
+			pushd "${S}" > /dev/null || die
 			cargo_live_src_unpack
+			popd > /dev/null || die
 			S="${_S}"
 		else
 			# the desktop crates (self-generated, the gentoo-overlay release
