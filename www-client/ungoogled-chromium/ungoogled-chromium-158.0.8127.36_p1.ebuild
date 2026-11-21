@@ -1704,8 +1704,7 @@ src_prepare() {
 		third_party/nearby
 		third_party/neon_2_sse
 		third_party/node
-		third_party/oak/chromium/proto
-		third_party/oak/chromium/proto/attestation
+		third_party/oak
 		third_party/omnibox_proto
 		third_party/one_euro_filter
 		third_party/openscreen
