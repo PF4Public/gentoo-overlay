@@ -132,7 +132,7 @@ BDEPEND="
 if [[ ${PV} = *9999* ]]; then
 	# the live tree's pinned llama.cpp is fetched in src_unpack
 	BDEPEND+="
-		dev-util/wget
+		net-misc/wget
 	"
 fi
 
