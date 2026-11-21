@@ -999,7 +999,8 @@ src_prepare() {
 			[ "$i" = "Add-search-engine.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ] ||
 			[ "$i" = "ungoogled-chromium-no-special-hosts-domains.patch" ] ||
-			[ "$i" = "Disable-Service-and-Shared-workers-on-3P-iframe.patch" ]; then
+			[ "$i" = "Disable-Service-and-Shared-workers-on-3P-iframe.patch" ] ||
+			[ "$i" = "Experimental-support-for-extensions-on-Android.patch" ]; then
 			ewarn "Skipping ${i}"
 			continue;
 		fi
@@ -1010,8 +1011,29 @@ src_prepare() {
 		fi
 		einfo "$i"
 		# ebegin "$i"
+		if [ "$i" = "eyeo-133.0.6943.49-base.patch" ]; then
+			# 153.52 refactored the redirect-bypass check to a per-request
+			# local, so the eyeo hunk in navigation_url_loader_impl.cc no
+			# longer applies: take the rest with fuzz and port that hunk
+			filterdiff -p1 --exclude="*/web_tests/*" --exclude="*/test-list/*" \
+				--exclude="*/uv/test/*" --exclude="*.rst" \
+				--exclude="*/cctest/*" --exclude="*/unittests/*" \
+				--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
+				--exclude="*/commit_stats/*" --exclude="chrome/android/*" \
+				--exclude="android_webview/*" --exclude="chrome/browser/ui/android/*" \
+				< "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
+				| patch -F 3 -p1 -f
+			[[ $? -le 1 ]] || die "eyeo-base: patch failure beyond the known drift"
+			perl -0pi -e 's/if \(!bypass_redirect_checks \&\&\n        !IsSafeRedirectTarget\(url_, redirect_info\.new_url\)\) \{/if (!bypass_redirect_checks \&\& !redirect_info.bypass_redirect_checks \&\&\n        !IsSafeRedirectTarget(url_, redirect_info.new_url)) {/' \
+				content/browser/loader/navigation_url_loader_impl.cc
+			grep -q 'if (!bypass_redirect_checks && !redirect_info.bypass_redirect_checks &&' \
+				content/browser/loader/navigation_url_loader_impl.cc \
+				|| die "eyeo-base: redirect hunk port failed"
+			continue
+		fi
 		if [[ "$i" =~ "Disable-integration-with-Gemini.patch" ]] ||
-			[[ "$i" =~ "Experimental-support-for-extensions-on-Android.patch" ]]; then
+			[[ "$i" =~ "Android-Pixel-Perfect-Mode.patch" ]] ||
+			[[ "$i" =~ "Add-setting-to-enable-Credman-for-passkeys.patch" ]]; then
 			filter_wrapper "${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches/$i" \
 				--exclude="*/web_tests/*" --exclude="*/test-list/*" \
 				--exclude="*/uv/test/*" --exclude="*.rst" \
