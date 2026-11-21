@@ -1234,6 +1234,13 @@ src_prepare() {
 			fi
 		done
 
+		# 158's devtools settings registry is strict: moduleSetting() throws
+		# for unregistered names (the 2024 patch relied on the removed
+		# auto-creation), so every devtools load logged "No setting
+		# registered: disableDebuggerStatement". Register the setting (and
+		# surface it in the settings UI) after the loop.
+		eapply_wrapper "${FILESDIR}/cromite-debugger-statement-setting.patch"
+
 		# Re-add the content_settings dep dropped above (157 restructured the ui target).
 		sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
 			chrome/browser/ui/BUILD.gn || die
