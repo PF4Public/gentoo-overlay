@@ -2175,12 +2175,8 @@ EOF
 
 		# crubit formats generated bindings with the slot's rustfmt when the
 		# canonical root is used
-		local rustfmt
-		if [[ ${RUST_TYPE} == binary ]]; then
-			rustfmt="${EPREFIX}/usr/bin/rustfmt-bin-${RUST_SLOT}"
-		else
-			rustfmt="${EPREFIX}/usr/bin/rustfmt-${RUST_SLOT}"
-		fi
+		local rustfmt="$(get_rust_prefix)/bin/rustfmt"
+		[[ -x ${rustfmt} ]] || die "rustfmt not found at ${rustfmt}"
 		ln -sf "${rustfmt}" "${crubit_root}/bin/rustfmt" || die
 
 		# The rs_std gen action also formats the generated C++ with the
