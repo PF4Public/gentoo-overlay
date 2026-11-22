@@ -1939,13 +1939,19 @@ src_prepare() {
 	# GetForProfile.
 	eapply_wrapper "${FILESDIR}/chromium-157-disable-push-messaging.patch"
 
+	# ungoogled-chromium-no-special-hosts-domains renames
+	# //chrome/browser/google to google_UNUSED and drops its deps; 158's
+	# source_set("browser") lists the label twice, so one duplicate survives
+	# the loop hunks and dangles (unresolved dep). Drop the remainder.
+	sed -i '/^    "\/\/chrome\/browser\/google",$/d' chrome/browser/BUILD.gn || die
+
 	# The hunks of ungoogled-chromium-no-special-hosts-domains that no longer
 	# find their context, re-based: drop the Advanced Protection Program row
 	# and the NTP child-src CSP, empty the domain-reliability baked-in
 	# configs, and keep both kGoogleHomepageURL names (the .h/.search_terms
 	# rename to _Checked applied, but newer 158 files still use the old name,
-	# so provide both). The chrome/browser/BUILD.gn dep drop is already
-	# carried by the loop patch, so it is not repeated here.
+	# so provide both). The chrome/browser/BUILD.gn dep drops are carried by
+	# the loop patch plus the sed above.
 	eapply_wrapper "${FILESDIR}/chromium-158-no-special-hosts-domains.patch"
 
 	# Add-an-always-incognito-mode's call-site update: 157 added the
