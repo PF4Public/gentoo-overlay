@@ -42,9 +42,10 @@ unset X86_CPU_FLAGS CPU_FLAGS
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
-	# build-online: the webui build downloads the npm registry over the
-	# network. Default off: without webui the build is fully offline.
-	IUSE+=" build-online"
+	# build-online: lifts the network sandbox; the webui build needs it
+	# to download the npm registry. Default on, so [webui] works out of
+	# the box; without webui the build stays fully offline.
+	IUSE+=" +build-online"
 	REQUIRED_USE+=" webui? ( build-online )"
 	RESTRICT="mirror build-online? ( network-sandbox )"
 	BDEPEND_EXTRA="webui? ( >=net-libs/nodejs-22[npm] )"
