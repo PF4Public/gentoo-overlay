@@ -1055,7 +1055,7 @@ src_prepare() {
 
 	if use system-libvpx; then
 		PATCHES+=(
-			"${FILESDIR}/chromium-system-libvpx.patch"
+			"${FILESDIR}/chromium-system-libvpx-r1.patch"
 		)
 	fi
 
