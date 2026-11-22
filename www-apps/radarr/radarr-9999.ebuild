@@ -190,9 +190,17 @@ RESTRICT="test build-online? ( network-sandbox )"
 
 DOTNET_PKG_PROJECTS=( "src/Radarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
+	"src/NzbDrone.Api.Test/Radarr.Api.Test.csproj"
 	"src/NzbDrone.Automation.Test/Radarr.Automation.Test.csproj"
+	"src/NzbDrone.Common.Test/Radarr.Common.Test.csproj"
+	"src/NzbDrone.Core.Test/Radarr.Core.Test.csproj"
 	"src/NzbDrone.Host.Test/Radarr.Host.Test.csproj"
 	"src/NzbDrone.Integration.Test/Radarr.Integration.Test.csproj"
+	"src/NzbDrone.Libraries.Test/Radarr.Libraries.Test.csproj"
+	"src/NzbDrone.Mono.Test/Radarr.Mono.Test.csproj"
+	"src/NzbDrone.Test.Common/Radarr.Test.Common.csproj"
+	"src/NzbDrone.Test.Dummy/Radarr.Test.Dummy.csproj"
+	"src/NzbDrone.Update.Test/Radarr.Update.Test.csproj"
 	"src/NzbDrone.Windows.Test/Radarr.Windows.Test.csproj"
 	"src/NzbDrone.Windows/Radarr.Windows.csproj"
 	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
@@ -223,6 +231,11 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+
+	# don't emit PDBs, they would just be installed
+	if ! use debug ; then
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+	fi
 }
 
 src_unpack() {
@@ -253,6 +266,9 @@ src_compile() {
 
 src_install() {
 	dotnet-pkg_src_install
+
+	# drop the UI sourcemaps
+	find "${ED}/usr/share/${P}" -name "*.map" -delete
 
 	# This disables the built-in update feature
 	insinto "/usr/share/${P}"
