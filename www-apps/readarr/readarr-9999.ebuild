@@ -465,6 +465,8 @@ pkg_setup() {
 src_unpack() {
 	if [[ ${PV} = *9999* ]]; then
 		git-r3_src_unpack
+		# populate the local nuget feed the offline restore reads from
+		dotnet-pkg_src_unpack
 		# the live tree's UI deps, installed at build time (build-online);
 		# the released ebuilds unpack the prebuilt node_modules distfile
 		( cd "${S}" && yarn install --frozen-lockfile ) || die
