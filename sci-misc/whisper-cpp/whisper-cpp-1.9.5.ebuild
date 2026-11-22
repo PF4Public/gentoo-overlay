@@ -46,9 +46,12 @@ CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 
 # ffmpeg: link examples against FFmpeg to decode more audio formats (WHISPER_COMMON_FFMPEG)
 # sdl:    build the SDL2-based examples whisper-stream, whisper-command, whisper-lsp, wchess (WHISPER_SDL2)
-IUSE="cuda ffmpeg openblas opencl +openmp rpc sdl system-ggml vulkan ${CPU_FLAGS[*]}"
+IUSE="cuda +examples ffmpeg openblas opencl +openmp rpc sdl system-ggml vulkan ${CPU_FLAGS[*]}"
 
 unset X86_CPU_FLAGS CPU_FLAGS
+
+# the ffmpeg and sdl flags only affect the examples
+REQUIRED_USE="ffmpeg? ( examples ) sdl? ( examples )"
 
 # with system-ggml the backend flags are mapped onto sci-ml/ggml's own
 # USE flags, and the bundled-build dependencies are dropped
@@ -109,14 +112,14 @@ src_prepare() {
 	cmake_src_prepare
 	# examples/talk-llama FetchContents llama.cpp v0.6.0 from github at
 	# build time, which we do not want in a portage build
-	eapply "${FILESDIR}"/examples-drop-talk-llama.patch
+	use examples && eapply "${FILESDIR}"/examples-drop-talk-llama.patch
 }
 
 src_configure() {
 	local mycmakeargs=(
 		# do not report the version as "-dev" when building a release
 		-DWHISPER_BUILD_IS_DEV=${WHISPER_BUILD_IS_DEV}
-		-DWHISPER_BUILD_EXAMPLES=ON
+		-DWHISPER_BUILD_EXAMPLES=$(usex examples)
 		-DWHISPER_BUILD_TESTS=ON
 		-DWHISPER_COMMON_FFMPEG=$(usex ffmpeg)
 		-DWHISPER_SDL2=$(usex sdl)

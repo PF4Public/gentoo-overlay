@@ -19,6 +19,7 @@
 	</longdescription>
 	<use>
 		<flag name="cuda">Enable the NVIDIA CUDA backend (GGML_CUDA)</flag>
+		<flag name="examples">Build the example programs, which include the command line tools (whisper-cli, whisper-bench, whisper-quantize, whisper-server, whisper-vad-speech-segments, parakeet-cli, parakeet-quantize)</flag>
 		<flag name="ffmpeg">Link the examples against FFmpeg to decode more audio formats</flag>
 		<flag name="openblas">Use OpenBLAS as the BLAS backend (GGML_BLAS)</flag>
 		<flag name="opencl">Enable the OpenCL backend (GGML_OPENCL)</flag>
