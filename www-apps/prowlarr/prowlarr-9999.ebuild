@@ -201,9 +201,18 @@ RESTRICT="test build-online? ( network-sandbox )"
 DOTNET_PKG_PROJECTS=( "src/Prowlarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
 	"src/NzbDrone.Automation.Test/Prowlarr.Automation.Test.csproj"
+	"src/NzbDrone.Common.Test/Prowlarr.Common.Test.csproj"
+	"src/NzbDrone.Core.Test/Prowlarr.Core.Test.csproj"
 	"src/NzbDrone.Host.Test/Prowlarr.Host.Test.csproj"
 	"src/NzbDrone.Integration.Test/Prowlarr.Integration.Test.csproj"
+	"src/NzbDrone.Libraries.Test/Prowlarr.Libraries.Test.csproj"
+	"src/NzbDrone.Mono.Test/Prowlarr.Mono.Test.csproj"
+	"src/NzbDrone.Test.Common/Prowlarr.Test.Common.csproj"
+	"src/NzbDrone.Test.Dummy/Prowlarr.Test.Dummy.csproj"
+	"src/NzbDrone.Update.Test/Prowlarr.Update.Test.csproj"
 	"src/NzbDrone.Windows.Test/Prowlarr.Windows.Test.csproj"
+	"src/Prowlarr.Api.V1.Test/Prowlarr.Api.V1.Test.csproj"
+	"src/Prowlarr.Benchmark.Test/Prowlarr.Benchmark.Test.csproj"
 	"src/NzbDrone.Windows/Prowlarr.Windows.csproj"
 	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
 	"src/ServiceHelpers/ServiceUninstall/ServiceUninstall.csproj"
@@ -232,6 +241,11 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+
+	# don't emit PDBs, they would just be installed
+	if ! use debug ; then
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+	fi
 }
 
 src_unpack() {
@@ -261,6 +275,9 @@ src_compile() {
 
 src_install() {
 	dotnet-pkg_src_install
+
+	# drop the UI sourcemaps
+	find "${ED}/usr/share/${P}" -name "*.map" -delete
 
 	# This disables the built-in update feature
 	insinto "/usr/share/${P}"
