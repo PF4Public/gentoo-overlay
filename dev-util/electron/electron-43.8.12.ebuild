@@ -1014,6 +1014,8 @@ src_prepare() {
 	fi
 	cp "${FILESDIR}/angle-powervr-driver-version.patch" \
 		"${S}/electron/patches/angle/cherry-pick-311c502e88d9.patch" || die
+	cp "${FILESDIR}/views-view-guard.patch" \
+		"${S}/electron/patches/chromium/cherry-pick-d9fcba36b9c9.patch" || die
 	for patch_folder in "${!patches[@]}";
 	do
 		readarray -t topatch < "${patch_folder}/.patches"
@@ -1049,7 +1051,6 @@ src_prepare() {
 				[ "$i" = "cherry-pick-e4a1c99109a4.patch" ]||
 				[ "$i" = "cherry-pick-fb5dacfe0f4c.patch" ]||
 				[ "$i" = "cherry-pick-b40b5946cd4c.patch" ]||
-				[ "$i" = "cherry-pick-d9fcba36b9c9.patch" ]||
 				[ "$i" = "cherry-pick-ceae6307946c.patch" ]||
 				[ "$i" = "cherry-pick-069a204ae813.patch" ]||
 				[ "$i" = "cherry-pick-b280dcea4871.patch" ]||
