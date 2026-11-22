@@ -602,7 +602,7 @@ jobs:
           }
           # pushes by github-actions[bot] do not trigger workflows, so the
           # -bin package's CI run is started explicitly, at the bump commit
-          gh workflow run "${pn}-bin.yml" \
+          gh workflow run "${pn}.yml" \
             --ref "$(git rev-parse HEAD)" -f ebuild="${dir}/${pn}-${pv}.ebuild"
 
   dump-failures:
