@@ -66,6 +66,10 @@ RUST_MIN_VER=1.97.1
 RUST_NEEDS_LLVM="yes please"
 RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or LLVM) with USE=bundled-toolchain
 RUST_REQ_USE="rustfmt,rustc-dev" # rustfmt for bindgen output, rustc-dev for the crubit tool
+RUST_DEPEND="|| (
+	>=dev-lang/rust-bin-${RUST_MIN_VER}[${RUST_REQ_USE}]
+	>=dev-lang/rust-${RUST_MIN_VER}[${RUST_REQ_USE}]
+)"
 
 GC_SOLUTION_URI="https://chromium.googlesource.com/chromium/src"
 GC_CHECKOUT_DIR="${WORKDIR}"
