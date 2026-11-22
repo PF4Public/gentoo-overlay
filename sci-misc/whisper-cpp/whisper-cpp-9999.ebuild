@@ -120,7 +120,8 @@ src_configure() {
 		# do not report the version as "-dev" when building a release
 		-DWHISPER_BUILD_IS_DEV=${WHISPER_BUILD_IS_DEV}
 		-DWHISPER_BUILD_EXAMPLES=$(usex examples)
-		-DWHISPER_BUILD_TESTS=ON
+		# the ctest suite drives the whisper-cli example
+		-DWHISPER_BUILD_TESTS=$(usex examples)
 		-DWHISPER_COMMON_FFMPEG=$(usex ffmpeg)
 		-DWHISPER_SDL2=$(usex sdl)
 		-DWHISPER_USE_SYSTEM_GGML=$(usex system-ggml)
@@ -181,5 +182,7 @@ src_configure() {
 }
 
 src_test() {
+	# with examples off no ctest suite is configured
+	use examples || return 0
 	ctest -L gh --output-on-failure
 }
