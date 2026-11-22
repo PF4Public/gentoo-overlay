@@ -11,6 +11,7 @@
 	</upstream>
 	<use>
 		<flag name="cuda">Enable the NVIDIA CUDA GPU backend</flag>
+		<flag name="examples">Build the example programs, which include the command line tools sd-cli and sd-server</flag>
 		<flag name="openblas">Enable the OpenBLAS backend</flag>
 		<flag name="opencl">Enable the OpenCL backend</flag>
 		<flag name="openmp">Use OpenMP in the CPU backend</flag>

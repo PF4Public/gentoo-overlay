@@ -43,7 +43,7 @@ X86_CPU_FLAGS=(
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 
-IUSE="cuda openblas opencl +openmp rpc system-ggml vulkan +webp webm ${CPU_FLAGS[*]}"
+IUSE="cuda +examples openblas opencl +openmp rpc system-ggml vulkan +webp webm ${CPU_FLAGS[*]}"
 
 unset X86_CPU_FLAGS CPU_FLAGS
 
@@ -140,7 +140,7 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
-		-DSD_BUILD_EXAMPLES=ON
+		-DSD_BUILD_EXAMPLES=$(usex examples)
 		# No embedded server web UI here (needs pnpm + network); sd-server still
 		# builds as an API-only server.
 		-DSD_SERVER_BUILD_FRONTEND=OFF
