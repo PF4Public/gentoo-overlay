@@ -409,9 +409,17 @@ RESTRICT="test build-online? ( network-sandbox )"
 
 DOTNET_PKG_PROJECTS=( "src/Readarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
+	"src/NzbDrone.Api.Test/Readarr.Api.Test.csproj"
 	"src/NzbDrone.Automation.Test/Readarr.Automation.Test.csproj"
+	"src/NzbDrone.Common.Test/Readarr.Common.Test.csproj"
+	"src/NzbDrone.Core.Test/Readarr.Core.Test.csproj"
 	"src/NzbDrone.Host.Test/Readarr.Host.Test.csproj"
 	"src/NzbDrone.Integration.Test/Readarr.Integration.Test.csproj"
+	"src/NzbDrone.Libraries.Test/Readarr.Libraries.Test.csproj"
+	"src/NzbDrone.Mono.Test/Readarr.Mono.Test.csproj"
+	"src/NzbDrone.Test.Common/Readarr.Test.Common.csproj"
+	"src/NzbDrone.Test.Dummy/Readarr.Test.Dummy.csproj"
+	"src/NzbDrone.Update.Test/Readarr.Update.Test.csproj"
 	"src/NzbDrone.Windows.Test/Readarr.Windows.Test.csproj"
 	"src/NzbDrone.Windows/Readarr.Windows.csproj"
 	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
@@ -443,6 +451,11 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+
+	# don't emit PDBs, they would just be installed
+	if ! use debug ; then
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+	fi
 }
 
 src_unpack() {
@@ -472,6 +485,9 @@ src_compile() {
 
 src_install() {
 	dotnet-pkg_src_install
+
+	# drop the UI sourcemaps
+	find "${ED}/usr/share/${P}" -name "*.map" -delete
 
 	# This disables the built-in update feature
 	insinto "/usr/share/${P}"
