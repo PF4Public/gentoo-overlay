@@ -242,9 +242,13 @@ pkg_setup() {
 		-t:"PublishAllRids"
 	)
 
-	# don't emit PDBs, they would just be installed
+	# don't emit PDBs, they would just be installed; EmbedAllSources
+	# (set in the source tree) needs a PDB to embed sources into
 	if ! use debug ; then
-		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=(
+			-p:"DebugType=none"
+			-p:"EmbedAllSources=false"
+		)
 	fi
 }
 
