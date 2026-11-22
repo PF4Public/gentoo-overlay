@@ -2144,6 +2144,19 @@ EOF
 			rustc_bin="${EPREFIX}/usr/bin/rustc-${RUST_SLOT}"
 		fi
 
+		# dev-lang/rust-bin's rustc-dev USE flag fetches the component
+		# tarball but never installs it (portage bug), so stage it into
+		# the toolchain prefix ourselves; dev-lang/rust does it via x.py
+		if [[ ${RUST_TYPE} == binary ]]; then
+			local rustc_ver rustc_host
+			rustc_ver=$("${rustc_bin}" -vV | sed -n 's/^release: //p')
+			rustc_host=$("${rustc_bin}" -vV | sed -n 's/^host: //p')
+			local rustc_dev="${DISTDIR}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz"
+			[[ -f ${rustc_dev} ]] || die "rustc-dev distfile not found: ${rustc_dev} (dev-lang/rust-bin USE=rustc-dev required)"
+			tar xJf "${rustc_dev}" -C "$(get_rust_prefix)" --strip-components=2 || die
+			ls "$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_hir-*.rmeta >/dev/null || die "rustc-dev rmetas missing after extraction"
+		fi
+
 		local f driver=""
 		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
 				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
