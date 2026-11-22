@@ -1113,6 +1113,9 @@ src_prepare() {
 		["cherry-pick-f365a99c3ef7.patch"]="new in 44.11.5, doesn't apply"
 		["cherry-pick-342a8c8e8d7c.patch"]="new in 44.11.5, doesn't apply"
 		["cherry-pick-daa730f1859d.patch"]="new in 44.11.5, doesn't apply"
+		["cherry-pick-b145a8cd47bb.patch"]="new in 44.11.5, needs the skipped 2ec1ba2211a0 API"
+		["cherry-pick-cb30ba132b2a.patch"]="new in 44.11.5, needs the skipped b145a8cd47bb changes"
+		["cherry-pick-2303b14cb3bf.patch"]="new in 44.11.5, needs the FlushResult skia API the base lacks"
 		# ["cherry-pick-5902d1aa722a.patch"]="no files to patch"
 		# ["cherry-pick-b173791bf402.patch"]="already applied"
 	)
