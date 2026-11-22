@@ -1,0 +1,30 @@
+--- a/third_party/devtools-frontend/src/front_end/panels/sources/sources-meta.ts
++++ b/third_party/devtools-frontend/src/front_end/panels/sources/sources-meta.ts
+@@ -30,6 +30,10 @@
+   /**
+    * @description Title of a setting under the Debugger category in Settings.
+    */
++  disableDebuggerStatement: 'Disable JavaScript debugger statement',
++  /**
++   * @description Title of a setting under the Debugger category in Settings.
++   */
+   disableAsyncStackTraces: 'Disable async stack traces',
+   /**
+    * @description Title of a setting under the Debugger category that can be invoked through the Command Menu.
+@@ -1637,6 +1641,16 @@
+   ],
+ });
+ 
++Common.Settings.registerSettingExtension({
++  storageType: Common.Settings.SettingStorageType.SYNCED,
++  settingName: 'disableDebuggerStatement',
++  settingType: Common.Settings.SettingType.BOOLEAN,
++  defaultValue: false,
++  category: Common.Settings.SettingCategory.DEBUGGER,
++  order: 3,
++  title: i18nLazyString(UIStrings.disableDebuggerStatement),
++});
++
+ SettingsUI.SettingUIRegistration.register(SDK.SDKSettings.pauseOnExceptionEnabledSettingDescriptor, {
+   category: Common.Settings.SettingCategory.DEBUGGER,
+   options: [
