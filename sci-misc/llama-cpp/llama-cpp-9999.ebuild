@@ -106,12 +106,6 @@ BDEPEND="
 
 unset BDEPEND_EXTRA
 
-python_check_deps() {
-	if use opencl && ! use system-ggml; then
-		python_is_python3
-	fi
-}
-
 pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
 
