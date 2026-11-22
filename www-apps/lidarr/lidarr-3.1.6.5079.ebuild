@@ -299,9 +299,17 @@ RESTRICT="test"
 
 DOTNET_PKG_PROJECTS=( "src/Lidarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
+	"src/NzbDrone.Api.Test/Lidarr.Api.Test.csproj"
 	"src/NzbDrone.Automation.Test/Lidarr.Automation.Test.csproj"
+	"src/NzbDrone.Common.Test/Lidarr.Common.Test.csproj"
+	"src/NzbDrone.Core.Test/Lidarr.Core.Test.csproj"
 	"src/NzbDrone.Host.Test/Lidarr.Host.Test.csproj"
 	"src/NzbDrone.Integration.Test/Lidarr.Integration.Test.csproj"
+	"src/NzbDrone.Libraries.Test/Lidarr.Libraries.Test.csproj"
+	"src/NzbDrone.Mono.Test/Lidarr.Mono.Test.csproj"
+	"src/NzbDrone.Test.Common/Lidarr.Test.Common.csproj"
+	"src/NzbDrone.Test.Dummy/Lidarr.Test.Dummy.csproj"
+	"src/NzbDrone.Update.Test/Lidarr.Update.Test.csproj"
 	"src/NzbDrone.Windows.Test/Lidarr.Windows.Test.csproj"
 	"src/NzbDrone.Windows/Lidarr.Windows.csproj"
 	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
@@ -332,6 +340,11 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+
+	# don't emit PDBs, they would just be installed
+	if ! use debug ; then
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+	fi
 }
 
 src_prepare() {
@@ -348,6 +361,9 @@ src_compile() {
 
 src_install() {
 	dotnet-pkg_src_install
+
+	# drop the UI sourcemaps
+	find "${ED}/usr/share/${P}" -name "*.map" -delete
 
 	# This disables the built-in update feature
 	insinto "/usr/share/${P}"
