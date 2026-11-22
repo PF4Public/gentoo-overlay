@@ -332,7 +332,13 @@ src_compile() {
 	dotnet-pkg_src_compile
 	chmod 755 "${DOTNET_PKG_OUTPUT}/ffprobe" || die
 
-	yarn run build --env production --no-stats || die
+	# develop migrated the UI to vite, whose build script does not take the
+	# old --env/--no-stats flags; the release tags still use the old script
+	if [[ ${PV} = *9999* ]]; then
+		yarn run build || die
+	else
+		yarn run build --env production --no-stats || die
+	fi
 	cp -r "${S}/_output/UI" "${DOTNET_PKG_OUTPUT}" || die
 }
 
