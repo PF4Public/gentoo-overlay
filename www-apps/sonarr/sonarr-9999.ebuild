@@ -202,10 +202,19 @@ RESTRICT="test build-online? ( network-sandbox )"
 
 DOTNET_PKG_PROJECTS=( "src/Sonarr.sln" )
 DOTNET_PKG_BAD_PROJECTS=(
+	"src/NzbDrone.Api.Test/Sonarr.Api.Test.csproj"
 	"src/NzbDrone.Automation.Test/Sonarr.Automation.Test.csproj"
+	"src/NzbDrone.Common.Test/Sonarr.Common.Test.csproj"
+	"src/NzbDrone.Core.Test/Sonarr.Core.Test.csproj"
 	"src/NzbDrone.Host.Test/Sonarr.Host.Test.csproj"
 	"src/NzbDrone.Integration.Test/Sonarr.Integration.Test.csproj"
+	"src/NzbDrone.Libraries.Test/Sonarr.Libraries.Test.csproj"
+	"src/NzbDrone.Mono.Test/Sonarr.Mono.Test.csproj"
+	"src/NzbDrone.Test.Common/Sonarr.Test.Common.csproj"
+	"src/NzbDrone.Test.Dummy/Sonarr.Test.Dummy.csproj"
+	"src/NzbDrone.Update.Test/Sonarr.Update.Test.csproj"
 	"src/NzbDrone.Windows.Test/Sonarr.Windows.Test.csproj"
+	"src/Sonarr.Http.Test/Sonarr.Http.Test.csproj"
 	"src/NzbDrone.Windows/Sonarr.Windows.csproj"
 	"src/ServiceHelpers/ServiceInstall/ServiceInstall.csproj"
 	"src/ServiceHelpers/ServiceUninstall/ServiceUninstall.csproj"
@@ -235,6 +244,11 @@ pkg_setup() {
 		-p:"SentryUploadSymbols=false"
 		-t:"PublishAllRids"
 	)
+
+	# don't emit PDBs, they would just be installed
+	if ! use debug ; then
+		DOTNET_PKG_BUILD_EXTRA_ARGS+=( -p:"DebugType=none" )
+	fi
 }
 
 src_unpack() {
@@ -265,6 +279,9 @@ src_compile() {
 
 src_install() {
 	dotnet-pkg_src_install
+
+	# drop the UI sourcemaps
+	find "${ED}/usr/share/${P}" -name "*.map" -delete
 
 	# This disables the built-in update feature
 	insinto "/usr/share/${P}"
