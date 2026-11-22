@@ -1,0 +1,14 @@
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -2951,6 +2951,11 @@
+       "//ui/android",
+       "//url",
+     ]
++    deps += [
++      "//components/user_scripts/common",
++      "//components/user_scripts/browser",
++      "//components/user_scripts/android",
++    ]
+   } else {
+     public_deps += [
+       "//chrome/browser/accessibility/phrase_segmentation",

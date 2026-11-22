@@ -1561,9 +1561,13 @@ src_prepare() {
 				# dropped ChildAccountServiceFactory from
 				# DoFinalInitForServices, removed proxy_config_ui.h, and grew
 				# DynamicParams/New() with request-integrity-headers; the other
-				# 82 files apply cleanly in the loop; the 5 modified files are
-				# re-based in files/ (applied after the loop)
-				extra_excludes+=(--exclude="chrome/browser/profiles/BUILD.gn" \
+				# 81 files apply cleanly in the loop; the 5 modified files are
+				# re-based in files/ (applied after the loop). 158 removed the
+				# deps -= [ "//components/storage_monitor" ] anchor of the
+				# browser BUILD.gn hunk, so it fuzz-3-lands inside the deps
+				# list and breaks the GN parse; re-based in files/ too
+				extra_excludes+=(--exclude="chrome/browser/BUILD.gn" \
+					--exclude="chrome/browser/profiles/BUILD.gn" \
 					--exclude="chrome/browser/profiles/profile_manager.cc" \
 					--exclude="chrome/browser/profiles/renderer_updater.cc" \
 					--exclude="chrome/browser/ui/webui/chrome_web_ui_configs.cc" \
@@ -2106,6 +2110,13 @@ src_prepare() {
 	# off_the_record_profile_impl.cc (patch skips the file since its include
 	# hunk is already in 157), re-based onto 157's Init layout.
 	eapply_wrapper "${FILESDIR}/chromium-157-experimental-support-for-extensions-on-android.patch"
+
+	# Experimental-user-scripts-support: 158 removed the
+	# deps -= [ "//components/storage_monitor" ] anchor, so the loop hunk
+	# fuzz-3-lands inside the deps list and breaks the GN parse (excluded
+	# above); add the user_scripts deps at the end of the android branch,
+	# where 157 carried the hunk.
+	eapply_wrapper "${FILESDIR}/chromium-158-user-scripts-browser-deps.patch"
 
 	if ! use libcxx ; then
 		eapply_wrapper "${FILESDIR}/cromite-libstdc++.patch"
