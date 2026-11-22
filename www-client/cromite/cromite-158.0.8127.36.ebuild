@@ -587,6 +587,10 @@ pkg_pretend() {
 		ewarn "Make sure all dependencies are also built this way, see #40"
 		ewarn
 	fi
+	ewarn
+	ewarn "cromite wasn't updated for quite some time so all patches were refreshed"
+	ewarn "using an LLM. Caveat emptor!"
+	ewarn
 	# if use pgo; then
 	# 	eerror
 	# 	eerror "pgo requires llvm slot 23, but there is no corresponding rust slot yet"
