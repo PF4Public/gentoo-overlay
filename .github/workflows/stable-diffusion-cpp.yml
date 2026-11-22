@@ -52,6 +52,7 @@ jobs:
         use:
           - ''
           - '-webp'
+          - '-examples'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
