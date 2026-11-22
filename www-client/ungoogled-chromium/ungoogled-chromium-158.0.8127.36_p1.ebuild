@@ -606,6 +606,9 @@ pkg_pretend() {
 		ewarn "https://github.com/uazo/cromite/issues"
 		ewarn "Not all patches are applied, let me know if others should be considered too"
 		ewarn
+		ewarn "cromite wasn't updated for quite some time so all patches were refreshed"
+		ewarn "using an LLM. Caveat emptor!"
+		ewarn
 	fi
 	# if use pgo; then
 	# 	eerror
