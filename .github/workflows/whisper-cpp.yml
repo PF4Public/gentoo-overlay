@@ -53,7 +53,9 @@ jobs:
           - ''
           - 'ffmpeg'
           - 'sdl'
-          - '-examples'
+          # the stage3 image carries a global USE with sdl, which the
+          # -examples variant must disable (sdl requires examples)
+          - '-examples -sdl'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
