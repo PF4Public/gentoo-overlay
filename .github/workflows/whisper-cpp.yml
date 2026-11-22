@@ -53,6 +53,7 @@ jobs:
           - ''
           - 'ffmpeg'
           - 'sdl'
+          - '-examples'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
