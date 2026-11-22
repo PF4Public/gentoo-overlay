@@ -1,0 +1,20 @@
+--- a/components/history/core/browser/browsing_history_service.cc
++++ b/components/history/core/browser/browsing_history_service.cc
+@@ -835,7 +835,7 @@
+     // Exhausted the local results; continue querying to get remote results.
+     // Start querying at the point where local history ends.
+     base::Time expiry_treshold =
+-        clock_->Now() - base::Days(HistoryBackend::kExpireDaysThreshold);
++        clock_->Now() - base::Days(90); // no matter
+     if (state->remote_end_time_for_continuation.is_null()) {
+       state->remote_end_time_for_continuation = base::Time::Max();
+     }
+@@ -930,7 +930,7 @@
+   // Count the number of local, remote, and combined entries, each split by
+   // entries before vs after the local expiry threshold (90 days).
+   const base::Time local_expiry_threshold =
+-      now - base::Days(HistoryBackend::kExpireDaysThreshold);
++      now - base::Days(90); // dont care
+   base::flat_map<HistoryEntry::EntryType, size_t> pre_expiry_counts;
+   base::flat_map<HistoryEntry::EntryType, size_t> post_expiry_counts;
+   for (const HistoryEntry& entry : results) {

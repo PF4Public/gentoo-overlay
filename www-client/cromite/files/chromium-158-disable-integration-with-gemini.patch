@@ -1,0 +1,200 @@
+--- a/chrome/browser/actor/BUILD.gn
++++ b/chrome/browser/actor/BUILD.gn
+@@ -627,10 +627,6 @@
+     "//chrome/browser/affiliations",
+     "//chrome/browser/autofill/actor",
+     "//chrome/browser/bookmarks",
+-    "//chrome/browser/glic",
+-    "//chrome/browser/glic/actor",
+-    "//chrome/browser/glic/actor:browser_tests",
+-    "//chrome/browser/glic/test_support",
+     "//chrome/browser/history",
+     "//chrome/browser/lookalikes:test_support",
+     "//chrome/browser/optimization_guide",
+--- a/chrome/browser/component_updater/BUILD.gn
++++ b/chrome/browser/component_updater/BUILD.gn
+@@ -366,5 +366,5 @@
+     "//base",
+     "//base/test:test_support",
+-    "//chrome/browser/ai",
++    #"//chrome/browser/ai",
+     "//chrome/browser/optimization_guide:optimization_guide_on_device_model_installer",
+     "//chrome/test:test_support",
+--- a/chrome/browser/extensions/api/experimental_actor/BUILD.gn
++++ b/chrome/browser/extensions/api/experimental_actor/BUILD.gn
+@@ -18,6 +18,6 @@
+     "//base",
+     "//chrome/browser/actor",
+-    "//chrome/browser/ai",
+-    "//chrome/browser/extensions",
++    # "//chrome/browser/ai",
++    # "//chrome/browser/extensions",
+     "//components/actor/core:journal",
+     "//components/actor/core:task_id",
+--- a/chrome/browser/extensions/api/experimental_ai_data/BUILD.gn
++++ b/chrome/browser/extensions/api/experimental_ai_data/BUILD.gn
+@@ -17,4 +17,4 @@
+     "//base",
+-    "//chrome/browser/ai",
++    # "//chrome/browser/ai",
+     "//chrome/common/extensions/api",
+     "//components/page_content_annotations/content",
+--- a/chrome/browser/extensions/api/experimental_ai_data/experimental_ai_data_api.cc
+@@ -208,21 +208,8 @@
+ ExperimentalAiDataApiFunction::~ExperimentalAiDataApiFunction() = default;
+ 
+ bool ExperimentalAiDataApiFunction::PreRunValidation(std::string* error) {
+-  // Check the allowlist and return an error if extension is not allow listed.
+-  if (!AiDataKeyedService::IsExtensionAllowlistedForData(extension_id())) {
+-    *error = kApiAccessRestrictedError;
+-    return false;
+-  }
+-
+-  if (GetCurrentChannel() == version_info::Channel::STABLE &&
+-      !AiDataKeyedService::IsExtensionAllowlistedForStable(extension_id())) {
+-    *error = kChannelNotAllowedError;
+-    return false;
+-  }
+-
+-  // This API never collects data from an incognito profile.
+-  if (browser_context()->IsOffTheRecord()) {
+-    *error = kIncognitoNotSupportedError;
++  if ((false)) {
++    *error = "API not allowed.";
+     return false;
+   }
+ 
+@@ -328,23 +328,7 @@
+   }
+   CHECK(web_contents, base::NotFatalUntil::M161);
+ 
+-  auto* ai_data_service =
+-      AiDataKeyedServiceFactory::GetAiDataKeyedService(browser_context());
+-  CHECK(ai_data_service, base::NotFatalUntil::M161);
+-
+-  // Pass the same limit to the guard and service so they cover the same pages.
+-  constexpr int kMaxTabsForTextCollection = 10;
+-  if (auto error =
+-          StartDataCollection(web_contents, kMaxTabsForTextCollection)) {
+-    return RespondNow(Error(*error));
+-  }
+-
+-  ai_data_service->GetAiData(
+-      params->dom_node_id, web_contents, params->user_input,
+-      base::BindOnce(&ExperimentalAiDataGetAiDataFunction::OnDataCollected,
+-                     this),
+-      kMaxTabsForTextCollection);
+-  return RespondLater();
++  return RespondNow(Error("Invalid api."));
+ }
+ 
+ ExperimentalAiDataGetAiDataWithSpecifierFunction::
+@@ -365,37 +365,7 @@
+   }
+   CHECK(web_contents, base::NotFatalUntil::M161);
+ 
+-  auto* ai_data_service =
+-      AiDataKeyedServiceFactory::GetAiDataKeyedService(browser_context());
+-  CHECK(ai_data_service, base::NotFatalUntil::M161);
+-
+-  // De-serailizing protos is safe per
+-  // https://chromium.googlesource.com/chromium/src/+/HEAD/docs/security/rule-of-2.md
+-  optimization_guide::proto::ModelPrototypingCollectionSpecifier specifier;
+-  if (!specifier.ParseFromArray(params->ai_data_specifier.data(),
+-                                params->ai_data_specifier.size())) {
+-    return RespondNow(Error(kInvalidSpecifierError));
+-  }
+-
+-  const auto& tab_specifier = specifier.browser_data_collection_specifier()
+-                                  .tabs_context_specifier()
+-                                  .general_tab_specifier();
+-  // The service reads background tab content only when inner text is requested.
+-  const int max_tabs_for_text_collection =
+-      tab_specifier.page_context_specifier().inner_text()
+-          ? tab_specifier.tab_limit()
+-          : 0;
+-  if (auto error =
+-          StartDataCollection(web_contents, max_tabs_for_text_collection)) {
+-    return RespondNow(Error(*error));
+-  }
+-
+-  ai_data_service->GetAiDataWithSpecifier(
+-      web_contents, specifier,
+-      base::BindOnce(
+-          &ExperimentalAiDataGetAiDataWithSpecifierFunction::OnDataCollected,
+-          this));
+-  return RespondLater();
++  return RespondNow(Error("Invalid api."));
+ }
+ 
+ ExperimentalAiDataGetApcSnapshotFunction::
+--- a/chrome/browser/optimization_guide/optimization_guide_keyed_service.cc
++++ b/chrome/browser/optimization_guide/optimization_guide_keyed_service.cc
+@@ -153,15 +153,4 @@
+   std::unique_ptr<optimization_guide::ModelExecutionFetcher>
+   CreatePrivateAiFetcher() override {
+-    if (!base::FeatureList::IsEnabled(private_ai::kPrivateAi)) {
+-      return nullptr;
+-    }
+-    private_ai::PrivateAiService* private_ai_service =
+-        private_ai::PrivateAiServiceFactory::GetForProfile(
+-            Profile::FromBrowserContext(browser_context_));
+-    if (!private_ai_service) {
+-      return nullptr;
+-    }
+-    private_ai::Client* client = private_ai_service->GetClient();
+-    return std::make_unique<optimization_guide::PrivateAiModelExecutionFetcher>(
+-        client);
++    return nullptr;
+   }
+--- a/chrome/browser/ui/BUILD.gn
++++ b/chrome/browser/ui/BUILD.gn
+@@ -1529,4 +1529,4 @@
+       "//chrome/browser:buildflags",
+       "//chrome/browser:defaults",
+-      "//chrome/browser/ai",
++      # "//chrome/browser/ai",
+       "//chrome/browser/bookmarks",
+--- a/chrome/browser/ui/webui/omnibox_internals/aim_eligibility_extension/aim_eligibility_extension_binder_provider.cc
++++ b/chrome/browser/ui/webui/omnibox_internals/aim_eligibility_extension/aim_eligibility_extension_binder_provider.cc
+@@ -7,4 +7,5 @@
+ #include <memory>
+ 
+ #include "base/types/pass_key.h"
++#include "build/buildflag.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -75,4 +75,5 @@
+   binder_map.Add<aim_eligibility::mojom::PageHandlerFactory>(
+       base::BindRepeating(&BindFactoryReceiverForFrame));
+ 
++#if !BUILDFLAG(IS_ANDROID)
+   binder_map.Add<color_change_listener::mojom::PageHandler>(base::BindRepeating(
+@@ -84,4 +84,5 @@
+         handler->Bind(std::move(receiver),
+                       /*allow_non_webui=*/true);
+       }));
++#endif
+ }
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -1351,5 +1351,5 @@
+       "//chrome/browser/actor:browser_tests",
+       "//chrome/browser/actor/ui:browser_tests",
+-      "//chrome/browser/ai:browser_tests",
++      # "//chrome/browser/ai:browser_tests",
+       "//chrome/browser/autocomplete:browser_tests",
+       "//chrome/browser/autofill:browser_tests",
+@@ -1397,5 +1397,5 @@
+       "//chrome/browser/first_run:browser_tests",
+       "//chrome/browser/geolocation:browser_tests",
+-      "//chrome/browser/glic:browser_tests",
++      #"//chrome/browser/glic:browser_tests",
+       "//chrome/browser/headless:browser_tests",
+       "//chrome/browser/heavy_ad_intervention:browser_tests",
+@@ -4385,5 +4385,5 @@
+       ":test_support_ui",
+       "//chrome/browser/actor/ui:interactive_ui_tests",
+-      "//chrome/browser/ai:interactive_ui_tests",
++      # "//chrome/browser/ai:interactive_ui_tests",
+       "//chrome/browser/autofill:interactive_ui_tests",
+       "//chrome/browser/contextual_tasks:interactive_ui_tests",

@@ -1,0 +1,40 @@
+--- a/chrome/browser/ui/prefs/BUILD.gn
++++ b/chrome/browser/ui/prefs/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2024 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//extensions/buildflags/buildflags.gni")
+ 
+@@ -46,6 +49,7 @@
+     "//chrome/common",
+     "//chrome/common:chrome_features",
+     "//chrome/common:constants",
++    "//components/adblock/content:browser",
+     "//components/autofill/core/common",
+     "//components/language/core/browser",
+     "//components/live_caption:constants",
+--- a/chrome/browser/ui/tabs/BUILD.gn
++++ b/chrome/browser/ui/tabs/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2021 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+ 
+@@ -700,6 +703,7 @@
+       "//chrome/browser/web_applications",
+       "//chrome/browser/web_applications/isolated_web_apps:isolated_web_apps_no_pwa_core_deps",
+       "//chrome/common",
++      "//components/adblock/content:browser",
+       "//components/blocked_content",
+       "//components/breadcrumbs/core",
+       "//components/breadcrumbs/core:status",

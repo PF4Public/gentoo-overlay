@@ -1,0 +1,45 @@
+--- a/third_party/blink/renderer/core/fetch/fetch_manager.cc
++++ b/third_party/blink/renderer/core/fetch/fetch_manager.cc
+@@ -279,6 +279,7 @@
+   // Rejects the promise with the supplied object.
+   void Reject(v8::Local<v8::Value> error);
+   void Reject(DOMException*);
++  void Detach();
+ 
+   // Rejects the promise with the TypeError exception created at construction
+   // time. Also optionally passes `devtools_request_id`, `issue_id`, and
+@@ -334,6 +335,12 @@
+   Clear();
+ }
+ 
++void ResponseResolver::Detach() {
++  CHECK(resolver_);
++  resolver_->Detach();
++  Clear();
++}
++
+ void ResponseResolver::RejectBecauseFailed(
+     const String& devtools_request_id,
+     std::optional<base::UnguessableToken> issue_id,
+@@ -1348,10 +1355,18 @@
+   if (response_resolver_) {
+     ScriptState::Scope scope(GetScriptState());
+     if (dom_exception) {
+-      response_resolver_->Reject(dom_exception);
++      if (!GetFetchRequestData()->Keepalive()) {
++        response_resolver_->Reject(dom_exception);
++      } else {
++        response_resolver_->Detach();
++      }
+     } else {
+-      response_resolver_->RejectBecauseFailed(devtools_request_id, issue_id,
+-                                              issue_summary);
++      if (!GetFetchRequestData()->Keepalive()) {
++        response_resolver_->RejectBecauseFailed(devtools_request_id, issue_id,
++                                                issue_summary);
++      } else {
++        response_resolver_->Detach();
++      }
+       LogIfKeepalive("Failed");
+     }
+     response_resolver_.Clear();

@@ -1,0 +1,224 @@
+--- a/chrome/browser/enterprise/connectors/device_trust/key_management/browser/commands/win_key_rotation_command.cc
++++ b/chrome/browser/enterprise/connectors/device_trust/key_management/browser/commands/win_key_rotation_command.cc
+@@ -50,13 +50,10 @@
+   if (args.size() > kMaxCommandArgs)
+     return E_INVALIDARG;
+ 
+-  auto get_command_result = GetUpdaterAppCommand(command);
+-  if (!get_command_result.has_value()) {
+-    return get_command_result.error();
+-  }
++  if ((true))
++    return E_INVALIDARG;
+ 
+-  Microsoft::WRL::ComPtr<IAppCommandWeb> app_command =
+-      get_command_result.value();
++  Microsoft::WRL::ComPtr<IAppCommandWeb> app_command;
+   std::array<_variant_t, kMaxCommandArgs> vargs;
+   for (size_t i = 0; i < args.size(); ++i) {
+     vargs[i] = args[i].c_str();
+
+--- a/chrome/browser/feedback/BUILD.gn
++++ b/chrome/browser/feedback/BUILD.gn
+@@ -124,7 +124,6 @@
+       "//chrome/browser/devtools",
+       "//chrome/browser/extensions",
+       "//chrome/browser/feedback/report_unsafe_site",
+-      "//chrome/browser/google",
+       "//chrome/browser/metrics",
+       "//chrome/browser/performance_manager/public/user_tuning",
+       "//chrome/browser/profiles:profile_manager",
+
+--- a/chrome/browser/profile_resetter/BUILD.gn
++++ b/chrome/browser/profile_resetter/BUILD.gn
+@@ -59,7 +59,7 @@
+       "//chrome/browser/content_settings:content_settings_factory",
+       "//chrome/browser/extensions",
+       "//chrome/browser/file_system_access",
+-      "//chrome/browser/google",
++      #"//chrome/browser/google",
+       "//chrome/browser/net",
+       "//chrome/browser/prefs:util",
+       "//chrome/browser/profiles:profile",
+
+--- a/chrome/browser/profile_resetter/BUILD.gn
++++ b/chrome/browser/profile_resetter/BUILD.gn
+@@ -122,7 +122,6 @@
+     deps = [
+       ":impl",
+       "//chrome/browser/browsing_data:constants",
+-      "//chrome/browser/google",
+       "//chrome/browser/search/background",
+       "//chrome/browser/search_engines",
+       "//chrome/test:test_support",
+@@ -204,7 +203,6 @@
+       "//chrome/browser/content_settings:content_settings_factory",
+       "//chrome/browser/extensions",
+       "//chrome/browser/extensions:test_support",
+-      "//chrome/browser/google",
+       "//chrome/browser/prefs",
+       "//chrome/browser/prefs:util",
+       "//chrome/browser/search/background",
+
+--- a/chrome/browser/resources/settings/autofill_page/autofill_page.html.ts
++++ b/chrome/browser/resources/settings/autofill_page/autofill_page.html.ts
+@@ -68,21 +68,5 @@
+   <collapsible-autofill-settings-card></collapsible-autofill-settings-card>
+ </settings-section>
+ 
+-<settings-section page-title="$i18n{yourSavedInfoRelatedServicesTitle}">
+-  <div route-path="default">
+-    <cr-link-row id="passwordManagerButton" label="$i18n{localPasswordManager}"
+-        @click="${this.onPasswordManagerRelatedServiceClick_}"
+-        start-icon="cr20:password-manager" external>
+-    </cr-link-row>
+-    <cr-link-row id="googleWalletButton" label="$i18n{googleWalletTitle}"
+-        @click="${this.onGoogleWalletRelatedServiceClick_}"
+-        start-icon="settings20:wallet" external>
+-    </cr-link-row>
+-    <cr-link-row id="googleAccountButton" label="$i18n{googleAccount}"
+-        @click="${this.onGoogleAccountRelatedServiceClick_}"
+-        start-icon="settings20:google" external>
+-    </cr-link-row>
+-  </div>
+-</settings-section>
+ <!--_html_template_end_-->`;
+ }
+
+--- a/chrome/browser/resources/settings/privacy_page/security/security_page.html
++++ b/chrome/browser/resources/settings/privacy_page/security/security_page.html
+@@ -213,12 +213,6 @@
+         @click="${this.onManageCertificatesClick_}" external>
+     </cr-link-row>
+ 
+-    <cr-link-row id="advancedProtectionProgramLink" class="hr"
+-        label="$i18n{advancedProtectionProgramTitle}"
+-        sub-label="$i18n{advancedProtectionProgramDesc}"
+-        @click="${this.onAdvancedProtectionProgramLinkClick_}"
+-        external>
+-    </cr-link-row>
+     ${this.showDisableSafebrowsingDialog_ ? html`
+       <settings-simple-confirmation-dialog
+           title-text="$i18n{safeBrowsingDisableDialog}"
+
+--- a/chrome/browser/ui/webui/new_tab_page/new_tab_page_ui.cc
++++ b/chrome/browser/ui/webui/new_tab_page/new_tab_page_ui.cc
+@@ -907,16 +907,6 @@
+   // chrome-untrusted://new-tab-page for other external content and resources.
+   // NOTE: Use caution when overriding content security policies as that cean
+   // lead to subtle security bugs such as https://crbug.com/40057334.
+-  GURL google_base_url = GURL(TemplateURLServiceFactory::GetForProfile(profile)
+-                                  ->search_terms_data()
+-                                  .GoogleBaseURLValue());
+-  source->OverrideContentSecurityPolicy(
+-      network::mojom::CSPDirectiveName::ChildSrc,
+-      base::StringPrintf("child-src https: %s %s %s %s;",
+-                         google_util::CommandLineGoogleBaseURL().spec().c_str(),
+-                         google_base_url.spec().c_str(),
+-                         chrome::kChromeUIUntrustedNewTabPageUrl,
+-                         chrome::kChromeUIUntrustedNtpMicrosoftAuthURL));
+   source->OverrideContentSecurityPolicy(
+       network::mojom::CSPDirectiveName::MediaSrc,
+       "media-src blob: data: 'self';");
+
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -2812,7 +2812,6 @@
+     "//chrome/browser/first_party_sets:unit_tests",
+     "//chrome/browser/gcm:unit_tests",
+     "//chrome/browser/glic:unit_tests",
+-    "//chrome/browser/google:unit_tests",
+     "//chrome/browser/hid:unit_tests",
+     "//chrome/browser/history:unit_tests",
+     "//chrome/browser/history_clusters:unit_tests",
+
+--- a/components/domain_reliability/BUILD.gn
++++ b/components/domain_reliability/BUILD.gn
+@@ -96,7 +96,6 @@
+   ]
+
+   deps = [
+-    ":bake_in_configs",
+     ":domain_reliability",
+     "//base",
+     "//base/test:test_support",
+
+--- a/components/domain_reliability/bake_in_configs.py
++++ b/components/domain_reliability/bake_in_configs.py
+@@ -487,9 +487,7 @@
+         domain = origin[8:-1]
+     else:
+         return False
+-    return any(
+-        domain == e or domain.endswith('.' + e) for e in DOMAIN_WHITELIST
+-    )
++    return False
+ 
+ 
+ def quote_and_wrap_text(text, width=79, prefix='  "', suffix='"'):
+
+--- a/components/domain_reliability/monitor.cc
++++ b/components/domain_reliability/monitor.cc
+@@ -99,13 +99,6 @@
+ }
+ 
+ void DomainReliabilityMonitor::AddBakedInConfigs() {
+-  for (std::string_view json : kBakedInJsonConfigs) {
+-    std::unique_ptr<const DomainReliabilityConfig> config =
+-        DomainReliabilityConfig::FromJSON(json);
+-    // Guard against accidentally checking in malformed JSON configs.
+-    DCHECK(config->IsValid());
+-    context_manager_.AddContextForConfig(std::move(config));
+-  }
+ }
+ 
+ void DomainReliabilityMonitor::SetDiscardUploads(bool discard_uploads) {
+
+--- a/components/google/core/common/google_util.cc
++++ b/components/google/core/common/google_util.cc
+@@ -152,6 +152,7 @@
+ // Global functions -----------------------------------------------------------
+ 
+ const char kGoogleHomepageURL[] = "https://www.google.com/";
++const char kGoogleHomepageURL_Checked[] = "https://www.google.com/";
+ const char kGoogleSearchPrewarmPath[] = "/search/warmup.html";
+ 
+ bool HasGoogleSearchQueryParam(std::string_view str) {
+
+--- a/components/google/core/common/google_util.h
++++ b/components/google/core/common/google_util.h
+@@ -46,6 +46,7 @@
+ };
+ 
+ extern const char kGoogleHomepageURL[];
++extern const char kGoogleHomepageURL_Checked[];
+ extern const char kGoogleSearchPrewarmPath[];
+ 
+ // True iff |str| contains a "q=" or "as_q=" query parameter with a non-empty
+@@ -142,14 +143,6 @@
+ // True if |url| is hosted by Google.
+ bool IsGoogleAssociatedDomainUrl(const GURL& url);
+ 
+-// Returns the list of all Google's registerable domains, i.e. domains named
+-// google.<eTLD> owned by Google.
+-// TODO(msramek): This is currently only used to ensure the deletion of Google
+-// service workers on signout. Remove this once we have other options to do it,
+-// such as service workers discovering that signin cookies are missing and
+-// unregistering themselves.
+-const std::vector<std::string>& GetGoogleRegistrableDomains();
+-
+ // Appends the provided |key| and |value| pair to the "async" query param list,
+ // according to the format used by the Google servers:
+ //
+@@ -163,11 +156,6 @@
+                              const std::string& key,
+                              const std::string& value);
+ 
+-// Returns Google Search mode used by the user. This corresponds to the tab
+-// (e.g. web result, image results, video results, etc.) the user is on. This
+-// information is extracted from the "tbm" query parameter on the Search URL.
+-GoogleSearchMode GoogleSearchModeFromUrl(const GURL& url);
+-
+ }  // namespace google_util
+ 
+ #endif  // COMPONENTS_GOOGLE_CORE_COMMON_GOOGLE_UTIL_H_

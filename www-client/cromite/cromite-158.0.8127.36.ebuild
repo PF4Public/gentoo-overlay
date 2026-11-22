@@ -1346,6 +1346,9 @@ src_prepare() {
 			[ "$i" = "Disable-Paint-Preview-by-default.patch" ] ||
 			[ "$i" = "Disable-smart-selection-by-default.patch" ] ||
 			[ "$i" = "Disable-update-scheduler.patch" ] ||
+			# 158's single file is excluded below (re-based in files/), so the
+			# filter comes out empty
+			[ "$i" = "Disable-devtools-remote-and-custom-protocols.patch" ] ||
 			[ "$i" = "disable-WebView-variations-support.patch" ] ||
 			[ "$i" = "do-not-add-suffix-to-package-name.patch" ] ||
 			[ "$i" = "Do-not-ignore-download-location-prompt-setting.patch" ] ||
@@ -1422,14 +1425,22 @@ src_prepare() {
 			"Disable-privacy-sandbox.patch")
 				# 157 restructured the privacy sandbox: the related-website-
 				# sets toggle and the can_run_chrome_privacy_sandbox_trials
-				# capability are gone, so both hunks are obsolete
+				# capability are gone, so both hunks are obsolete. 158
+				# removed WillProvidePublicFirstPartySets and the whole
+				# first_party_sets/ dir upstream, so those two hunks are
+				# moot now as well
 				extra_excludes+=(--exclude="chrome/browser/resources/settings/privacy_page/cookies_page.ts" \
-					--exclude="components/signin/public/identity_manager/account_capabilities.cc")
+					--exclude="components/signin/public/identity_manager/account_capabilities.cc" \
+					--exclude="chrome/browser/chrome_content_browser_client.cc" \
+					--exclude="chrome/browser/first_party_sets/first_party_sets_policy_service.cc")
 				;;
 			"Enable-native-Android-autofill.patch")
 				# 157 dropped the NavigationPredictorPreconnectClient attach
-				# from AttachTabHelpers, so that hunk is obsolete
-				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc")
+				# from AttachTabHelpers, so that hunk is obsolete; 158 removed
+				# tab_helpers.cc altogether and took the autofill_agent.cc
+				# change upstream (its hunk is detected as already applied)
+				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc" \
+					--exclude="components/autofill/content/renderer/autofill_agent.cc")
 				;;
 			"Remove-detection-of-captive-portals.patch")
 				# 157 restructured the core deps block (dropped the
@@ -1450,8 +1461,10 @@ src_prepare() {
 				# the wrong targets (or off the end of one, a gn parse error);
 				# the header note + the tab_helpers_impl content dep are
 				# re-based in files/ after the loop (the android java_bindings
-				# dep is moot on desktop)
-				extra_excludes+=(--exclude="chrome/browser/ui/BUILD.gn")
+				# dep is moot on desktop). 158 removed tab_helpers.cc (the tab
+				# adoption moved to TabFeatures), so its attach hunks are moot
+				extra_excludes+=(--exclude="chrome/browser/ui/BUILD.gn" \
+					--exclude="chrome/browser/ui/tab_helpers.cc")
 				;;
 			"Add-bookmark-import-export-actions.patch")
 				# the chrome/browser/BUILD.gn hunk adds the android-only
@@ -1503,8 +1516,10 @@ src_prepare() {
 			"Bromite-subresource-adblocker.patch")
 				# 157 dropped the max-value+1 cast in the ruleset write-result
 				# histogram; re-based in files/ (applied after the loop); the
-				# other 24 files apply cleanly
-				extra_excludes+=(--exclude="components/subresource_filter/content/browser/ruleset_service.cc")
+				# other 24 files apply cleanly. 158 drifted the feature
+				# definitions the patch reworks; re-based in files/ too
+				extra_excludes+=(--exclude="components/subresource_filter/content/browser/ruleset_service.cc" \
+					--exclude="components/subresource_filter/core/browser/subresource_filter_features.cc")
 				;;
 			"Enable-gwp-asan-on-Android.patch")
 				# 157 reworked the GWP-ASan "shims unavailable" DLOG into a
@@ -1559,10 +1574,14 @@ src_prepare() {
 				# expire-days option in privacy_page.ts, and the
 				# HistoryBackend::kExpireDaysThreshold constant); the other
 				# files apply cleanly in the loop; the 3 modified files are
-				# re-based in files/ (applied after the loop)
+				# re-based in files/ (applied after the loop). 158's
+				# RecordResultsMetrics builds the expiry from a local now
+				# instead of clock_->Now(), so the second hunk rejects;
+				# both are re-based in files/
 				extra_excludes+=(--exclude="chrome/browser/history/history_service_factory.cc" \
 					--exclude="chrome/browser/resources/settings/privacy_page/privacy_page.ts" \
-					--exclude="components/history/core/browser/history_backend.h")
+					--exclude="components/history/core/browser/history_backend.h" \
+					--exclude="components/history/core/browser/browsing_history_service.cc")
 				;;
 			"ungoogled-chromium-no-special-hosts-domains.patch")
 				# 157 drifted the domain-reliability / special-hosts wiring
@@ -1726,20 +1745,65 @@ src_prepare() {
 				# and off-the-record, which patch skips as its include hunk is
 				# already in 157; only that OTR ProcessManager hunk is
 				# desktop-relevant (re-based in files/, applied after the loop).
+				# 158 adds five more: the web_auth_flow/user_agent_utils/
+				# signin_switches/gpu_finch_features hunks are android-gated
+				# or no-ops on desktop, so moot, and the chrome/browser
+				# BUILD.gn rename hunks fuzz-apply at -F 3; only its
+				# //chrome/browser/dev_ui dep line is desktop-relevant (the
+				# target does not exist on desktop), re-based in files/.
 				extra_excludes+=(--exclude="chrome/app/extensions_strings.grdp" \
+					--exclude="chrome/browser/BUILD.gn" \
 					--exclude="chrome/browser/chrome_browser_field_trials.cc" \
 					--exclude="chrome/browser/chrome_browser_interface_binders_webui.cc" \
 					--exclude="chrome/browser/extensions/BUILD.gn" \
 					--exclude="chrome/browser/extensions/api/identity/identity_get_auth_token_function.cc" \
 					--exclude="chrome/browser/extensions/api/identity/identity_get_auth_token_function.h" \
+					--exclude="chrome/browser/extensions/api/identity/web_auth_flow.cc" \
+					--exclude="chrome/browser/extensions/api/identity/web_auth_flow.h" \
 					--exclude="chrome/browser/glic/service/glic_instance_impl.cc" \
 					--exclude="chrome/browser/page_load_metrics/observers/new_tab_page_page_load_metrics_observer.cc" \
 					--exclude="chrome/browser/profiles/off_the_record_profile_impl.cc" \
 					--exclude="chrome/browser/ui/BUILD.gn" \
 					--exclude="chrome/test/BUILD.gn" \
+					--exclude="components/embedder_support/user_agent_utils.cc" \
 					--exclude="components/ntp_tiles/pref_names.h" \
+					--exclude="components/signin/public/base/signin_switches.cc" \
+					--exclude="gpu/config/gpu_finch_features.cc" \
 					--exclude="ui/webui/BUILD.gn" \
 					--exclude="ui/webui/resources/cr_components/color_change_listener/BUILD.gn")
+				;;
+			"Do-not-compile-QR-code-sharing.patch")
+				# 158 moved the command controller out of views/frame to
+				# chrome/browser/ui/browser_command_controller.cc; the hunk is
+				# re-based in files/ (applied after the loop)
+				extra_excludes+=(--exclude="chrome/browser/ui/browser_command_controller.cc")
+				;;
+			"Allow-building-without-enable_reporting.patch")
+				# 158 reworked the declarative performance observer (the
+				# OnEarlyFailureReportsTaken preamble is gone, the
+				# QueueAndSendReport shape changed), so the #if guard hunks
+				# drift; re-based in files/ (applied after the loop). The
+				# mojom BUILD.gn hunk is a context no-op (the line it gates
+				# already sits inside if (enable_reporting))
+				extra_excludes+=(--exclude="content/browser/declarative_performance_observer/declarative_performance_observer.cc" \
+					--exclude="services/network/public/mojom/BUILD.gn")
+				;;
+			"Restore-LastTabStandingTracker.patch")
+				# 158 removed tab_helpers.cc (the tab adoption moved to
+				# TabFeatures), so the attach hunks are moot; the other files
+				# apply cleanly
+				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc")
+				;;
+			"Keep-disabled-FetchLaterAPI.patch")
+				# 158 drifted the fetch_manager.cc detach call site; re-based
+				# in files/ (applied after the loop)
+				extra_excludes+=(--exclude="third_party/blink/renderer/core/fetch/fetch_manager.cc")
+				;;
+			"Eyeo-Adblock-for-Cromite.patch")
+				# 158 removed tab_helpers.cc (the tab adoption moved to
+				# TabFeatures), so the attach hunk is moot; the other files
+				# apply cleanly
+				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc")
 				;;
 		esac
 		if [[ "$i" =~ Add-autoplay-site-setting.patch|JIT-site-settings.patch|Site-setting-for-images.patch ]]; then
@@ -1811,6 +1875,43 @@ src_prepare() {
 	eapply_wrapper "${FILESDIR}/chromium-158-cookies-js-site-settings.patch"
 	eapply_wrapper "${FILESDIR}/chromium-158-quota-device-info-approximation.patch"
 
+	# Do-not-compile-QR-code-sharing: 158 moved the command controller out of
+	# views/frame to chrome/browser/ui/; disable the sharing-hub commands on
+	# the 158 line.
+	eapply_wrapper "${FILESDIR}/chromium-158-qr-code-sharing-commands.patch"
+
+	# History-number-of-days-privacy-setting: 158's RecordResultsMetrics
+	# builds the expiry from a local now, so the loop hunk rejected; pin the
+	# 90-day threshold in both call sites (the file is excluded above).
+	eapply_wrapper "${FILESDIR}/chromium-158-history-expire-days-threshold.patch"
+
+	# Disable-devtools-remote-and-custom-protocols: 158 moved the data source
+	# to chrome/browser/ui/webui/devtools/; disable remote debugging + custom
+	# protocols there (the whole loop patch is skipped above).
+	eapply_wrapper "${FILESDIR}/chromium-158-devtools-remote-and-custom-protocols.patch"
+
+	# Experimental-support-for-extensions-on-Android: 158's dev_ui target
+	# only exists on android, so the //chrome/browser/dev_ui dep the patch
+	# would add breaks the desktop GN; comment the line out (the patch's
+	# other chrome/browser/BUILD.gn hunks are the desktop-irrelevant
+	# build-var renames, covered by the alias ebuild patch below).
+	eapply_wrapper "${FILESDIR}/chromium-158-desktop-android-dev-ui-dep.patch"
+
+	# Bromite-subresource-adblocker: 158 drifted the feature definitions the
+	# patch reworks (the variation/activation parse helpers are gone);
+	# re-base them (the file is excluded above).
+	eapply_wrapper "${FILESDIR}/chromium-158-subresource-filter-features.patch"
+
+	# Keep-disabled-FetchLaterAPI: 158 drifted the fetch_manager.cc detach
+	# call site; re-base it (the file is excluded above).
+	eapply_wrapper "${FILESDIR}/chromium-158-fetch-later-detach.patch"
+
+	# Allow-building-without-enable_reporting: 158 reworked the declarative
+	# performance observer (the OnEarlyFailure preamble is gone, the
+	# QueueAndSendReport shape changed), so the loop patch's #if guards
+	# drift; re-base all of the DPO .cc guards (the file is excluded above).
+	eapply_wrapper "${FILESDIR}/chromium-158-allow-building-without-enable-reporting.patch"
+
 	#* Viewport Protection's screen emulation misplaces page-anchored native
 	#* popups (select/date/color pickers); round the screen de-emulation so
 	#* the emulated->screen->emulated round-trip is a fixed point and the
@@ -1835,12 +1936,13 @@ src_prepare() {
 	eapply_wrapper "${FILESDIR}/chromium-157-disable-push-messaging.patch"
 
 	# The hunks of ungoogled-chromium-no-special-hosts-domains that no longer
-	# find their 153 context, re-based: drop the Advanced Protection Program
-	# row and the NTP child-src CSP, empty the domain-reliability baked-in
+	# find their context, re-based: drop the Advanced Protection Program row
+	# and the NTP child-src CSP, empty the domain-reliability baked-in
 	# configs, and keep both kGoogleHomepageURL names (the .h/.search_terms
-	# rename to _Checked applied, but three newer 157 files still use the old
-	# name, so provide both).
-	eapply_wrapper "${FILESDIR}/chromium-157-no-special-hosts-domains.patch"
+	# rename to _Checked applied, but newer 158 files still use the old name,
+	# so provide both). The chrome/browser/BUILD.gn dep drop is already
+	# carried by the loop patch, so it is not repeated here.
+	eapply_wrapper "${FILESDIR}/chromium-158-no-special-hosts-domains.patch"
 
 	# Add-an-always-incognito-mode's call-site update: 157 added the
 	# user_requested parameter to the ContinueSnapshot* functions (its header
@@ -1879,10 +1981,11 @@ src_prepare() {
 	eapply_wrapper "${FILESDIR}/chromium-157-desktop-android-rename.patch"
 
 	# eyeo chrome_integration's chrome/browser/ui/BUILD.gn hunks are excluded
-	# from the loop (they fuzz-apply to the wrong 157 targets); re-base the
-	# header note and put the content dep where 157 compiles the patched
-	# tab_helpers.cc.
-	eapply_wrapper "${FILESDIR}/chromium-157-adblock-ui-deps.patch"
+	# from the loop (they fuzz-apply to the wrong targets); 158 split
+	# chrome/browser/ui into prefs/ and tabs/ source sets, so re-base the
+	# license note and put the adblock content dep where 158 compiles the
+	# patched sources (the 157 tab_helpers_impl target is gone).
+	eapply_wrapper "${FILESDIR}/chromium-158-adblock-ui-deps.patch"
 
 	# Disable-UA-full-version: 157 refactored SetFullVersionList to delegate to
 	# the shared AppendBrandVersions helper (so the patch's inline-loop hunk
@@ -1914,10 +2017,10 @@ src_prepare() {
 	# IsPdf(), so the #if false wrap rejected. Wrap the 157 call.
 	eapply_wrapper "${FILESDIR}/chromium-157-readanything-tflite-wrap.patch"
 
-	# Captive-portal detection: 157 restructured the core deps block and
-	# reworked OpenLoginPage, so those two hunks of the patch reject; the
-	# remaining hunks apply. Re-base the two here.
-	eapply_wrapper "${FILESDIR}/chromium-157-captive-portal.patch"
+	# Captive-portal detection: 158 restructured the core deps block and
+	# reworked OpenLoginPage (WindowOpenDisposition), so those two hunks of
+	# the patch reject; the remaining hunks apply. Re-base the two here.
+	eapply_wrapper "${FILESDIR}/chromium-158-captive-portal.patch"
 
 	# Disable-Real-Box: the 157 <ntp-searchbox> block gained new attributes so
 	# that hunk rejects; swap it for the plain div here.
@@ -1932,9 +2035,10 @@ src_prepare() {
 	# rewrote the feature-and-setting check, so re-base the util.cc change here.
 	eapply_wrapper "${FILESDIR}/chromium-157-global-privacy-control.patch"
 
-	# Partition-cookies: 157 dropped the scheme/top-level-storage-access/sandbox/
-	# policy allow mechanisms the patch strips; re-base the DecideAccess rework.
-	eapply_wrapper "${FILESDIR}/chromium-157-partition-cookies-decide-access.patch"
+	# Partition-cookies: 158 dropped the scheme/sandbox-value/policy allow
+	# mechanisms the patch strips (the top-level-storage-access check is gone
+	# upstream), so re-base the DecideAccess rework without them.
+	eapply_wrapper "${FILESDIR}/chromium-158-partition-cookies-decide-access.patch"
 
 	# Add-lifetime-options-for-permissions: 157 reworked
 	# one_time_permissions_tracker + removed last_tab_standing_tracker.cc;
@@ -1946,9 +2050,11 @@ src_prepare() {
 	eapply_wrapper "${FILESDIR}/chromium-157-partition-blobs-by-top-frame-url.patch"
 
 	# Partition-HSTS-cache-by-NAK: partitioning the HSTS/PKP cache by
-	# NetworkAnonymizationKey is a Cromite feature absent from 157; re-base
-	# the 3 modified files.
-	eapply_wrapper "${FILESDIR}/chromium-157-partition-hsts-cache-by-nak.patch"
+	# NetworkAnonymizationKey is a Cromite feature absent from the plain
+	# base; 158 extracted the PKP state into net/cert's KeyPinningState, so
+	# the re-base keeps the HSTS NAK partitioning while PKP accepts the NAK
+	# but keeps using the unpartitioned KeyPinningState.
+	eapply_wrapper "${FILESDIR}/chromium-158-partition-hsts-cache-by-nak.patch"
 
 	# Add-setting-to-clear-data-on-exit: 157 split clear_browsing_data_dialog
 	# into .css + .html.ts; re-base the 7 modified files.
@@ -1990,10 +2096,10 @@ src_prepare() {
 	# longer computes response_address_space_; re-base the 1 modified file.
 	eapply_wrapper "${FILESDIR}/chromium-157-block-gateway-attacks-via-websockets.patch"
 
-	# Disable-integration-with-Gemini: 157 removed the side_panel_ui_provider
-	# android dep and drifted the actor/ai_data/optimization-guide wiring;
-	# re-base the 9 modified files.
-	eapply_wrapper "${FILESDIR}/chromium-157-disable-integration-with-gemini.patch"
+	# Disable-integration-with-Gemini: 158 drifted the actor BUILD.gn (a
+	# bookmarks dep now sits between autofill/actor and glic) and reworked
+	# the ai_data PreRunValidation; re-base the 9 modified files.
+	eapply_wrapper "${FILESDIR}/chromium-158-disable-integration-with-gemini.patch"
 
 	# Experimental-support-for-extensions-on-Android: the only desktop-visible
 	# hunk is the OTR ProcessManager::MaybeCreateStartupBackgroundHosts call in
