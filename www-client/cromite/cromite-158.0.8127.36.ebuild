@@ -2758,6 +2758,23 @@ src_configure() {
 	echo "  enable_freetype = true" >> ${freetype_gni} || die
 	echo "}" >> ${freetype_gni} || die
 
+	# 158 adds a //third_party/libvpx:libvpx_buildflags buildflag header
+	# (LIBVPX_HIGH_BIT_DEPTH) that //media/filters:unit_tests depends on; the
+	# unbundle stub replacing third_party/libvpx/BUILD.gn does not carry it,
+	# so re-add it (true on all desktop ABIs; only a unit test includes the
+	# generated header).
+	if use system-libvpx; then
+		cat >> third_party/libvpx/BUILD.gn <<EOF
+
+import("//build/buildflag_header.gni")
+
+buildflag_header("libvpx_buildflags") {
+  header = "libvpx_buildflags.h"
+  flags = [ "LIBVPX_HIGH_BIT_DEPTH=true" ]
+}
+EOF
+	fi
+
 	if use !custom-cflags; then
 		replace-flags "-Os" "-O2"
 		strip-flags
