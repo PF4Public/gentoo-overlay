@@ -11,6 +11,9 @@ inherit distutils-r1 pypi
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/androguard/androguard.git"
+	# master is the v5.0.0 rewrite with git-only Rust deps (apkparser-ag,
+	# dexparser-ag not yet on PyPI); track the v4.1.4 tag for now
+	EGIT_COMMIT="v4.1.4"
 	SRC_URI=""
 else
 	KEYWORDS="~amd64 ~arm64"
