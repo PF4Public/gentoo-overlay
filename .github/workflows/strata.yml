@@ -129,7 +129,9 @@ jobs:
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
     continue-on-error: true
-    timeout-minutes: 240
+    # webkit-gtk (the desktop's last dep, built from source) is ~4h cold;
+    # 360 is the GH Actions per-job maximum
+    timeout-minutes: 360
     steps:
       - name: Checkout
         uses: actions/checkout@v7
