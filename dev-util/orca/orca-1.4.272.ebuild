@@ -265,6 +265,14 @@ src_install() {
 	# resources/bin; doins strips the exec bit, so restore it.
 	fperms 0755 "${mydir}/bin/journal-file-lock" || die
 
+	# provider-exec is the process supervisor every POSIX provider CLI (the
+	# ACP agents) launches through — there is no fallback launcher, so without
+	# an executable copy no agent can start. pnpm's postinstall step (and the
+	# electron-vite build) compile it into native/provider-exec/.build/, and
+	# electron-builder stages it into resources/bin; doins strips the exec
+	# bit, so restore it.
+	fperms 0755 "${mydir}/bin/orca-provider-exec" || die
+
 	# Launcher: run the app.asar with the selected system electron slot,
 	# forwarding user flags from ~/.config/orca-flags.conf.
 	local launcher="${mydir}/orca-ide"
