@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">androguard/androguard</remote-id>
+		<remote-id type="pypi">androguard</remote-id>
+		<bugs-to>https://github.com/androguard/androguard/issues</bugs-to>
+		<doc>https://androguard.readthedocs.io/</doc>
+	</upstream>
+	<longdescription>
+		Androguard is a full Python tool to play with Android files: it parses
+		APK/AXML/Dex formats, decompiles DEX code to bytecode, provides an
+		interactive reverse-engineering shell, and a CLI for analysis.
+	</longdescription>
+</pkgmetadata>
