@@ -15,7 +15,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/pycontribs/python-vagrant.git"
 	SRC_URI=""
 else
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Python bindings for interacting with Vagrant virtual machines"
