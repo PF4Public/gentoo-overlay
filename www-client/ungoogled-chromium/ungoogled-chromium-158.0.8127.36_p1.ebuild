@@ -2148,11 +2148,15 @@ EOF
 		# tarball but never installs it (portage bug), so stage it into
 		# the toolchain prefix ourselves; dev-lang/rust does it via x.py
 		if [[ ${RUST_TYPE} == binary ]]; then
-			local rustc_ver rustc_host
+			local rustc_ver rustc_host rustc_dev=""
 			rustc_ver=$("${rustc_bin}" -vV | sed -n 's/^release: //p')
 			rustc_host=$("${rustc_bin}" -vV | sed -n 's/^host: //p')
-			local rustc_dev="${DISTDIR}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz"
-			[[ -f ${rustc_dev} ]] || die "rustc-dev distfile not found: ${rustc_dev} (dev-lang/rust-bin USE=rustc-dev required)"
+			# rust-bin fetched the component with its merge, so it sits in the
+			# global distfiles dir, not this package's build DISTDIR
+			for d in "${DISTDIR}" "${PORTAGE_DISTDIR:-/var/cache/distfiles}"; do
+				[[ -f ${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz ]] && { rustc_dev=${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz; break; }
+			done
+			[[ -n ${rustc_dev} ]] || die "rustc-dev-${rustc_ver}-${rustc_host}.tar.xz not found in DISTDIR or ${PORTAGE_DISTDIR:-/var/cache/distfiles} (dev-lang/rust-bin USE=rustc-dev required)"
 			tar xJf "${rustc_dev}" -C "$(get_rust_prefix)" --strip-components=2 || die
 			ls "$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_hir-*.rmeta >/dev/null || die "rustc-dev rmetas missing after extraction"
 		fi
