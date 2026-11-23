@@ -2158,7 +2158,7 @@ EOF
 			done
 			if [[ -z ${rustc_dev} ]]; then
 				rustc_dev="${WORKDIR}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz"
-				fetchprog curl -sfL --retry 3 -o "${rustc_dev}" \
+				curl -sfL --retry 3 -o "${rustc_dev}" \
 					"https://static.rust-lang.org/dist/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz" \
 					|| die "fetching the rustc-dev component failed"
 			fi
