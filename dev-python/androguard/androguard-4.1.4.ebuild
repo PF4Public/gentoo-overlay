@@ -16,7 +16,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_COMMIT="v4.1.4"
 	SRC_URI=""
 else
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Full Python tool to play with Android files"
