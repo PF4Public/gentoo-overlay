@@ -14,7 +14,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/erev0s/apkInspector.git"
 	SRC_URI=""
 else
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Tool to inspect the zip structure of APK files and decode AndroidManifest.xml"
