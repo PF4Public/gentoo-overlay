@@ -2151,12 +2151,17 @@ EOF
 			local rustc_ver rustc_host rustc_dev=""
 			rustc_ver=$("${rustc_bin}" -vV | sed -n 's/^release: //p')
 			rustc_host=$("${rustc_bin}" -vV | sed -n 's/^host: //p')
-			# rust-bin fetched the component with its merge, so it sits in the
-			# global distfiles dir, not this package's build DISTDIR
+			# a binpkg merge fetches no source distfiles, so the component
+			# tarball is usually absent; fall back to the pinned upstream URL
 			for d in "${DISTDIR}" "${PORTAGE_DISTDIR:-/var/cache/distfiles}"; do
 				[[ -f ${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz ]] && { rustc_dev=${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz; break; }
 			done
-			[[ -n ${rustc_dev} ]] || die "rustc-dev-${rustc_ver}-${rustc_host}.tar.xz not found in DISTDIR or ${PORTAGE_DISTDIR:-/var/cache/distfiles} (dev-lang/rust-bin USE=rustc-dev required)"
+			if [[ -z ${rustc_dev} ]]; then
+				rustc_dev="${WORKDIR}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz"
+				fetchprog curl -sfL --retry 3 -o "${rustc_dev}" \
+					"https://static.rust-lang.org/dist/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz" \
+					|| die "fetching the rustc-dev component failed"
+			fi
 			tar xJf "${rustc_dev}" -C "$(get_rust_prefix)" --strip-components=2 || die
 			ls "$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_hir-*.rmeta >/dev/null || die "rustc-dev rmetas missing after extraction"
 		fi
