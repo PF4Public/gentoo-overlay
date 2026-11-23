@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">pudo/dataset</remote-id>
+		<remote-id type="pypi">dataset</remote-id>
+		<bugs-to>https://github.com/pudo/dataset/issues</bugs-to>
+		<doc>https://dataset.readthedocs.io/</doc>
+	</upstream>
+</pkgmetadata>
