@@ -23,6 +23,10 @@ SLOT="0"
 
 RESTRICT="test"
 
+PATCHES=(
+	"${FILESDIR}/use-importlib-metadata.patch"
+)
+
 BDEPEND="
 	dev-python/babel
 "

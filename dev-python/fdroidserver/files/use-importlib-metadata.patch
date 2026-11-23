@@ -1,0 +1,16 @@
+diff --git a/fdroidserver/init.py b/fdroidserver/init.py
+index a5575fe..54805ed 100644
+--- a/fdroidserver/init.py
++++ b/fdroidserver/init.py
+@@ -146,9 +146,9 @@ def main():
+         if os.path.exists(example_config_yml):
+             shutil.copyfile(example_config_yml, common.CONFIG_FILE)
+         else:
+-            from pkg_resources import get_distribution
++            from importlib.metadata import version as get_dist_version
+ 
+-            versionstr = get_distribution('fdroidserver').version
++            versionstr = get_dist_version('fdroidserver')
+             if not versionstr:
+                 versionstr = 'master'
+             with open(common.CONFIG_FILE, 'w') as fp:
