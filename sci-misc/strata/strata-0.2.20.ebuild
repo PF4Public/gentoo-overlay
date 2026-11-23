@@ -285,6 +285,11 @@ src_configure() {
 		# the pinned llama.cpp ggml source; without it CMake would fetch
 		# the pinned commit from the network
 		-DSTRATA_GGML_DIR="${ggml_dir}"
+		# some CMake/nvcc combos pass the host system includes of consumed
+		# imported targets (CUDAToolkit, system ggml) as -isystem, which
+		# puts /usr/include ahead of the C++ standard headers and breaks
+		# gcc-16's #include_next <math.h> (#544)
+		-DCMAKE_NO_SYSTEM_FROM_IMPORTED=ON
 	)
 	# portable: the AVX2-baseline ggml-cpu instead of the build host's
 	# -march=native; strata's own kernels are per-file and CPU-dispatched
