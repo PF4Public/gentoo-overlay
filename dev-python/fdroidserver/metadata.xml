@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>PF4Public@users.noreply.github.com</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="gitlab">fdroid/fdroidserver</remote-id>
+		<remote-id type="pypi">fdroidserver</remote-id>
+		<bugs-to>https://gitlab.com/fdroid/fdroidserver/-/issues</bugs-to>
+		<doc>https://f-droid.org/docs</doc>
+	</upstream>
+	<longdescription>
+		F-Droid Server is a suite of tools to publish and work with collections of Android apps (APK files) and other kinds of packages. It is used to maintain the f-droid.org application repository and can be used to create additional or alternative repositories.
+	</longdescription>
+</pkgmetadata>
