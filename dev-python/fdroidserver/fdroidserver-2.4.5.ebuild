@@ -13,7 +13,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.com/fdroid/fdroidserver.git"
 	SRC_URI=""
 else
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Tools for maintaining an F-Droid repository"
