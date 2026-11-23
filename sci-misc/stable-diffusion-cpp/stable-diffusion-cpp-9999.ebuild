@@ -154,6 +154,11 @@ src_configure() {
 		-DSD_OPENCL=$(usex opencl)
 		-DSD_RPC=$(usex rpc)
 		-DSD_VULKAN=$(usex vulkan)
+		# some CMake/nvcc combos pass the host system includes of consumed
+		# imported targets (CUDAToolkit, system ggml) as -isystem, which
+		# puts /usr/include ahead of the C++ standard headers and breaks
+		# gcc-16's #include_next <math.h> (#544)
+		-DCMAKE_NO_SYSTEM_FROM_IMPORTED=ON
 	)
 
 	if ! use system-ggml; then
