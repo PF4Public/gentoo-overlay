@@ -16,7 +16,7 @@ if [[ ${PV} = *9999* ]]; then
 	# and py3.12.patch only touches dev/ and tests/ tooling
 else
 	SRC_URI="https://github.com/wbond/${PN}/archive/${PV}.tar.gz -> ${P}.gh.tar.gz"
-	KEYWORDS="~amd64 ~arm64"
+	KEYWORDS="amd64 ~arm64"
 	PATCHES=(
 		"${FILESDIR}/openssl-3.0.10-fix.patch"
 		"${FILESDIR}/py3.12.patch"
