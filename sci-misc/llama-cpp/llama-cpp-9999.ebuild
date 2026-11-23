@@ -179,6 +179,11 @@ src_configure() {
 		-DCMAKE_INSTALL_INCLUDEDIR="include/${MY_PN}"
 		-DCMAKE_INSTALL_LIBDIR="$(get_libdir)/${MY_PN}"
 		-DCMAKE_INSTALL_RPATH="\$ORIGIN/../$(get_libdir)/${MY_PN};\$ORIGIN"
+		# some CMake/nvcc combos pass the host system includes of consumed
+		# imported targets (CUDAToolkit, system ggml) as -isystem, which
+		# puts /usr/include ahead of the C++ standard headers and breaks
+		# gcc-16's #include_next <math.h> (#544)
+		-DCMAKE_NO_SYSTEM_FROM_IMPORTED=ON
 	)
 
 	if ! use system-ggml; then
