@@ -2153,7 +2153,7 @@ EOF
 			rustc_host=$("${rustc_bin}" -vV | sed -n 's/^host: //p')
 			# a binpkg merge fetches no source distfiles, so the component
 			# tarball is usually absent; fall back to the pinned upstream URL
-			for d in "${DISTDIR}" "${PORTAGE_DISTDIR:-/var/cache/distfiles}"; do
+			for d in "${DISTDIR}" "/var/cache/distfiles"; do
 				[[ -f ${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz ]] && { rustc_dev=${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz; break; }
 			done
 			if [[ -z ${rustc_dev} ]]; then
