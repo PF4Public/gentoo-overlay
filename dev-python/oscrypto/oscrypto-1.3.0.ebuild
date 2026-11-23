@@ -10,10 +10,17 @@ inherit edo distutils-r1 optfeature
 if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/wbond/oscrypto.git"
+	EGIT_BRANCH="master"
 	SRC_URI=""
+	# no PATCHES on master: the OpenSSL 3.0.10 regex fix is upstream (PR #76)
+	# and py3.12.patch only touches dev/ and tests/ tooling
 else
 	SRC_URI="https://github.com/wbond/${PN}/archive/${PV}.tar.gz -> ${P}.gh.tar.gz"
 	KEYWORDS="~amd64 ~arm64"
+	PATCHES=(
+		"${FILESDIR}/openssl-3.0.10-fix.patch"
+		"${FILESDIR}/py3.12.patch"
+	)
 fi
 
 DESCRIPTION="TLS sockets, key generation, encryption, decryption, signing, verification"
@@ -35,11 +42,6 @@ BDEPEND="
 "
 
 DOCS=( docs {changelog,readme}.md )
-
-PATCHES=(
-	"${FILESDIR}"/openssl-3.0.10-fix.patch
-	"${FILESDIR}"/py3.12.patch
-)
 
 distutils_enable_tests unittest
 
