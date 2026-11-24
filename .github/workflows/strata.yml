@@ -274,6 +274,29 @@ jobs:
             sci-misc/strata *
             */* ~amd64
 
+      - name: Configure GPU archs
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          # trim the GPU arch set so the heavy GPU deps build a few
+          # representative archs instead of the full profile set: the free
+          # 2-core/7GB runner OOMs on the full set (hipBLASLt's 14-arch
+          # device-lib build was killed). The strata engine is already a fixed
+          # small set (gfx1100;gfx1201 hip; a trimmed CUDA set), so the deps
+          # only need to cover it.
+          case "${{ matrix.use }}" in
+            hip)
+              # the ROCm deps build one arch per amdgpu_targets USE flag
+              # (rocm.eclass USE_EXPAND), the official ones default on; keep
+              # only the two the engine targets (gfx1100/gfx1201) and drop the
+              # rest nothing else uses
+              docker exec gentoo bash -c "F='-amdgpu_targets_gfx908 -amdgpu_targets_gfx90a -amdgpu_targets_gfx942 -amdgpu_targets_gfx950 -amdgpu_targets_gfx1030 -amdgpu_targets_gfx1101 -amdgpu_targets_gfx1102 -amdgpu_targets_gfx1103 -amdgpu_targets_gfx1150 -amdgpu_targets_gfx1151 -amdgpu_targets_gfx1152 -amdgpu_targets_gfx1153 -amdgpu_targets_gfx1200'; printf 'sci-libs/* %s\ndev-libs/* %s\ndev-util/* %s\n' \"\$F\" \"\$F\" \"\$F\" > /etc/portage/package.use/ci-gpu-arch"
+              ;;
+            cuda)
+              docker exec gentoo bash -c "echo 'CUDA_ARCHITECTURES=\"86-real;89-real;120-real\"' >> /etc/portage/make.conf"
+              ;;
+          esac
+
       - name: Build (gpu)
         if: steps.atoms.outputs.atoms != ''
         shell: bash
