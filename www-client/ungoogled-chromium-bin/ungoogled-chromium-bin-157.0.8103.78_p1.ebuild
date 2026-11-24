@@ -63,7 +63,11 @@ CDEPEND="
 	app-accessibility/at-spi2-core
 	x11-libs/gtk+:3[X]
 	media-libs/lcms
-	dev-libs/libxslt"
+	dev-libs/libxslt
+	|| (
+		media-libs/libpulse
+		>=media-sound/apulse-0.1.12-r4[sdk]
+	)"
 
 RDEPEND="${CDEPEND}
 	>=www-client/chromium-common-2
