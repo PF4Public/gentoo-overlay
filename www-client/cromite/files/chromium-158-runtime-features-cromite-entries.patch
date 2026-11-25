@@ -1,0 +1,16 @@
+--- a/content/child/runtime_features.cc
++++ b/content/child/runtime_features.cc
+@@ -189,4 +189,5 @@
+           {wf::EnablePeriodicBackgroundSync, features::kPeriodicBackgroundSync},
++          {wf::EnableRestrictGamepadAccess, features::kRestrictGamepadAccess},
+           {wf::EnableSecurePaymentConfirmation,
+            features::kSecurePaymentConfirmation},
+           {wf::EnableSecurePaymentConfirmationDebug,
+@@ -201,5 +202,7 @@
+           {wf::EnableTouchDragAndContextMenu,
+            features::kTouchDragAndContextMenu},
++          {wf::EnableTextFragmentIdentifiers,
++           blink::features::kTextFragmentAnchor},
+           {wf::EnableWebAuthenticationAmbient, device::kWebAuthnAmbientSignin},
+           {wf::EnableWebAuthenticationCrossDeviceFallbackUrl,
+            device::kWebAuthnCrossDeviceFallbackUrl},

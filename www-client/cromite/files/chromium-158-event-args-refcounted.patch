@@ -1,0 +1,187 @@
+--- a/chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
++++ b/chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
+@@ -179,12 +179,12 @@
+     if (match_result == adblock::FilterMatchResult::kBlockRule) {
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT, api::adblock_private::OnAdBlocked::kEventName,
+-          api::adblock_private::OnAdBlocked::Create(info));
++          base::MakeRefCounted<EventArgs>(api::adblock_private::OnAdBlocked::Create(info)));
+     } else {
+       DCHECK(match_result == adblock::FilterMatchResult::kAllowRule);
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT, api::adblock_private::OnAdAllowed::kEventName,
+-          api::adblock_private::OnAdAllowed::Create(info));
++          base::MakeRefCounted<EventArgs>(api::adblock_private::OnAdAllowed::Create(info)));
+     }
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+@@ -201,7 +201,7 @@
+ 
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT, api::adblock_private::OnPageAllowed::kEventName,
+-        api::adblock_private::OnPageAllowed::Create(info));
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnPageAllowed::Create(info)));
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+@@ -221,12 +221,12 @@
+     if (match_result == adblock::FilterMatchResult::kBlockRule) {
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT, api::adblock_private::OnPopupBlocked::kEventName,
+-          api::adblock_private::OnPopupBlocked::Create(info));
++          base::MakeRefCounted<EventArgs>(api::adblock_private::OnPopupBlocked::Create(info)));
+     } else {
+       DCHECK(match_result == adblock::FilterMatchResult::kAllowRule);
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT, api::adblock_private::OnPopupAllowed::kEventName,
+-          api::adblock_private::OnPopupAllowed::Create(info));
++          base::MakeRefCounted<EventArgs>(api::adblock_private::OnPopupAllowed::Create(info)));
+     }
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+@@ -237,7 +237,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::adblock_private::OnSubscriptionUpdated::kEventName,
+-        api::adblock_private::OnSubscriptionUpdated::Create(url.spec()));
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnSubscriptionUpdated::Create(url.spec())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -246,7 +246,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::adblock_private::OnEnabledStateChanged::kEventName,
+-        api::adblock_private::OnEnabledStateChanged::Create());
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnEnabledStateChanged::Create()));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -254,7 +254,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::adblock_private::OnFilterListsChanged::kEventName,
+-        api::adblock_private::OnFilterListsChanged::Create());
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnFilterListsChanged::Create()));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -263,7 +263,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::adblock_private::OnAllowedDomainsChanged::kEventName,
+-        api::adblock_private::OnAllowedDomainsChanged::Create());
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnAllowedDomainsChanged::Create()));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -272,7 +272,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::adblock_private::OnCustomFiltersChanged::kEventName,
+-        api::adblock_private::OnCustomFiltersChanged::Create());
++        base::MakeRefCounted<EventArgs>(api::adblock_private::OnCustomFiltersChanged::Create()));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+
+--- a/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
++++ b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
+@@ -174,13 +174,13 @@
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT,
+           api::eyeo_filtering_private::OnRequestBlocked::kEventName,
+-          api::eyeo_filtering_private::OnRequestBlocked::Create(info));
++          base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnRequestBlocked::Create(info)));
+     } else {
+       DCHECK(match_result == adblock::FilterMatchResult::kAllowRule);
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT,
+           api::eyeo_filtering_private::OnRequestAllowed::kEventName,
+-          api::eyeo_filtering_private::OnRequestAllowed::Create(info));
++          base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnRequestAllowed::Create(info)));
+     }
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+@@ -198,7 +198,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnPageAllowed::kEventName,
+-        api::eyeo_filtering_private::OnPageAllowed::Create(info));
++        base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnPageAllowed::Create(info)));
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+@@ -219,13 +219,13 @@
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT,
+           api::eyeo_filtering_private::OnPopupBlocked::kEventName,
+-          api::eyeo_filtering_private::OnPopupBlocked::Create(info));
++          base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnPopupBlocked::Create(info)));
+     } else {
+       DCHECK(match_result == adblock::FilterMatchResult::kAllowRule);
+       event = std::make_unique<Event>(
+           events::EYEO_EVENT,
+           api::eyeo_filtering_private::OnPopupAllowed::kEventName,
+-          api::eyeo_filtering_private::OnPopupAllowed::Create(info));
++          base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnPopupAllowed::Create(info)));
+     }
+ 
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+@@ -236,7 +236,7 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnSubscriptionUpdated::kEventName,
+-        api::eyeo_filtering_private::OnSubscriptionUpdated::Create(url.spec()));
++        base::MakeRefCounted<EventArgs>(api::eyeo_filtering_private::OnSubscriptionUpdated::Create(url.spec())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -250,8 +250,9 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnEnabledStateChanged::kEventName,
+-        api::eyeo_filtering_private::OnEnabledStateChanged::Create(
+-            config->GetName()));
++        base::MakeRefCounted<EventArgs>(
++            api::eyeo_filtering_private::OnEnabledStateChanged::Create(
++                config->GetName())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -259,8 +259,9 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnFilterListsChanged::kEventName,
+-        api::eyeo_filtering_private::OnFilterListsChanged::Create(
+-            config->GetName()));
++        base::MakeRefCounted<EventArgs>(
++            api::eyeo_filtering_private::OnFilterListsChanged::Create(
++                config->GetName())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -269,8 +269,9 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnAllowedDomainsChanged::kEventName,
+-        api::eyeo_filtering_private::OnAllowedDomainsChanged::Create(
+-            config->GetName()));
++        base::MakeRefCounted<EventArgs>(
++            api::eyeo_filtering_private::OnAllowedDomainsChanged::Create(
++                config->GetName())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 
+@@ -279,8 +279,9 @@
+     std::unique_ptr<Event> event = std::make_unique<Event>(
+         events::EYEO_EVENT,
+         api::eyeo_filtering_private::OnCustomFiltersChanged::kEventName,
+-        api::eyeo_filtering_private::OnCustomFiltersChanged::Create(
+-            config->GetName()));
++        base::MakeRefCounted<EventArgs>(
++            api::eyeo_filtering_private::OnCustomFiltersChanged::Create(
++                config->GetName())));
+     extensions::EventRouter::Get(context_)->BroadcastEvent(std::move(event));
+   }
+ 

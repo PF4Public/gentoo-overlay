@@ -1,0 +1,264 @@
+diff -ru a/chrome/browser/ui/webui/policy/policy_ui_handler.cc b/chrome/browser/ui/webui/policy/policy_ui_handler.cc
+--- a/chrome/browser/ui/webui/policy/policy_ui_handler.cc
++++ b/chrome/browser/ui/webui/policy/policy_ui_handler.cc
+@@ -27,6 +27,7 @@
+ #include "base/memory/weak_ptr.h"
+ #include "base/metrics/histogram_functions.h"
+ #include "base/notreached.h"
++#include "base/strings/string_split.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/task/task_traits.h"
+ #include "base/task/thread_pool.h"
+@@ -272,6 +273,10 @@
+       "getPoliciesJson",
+       base::BindRepeating(&PolicyUIHandler::HandleGetPoliciesJson,
+                           base::Unretained(this)));
++  web_ui()->RegisterMessageCallback(
++      "setEnabledPolicy",
++      base::BindRepeating(&PolicyUIHandler::HandleSetEnabledPolicy,
++                          base::Unretained(this)));
+ #if !BUILDFLAG(IS_CHROMEOS)
+   web_ui()->RegisterMessageCallback(
+       "uploadReport", base::BindRepeating(&PolicyUIHandler::HandleUploadReport,
+@@ -554,9 +559,103 @@
+         "policies-updated",
+         base::Value(
+             policy_value_and_status_aggregator_->GetAggregatedPolicyNames()),
+-        base::Value(
+-            policy_value_and_status_aggregator_->GetAggregatedPolicyValues()));
++        base::Value(GetPolicyValues()));
++  }
++}
++
++base::DictValue PolicyUIHandler::GetPolicyValues() {
++  base::DictValue policy =
++    policy_value_and_status_aggregator_->GetAggregatedPolicyValues();
++  base::DictValue* policy_values =
++    policy.FindDict(policy::kPolicyValuesKey);
++  DCHECK(policy_values);
++
++  PrefService* local_state = g_browser_process->local_state();
++  DCHECK(local_state);
++
++  // get user disabled list from local state
++  std::string disabled_policies_pref =
++      local_state->GetString(policy::policy_prefs::kDisabledDefaultPoliciesList);
++  std::vector<std::string> disabled_policies =
++      base::SplitString(disabled_policies_pref, ",",
++                        base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
++
++  auto* root = policy_values->FindDict(policy::kChromePoliciesId);
++  if (root) {
++    auto* list = root->FindDict(policy::kPoliciesKey);
++    if (list) {
++      // for each policy check if is disabled by the user
++      for (const auto name : *list) {
++        bool disabled = std::ranges::contains(disabled_policies, name.first);
++        name.second.GetDict().Set("disabled", base::Value(disabled));
++      }
++
++      // add disabled policies so user can enable them
++      for (const std::string& name : disabled_policies) {
++        base::DictValue value;
++        value.Set("disabled", base::Value(true));
++
++        // set with some value (only for the ui)
++        // see components/policy/core/browser/policy_conversions_client.cc
++        value.Set("value", base::Value(false));
++        value.Set("scope", base::Value("machine"));
++        value.Set("level", base::Value("mandatory"));
++        value.Set("source", base::Value("sourceDefault"));
++        list->Set(name, std::move(value));
++      }
++    }
+   }
++  return policy;
++}
++
++void PolicyUIHandler::HandleSetEnabledPolicy(
++    const base::ListValue& args) {
++  CHECK_EQ(2u, args.size());
++  const std::string policy_name = args[0].GetString();
++  bool enabled = args[1].GetBool();
++
++  // Check if policy exists
++  base::DictValue policy =
++    policy_value_and_status_aggregator_->GetAggregatedPolicyValues();
++  base::DictValue* policy_values =
++    policy.FindDict(policy::kPolicyValuesKey);
++  DCHECK(policy_values);
++
++  bool exists = false;
++  auto* root = policy_values->FindDict(policy::kChromePoliciesId);
++  if (root && g_browser_process) {
++    auto* list = root->FindDict(policy::kPoliciesKey);
++    if (list) {
++      for (const auto name : *list) {
++        if (name.first == policy_name) {
++          exists = true;
++          break;
++        }
++      }
++    }
++  }
++
++  PrefService* local_state = g_browser_process->local_state();
++  DCHECK(local_state);
++
++  // get user disabled list from local state
++  std::string disabled_policies_pref =
++      local_state->GetString(policy::policy_prefs::kDisabledDefaultPoliciesList);
++  std::vector<std::string> disabled_policies =
++      base::SplitString(disabled_policies_pref, ",",
++                        base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
++
++  // remove policy
++  std::erase_if(disabled_policies,
++        [policy_name](const std::string& name) { return name == policy_name; });
++
++  // readd if exists and enabled
++  if (exists && !enabled)
++    disabled_policies.push_back(policy_name);
++
++  // save current user disabled policy in local state
++  local_state->SetString(policy::policy_prefs::kDisabledDefaultPoliciesList,
++                         base::JoinString(disabled_policies, ","));
+ }
+ 
+ void PolicyUIHandler::SendStatus() {
+diff -ru a/chrome/browser/ui/webui/policy/policy_ui_handler.h b/chrome/browser/ui/webui/policy/policy_ui_handler.h
+--- a/chrome/browser/ui/webui/policy/policy_ui_handler.h
++++ b/chrome/browser/ui/webui/policy/policy_ui_handler.h
+@@ -97,6 +97,8 @@
+   void SendInitialState(const base::ListValue& args = base::ListValue());
+ 
+  private:
++  void HandleSetEnabledPolicy(const base::ListValue& args);
++  base::DictValue GetPolicyValues();
+   void HandleReloadPolicies(const base::ListValue& args);
+   void HandleSetLocalTestPolicies(const base::ListValue& args);
+   void HandleRevertLocalTestPolicies(const base::ListValue& args);
+diff -ru a/components/commerce/core/commerce_feature_list.cc b/components/commerce/core/commerce_feature_list.cc
+--- a/components/commerce/core/commerce_feature_list.cc
++++ b/components/commerce/core/commerce_feature_list.cc
+@@ -70,51 +70,6 @@
+   return *allowed_map;
+ }
+ 
+-constexpr base::FeatureParam<std::string> kRulePartnerMerchantPattern{
+-    &ntp_features::kNtpChromeCartModule, "partner-merchant-pattern",
+-    // This regex does not match anything.
+-    "\\b\\B"};
+-
+-constexpr base::FeatureParam<std::string> kCouponPartnerMerchantPattern{
+-    &commerce::kRetailCoupons, "coupon-partner-merchant-pattern",
+-    // This regex does not match anything.
+-    "\\b\\B"};
+-
+-const re2::RE2& GetRulePartnerMerchantPattern() {
+-#if !BUILDFLAG(IS_ANDROID)
+-  auto* pattern_from_component =
+-      commerce_heuristics::CommerceHeuristicsData::GetInstance()
+-          .GetRuleDiscountPartnerMerchantPattern();
+-  if (pattern_from_component && kRulePartnerMerchantPattern.Get() ==
+-                                    kRulePartnerMerchantPattern.default_value) {
+-    return *pattern_from_component;
+-  }
+-#endif  // !BUILDFLAG(IS_ANDROID)
+-  re2::RE2::Options options;
+-  options.set_case_sensitive(false);
+-  static base::NoDestructor<re2::RE2> instance(
+-      kRulePartnerMerchantPattern.Get(), options);
+-  return *instance;
+-}
+-
+-const re2::RE2& GetCouponPartnerMerchantPattern() {
+-#if !BUILDFLAG(IS_ANDROID)
+-  auto* pattern_from_component =
+-      commerce_heuristics::CommerceHeuristicsData::GetInstance()
+-          .GetCouponDiscountPartnerMerchantPattern();
+-  if (pattern_from_component &&
+-      kCouponPartnerMerchantPattern.Get() ==
+-          kCouponPartnerMerchantPattern.default_value) {
+-    return *pattern_from_component;
+-  }
+-#endif  // !BUILDFLAG(IS_ANDROID)
+-  re2::RE2::Options options;
+-  options.set_case_sensitive(false);
+-  static base::NoDestructor<re2::RE2> instance(
+-      kCouponPartnerMerchantPattern.Get(), options);
+-  return *instance;
+-}
+-
+ }  // namespace
+ 
+ BASE_FEATURE(kCommerceAllowLocalImages, base::FEATURE_DISABLED_BY_DEFAULT);
+@@ -228,16 +183,15 @@
+     &kShoppingList, kRevertIconOnFailureParam, false};
+ 
+ bool IsPartnerMerchant(const GURL& url) {
+-  return commerce::IsCouponDiscountPartnerMerchant(url) ||
+-         IsRuleDiscountPartnerMerchant(url);
++  return false;
+ }
+ 
+ bool IsRuleDiscountPartnerMerchant(const GURL& url) {
+-  return RE2::PartialMatch(url.spec(), GetRulePartnerMerchantPattern());
++  return false;
+ }
+ 
+ bool IsCouponDiscountPartnerMerchant(const GURL& url) {
+-  return RE2::PartialMatch(url.spec(), GetCouponPartnerMerchantPattern());
++  return false;
+ }
+ 
+ bool IsCartDiscountFeatureEnabled() {
+@@ -289,6 +243,7 @@
+ bool IsRegionLockedFeatureEnabled(const base::Feature& feature,
+                                   const std::string& country_code,
+                                   const std::string& locale) {
++  if ((true)) return false;
+   auto* feature_list = base::FeatureList::GetInstance();
+ 
+   // If the feature has a server-side config, this check will ensure that
+@@ -321,6 +276,7 @@
+ }
+ 
+ bool IsNoDiscountMerchant(const GURL& url) {
++  if ((true)) return true;
+   auto* pattern_from_component =
+       commerce_heuristics::CommerceHeuristicsData::GetInstance()
+           .GetNoDiscountMerchantPattern();
+@@ -332,4 +288,6 @@
+   return RE2::PartialMatch(url.host(), *pattern_from_component);
+ }
+ #endif
++
++SET_CROMITE_FEATURE_DISABLED(kEnableDiscountInfoApi);
+ }  // namespace commerce
+diff -ru a/components/policy/core/common/policy_pref_names.h b/components/policy/core/common/policy_pref_names.h
+--- a/components/policy/core/common/policy_pref_names.h
++++ b/components/policy/core/common/policy_pref_names.h
+@@ -125,6 +125,9 @@
+ inline constexpr char kIntensiveWakeUpThrottlingEnabled[] =
+     "policy.intensive_wake_up_throttling_enabled";
+ 
++inline constexpr char kDisabledDefaultPoliciesList[] =
++    "policy.disabled_default_policies_list";
++
+ #if BUILDFLAG(IS_ANDROID)
+ // Boolean policy preference to disable the BackForwardCache feature.
+ inline constexpr char kBackForwardCacheEnabled[] =
+diff -ru a/components/policy/core/common/policy_service_impl.cc b/components/policy/core/common/policy_service_impl.cc
+--- a/components/policy/core/common/policy_service_impl.cc
++++ b/components/policy/core/common/policy_service_impl.cc
+@@ -56,6 +56,9 @@
+ // Metrics should not be enforced so if this policy is set as mandatory
+ // downgrade it to a recommended level policy.
+ void DowngradeMetricsReportingToRecommendedPolicy(PolicyMap* policies) {
++  // skip the change to 'Recommended' if the MetricsReportingEnabled
++  // policy is 'Mandatory'.
++  if ((true)) return;
+   PolicyMap::Entry* policy =
+       policies->GetMutable(policy::key::kMetricsReportingEnabled);
+   if (policy && policy->level != POLICY_LEVEL_RECOMMENDED &&

@@ -1,0 +1,351 @@
+--- a/chrome/browser/history_embeddings/history_embeddings_utils.cc
++++ b/chrome/browser/history_embeddings/history_embeddings_utils.cc
+@@ -51,6 +51,7 @@
+ 
+ // These are the kill switches for the launched history embeddings features.
+ BASE_FEATURE(kLaunchedHistoryEmbeddings, base::FEATURE_DISABLED_BY_DEFAULT);
++SET_CROMITE_FEATURE_DISABLED(kLaunchedHistoryEmbeddings);
+ 
+ bool IsHistoryEmbeddingsEnabledForProfile(Profile* profile) {
+   if (!IsHistoryEmbeddingsFeatureEnabled()) {
+--- a/chrome/browser/optimization_guide/optimization_guide_keyed_service.cc
++++ b/chrome/browser/optimization_guide/optimization_guide_keyed_service.cc
+@@ -395,13 +395,6 @@
+         "HistorySearch");
+   }
+ 
+-  model_execution_manager_ = std::make_unique<ModelExecutionManager>(
+-      url_loader_factory, IdentityManagerFactory::GetForProfile(profile),
+-      std::make_unique<ModelExecutionDelegate>(browser_context_),
+-      optimization_guide_logger_.get(),
+-      model_quality_logs_uploader_service_
+-          ? model_quality_logs_uploader_service_->GetWeakPtr()
+-          : nullptr);
+ }
+ 
+ optimization_guide::ChromeHintsManager*
+@@ -519,23 +512,17 @@
+     optimization_guide::OptimizationGuideModelExecutionResultCallback
+         callback) {
+   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
+-  if (!model_execution_manager_) {
+-    std::move(callback).Run(
+-        optimization_guide::OptimizationGuideModelExecutionResult(
+-            base::unexpected(
+-                optimization_guide::OptimizationGuideModelExecutionError::
+-                    FromModelExecutionError(
+-                        optimization_guide::
+-                            OptimizationGuideModelExecutionError::
+-                                ModelExecutionError::kGenericFailure)),
+-            nullptr),
+-        nullptr);
+-    return;
+-  }
+-  model_execution_manager_->ExecuteModel(
+-      feature, request_metadata, options.execution_timeout,
+-      /*log_ai_data_request=*/nullptr, options.service_type,
+-      std::move(callback));
++  std::move(callback).Run(
++      optimization_guide::OptimizationGuideModelExecutionResult(
++          base::unexpected(
++              optimization_guide::OptimizationGuideModelExecutionError::
++                  FromModelExecutionError(
++                      optimization_guide::
++                          OptimizationGuideModelExecutionError::
++                              ModelExecutionError::kGenericFailure)),
++          nullptr),
++      nullptr);
++  return;
+ }
+ 
+ std::unique_ptr<optimization_guide::RemoteModelExecutionSession>
+@@ -676,84 +663,33 @@
+   if (!model_execution_features_controller_) {
+     return false;
+   }
+-  return model_execution_features_controller_
+-      ->ShouldFeatureAllowModelExecutionForSignedInUser(feature);
++  return false;
+ }
+ 
+ bool OptimizationGuideKeyedService::ShouldFeatureBeCurrentlyAllowedForFeedback(
+     optimization_guide::proto::LogAiDataRequest::FeatureCase feature) const {
+-  CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
+-
+-  // If logging is enabled, feedback is always also enabled.
+-  const optimization_guide::MqlsFeatureMetadata* metadata =
+-      optimization_guide::MqlsFeatureRegistry::GetInstance().GetFeature(
+-          feature);
+-  CHECK(metadata, base::NotFatalUntil::M161);
+-  if (model_execution_features_controller_ &&
+-      model_execution_features_controller_
+-          ->ShouldFeatureBeCurrentlyAllowedForLogging(metadata)) {
+-    return true;
+-  }
+-
+-  // Otherwise, feedback is disabled, with one exception: On dogfood clients,
+-  // feedback is always enabled (as long as the feature is enabled).
+-  auto* variations_service = g_browser_process->variations_service();
+-  return !!variations_service && variations_service->IsLikelyDogfoodClient();
++  return false;
+ }
+ 
+ bool OptimizationGuideKeyedService::ShouldModelExecutionBeAllowedForUser()
+     const {
+-  return model_execution_features_controller_ &&
+-         model_execution_features_controller_
+-             ->ShouldModelExecutionBeAllowedForUser();
++  return false;
+ }
+ 
+ bool OptimizationGuideKeyedService::IsSettingVisible(
+     optimization_guide::UserVisibleFeatureKey feature) const {
+   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
+-  if (!model_execution_features_controller_) {
+-    return false;
+-  }
+-
+-#if !BUILDFLAG(IS_ANDROID)
+-  if (base::FeatureList::IsEnabled(
+-          optimization_guide::features::kAiSettingsPageForceAvailable)) {
+-    return true;
+-  }
+-#endif
+-
+-  using SettingsVisibilityResult =
+-      ModelExecutionFeaturesController::SettingsVisibilityResult;
+-  const SettingsVisibilityResult visibility =
+-      model_execution_features_controller_->GetSettingsVisibility(feature);
+-
+-  base::UmaHistogramEnumeration(
+-      base::StrCat(
+-          {"OptimizationGuide.ModelExecution.SettingsVisibilityResult.",
+-           GetStringNameForModelExecutionFeature(feature)}),
+-      visibility);
+-
+-  return visibility ==
+-             SettingsVisibilityResult::kVisibleFeatureAlreadyEnabled ||
+-         visibility == SettingsVisibilityResult::kVisibleFieldTrialEnabled;
++  return true;
+ }
+ 
+ void OptimizationGuideKeyedService::AddModelExecutionSettingsEnabledObserver(
+     optimization_guide::SettingsEnabledObserver* observer) {
+   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
+-  if (!model_execution_features_controller_) {
+-    return;
+-  }
+-  model_execution_features_controller_->AddObserver(observer);
+ }
+ 
+ void OptimizationGuideKeyedService::RemoveModelExecutionSettingsEnabledObserver(
+     optimization_guide::SettingsEnabledObserver* observer) {
+   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
+-  if (!model_execution_features_controller_) {
+-    return;
+-  }
+-  model_execution_features_controller_->RemoveObserver(observer);
+ }
+ 
+ void OptimizationGuideKeyedService::
+--- a/chrome/browser/safe_browsing/client_side_detection_intelligent_scan_delegate_factory.cc
++++ b/chrome/browser/safe_browsing/client_side_detection_intelligent_scan_delegate_factory.cc
+@@ -61,8 +61,7 @@
+     return nullptr;
+   }
+ #if BUILDFLAG(IS_ANDROID)
+-  return std::make_unique<ClientSideDetectionIntelligentScanDelegateAndroid>(
+-      *profile->GetPrefs(), opt_guide);
++  return nullptr;
+ #else
+   return std::make_unique<ClientSideDetectionIntelligentScanDelegateDesktop>(
+       *profile->GetPrefs(), opt_guide,
+--- a/chrome/browser/ui/autofill/chrome_autofill_client.cc
++++ b/chrome/browser/ui/autofill/chrome_autofill_client.cc
+@@ -1608,17 +1608,7 @@
+ 
+ optimization_guide::ModelQualityLogsUploaderService*
+ ChromeAutofillClient::GetMqlsUploadService() {
+-#if !BUILDFLAG(IS_ANDROID)
+-  Profile* profile = GetProfile();
+-  OptimizationGuideKeyedService* optimization_guide_keyed_service =
+-      OptimizationGuideKeyedServiceFactory::GetForProfile(profile);
+-  if (!optimization_guide_keyed_service) {
+-    return nullptr;
+-  }
+-  return optimization_guide_keyed_service->GetModelQualityLogsUploaderService();
+-#else
+   return nullptr;
+-#endif
+ }
+ 
+ void ChromeAutofillClient::ShowEntityImportBubble(
+--- a/chrome/browser/ui/webui/new_tab_page/new_tab_page_handler.cc
++++ b/chrome/browser/ui/webui/new_tab_page/new_tab_page_handler.cc
+@@ -487,6 +487,7 @@
+   }
+ #if !BUILDFLAG(IS_ANDROID)
+   CHECK(feature_promo_helper_);
++#if false /*BUILDFLAG(BUILD_WITH_TFLITE_LIB)*/
+   if (customize_chrome::IsWallpaperSearchEnabledForProfile(profile_)) {
+     optimization_guide_keyed_service_ =
+         OptimizationGuideKeyedServiceFactory::GetForProfile(profile_);
+--- a/chrome/browser/ui/webui/omnibox_internals/omnibox_internals_page_handler.cc
++++ b/chrome/browser/ui/webui/omnibox_internals/omnibox_internals_page_handler.cc
+@@ -290,8 +290,5 @@
+ }
+ 
+ AutocompleteScoringModelService* OmniboxInternalsPageHandler::GetMlService() {
+-  return OmniboxFieldTrial::IsMlUrlScoringEnabled()
+-             ? AutocompleteScoringModelServiceFactory::GetInstance()
+-                   ->GetForProfile(profile_)
+-             : nullptr;
++  return nullptr;
+ }
+--- a/components/autofill/core/browser/BUILD.gn
++++ b/components/autofill/core/browser/BUILD.gn
+@@ -1000,18 +1000,18 @@
+     "ml_model/autofill_ai/autofill_ai_model_executor.h",
+     "ml_model/autofill_ai/autofill_ai_model_executor_impl.cc",
+     "ml_model/autofill_ai/autofill_ai_model_executor_impl.h",
+-    "ml_model/field_classification_model_encoder.cc",
+-    "ml_model/field_classification_model_encoder.h",
+-    "ml_model/field_classification_model_encoder_dictionary.cc",
+-    "ml_model/field_classification_model_encoder_dictionary.h",
+-    "ml_model/field_classification_model_executor.cc",
+-    "ml_model/field_classification_model_executor.h",
+-    "ml_model/field_classification_model_handler.cc",
+-    "ml_model/field_classification_model_handler.h",
+-    "ml_model/logging/ml_log_router.cc",
+-    "ml_model/logging/ml_log_router.h",
+-    "ml_model/model_predictions.cc",
+-    "ml_model/model_predictions.h",
++    # "ml_model/field_classification_model_encoder.cc",
++    # "ml_model/field_classification_model_encoder.h",
++    # "ml_model/field_classification_model_encoder_dictionary.cc",
++    # "ml_model/field_classification_model_encoder_dictionary.h",
++    # "ml_model/field_classification_model_executor.cc",
++    # "ml_model/field_classification_model_executor.h",
++    # "ml_model/field_classification_model_handler.cc",
++    # "ml_model/field_classification_model_handler.h",
++    # "ml_model/logging/ml_log_router.cc",
++    # "ml_model/logging/ml_log_router.h",
++    # "ml_model/model_predictions.cc",
++    # "ml_model/model_predictions.h",
+     "network/autofill_ai/autofill_ai_personal_context_access_manager.h",
+     "network/autofill_ai/autofill_ai_personal_context_access_manager_impl.cc",
+     "network/autofill_ai/autofill_ai_personal_context_access_manager_impl.h",
+--- a/components/page_content_annotations/content/page_category_classifier_bridge_impl.cc
++++ b/components/page_content_annotations/content/page_category_classifier_bridge_impl.cc
+@@ -40,6 +40,7 @@
+ 
+ void PageCategoryClassifierBridgeImpl::OnPageEmbeddingsAvailable(
+     content::Page& page) {
++#if false /*BUILDFLAG(BUILD_WITH_TFLITE_LIB)*/
+   std::vector<PassageEmbedding> embeddings =
+       page_embeddings_service_->GetEmbeddings(page);
+ 
+@@ -57,6 +58,7 @@
+       page.GetMainDocument().GetLastCommittedURL(),
+       page.GetMainDocument().GetPageUkmSourceId(),
+       std::move(title_url_embedding), std::move(passage_embeddings));
++#endif
+ }
+ 
+ }  // namespace page_content_annotations
+--- a/components/page_content_annotations/content/page_category_classifier_bridge_impl.h
++++ b/components/page_content_annotations/content/page_category_classifier_bridge_impl.h
+@@ -7,6 +7,7 @@
+ 
+ #include "base/memory/raw_ref.h"
+ #include "base/scoped_observation.h"
++#include "components/optimization_guide/machine_learning_tflite_buildflags.h"
+ #include "components/page_content_annotations/content/page_embeddings_service.h"
+ #include "components/page_content_annotations/core/page_category_classifier_bridge.h"
+ 
+--- a/components/viz/service/gl/gpu_service_impl.cc
++++ b/components/viz/service/gl/gpu_service_impl.cc
+@@ -695,27 +695,9 @@
+ 
+   CreateWebNNContextProviderIfNeeded();
+ 
+-  webnn_context_provider_->BindWebNNContextProvider(
+-      std::move(pending_receiver),
+-      {is_incognito, client_id, client_tracing_id});
+ }
+ 
+-void GpuServiceImpl::CreateWebNNContextProviderIfNeeded() {
+-  if (webnn_context_provider_) {
+-    return;
+-  }
+-
+-  // Bind the WebNNBrowserHost pipe now, on first WebNN use.
+-  mojo::PendingRemote<webnn::mojom::WebNNBrowserHost> webnn_browser_host;
+-  std::move(bind_webnn_browser_host_)
+-      .Run(webnn_browser_host.InitWithNewPipeAndPassReceiver());
+-
+-  webnn_context_provider_ = webnn::WebNNContextProviderImpl::Create(
+-      gpu_feature_info_, gpu_info_, shared_image_manager(),
+-      gpu_channel_manager_->peak_memory_monitor(),
+-      base::BindOnce(&GpuServiceImpl::LoseAllContexts, weak_ptr_),
+-      main_runner(), GetGpuScheduler(), std::move(webnn_browser_host));
+-}
++void GpuServiceImpl::CreateWebNNContextProviderIfNeeded() {}
+ 
+ void GpuServiceImpl::BindWebNNServiceIntrospection(
+     mojo::PendingReceiver<webnn::mojom::WebNNServiceIntrospection>
+--- a/content/utility/services.cc
++++ b/content/utility/services.cc
+@@ -291,13 +291,6 @@
+ }
+ #endif  // BUILDFLAG(IS_WIN)
+ 
+-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+-auto RunWebNNCompilerService(
+-    mojo::PendingReceiver<webnn::mojom::WebNNCompilerService> receiver) {
+-  return std::make_unique<webnn::WebNNCompilerServiceImpl>(std::move(receiver));
+-}
+-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+-
+ #if BUILDFLAG(IS_ANDROID)
+ auto RunMediaDrmSupportService(
+     mojo::PendingReceiver<media::mojom::MediaDrmSupport> receiver) {
+--- a/content/utility/services.cc
++++ b/content/utility/services.cc
+@@ -420,8 +420,6 @@
+   services.Add(RunOOPVideoDecoderFactoryProcessService);
+ #endif
+ 
+-  services.Add(RunOnDeviceModel);
+-
+ #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
+   services.Add(RunWebNNCompilerService);
+ #endif
+--- a/services/webnn/webnn_context_provider_impl.cc
++++ b/services/webnn/webnn_context_provider_impl.cc
+@@ -921,25 +921,6 @@
+ void WebNNContextProviderImpl::ForceOrtEnvironmentCreationForIntrospection(
+     ForceOrtEnvironmentCreationForIntrospectionCallback callback) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(main_sequence_checker_);
+-  std::optional<scoped_refptr<ort::Environment>> environment =
+-      ort::Environment::GetInstance();
+-  // If the ORT environment is already created, there is no need to force its
+-  // creation.
+-  if (environment.has_value()) {
+-    std::move(callback).Run(environment.value()->GetAvailableEpDetails());
+-    return;
+-  }
+-
+-  if (base::win::GetVersion() < kWinAppRuntimeSupportedMinVersion) {
+-    DidEnsureWebNNExecutionProvidersReadyForIntrospection(
+-        main_thread_task_runner_, std::move(callback),
+-        /*ep_package_info=*/{});
+-  } else {
+-    webnn_browser_host_->EnsureExecutionProvidersReady(base::BindOnce(
+-        &WebNNContextProviderImpl::
+-            DidEnsureWebNNExecutionProvidersReadyForIntrospection,
+-        AsWeakPtr(), main_thread_task_runner_, std::move(callback)));
+-  }
+ }
+ 
+ void WebNNContextProviderImpl::

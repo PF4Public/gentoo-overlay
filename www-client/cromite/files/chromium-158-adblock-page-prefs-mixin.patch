@@ -1,0 +1,43 @@
+--- a/chrome/browser/resources/settings/adblock_page/adblock_page.ts
++++ b/chrome/browser/resources/settings/adblock_page/adblock_page.ts
+@@ -34,6 +34,5 @@
+ import {PolymerElement} from 'chrome://resources/polymer/v3_0/polymer/polymer_bundled.min.js';
+ import {SettingsToggleButtonElement} from '../controls/settings_toggle_button.js';
+-import {PrefsMixin} from '/shared/settings/prefs/prefs_mixin.js';
+ import {CrCheckboxElement} from 'chrome://resources/cr_elements/cr_checkbox/cr_checkbox.js';
+ import {getTemplate} from './adblock_page.html.js';
+ import {getToastManager} from 'chrome://resources/cr_elements/cr_toast/cr_toast_manager.js';
+@@ -42,6 +41,6 @@
+ 
+ const SettingsAdblockPageElementBase =
+-   I18nMixin(PrefsMixin(BaseMixin((PolymerElement))));
++   I18nMixin(BaseMixin((PolymerElement)));
+ 
+ interface Subscription {
+    url: string;
+@@ -251,7 +250,7 @@
+       const filter = ((e.target as HTMLElement).id);
+       chrome.adblockPrivate.removeCustomFilter(filter);
+       const i = this.customFilters.indexOf(filter);
+-      this.splice('customFilters', i, 1);
++      this.customFilters.splice(i, 1);
+       this.updateUI();
+    }
+ 
+@@ -266,7 +265,7 @@
+       const allowedDomain = ((e.target as HTMLElement).id);
+       chrome.adblockPrivate.removeAllowedDomain(allowedDomain);
+       const i = this.allowedDomains.indexOf(allowedDomain);
+-      this.splice('allowedDomains', i, 1);
++      this.allowedDomains.splice(i, 1);
+       this.allowedDomainsCount = this.allowedDomains.length;
+       this.updateUI();
+    }
+@@ -284,6 +283,6 @@
+       const url = ((e.target as HTMLElement).id);
+       const subscription = this.customSubscriptions.find( x => x.url = url);
+       chrome.adblockPrivate.uninstallSubscription(subscription!.url);
+-      this.splice('customSubscriptions', this.customSubscriptions.indexOf(subscription!), 1);
++      this.customSubscriptions.splice(this.customSubscriptions.indexOf(subscription!), 1);
+       this.updateUI();
+    }

@@ -1,0 +1,11 @@
+--- a/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
++++ b/chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc
+@@ -363,6 +363,8 @@
+ base::DictValue SearchboxHandler::GetWebUIDataSourceDict(
+     Profile* profile,
+     WebUIDataSourceOptions options) {
++  options.enable_lens_search = false;
++  options.enable_voice_search = false;
+   base::DictValue dict = GetProfileIndependentWebUIDataSourceDict(
+       {.enable_voice_search = options.enable_voice_search,
+        .enable_lens_search = options.enable_lens_search});

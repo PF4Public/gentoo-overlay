@@ -1,0 +1,9 @@
+--- a/third_party/blink/renderer/core/workers/installed_scripts_manager.cc
++++ b/third_party/blink/renderer/core/workers/installed_scripts_manager.cc
+@@ -38,5 +38,5 @@
+   if (network_utils::IsReservedIPAddress(script_url_.Host()))
+     response_address_space_ = network::mojom::IPAddressSpace::kLocal;
+   if (SecurityOrigin::Create(script_url_)->IsLocalhost())
+-    response_address_space_ = network::mojom::IPAddressSpace::kLoopback;
++    response_address_space_ = network::mojom::IPAddressSpace::kLocal;
+ }

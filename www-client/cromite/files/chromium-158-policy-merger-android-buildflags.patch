@@ -1,0 +1,10 @@
+--- a/components/policy/core/common/policy_merger.cc
++++ b/components/policy/core/common/policy_merger.cc
+@@ -9,6 +9,7 @@
+ #include <set>
+
+ #include "base/compiler_specific.h"
++#include "build/android_buildflags.h"
+ #include "build/build_config.h"
+ #include "components/policy/core/common/features.h"
+ #include "components/policy/core/common/policy_pref_names.h"

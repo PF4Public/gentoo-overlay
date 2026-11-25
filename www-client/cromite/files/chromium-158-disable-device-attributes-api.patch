@@ -1,0 +1,21 @@
+--- a/chrome/browser/device_api/device_service_impl.cc
++++ b/chrome/browser/device_api/device_service_impl.cc
+@@ -139,5 +139,6 @@
+ bool IsTrustedContext(content::RenderFrameHost& host,
+                       const url::Origin& origin) {
++  if ((true)) return false;
+   // Do not create the service for incognito or enterprise isolated mode.
+   if (GetProfile(host)->IsPrimaryOTRProfileWithRegularParent()) {
+     return false;
+@@ -311,7 +312,11 @@
+ void DeviceServiceImpl::GetDeviceAttribute(
+     [[maybe_unused]] void (DeviceAttributeApi::*method)(
+         DeviceAttributeCallback callback),
+     DeviceAttributeCallback callback) {
++  if ((true)) {
++    device_attribute_api_->ReportNotAllowedError(std::move(callback));
++    return;
++  }
+ #if !BUILDFLAG(IS_CHROMEOS)
+   device_attribute_api_->ReportNotSupportedPlatformError(std::move(callback));
+ #else

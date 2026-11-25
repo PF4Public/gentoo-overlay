@@ -123,8 +123,8 @@
 
 --- a/chrome/test/BUILD.gn
 +++ b/chrome/test/BUILD.gn
-@@ -2812,7 +2812,6 @@
-     "//chrome/browser/first_party_sets:unit_tests",
+@@ -2633,7 +2633,6 @@
+     "//chrome/browser/file_system_access:unit_tests",
      "//chrome/browser/gcm:unit_tests",
      "//chrome/browser/glic:unit_tests",
 -    "//chrome/browser/google:unit_tests",
@@ -159,7 +159,15 @@
 
 --- a/components/domain_reliability/monitor.cc
 +++ b/components/domain_reliability/monitor.cc
-@@ -99,13 +99,6 @@
+@@ -16,7 +16,6 @@
+ #include "base/feature_list.h"
+ #include "base/functional/bind.h"
+ #include "base/notreached.h"
+-#include "components/domain_reliability/baked_in_configs.h"
+ #include "components/domain_reliability/google_configs.h"
+ #include "components/domain_reliability/quic_error_mapping.h"
+ #include "net/base/isolation_info.h"
+@@ -99,13 +98,6 @@
  }
  
  void DomainReliabilityMonitor::AddBakedInConfigs() {

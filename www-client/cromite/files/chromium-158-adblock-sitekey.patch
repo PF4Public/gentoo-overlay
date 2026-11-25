@@ -1,0 +1,44 @@
+--- a/components/adblock/core/sitekey_storage_impl.cc
++++ b/components/adblock/core/sitekey_storage_impl.cc
+@@ -23,9 +23,10 @@
+ #include "base/memory/scoped_refptr.h"
+ #include "base/trace_event/trace_event.h"
+ #include "components/adblock/core/common/adblock_constants.h"
++#include "crypto/evp.h"
+ #include "crypto/openssl_util.h"
+-#include "crypto/signature_verifier.h"
+ #include "net/http/http_response_headers.h"
++#include "third_party/boringssl/src/include/openssl/evp.h"
+ 
+ namespace adblock {
+ namespace {
+@@ -149,16 +150,21 @@
+     return false;
+   }
+ 
+-  crypto::SignatureVerifier verifier;
+-  if (verifier.VerifyInit(crypto::SignatureVerifier::RSA_PKCS1_SHA1,
+-                          base::as_bytes(base::span(signature)),
+-                          base::as_bytes(base::span(public_key)))) {
+-    verifier.VerifyUpdate(base::as_bytes(base::span(data)));
+-    return verifier.VerifyFinal();
++  bssl::UniquePtr<EVP_PKEY> public_key_pkey =
++      crypto::evp::PublicKeyFromBytes(base::as_bytes(base::span(public_key)));
++  if (!public_key_pkey || EVP_PKEY_id(public_key_pkey.get()) != EVP_PKEY_RSA) {
++    DLOG(WARNING) << "[eyeo] Verifier initialization failed";
++    return false;
+   }
+ 
+-  DLOG(WARNING) << "[eyeo] Verifier initialization failed";
+-  return false;
++  bssl::ScopedEVP_MD_CTX ctx;
++  return EVP_DigestVerifyInit(ctx.get(), nullptr, EVP_sha1(), nullptr,
++                              public_key_pkey.get()) &&
++         EVP_DigestVerify(ctx.get(),
++                          reinterpret_cast<const uint8_t*>(signature.data()),
++                          signature.size(),
++                          reinterpret_cast<const uint8_t*>(data.data()),
++                          data.size());
+ }
+ 
+ }  // namespace adblock

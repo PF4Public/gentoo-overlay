@@ -1270,6 +1270,19 @@ src_prepare() {
 		"${BR_PA_PATH}/autofill-miscellaneous.patch" > "${BR_PA_PATH}/autofill-miscellaneous.patch1"
 	mv -f "${BR_PA_PATH}/autofill-miscellaneous.patch1" "${BR_PA_PATH}/autofill-miscellaneous.patch"
 
+	#TODO remove after cromite update
+	# 158 added the target_network parameter to CreateWebSocket, so this
+	# patch's CreateWebSocket hunk (which keys on the 153 parameter list)
+	# no longer has a target and fuzz-lands in the wrong scope (undeclared
+	# traffic_annotation/handshake_client, url parsed as a namespace). Drop
+	# just that hunk; the firewall check is re-added after the loop on the
+	# 158 signature.
+	awk '/^diff --git/ { in_file = ($0 ~ /network_context\.cc$/); skipping = 0 }
+	     in_file && /^@@/ { skipping = ($0 ~ /CreateWebSocket/) }
+	     !skipping { print }' \
+		"${BR_PA_PATH}/Internal-firewall.patch" > "${BR_PA_PATH}/Internal-firewall.patch1"
+	mv -f "${BR_PA_PATH}/Internal-firewall.patch1" "${BR_PA_PATH}/Internal-firewall.patch"
+
 	# shared excludes: test detritus plus the android bits we never build
 	local excludes=(--exclude="*/web_tests/*" --exclude="*/test-list/*" \
 		--exclude="*/uv/test/*" --exclude="*.rst" \
@@ -1292,6 +1305,8 @@ src_prepare() {
 			[ "$i" = "Force-use-vpython3-for-some-scripts.patch" ] ||
 			[ "$i" = "Add-search-engine.patch" ] ||
 			[ "$i" = "Enable-platform-aac-audio-and-h264-video.patch" ] ||
+			# superseded by ${FILESDIR}/chromium-158-disable-device-attributes-api.patch
+			[ "$i" = "Disable-Device-Attributes-API.patch" ] ||
 			# superseded by ${FILESDIR}/chromium-157-disable-single-word-omnibar-searches.patch
 			[ "$i" = "Disable-requests-for-single-word-Omnibar-searches.patch" ]; then
 			ewarn "Skipping ${i}"
@@ -1442,9 +1457,21 @@ src_prepare() {
 				# 157 dropped the NavigationPredictorPreconnectClient attach
 				# from AttachTabHelpers, so that hunk is obsolete; 158 removed
 				# tab_helpers.cc altogether and took the autofill_agent.cc
-				# change upstream (its hunk is detected as already applied)
+				# change upstream (its hunk is detected as already applied).
+				# The provider .cc/.h hunks apply verbatim onto 158 (no
+				# drift), but they remove uses_platform_autofill(), which the
+				# desktop tab_features.cc (untouched by any loop patch) still
+				# calls; the change is android-only (platform-autofill
+				# forcing), and the pristine provider compiles standalone on
+				# desktop (android plumbing under IS_ANDROID), so exclude both.
+				# The separate ContentAutofillClient errors in tab_features.cc
+				# come from enable_compose=false (Disable-Compose-feature) +
+				# 158 gating the include; fixed after the loop by
+				# chromium-158-tab-features-autofill-include.patch
 				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc" \
-					--exclude="components/autofill/content/renderer/autofill_agent.cc")
+					--exclude="components/autofill/content/renderer/autofill_agent.cc" \
+					--exclude="chrome/browser/ui/autofill/autofill_client_provider.cc" \
+					--exclude="chrome/browser/ui/autofill/autofill_client_provider.h")
 				;;
 			"Remove-detection-of-captive-portals.patch")
 				# 157 restructured the core deps block (dropped the
@@ -1456,8 +1483,16 @@ src_prepare() {
 			"Disable-Real-Box.patch")
 				# the 157 <ntp-searchbox> block gained new attributes, so the
 				# hunk that swaps it for <div id="searchbox"></div> rejects;
-				# re-based in files/ after the loop
-				extra_excludes+=(--exclude="chrome/browser/resources/new_tab_page/app.html")
+				# re-based in files/ after the loop. 158 reworked the 2-arg
+				# GetWebUIDataSourceDict (the body now starts with the
+				# GetProfileIndependentWebUIDataSourceDict call the hunk's
+				# `base::DictValue dict;` context no longer matches), so its
+				# searchbox_handler.cc hunk drops all context under -F 3 and
+				# fuzz-lands at namespace scope (options.enable_* = false
+				# outside any function, a compile error); re-based in files/
+				# after the loop as well
+				extra_excludes+=(--exclude="chrome/browser/resources/new_tab_page/app.html" \
+					--exclude="chrome/browser/ui/webui/cr_components/searchbox/searchbox_handler.cc")
 				;;
 			"eyeo-133.0.6943.49-chrome_integration.patch")
 				# 157 dissolved the static_library("ui") monolith this patch
@@ -1502,20 +1537,37 @@ src_prepare() {
 				extra_excludes+=(--exclude="cc/trees/layer_tree_host_impl.cc")
 				;;
 			"Enable-Global-Privacy-Control.patch")
-				# the runtime_features.json5 hunk is already applied by another
-				# patch; 157 renamed kGlobalPrivacyControlTest->Api and rewrote
-				# IsGlobalPrivacyControlFeatureAndSettingEnabled, so re-base the
-				# util.cc change (include + WebRuntimeFeatures call) in files/
+				# the json5 hunk re-writes an entry that drifted (upstream
+				# renamed kGlobalPrivacyControlTest->Api); the util.cc hunk is
+				# re-based in files/chromium-158-global-privacy-control.patch,
+				# which also adds public: true to the GPC json5 entry (the
+				# loop hunk's replacement entry is the only thing that makes
+				# the generated WebRuntimeFeatures carry the GPC members)
 				extra_excludes+=(--exclude="third_party/blink/renderer/platform/runtime_enabled_features.json5" \
 					--exclude="third_party/blink/common/global_privacy_control/global_privacy_control_util.cc")
 				;;
 			"Partitioning-all-cookies-by-top-frame-domain.patch")
 				# 157 removed the extensions cookies api helpers; the
 				# canonical_cookie.cc hunk is already applied; re-base the
-				# cookie_settings_base.cc DecideAccess rework in files/
+				# cookie_settings_base.cc DecideAccess rework in files/;
+				# 158 moved the storage-access header check out of
+				# StartRequest (now in ShouldIncludeOriginHeader), so the
+				# ((false)) disable hunk no longer has a target; re-based
+				# in files/ (applied after the loop)
 				extra_excludes+=(--exclude="chrome/browser/extensions/api/cookies/cookies_helpers.cc" \
 					--exclude="net/cookies/canonical_cookie.cc" \
-					--exclude="components/content_settings/core/common/cookie_settings_base.cc")
+					--exclude="components/content_settings/core/common/cookie_settings_base.cc" \
+					--exclude="services/network/cors/cors_url_loader.cc")
+				;;
+			"Clear-CORS-Preflight-Cache-on-clearing-data.patch")
+				# 158 reworked PreflightCache (LRUCache keyed by top-frame
+				# site; MayPurge/MayPurgeForTesting signatures changed), so
+				# the preflight_cache.cc ClearAll body fuzz-3-lands
+				# mid-function (a definition inside ClearCache) and the .h
+				# declaration fuzzes too; both re-based in files/ (applied
+				# after the loop); the other 4 files apply cleanly
+				extra_excludes+=(--exclude="services/network/cors/preflight_cache.cc" \
+					--exclude="services/network/cors/preflight_cache.h")
 				;;
 			"Bromite-subresource-adblocker.patch")
 				# 157 dropped the max-value+1 cast in the ruleset write-result
@@ -1711,9 +1763,11 @@ src_prepare() {
 				extra_excludes+=(--exclude="chrome/browser/ui/tabs/tab_strip_model.cc")
 			;;
 			"Revert-removal-of-execution-context-address-space.patch")
-				# 157 removed the 153 response_address_space API; the 22
-				# clean files apply in the loop; the 12 modified files are
-				# re-based in files/ (applied after the loop)
+				# the whole patch is skipped above (deferred); 158 removed the
+				# response_address_space API entirely (ExecutionContext,
+				# PolicyContainer, workers), so every file is re-based in
+				# files/chromium-158-revert-removal-of-execution-context-
+				# address-space.patch (applied after the loop)
 				extra_excludes+=(--exclude="third_party/blink/renderer/core/workers/dedicated_worker.cc" \
 					--exclude="third_party/blink/renderer/core/workers/dedicated_worker.h" \
 					--exclude="third_party/blink/renderer/core/workers/dedicated_worker_global_scope.cc" \
@@ -1813,6 +1867,19 @@ src_prepare() {
 				# apply cleanly
 				extra_excludes+=(--exclude="chrome/browser/ui/tab_helpers.cc")
 				;;
+			"Add-a-flag-to-disable-GamePad-API.patch")
+				# 158's runtime_features.cc list holds const base::Feature
+				# refs, so the hunk's raw_ref() entry is a type error where
+				# it fuzz-lands; the entry is re-based in files/ (applied
+				# after the loop)
+				extra_excludes+=(--exclude="content/child/runtime_features.cc")
+				;;
+			"Disable-text-fragments-by-default.patch")
+				# same runtime_features.cc drift; the other files (the
+				# CROMITE_FEATURE .incs, document.cc, the json5, the
+				# prefs_tab_helper) apply cleanly
+				extra_excludes+=(--exclude="content/child/runtime_features.cc")
+				;;
 		esac
 		if [[ "$i" =~ Add-autoplay-site-setting.patch|JIT-site-settings.patch|Site-setting-for-images.patch ]]; then
 			# these embed git binary sections (android drawables, excluded by
@@ -1857,10 +1924,18 @@ src_prepare() {
 	done
 
 	# 157 removed kThirdPartyPartitionedStorageAllowedByDefault (third-party
-	# storage partitioning is on by default now); the Partitioning-all-cookies
-	# flag .inc still references the gone feature and fails to compile.
+	# storage partitioning is on by default now) and 158 removed
+	# kShowRelatedWebsiteSetsPermissionGrants; the Partitioning-all-cookies
+	# flag .incs still reference the gone features and fail to compile.
 	find cromite_flags -name '*.inc' -exec sed -i \
-		'/kThirdPartyPartitionedStorageAllowedByDefault/s|^|// |' {} + || die
+		-e '/kThirdPartyPartitionedStorageAllowedByDefault/s|^|// |' \
+		-e '/kShowRelatedWebsiteSetsPermissionGrants/s|^|// |' {} + || die
+
+	# theme_resources.grd prepends a raw #include to the generated
+	# theme_resources.h; the branding rewrite turns chrome/grit/ into
+	# cromite/grit/ (no such generated header exists), so protect the code
+	# path from the chrome->cromite replacement in grd_reader.py.
+	eapply_wrapper "${FILESDIR}/chromium-158-theme-grit-include-protection.patch"
 
 	# 158's devtools settings registry is strict: moduleSetting() throws
 	# for unregistered names (the 2024 patch relied on the removed
@@ -1895,9 +1970,12 @@ src_prepare() {
 	# the 158 line.
 	eapply_wrapper "${FILESDIR}/chromium-158-qr-code-sharing-commands.patch"
 
-	# History-number-of-days-privacy-setting: 158's RecordResultsMetrics
-	# builds the expiry from a local now, so the loop hunk rejected; pin the
-	# 90-day threshold in both call sites (the file is excluded above).
+	# History-number-of-days-privacy-setting: re-base all 4 modified files
+	# (browsing_history_service.cc pins the 90-day threshold where 158 builds
+	# the expiry from a local now; history_backend.h drops the
+	# kExpireDaysThreshold constant and gains the SetExpireDaysThreshold
+	# declaration the loop's .cc definition and history_service.cc use;
+	# history_service_factory.cc and privacy_page.ts are the 157 re-base).
 	eapply_wrapper "${FILESDIR}/chromium-158-history-expire-days-threshold.patch"
 
 	# Disable-devtools-remote-and-custom-protocols: 158 moved the data source
@@ -1970,12 +2048,6 @@ src_prepare() {
 	# hunk applied), re-based the two SaveSnapshotForDownloads call sites.
 	eapply_wrapper "${FILESDIR}/chromium-157-always-incognito-snapshot-purge.patch"
 
-	# History-number-of-days-privacy-setting's header half: 157's
-	# HistoryBackend kept the old kExpireDaysThreshold member the patch drops,
-	# and lacks the SetExpireDaysThreshold declaration its .cc (and
-	# history_service.cc) now use.
-	eapply_wrapper "${FILESDIR}/chromium-157-history-expire-days-threshold.patch"
-
 	# DoH-improvements renamed the DohProviderEntry field ui_name to
 	# ui_name_cromite (its struct/constructor hunks applied), but the one
 	# remaining usage of the old name in secure_dns_util.cc came from a
@@ -2008,16 +2080,32 @@ src_prepare() {
 	# patched sources (the 157 tab_helpers_impl target is gone).
 	eapply_wrapper "${FILESDIR}/chromium-158-adblock-ui-deps.patch"
 
-	# Disable-UA-full-version: 157 refactored SetFullVersionList to delegate to
-	# the shared AppendBrandVersions helper (so the patch's inline-loop hunk
-	# rejected) and SetUAFullVersion now uses std::move. Re-base both onto the
-	# 157 shapes, reducing the version in the full-list path only.
-	eapply_wrapper "${FILESDIR}/chromium-157-ua-full-version.patch"
+	# eyeo domain registry lookups: 157/158 replaced
+	# GetCanonicalHostRegistryLength with PermissiveGetHostRegistry
+	# (std::optional<std::string_view>); re-base the two call sites.
+	eapply_wrapper "${FILESDIR}/chromium-158-adblock-domain.patch"
 
-	# Bromite-subresource-adblocker: 157's RecordIndexAndWriteRulesetResult uses
-	# the 2-arg UmaHistogramEnumeration (no explicit kMaxValue bound), so the
-	# patch's 3-arg context rejected. Swap it for the VLOG the patch wanted.
-	eapply_wrapper "${FILESDIR}/chromium-157-subresource-ruleset-result.patch"
+	# eyeo sitekey verification: crypto/signature_verifier.h is gone
+	# (removed before 157); re-base IsSitekeySignatureValid onto
+	# crypto::evp::PublicKeyFromBytes + EVP_DigestVerify (RSASSA-PKCS1-v1_5
+	# with SHA1, as before).
+	eapply_wrapper "${FILESDIR}/chromium-158-adblock-sitekey.patch"
+
+	# Disable-UA-full-version: skipped in the loop; re-base the version-
+	# reduction call sites onto the 158 AppendBrandVersions/MakeBrandVersion
+	# shapes and carry the GetReducedVersionNumber helper the loop patch
+	# defined (reducing the version in the full-list path only).
+	eapply_wrapper "${FILESDIR}/chromium-158-ua-full-version.patch"
+
+	# Bromite-subresource-adblocker: the loop case excludes ruleset_service.cc
+	# (its histogram hunk's 2-arg->3-arg UmaHistogramEnumeration drift) but
+	# not ruleset_service.h, leaving the .cc at the 1-arg
+	# IndexAndStoreAndPublishRulesetIfNeeded while the .h declares 2-arg +
+	# IndexAndWriteRulesetInternal. Re-base the .cc to the .h shape (VLOG
+	# instead of the histogram, the ignore_recent_version wrap, the sentinel
+	# warning, the IndexAndWriteRuleset/Internal split) and default
+	# ruleset_version.h's delete_ruleset_path.
+	eapply_wrapper "${FILESDIR}/chromium-158-subresource-ruleset-service.patch"
 
 	# Enable-gwp-asan-on-Android's two "disabled" warnings: 157 reworded both
 	# DLOG messages, so the patch's context rejected. Promote them to LOG with
@@ -2047,6 +2135,12 @@ src_prepare() {
 	# that hunk rejects; swap it for the plain div here.
 	eapply_wrapper "${FILESDIR}/chromium-157-disable-real-box.patch"
 
+	# Disable-Real-Box: 158 split GetWebUIDataSourceDict into the
+	# profile-independent/dependent helpers; disable lens + voice search on
+	# the 158 two-arg shape (the loop's searchbox_handler.cc hunk is
+	# excluded above).
+	eapply_wrapper "${FILESDIR}/chromium-158-disable-real-box-searchbox-options.patch"
+
 	# Dangling-Ptr: 157 removed the desktop-Android BackupRefPtr exception the
 	# patch renames, so that hunk is moot; the 3 SET_CROMITE_FEATURE_* lines are
 	# re-based here (partition_alloc_features.cc excluded from the patch).
@@ -2054,17 +2148,21 @@ src_prepare() {
 
 	# Global-Privacy-Control: 157 renamed kGlobalPrivacyControlTest->Api and
 	# rewrote the feature-and-setting check, so re-base the util.cc change here.
-	eapply_wrapper "${FILESDIR}/chromium-157-global-privacy-control.patch"
+	eapply_wrapper "${FILESDIR}/chromium-158-global-privacy-control.patch"
 
 	# Partition-cookies: 158 dropped the scheme/sandbox-value/policy allow
 	# mechanisms the patch strips (the top-level-storage-access check is gone
 	# upstream), so re-base the DecideAccess rework without them.
 	eapply_wrapper "${FILESDIR}/chromium-158-partition-cookies-decide-access.patch"
 
-	# Add-lifetime-options-for-permissions: 157 reworked
-	# one_time_permissions_tracker + removed last_tab_standing_tracker.cc;
-	# re-base the 2 modified files.
-	eapply_wrapper "${FILESDIR}/chromium-157-add-lifetime-options-for-permissions.patch"
+	# Add-lifetime-options-for-permissions: skipped in the loop (deferred for
+	# 157), so the factory still passes no context; 158's one-time grants are
+	# SessionModel::ONE_TIME entries (the 157-era IsConstraintSessionExpiration
+	# / LifetimeMode API is gone). Re-base: the ctor takes the BrowserContext,
+	# RemoveSessionSettings drops the ONE_TIME entries for the 4 permission
+	# types, and the Restore-LastTabStandingTracker new-file hunk's truncated
+	# last_tab_standing_tracker.cc gets its missing closing brace.
+	eapply_wrapper "${FILESDIR}/chromium-158-add-lifetime-options-for-permissions.patch"
 
 	# Partition-blobs-by-top-frame-URL: 157 drifted the blob-URL partitioning;
 	# re-base the 5 modified files.
@@ -2083,24 +2181,30 @@ src_prepare() {
 
 	# add-browser-policy: 157 wrapped SendPolicies, dropped the
 	# CommerceHeuristicsDataMetricsHelper calls, and rewrote
-	# DowngradeMetricsReportingToRecommendedPolicy; re-base the 3 modified
-	# files.
-	eapply_wrapper "${FILESDIR}/chromium-157-add-browser-policy.patch"
+	# DowngradeMetricsReportingToRecommendedPolicy; the 3 .cc re-base applies
+	# unchanged in 158. The deferred loop patch also carries the
+	# policy_ui_handler.h decls and the kDisabledDefaultPoliciesList pref
+	# name, which this patch adds so the feature is self-contained.
+	eapply_wrapper "${FILESDIR}/chromium-158-add-browser-policy.patch"
 
 	# Disable-all-predictors-code: 157 removed the preloading-model /
 	# navigation-predictor / tab helpers code and drifted the
-	# page-content-annotations, optimization-guide, and webnn wiring; re-base
-	# the 14 modified files.
-	eapply_wrapper "${FILESDIR}/chromium-157-disable-all-predictors-code.patch"
+	# page-content-annotations, optimization-guide, and webnn wiring; the
+	# 13-file re-base applies unchanged in 158, minus
+	# model_validator_keyed_service.cc: its #if false guard targeted a
+	# BUILD_WITH_TFLITE_LIB conditional that 158 removed from the ctor, so
+	# the hunk would leave an unterminated directive.
+	eapply_wrapper "${FILESDIR}/chromium-158-disable-all-predictors-code.patch"
 
 	# Show-NTP-at-startup: 157 moved the "Third preference is the
 	# block's opener" loop into the find_candidate lambda and rewrote it
 	# to is_eligible()/bare kNoTab; re-base the 1 modified file.
 	eapply_wrapper "${FILESDIR}/chromium-157-show-ntp-at-startup.patch"
 
-	# Revert-removal-of-execution-context-address-space: 157 removed the
-	# 153 response_address_space API; re-base the 12 modified files.
-	eapply_wrapper "${FILESDIR}/chromium-157-revert-removal-of-execution-context-address-space.patch"
+	# Revert-removal-of-execution-context-address-space: 158 removed the
+	# response_address_space API entirely (ExecutionContext, PolicyContainer,
+	# workers); re-base all 36 files.
+	eapply_wrapper "${FILESDIR}/chromium-158-revert-removal-of-execution-context-address-space.patch"
 
 	# Disable-conversion-measurement-api: 157 removed the fenced-frame
 	# reportEvent path and dropped the AdInterestGroupAPI status; re-base
@@ -2113,9 +2217,11 @@ src_prepare() {
 	# file.
 	eapply_wrapper "${FILESDIR}/chromium-157-disable-service-and-shared-workers-on-3p-iframe.patch"
 
-	# Block-gateway-attacks-via-websockets: 157's ScriptData constructor no
-	# longer computes response_address_space_; re-base the 1 modified file.
-	eapply_wrapper "${FILESDIR}/chromium-157-block-gateway-attacks-via-websockets.patch"
+	# Block-gateway-attacks-via-websockets: the revert-execution-context
+	# patch (above) restores the ScriptData response_address_space_
+	# computation with upstream's kLoopback for localhost; the loop patch's
+	# intent is kLocal.
+	eapply_wrapper "${FILESDIR}/chromium-158-block-gateway-attacks-via-websockets.patch"
 
 	# Disable-integration-with-Gemini: 158 drifted the actor BUILD.gn (a
 	# bookmarks dep now sits between autofill/actor and glic) and reworked
@@ -2134,6 +2240,97 @@ src_prepare() {
 	# above); add the user_scripts deps at the end of the android branch,
 	# where 157 carried the hunk.
 	eapply_wrapper "${FILESDIR}/chromium-158-user-scripts-browser-deps.patch"
+
+	# Experimental-support-for-extensions-on-Android: the policy_merger.cc
+	# hunk (applied in the loop) gates kExtensionSettings on
+	# IS_DESKTOP_ANDROID_CROMITE, whose BUILDFLAG needs the header the loop
+	# patch does not add.
+	eapply_wrapper "${FILESDIR}/chromium-158-policy-merger-android-buildflags.patch"
+
+	# Partition-HSTS-cache-by-NAK (above) adds the NAK parameter to
+	# VerifyCert; this 158 call site passes the default-constructed NAK.
+	eapply_wrapper "${FILESDIR}/chromium-158-oak-ct-verifier-nak.patch"
+
+	# Partition-blobs-by-top-frame-URL (above) re-based blob_url_registry.h
+	# with 157's include path; 158 moved schemeful_site.h to net/base/.
+	eapply_wrapper "${FILESDIR}/chromium-158-blob-schemeful-site-include.patch"
+
+	# Eyeo-Adblock: 158's extensions::Event takes a
+	# scoped_refptr<const EventArgs> (a base::RefCountedData<base::ListValue>);
+	# wrap the loop-era raw Create() call sites.
+	eapply_wrapper "${FILESDIR}/chromium-158-event-args-refcounted.patch"
+
+	# Eyeo-Adblock: 158 moved the shared settings prefs mixin to
+	# ash/settings/ as .ts, so the loop's new adblock_page.ts loses its
+	# PrefsMixin import and composition; drop both and use plain array
+	# splices.
+	eapply_wrapper "${FILESDIR}/chromium-158-adblock-page-prefs-mixin.patch"
+
+	# Add-a-flag-to-disable-GamePad-API / Disable-text-fragments-by-default:
+	# add the two feature->flag entries on the 158 list shape (the feature
+	# symbols come from the patches' .inc files, applied in the loop).
+	eapply_wrapper "${FILESDIR}/chromium-158-runtime-features-cromite-entries.patch"
+
+	# Disable-Device-Attributes-API (skipped in the loop): the 153
+	# device_service_impl.cc hunks drift; disable the two API entry points
+	# on the 158 lines.
+	eapply_wrapper "${FILESDIR}/chromium-158-disable-device-attributes-api.patch"
+
+	# Enable-native-Android-autofill / Disable-Compose-feature: 158 moved the
+	# content_autofill_client.h include (and the tabs impl dep on
+	# //components/autofill/content/browser) under BUILDFLAG/enable_compose,
+	# but 4 of tab_features.cc's 6 ContentAutofillClient call sites (1221,
+	# 1349, 1912, 2052) are not compose-gated; with enable_compose = false
+	# they lose the declaration. Un-gate the include and the dep.
+	eapply_wrapper "${FILESDIR}/chromium-158-tab-features-autofill-include.patch"
+
+	# Clear-CORS-Preflight-Cache-on-clearing-data: 158 reworked
+	# PreflightCache, so the loop's preflight_cache.{cc,h} hunks fuzz
+	# (excluded above); re-base the ClearAll declaration + body.
+	eapply_wrapper "${FILESDIR}/chromium-158-clear-cors-preflight-cache.patch"
+
+	# Partitioning-all-cookies-by-top-frame-domain: 158 moved the
+	# storage-access header check to ShouldIncludeOriginHeader, so the
+	# loop's ((false)) disable hunk fuzzes (excluded above); re-base it on
+	# the 158 line.
+	eapply_wrapper "${FILESDIR}/chromium-158-disable-storage-access-header.patch"
+
+	# Bromite-auto-updater reworks the EndpointFetcher ctor to take a
+	# NetworkTrafficAnnotationTag and updates the 153-era call sites, but
+	# predates the 4 call sites 158 added; add the annotation arg there.
+	eapply_wrapper "${FILESDIR}/chromium-158-endpoint-fetcher-skills-annotation.patch"
+
+	# Internal-firewall: 158 added the target_network parameter to
+	# CreateWebSocket, so the loop's firewall hunk fuzzes (dropped above);
+	# re-add the check on the 158 signature.
+	eapply_wrapper "${FILESDIR}/chromium-158-internal-firewall-websocket.patch"
+
+	# Add-flag-for-omnibox-autocomplete-filtering / Cromite-Branding: 158
+	# renamed the AutocompleteProvider::Type enum values; re-map the
+	# qualified references the loop hunks landed.
+	sed -i -e 's/AutocompleteProvider::TYPE_KEYWORD/AutocompleteProvider::kKeyword/' \
+		-e 's/AutocompleteProvider::TYPE_SEARCH/AutocompleteProvider::kSearch/' \
+		-e 's/AutocompleteProvider::TYPE_HISTORY_URL/AutocompleteProvider::kHistoryUrl/' \
+		-e 's/AutocompleteProvider::TYPE_BOOKMARK/AutocompleteProvider::kBookmark/' \
+		-e 's/AutocompleteProvider::TYPE_BUILTIN/AutocompleteProvider::kBuiltin/' \
+		-e 's/AutocompleteProvider::TYPE_OPEN_TAB/AutocompleteProvider::kOpenTab/' \
+		components/omnibox/browser/autocomplete_controller.cc || die
+
+	# eyeo-133: 158 renamed the WindowOpenDisposition mojom enum values;
+	# re-map the qualified references in the adblock observer.
+	sed -i -e 's/WindowOpenDisposition::UNKNOWN/WindowOpenDisposition::kUnknown/' \
+		-e 's/WindowOpenDisposition::CURRENT_TAB/WindowOpenDisposition::kCurrentTab/' \
+		-e 's/WindowOpenDisposition::SINGLETON_TAB/WindowOpenDisposition::kSingletonTab/' \
+		-e 's/WindowOpenDisposition::NEW_FOREGROUND_TAB/WindowOpenDisposition::kNewForegroundTab/' \
+		-e 's/WindowOpenDisposition::NEW_BACKGROUND_TAB/WindowOpenDisposition::kNewBackgroundTab/' \
+		-e 's/WindowOpenDisposition::NEW_POPUP/WindowOpenDisposition::kNewPopup/' \
+		-e 's/WindowOpenDisposition::NEW_WINDOW/WindowOpenDisposition::kNewWindow/' \
+		-e 's/WindowOpenDisposition::SAVE_TO_DISK/WindowOpenDisposition::kSaveToDisk/' \
+		-e 's/WindowOpenDisposition::OFF_THE_RECORD/WindowOpenDisposition::kOffTheRecord/' \
+		-e 's/WindowOpenDisposition::IGNORE_ACTION/WindowOpenDisposition::kIgnoreAction/' \
+		-e 's/WindowOpenDisposition::SWITCH_TO_TAB/WindowOpenDisposition::kSwitchToTab/' \
+		-e 's/WindowOpenDisposition::NEW_PICTURE_IN_PICTURE/WindowOpenDisposition::kNewPictureInPicture/' \
+		components/adblock/content/browser/adblock_webcontents_observer.cc || die
 
 	if ! use libcxx ; then
 		eapply_wrapper "${FILESDIR}/cromite-libstdc++.patch"
