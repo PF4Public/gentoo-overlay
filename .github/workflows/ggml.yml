@@ -123,3 +123,111 @@ jobs:
         uses: ./.github/actions/deps-save
         with:
           prefix: ci
+
+  # a separate gpu job builds the cuda + rocm engine variant(s) in a matrix; the GPU
+  # toolchain is kept in its own ci-gpu deps cache (out of the shared ci cache)
+  # and the arch set is trimmed so the heavy GPU deps fit the free runner
+  gpu:
+    needs: filter
+    if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        use: [cuda, rocm]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          # build the ebuilds the filter resolved for this package (one atom
+          # per line; a same-slot release + the 9999 build in turn)
+          pkgdir="sci-ml/ggml"
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            [[ "$e" == "$pkgdir"/*.ebuild ]] || continue
+            eb=$(basename "$e" .ebuild)
+            atoms+="=$pkgdir-${eb#$(basename "$pkgdir")-}"$'\n'
+          done
+          atoms=$(printf '%s' "$atoms" | sed '/^$/d' | sort -u)
+          if [[ -z "$atoms" ]]; then
+            echo "atoms=" >> "$GITHUB_OUTPUT"
+            echo "no ebuild of $pkgdir to build"
+            exit 0
+          fi
+          { echo "atoms<<EOATOMS"; echo "$atoms"; echo "EOATOMS"; } >> "$GITHUB_OUTPUT"
+          echo "building:"; echo "$atoms" | sed 's/^/  /'
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ci-gpu
+
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: |
+            sci-ml/ggml *
+            */* ~amd64
+
+      - name: Configure GPU archs
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          # trim the GPU arch set so the heavy GPU deps (hipBLAS, the CUDA
+          # toolkit) build a few representative archs instead of the full
+          # profile set, which OOMs / overloads the free 2-core/7GB runner
+          case "${{ matrix.use }}" in
+            rocm)
+              # the ROCm deps build one arch per amdgpu_targets USE flag
+              # (rocm.eclass USE_EXPAND); keep only two representative archs
+              docker exec gentoo bash -c "F='-amdgpu_targets_gfx908 -amdgpu_targets_gfx90a -amdgpu_targets_gfx942 -amdgpu_targets_gfx950 -amdgpu_targets_gfx1030 -amdgpu_targets_gfx1101 -amdgpu_targets_gfx1102 -amdgpu_targets_gfx1103 -amdgpu_targets_gfx1150 -amdgpu_targets_gfx1151 -amdgpu_targets_gfx1152 -amdgpu_targets_gfx1153 -amdgpu_targets_gfx1200'; printf 'sci-libs/* %s\ndev-libs/* %s\ndev-util/* %s\n' \"\$F\" \"\$F\" \"\$F\" > /etc/portage/package.use/ci-gpu-arch"
+              ;;
+            cuda)
+              docker exec gentoo bash -c "echo 'CUDA_ARCHITECTURES=\"86-real;89-real;120-real\"' >> /etc/portage/make.conf"
+              ;;
+
+          esac
+
+      - name: Build (gpu)
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          docker exec gentoo bash -c \
+            "echo \"ggml ${{ matrix.use }}\" > /etc/portage/package.use/ggml"
+          rc=0
+          while IFS= read -r atom; do
+            [[ -n "$atom" ]] || continue
+            echo "building: $atom"
+            docker exec gentoo \
+              emerge --getbinpkg --buildpkg-exclude "$atom" \
+              --autounmask --autounmask-write --autounmask-continue -v1 \
+              "$atom" 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+            if [[ $rc -ne 0 ]]; then
+              echo "build failed for $atom (rc=${rc})" >&2
+              tail -80 build.log
+              exit 1
+            fi
+          done <<< "${{ steps.atoms.outputs.atoms }}"
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always() && steps.atoms.outputs.atoms != ''
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ci-gpu
