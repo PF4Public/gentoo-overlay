@@ -124,12 +124,11 @@ src_compile() {
 	cd apps/web
 	#* util-linux script(1) picks $SHELL, else the calling user's passwd shell
 	#* nx requires a pty: https://github.com/nrwl/nx/issues/22445
-	#* TerserPlugin minifies in parallel worker threads, whose V8 heap
-	#  defaults to min(RAM/2, 4GB): the biggest chunk OOMs
-	#  (ERR_WORKER_OUT_OF_MEMORY) on low-RAM machines while CI runners
-	#  (16GB) are fine. node re-parses NODE_OPTIONS per worker thread, so
-	#  the raised limit reaches every terser worker.
+	# system node: electron-r1 puts the electron dist dir on PATH, where
+	# the electron binary acts as node and breaks the build, so prefer the
+	# real node in /usr/bin
 	SHELL=bash NX_DAEMON=false NX_NO_CLOUD=true \
+		PATH="/usr/bin:$PATH" \
 		NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--max-old-space-size=8192" \
 		script -c "pnpm run build" /dev/null || die
 	# pnpm run build || die
