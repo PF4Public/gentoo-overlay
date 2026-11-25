@@ -89,6 +89,14 @@ inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs xdg-utils gc
 DESCRIPTION="Modifications to Chromium for removing Google integration and enhancing privacy"
 HOMEPAGE="https://github.com/ungoogled-software/ungoogled-chromium"
 PPC64_HASH="fccedec8b13e2b874cda5746097065dac26286a2"
+# The rustc-dev components below are the binary Rust toolchain's rustc-dev
+# distfiles: dev-lang/rust-bin fetches them (USE=rustc-dev) but never
+# installs them, and src_configure stages one of them for the crubit tool.
+# Keep the version set in sync with RUST_DEPEND (extend on rust bump).
+# TODO: drop these rustc-dev tarballs and the WORKDIR staging in
+# src_configure once dev-lang/rust-bin installs the component it fetches
+# (check on rust bump; as of 1.100.0 it only unpacks it during its own
+# build).
 SRC_URI="
 	bundled-toolchain? (
 		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/clang-${BUNDLED_CLANG_VER}.tar.xz
@@ -101,6 +109,36 @@ SRC_URI="
 	)
 	ppc64? (
 		https://gitlab.raptorengineering.com/raptor-engineering-public/chromium/openpower-patches/-/archive/${PPC64_HASH}/openpower-patches-${PPC64_HASH}.tar.bz2 -> chromium-openpower-${PPC64_HASH:0:10}.tar.bz2
+	)
+	!bundled-toolchain? (
+		amd64? (
+			https://static.rust-lang.org/dist/rustc-dev-1.97.1-x86_64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.98.1-x86_64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.0-x86_64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.1-x86_64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.100.0-x86_64-unknown-linux-gnu.tar.xz
+		)
+		arm64? (
+			https://static.rust-lang.org/dist/rustc-dev-1.97.1-aarch64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.98.1-aarch64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.0-aarch64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.1-aarch64-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.100.0-aarch64-unknown-linux-gnu.tar.xz
+		)
+		ppc64? (
+			https://static.rust-lang.org/dist/rustc-dev-1.97.1-powerpc64le-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.98.1-powerpc64le-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.0-powerpc64le-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.1-powerpc64le-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.100.0-powerpc64le-unknown-linux-gnu.tar.xz
+		)
+		x86? (
+			https://static.rust-lang.org/dist/rustc-dev-1.97.1-i686-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.98.1-i686-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.0-i686-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.99.1-i686-unknown-linux-gnu.tar.xz
+			https://static.rust-lang.org/dist/rustc-dev-1.100.0-i686-unknown-linux-gnu.tar.xz
+		)
 	)
 "
 
