@@ -3044,6 +3044,30 @@ EOF
 			rustc_bin="${EPREFIX}/usr/bin/rustc-${RUST_SLOT}"
 		fi
 
+		# dev-lang/rust-bin's rustc-dev USE flag fetches the component
+		# tarball but never installs it (portage bug), a binpkg merge
+		# fetches no source distfiles at all, and the merge sandbox
+		# forbids writing into the installed prefix, so stage the
+		# component into WORKDIR and add its lib dir to the crate
+		# search path below; dev-lang/rust installs it via x.py
+		if [[ ${RUST_TYPE} == binary ]]; then
+			local rustc_ver rustc_host rustc_dev=""
+			rustc_ver=$("${rustc_bin}" -vV | sed -n 's/^release: //p')
+			rustc_host=$("${rustc_bin}" -vV | sed -n 's/^host: //p')
+			for d in "${DISTDIR}" "/var/cache/distfiles"; do
+				[[ -f ${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz ]] && { rustc_dev=${d}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz; break; }
+			done
+			if [[ -z ${rustc_dev} ]]; then
+				rustc_dev="${WORKDIR}/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz"
+				curl -sfL --retry 3 -o "${rustc_dev}" \
+					"https://static.rust-lang.org/dist/rustc-dev-${rustc_ver}-${rustc_host}.tar.xz" \
+					|| die "fetching the rustc-dev component failed"
+			fi
+			mkdir -p "${WORKDIR}/rustc-dev" || die
+			tar xJf "${rustc_dev}" -C "${WORKDIR}/rustc-dev" --strip-components=2 --exclude rustc-src || die
+			ls "${WORKDIR}/rustc-dev"/lib/rustlib/*/lib/librustc_hir-*.rmeta >/dev/null || die "rustc-dev rmetas missing after extraction"
+		fi
+
 		local f driver=""
 		for f in "$(get_rust_prefix)"/lib/librustc_driver-*.so \
 				"$(get_rust_prefix)"/lib/rustlib/*/lib/librustc_driver-*.so; do
@@ -3059,6 +3083,11 @@ EOF
 		local llvm_libdir
 		llvm_libdir=$(ldd "${driver}" | awk '$1 ~ /^libLLVM/ {print $3}' | head -1 | xargs -r -n1 dirname)
 		[[ -z ${llvm_libdir} ]] || link_args+=" -L${llvm_libdir} -Clink-args=-Wl,-rpath,${llvm_libdir}"
+		if [[ ${RUST_TYPE} == binary ]]; then
+			# the staged rmetas resolve the rustc_private crates the tool
+			# links (rustc_driver, rustc_hir, rustc_middle, rustc_span)
+			link_args+=" -L${WORKDIR}/rustc-dev/lib/rustlib/${rustc_host}/lib"
+		fi
 
 		(
 			cd "${crubit_src}" || exit 1
