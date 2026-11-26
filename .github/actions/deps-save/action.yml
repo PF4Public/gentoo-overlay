@@ -220,7 +220,9 @@ runs:
         retention-days: 90
         overwrite: true
 
-    # fail loudly if a chunk was packed but did not end up as a run artifact
+    # fail loudly if a chunk was packed but did not end up as a run artifact;
+    # a fresh upload can lag behind the artifacts API for a while (seen >3 s
+    # under load), so poll for a bounded window before declaring a chunk missing
     - name: Verify deps chunks
       env:
         GH_TOKEN: ${{ github.token }}
@@ -231,7 +233,20 @@ runs:
         p="${{ inputs.prefix }}"
         gen="${{ steps.pack.outputs.gen }}"
         want=$(ls -1 "${GITHUB_WORKSPACE}/deps-chunks" | grep "^${p}-deps-${gen}-" | sort)
-        got=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
+        for i in $(seq 30); do
+          got=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" --jq '.artifacts[].name' | grep "^${p}-deps-" | sort || true)
+          missing=0
+          for name in $want; do
+            if ! grep -qx "$name" <<< "$got"; then
+              missing=1
+            fi
+          done
+          if [[ $missing -eq 0 ]]; then
+            break
+          fi
+          echo "not all chunks visible yet, retry $i/30 in 10 s"
+          sleep 10
+        done
         echo "packed:"; echo "$want"
         echo "uploaded:"; echo "$got"
         ls -l "${GITHUB_WORKSPACE}/deps-chunks"
