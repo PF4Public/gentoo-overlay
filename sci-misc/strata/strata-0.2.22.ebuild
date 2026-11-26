@@ -14,7 +14,7 @@ LLAMA_COMMIT="3cf03257f219afbe7334045ff7c6a06ac68c627d"
 # reads it from the .git instead)
 STRATA_TAG_COMMIT="b28ca95e3e6847f2d5e317994f253b66716deeaa"
 
-ROCM_VERSION="7.2"
+ROCM_VERSION="7.2" 
 
 # the desktop (app/desktop) tauri shell, from app/desktop/src-tauri/
 # Cargo.lock; the crates are not listed as distfiles but packed into the
