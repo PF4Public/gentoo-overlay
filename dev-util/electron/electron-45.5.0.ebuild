@@ -50,6 +50,11 @@ CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.22.3"
 NODE_P="node-v${NODE_VERSION}"
 UGC_PVR="156.0.8078.79-1"
+
+# packager override for all.gn's v8-patch-fingerprint script (no V8 git
+# metadata in the tarball); exported for every phase because the compile
+# phase's gn regeneration re-imports all.gn
+export ELECTRON_V8_EMBEDDER_STRING="-electron.${PV}-${CHROMIUM_VERSION}"
 UGC_PF="ungoogled-chromium-${UGC_PVR}"
 UGC_WD="${WORKDIR}/${UGC_PF}"
 
@@ -2160,9 +2165,6 @@ src_configure() {
 		EXTRA_GN UGC_{SKIP_{PATCHES,SUBSTITUTION},KEEP_BINARIES} ; do
 		einfo "  ${flags} = \"${!flags}\""
 	done
-
-	# packager override for all.gn's v8-patch-fingerprint script (no V8 git metadata in the tarball)
-	export ELECTRON_V8_EMBEDDER_STRING="-electron.${PV}-${CHROMIUM_VERSION}"
 
 	einfo "Configuring Electron ..."
 	set -- gn gen --args="${myconf_gn[*]}${EXTRA_GN:+ ${EXTRA_GN}}" out/Release
