@@ -283,7 +283,7 @@ taglibsharp-lidarr@2.2.0.27
 inherit dotnet-pkg systemd
 
 DESCRIPTION="Lidarr is a music collection manager for usenet and bit-torrent users"
-HOMEPAGE="https://lidarr.video"
+HOMEPAGE="https://lidarr.video" 
 SRC_URI="
 	https://github.com/Lidarr/Lidarr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	https://github.com/PF4Public/gentoo-overlay/releases/download/lidarr/${PV}/${P}-deps.tar.xz
