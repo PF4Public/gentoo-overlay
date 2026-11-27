@@ -44,8 +44,8 @@ RUST_NEEDS_LLVM="yes please"
 RUST_OPTIONAL="yes" # Not actually optional, but we don't need system Rust (or LLVM) with USE=bundled-toolchain
 RUST_REQ_USE="rustfmt" # Upstream run rustfmt on bindgen output, so we need it to be available.
 
-CHROMIUM_VERSION_WARNING="true"
-CHROMIUM_VERSION="156.0.8078.80"
+CHROMIUM_VERSION_WARNING="false"
+CHROMIUM_VERSION="156.0.8078.102"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="24.22.3"
 NODE_P="node-v${NODE_VERSION}"
@@ -1082,24 +1082,18 @@ src_prepare() {
 	fi
 
 	# The v45.3.2 patch set was rebased against chromium 156.0.8078.100 (DEPS)
-	# while the tarball is 156.0.8078.80, so these two do not apply. The
-	# v45.2.3 versions carry the identical changes with 156.0.8078.80 context
-	# and the electron shell requires both (printing API, blocklist exposure).
-	cp "${FILESDIR}/printing-45.2.3.patch" \
-		electron/patches/chromium/printing.patch || die
-	cp "${FILESDIR}/refactor_expose_file_system_access_blocklist-45.2.3.patch" \
+	# while the tarball is 156.0.8078.102, so the v45.5.0 blocklist patch does
+	# not apply (it carries 156.0.8078.109 context). The -102 version is the
+	# v45.5.0 patch rebased onto the 156.0.8078.102 base; the electron shell
+	# requires the blocklist exposure.
+	cp "${FILESDIR}/refactor_expose_file_system_access_blocklist-102.patch" \
 		electron/patches/chromium/refactor_expose_file_system_access_blocklist.patch || die
 
 	declare -A skipped_patches=(
 		["cherry-pick-ffae953f7ec8.patch"]="due to... reasons..."
 		["cherry-pick-85e50e76a6db.patch"]="due to... reasons..."
 		["cherry-pick-c553b337ecaf.patch"]="due to... reasons..."
-		["cherry-pick-08887dc29edc.patch"]="due to... reasons..."
-		["fix_resolve_dynamic_background_material_update_issue_on_windows_11.patch"]="due to... reasons..."
-		["desktop_media_list.patch"]="due to... reasons..."
 		["cherry-pick-b40b5946cd4c.patch"]="requires the skipped c553b337ecaf gl_features.json entry"
-		["cherry-pick-98e5b3bb0c4f.patch"]="does not apply against the 156.0.8078.80 base"
-		["cherry-pick-6da616e5ce5f.patch"]="does not apply against the 156.0.8078.80 base"
 	)
 	# if use ungoogled; then
 	#	skipped_patches+=(
