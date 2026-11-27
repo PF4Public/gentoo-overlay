@@ -47,33 +47,84 @@ jobs:
         with:
           ebuilds: ${{ steps.select.outputs.ebuilds }}
 
-  default:
+  build:
     needs: filter
     if: github.repository == 'PF4Public/gentoo-overlay' && needs.filter.outputs.build == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
+      - name: Resolve atoms
+        id: atoms
+        shell: bash
+        run: |
+          set -euo pipefail
+          # build the ebuilds the filter resolved for this package (the ones
+          # changed directly or via a changed files/ entry, the live 9999 among
+          # them when it changed). Same-slot versions (a release + the 9999)
+          # are not mergeable in one emerge, so emit one atom per line and let
+          # the Build step run one emerge per line.
+          pkgdir="dev-util/electron-bin"
+          atoms=""
+          for e in ${{ needs.filter.outputs.ebuilds }}; do
+            [[ "$e" == "$pkgdir"/*.ebuild ]] || continue
+            eb=$(basename "$e" .ebuild)
+            atoms+="=$pkgdir-${eb#$(basename "$pkgdir")-}"$'\n'
+          done
+          atoms=$(printf '%s' "$atoms" | sed '/^$/d' | sort -u)
+          if [[ -z "$atoms" ]]; then
+            echo "atoms=" >> "$GITHUB_OUTPUT"
+            echo "no ebuild of $pkgdir to build"
+            exit 0
+          fi
+          { echo "atoms<<EOATOMS"; echo "$atoms"; echo "EOATOMS"; } >> "$GITHUB_OUTPUT"
+          echo "building:"; echo "$atoms" | sed 's/^/  /'
+
+      - name: Free space
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/deps-restore
         with:
-          ebuilds: ${{ needs.filter.outputs.ebuilds }}
+          prefix: ci
 
-      - name: Restore cache
-        uses: ./.github/actions/cache-restore
-
-      - name: Install ${{ github.workflow }} with default USE-flags
-        uses: pf4public/gentoo-docker-action@master
+      - name: Gentoo setup
+        if: steps.atoms.outputs.atoms != ''
+        uses: ./.github/actions/gentoo-setup
         with:
-            modified: ${{ steps.setup.outputs.ebuilds }}
-            tool: ebuild
-            action: install
-            params: ' '
+          accept-keywords: |
+            dev-util/electron-bin *
 
-      - name: Save cache
-        if: ${{ always() }}
-        uses: ./.github/actions/cache-save
+      - name: Build
+        if: steps.atoms.outputs.atoms != ''
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          while IFS= read -r atom; do
+            [[ -n "$atom" ]] || continue
+            echo "building: $atom"
+            docker exec gentoo \
+              emerge --getbinpkg --buildpkg-exclude "$atom" \
+              --autounmask --autounmask-write --autounmask-continue -v1 \
+              "$atom" 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+            if [[ $rc -ne 0 ]]; then
+              echo "build failed for $atom (rc=${rc})" >&2
+              tail -80 build.log
+              exit 1
+            fi
+          done <<< "${{ steps.atoms.outputs.atoms }}"
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always() && steps.atoms.outputs.atoms != ''
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ci

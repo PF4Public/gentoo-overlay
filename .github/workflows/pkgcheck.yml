@@ -23,6 +23,7 @@ jobs:
   pkgcheck:
     if: github.repository == 'PF4Public/gentoo-overlay'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -34,10 +35,28 @@ jobs:
         id: setup
         uses: ./.github/actions/setup
 
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+
+      - name: Install pkgcheck
+        shell: bash
+        run: |
+          docker exec gentoo emerge --getbinpkg -v1 app-portage/pkgcheck
+
       - name: Run pkgcheck
-        uses: pf4public/gentoo-docker-action@master
-        with:
-            modified: ${{ steps.setup.outputs.modified }}
-            tool: pkgcheck
-            action: scan
-            params: -v --exit error
+        shell: bash
+        run: |
+          set -uo pipefail
+          # scan the package dirs of the changed files, the whole workspace
+          # when none of them is a package file (same scope as the old
+          # docker action)
+          dirs=$(printf '%s\n' ${{ steps.setup.outputs.modified }} | tr ' ' '\n' \
+            | grep -E '\.ebuild$|Manifest$|\.xml$|\.eclass$|\.desc$' | xargs -r -n1 dirname | sort -u)
+          [[ -n "$dirs" ]] || dirs="."
+          rc=0
+          while IFS= read -r d; do
+            [[ -n "$d" ]] || continue
+            echo "scanning: $d"
+            docker exec -w "/workspace/$d" gentoo pkgcheck scan -v --exit error --color true || rc=$?
+          done <<< "$dirs"
+          exit "$rc"
