@@ -35,7 +35,7 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="${REPO}.git"
 else
-	KEYWORDS="~amd64"
+	KEYWORDS="amd64"
 	SRC_URI="
 		${CARGO_CRATE_URIS}
 		${REPO}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
