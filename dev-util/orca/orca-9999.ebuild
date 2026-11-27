@@ -4,8 +4,8 @@
 EAPI=8
 
 # Must be set BEFORE inherit (electron-r1 reads them at inherit time):
-ELECTRON_COMPAT=( {43,44,45} )
-ELECTRON_SLOT_DEFAULT="43"
+ELECTRON_COMPAT=( 45 )
+ELECTRON_SLOT_DEFAULT="45"
 
 inherit desktop electron-r1 xdg-utils
 
@@ -95,33 +95,10 @@ src_prepare() {
 	# each update) so the app's skill installs resolve to this build.
 	patch -p1 -i "${FILESDIR}/honor-build-commit-env.patch" || die
 
-	# Electron 44 removed the legacy clipboard surface (availableFormats,
-	# readBuffer, readImage, writeImage, writeBuffer, the 'selection' argument
-	# to readText/writeText) in favor of the async W3C ClipboardItem API, which
-	# breaks paste on the 44/45 slots (upstream pins electron 43). 0004 routes
-	# the main-process clipboard callers through a compat module that speaks
-	# whichever surface the runtime exposes; the macOS file-copy writeBuffer
-	# path degrades to a reported failure on 44+.
-	patch -p1 -i "${FILESDIR}/electron-clipboard-api-r2.patch" || die
-
-	# The saveImageAsTempFile handler's direct readClipboardImageSource /
-	# readClipboardNativeImage calls are not in the patch: 1.4.252 refactored
-	# the handler around encodeClipboardNativeImagePng, which breaks the
-	# hunk's trailing context. Route them through the compat module with
-	# whitespace-agnostic substitutions instead.
-	sed -i \
-		-e 's/^\([[:space:]]*\)const source = readClipboardImageSource(clipboard)$/\1const source = await readClipboardImageSource(clipboardReader)/' \
-		-e 's/^\([[:space:]]*\)const image = readClipboardNativeImage()$/\1const image = await readClipboardNativeImage()/' \
-		src/main/window/clipboard/clipboard-ipc-handlers.ts || die
-
-	# The final writeImage call of the clipboard:writeImage handler is not in
-	# the patch: newer upstream trees wrap the handler body in
-	# publishClipboardOperation, which changes its indentation and would break
-	# a patch hunk. Route it through the compat module with a whitespace-
-	# agnostic substitution instead — the promise is awaited by ipcMain.handle
-	# (and by the publish queue on the wrapped trees).
-	sed -i 's/^\([[:space:]]*\)clipboard\.writeImage(image)$/\1return writeClipboardImage(image)/' \
-		src/main/window/clipboard/clipboard-ipc-handlers.ts || die
+	# 1.4.280+ pins Electron 45; the clipboard code uses the native W3C
+	# ClipboardItem API (clipboard-formats.ts), so the 43-era compat shim
+	# (electron-clipboard-api) that bridged the legacy surface onto the 44/45
+	# slots is no longer needed and is not applied.
 
 	# The in-app auto-updater (electron-updater) feeds from the GitHub releases
 	# and polls on an interval, on resume, and on window focus, then nags. On an
