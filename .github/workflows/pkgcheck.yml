@@ -41,7 +41,7 @@ jobs:
       - name: Install pkgcheck
         shell: bash
         run: |
-          docker exec gentoo emerge --getbinpkg -v1 app-portage/pkgcheck
+          docker exec gentoo emerge --getbinpkg -v1 dev-util/pkgcheck
 
       - name: Run pkgcheck
         shell: bash
