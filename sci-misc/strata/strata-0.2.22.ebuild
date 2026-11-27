@@ -108,6 +108,7 @@ COMMON_DEPEND="
 	hip? (
 		>=dev-util/hip-${ROCM_VERSION}:=
 		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
+		>=sci-libs/hipBLAS-common-${ROCM_VERSION}:=
 		>=sci-libs/hipBLASLt-${ROCM_VERSION}:=
 		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
 	)
