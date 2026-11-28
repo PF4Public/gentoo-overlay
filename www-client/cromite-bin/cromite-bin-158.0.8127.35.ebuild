@@ -15,8 +15,11 @@ HOMEPAGE="https://github.com/uazo/cromite
 https://www.cromite.org/"
 
 DL_URL="https://github.com/PF4Public/gentoo-overlay/releases/download/cromite/${PV}"
-SRC_URI="
-	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
+# temporarily disabled: the distfile only exists once the first
+# cromite/158.0.8127.35 release build has published it, and an
+# unfetched distfile breaks the package-wide Manifest digest
+#SRC_URI="
+#	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
 
 S="${WORKDIR}"
 
