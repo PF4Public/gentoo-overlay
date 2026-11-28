@@ -1,0 +1,129 @@
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+CHROMIUM_LANGS="af am ar as az be bg bn bs ca cs cy da de el en-GB es es-419 et eu fa fi fil
+	fr fr-CA gl gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my
+	nb ne nl or pa pl pt-BR pt-PT ro ru si sk sl sq sr sr-Latn sv sw ta te th tr uk ur uz
+	vi zh-CN zh-HK zh-TW zu"
+
+inherit chromium-2 desktop xdg
+
+DESCRIPTION="Cromite a Bromite fork with ad blocking and privacy enhancements"
+HOMEPAGE="https://github.com/uazo/cromite
+https://www.cromite.org/"
+
+DL_URL="https://github.com/PF4Public/gentoo-overlay/releases/download/cromite/${PV}"
+SRC_URI="
+	amd64? ( ${DL_URL}/x86-64.tar.bz2 -> ${PF}-x86-64.tar.bz2 )"
+
+S="${WORKDIR}"
+
+LICENSE="GPL-3"
+SLOT="0"
+KEYWORDS="~amd64"
+
+RESTRICT="bindist mirror strip"
+
+RDEPEND="
+	>=app-accessibility/at-spi2-core-2.46.0:2
+	app-misc/ca-certificates
+	sys-apps/dbus
+	sys-libs/libcap
+	virtual/udev
+	dev-libs/nspr
+	>=dev-libs/nss-3.26
+	media-libs/mesa[gbm(+)]
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	|| (
+		x11-libs/gtk+:3[X]
+		gui-libs/gtk:4[X]
+	)
+	x11-libs/pango
+	>=x11-libs/libX11-1.5.0
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrandr
+	x11-libs/libxcb
+	x11-libs/libdrm
+	x11-libs/libxkbcommon
+	x11-libs/libxshmfence
+	media-libs/alsa-lib
+	media-fonts/liberation-fonts
+	net-misc/curl
+	net-print/cups
+	dev-libs/expat
+	dev-libs/glib:2
+	x11-misc/xdg-utils
+	virtual/opengl
+	virtual/ttf-fonts
+	!www-client/chromium
+	!www-client/ungoogled-chromium-bin
+	!www-client/ungoogled-chromium[-override-data-dir]
+"
+
+QA_PREBUILT="*"
+CHROMIUM_HOME="/opt/cromite"
+
+src_install() {
+	# the source package installs into usr/$(get_libdir)/cromite-browser,
+	# gaining a -beta suffix when built with a non-stable SLOT
+	local browser
+	for browser in cromite-browser-beta cromite-browser; do
+		[[ -d "usr/$(get_libdir)/${browser}" ]] && break
+	done
+	[[ -d "usr/$(get_libdir)/${browser}" ]] || die "cannot find the cromite-browser directory in the tarball"
+
+	exeinto "${CHROMIUM_HOME}"
+	doexe "./usr/$(get_libdir)/${browser}/chrome"
+	doexe "./usr/$(get_libdir)/${browser}/chrome_crashpad_handler"
+	doexe "${FILESDIR}/chromium-launcher.sh"
+
+	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/cromite-browser-bin
+	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/cromite-bin
+
+	pushd "./usr/$(get_libdir)/${browser}/locales" > /dev/null || die
+	chromium_remove_language_paks
+	popd
+
+	# Allow users to override command-line options, bug #357629.
+	insinto /etc/cromite
+	newins "${FILESDIR}/chromium.default" "default"
+
+	insinto "${CHROMIUM_HOME}"
+	doins "./usr/$(get_libdir)/${browser}"/*.bin
+	doins "./usr/$(get_libdir)/${browser}"/*.pak
+	if [[ -d "./usr/$(get_libdir)/${browser}/hyphen-data" ]]; then
+		doins -r "./usr/$(get_libdir)/${browser}/hyphen-data"
+	fi
+	doins "./usr/$(get_libdir)/${browser}"/*.so
+	doins "./usr/$(get_libdir)/${browser}/icudtl.dat"
+
+	doins -r "./usr/$(get_libdir)/${browser}/locales"
+
+	if [[ -d "./usr/$(get_libdir)/${browser}/swiftshader" ]]; then
+		insinto "${CHROMIUM_HOME}/swiftshader"
+		doins "./usr/$(get_libdir)/${browser}/swiftshader"/*.so
+		insinto "${CHROMIUM_HOME}"
+	fi
+
+	# Install icon
+	newicon -s 128 "./usr/share/icons/hicolor/128x128/apps/${browser}.png" cromite-browser-bin.png
+
+	local mime_types="text/html;text/xml;application/xhtml+xml;"
+	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
+	mime_types+="x-scheme-handler/ftp;" # bug #412185
+	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
+
+	make_desktop_entry \
+		cromite-browser-bin \
+		"Cromite" \
+		cromite-browser-bin \
+		"Network;WebBrowser" \
+		"MimeType=${mime_types}\nStartupWMClass=cromite-browser-bin"
+	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
+}
