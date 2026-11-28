@@ -79,11 +79,18 @@ runs:
           fi
         '
 
+        # the current stage3 ships no repos.conf at all (portage falls back to
+        # a built-in [gentoo] default, pkgcheck/pkgcore does not), so define
+        # the gentoo repo explicitly next to the overlay
         docker exec gentoo bash -c '
           f=/etc/portage/repos.conf
           if [[ -d "$f" ]]; then
-            printf "%s\n" "[pf4public]" "location = /workspace" "priority = -1000" "auto-sync = false" > "$f/github.conf"
+            {
+              printf "%s\n" "[gentoo]" "location = /var/db/repos/gentoo" "auto-sync = false" ""
+              printf "%s\n" "[pf4public]" "location = /workspace" "priority = -1000" "auto-sync = false"
+            } > "$f/github.conf"
           else
+            [[ -f "$f" ]] || printf "%s\n" "[gentoo]" "location = /var/db/repos/gentoo" "auto-sync = false" > "$f"
             printf "%s\n" "[pf4public]" "location = /workspace" "priority = -1000" "auto-sync = false" >> "$f"
           fi
         '
