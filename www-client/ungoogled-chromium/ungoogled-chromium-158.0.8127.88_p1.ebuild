@@ -47,7 +47,7 @@ UGC_COMMIT_ID="9746a5fe28e389b35ab1e2e2b258c802a8b4c117"
 # 	5794e9d12bf82620d5f24505798fecb45ca5a22d
 # )
 
-CROMITE_COMMIT_ID="a44e28b8992c99aae7e67478bcdb81b13a724812"
+CROMITE_COMMIT_ID="9af9640a431acdbe8ae68369449462e25a8406d3"
 
 declare -A CHROMIUM_COMMITS=(
 	# ["27f8690db999f6e56f0af7a9ea3d28a019ed72ca"]="." #152+
@@ -252,7 +252,7 @@ if [ ! -z "${CHROMIUM_COMMITS[*]}" ]; then
 	done
 fi
 
-SRC_URI+="cromite? ( https://github.com/uazo/cromite/archive/${CROMITE_COMMIT_ID}.tar.gz -> cromite-${CROMITE_COMMIT_ID}.tar.gz )
+SRC_URI+="cromite? ( https://github.com/PF4Public/cromite/archive/${CROMITE_COMMIT_ID}.tar.gz -> cromite-${CROMITE_COMMIT_ID}.tar.gz )
 "
 
 # Cargo closure of the crubit cc_bindings_from_rs tool (crubit's Cargo.lock),
@@ -385,7 +385,6 @@ COMMON_SNAPSHOT_DEPEND="
 	system-re2? ( >=dev-libs/re2-0.2019.08.01:= )
 	system-libvpx? ( >=media-libs/libvpx-1.13.0:=[postproc] )
 	system-libusb? ( virtual/libusb:1 )
-	cromite? ( dev-util/patchutils )
 	>=dev-libs/libxml2-2.12.4:=[icu]
 	dev-libs/nspr:=
 	>=dev-libs/nss-3.26:=
@@ -1133,109 +1132,23 @@ src_prepare() {
 	if use cromite ; then
 		BR_PA_PATH="${WORKDIR}/cromite-${CROMITE_COMMIT_ID}/build/patches"
 
-		sed -i '/b\/components\/components_strings\.grd/,+10d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
-		sed -i '/b\/chrome\/android\/java\/res\/xml\/privacy_preferences\.xml/,+13d' "${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
-		# 157 added ":java_flags" to the srcjar_deps block; add it to the patch context.
-		sed -i 's|     ":chrome_browser_flags_enums_srcjar",|     ":chrome_browser_flags_enums_srcjar",\n     ":java_flags",|' \
-			"${BR_PA_PATH}/Add-cromite-flags-support.patch" || die
-		sed -i '/b\/android_webview\/support_library\/java\/src\/org\/chromium\/support_lib_glue/,+11d' "${BR_PA_PATH}/Client-hints-overrides.patch" || die
-		sed -i '/webapps_strings.grdp" \/>/{s++webapps_strings.grdp" /><part file="cromite_components_strings_grd/placeholder.txt"/>+;h};${x;/./{x;q0};x;q1}' \
-			components/components_strings.grd || die
+		# 158-native set: no per-patch routing or hunk filters needed;
+		# strict git-apply with the shared test/docs excludes.
+		local excludes=(--exclude="*/web_tests/*" --exclude="*/test-list/*" \
+			--exclude="*/uv/test/*" --exclude="*.rst" \
+			--exclude="*/cctest/*" --exclude="*/unittests/*" \
+			--exclude="*/test/data/*" --exclude="*/.eslintrc*" \
+			--exclude="*/commit_stats/*")
 
-		sed -i 's/absl::/std::/' "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" || die
-
-		# 157 reformatted a TS import to add spaces after the commas; match the new form.
-		sed -i 's/RawSiteException,SiteException,SiteSettingsBrowserProxy/RawSiteException, SiteException, SiteSettingsBrowserProxy/g' \
-			"${BR_PA_PATH}/Content-settings-infrastructure.patch" || die
-
-		# 157 renamed LayoutObject::StyleRef() to Style(); the svg hunks that modify
-		# lines carry the old StyleRef() in their context and fail to apply. Rewrite
-		# it in the svg_text_content_element.cc section of this patch.
-		sed -i '/^diff --git a\/.*svg_text_content_element\.cc$/,/^diff --git / s/StyleRef()/Style()/g' \
-			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch" || die
-
-		# 157 changed OfflineAudioContext::FireCompletionEvent to take the
-		# AudioBuffer as a parameter and dropped the trailing "resolve the promise
-		# too" comment; re-point the AudioBuffer shuffle hunk at the new context
-		# so it lands where rendered_buffer is in scope.
-		sed -i 's|// Call the offline rendering completion event listener and resolve the|// Call the offline rendering completion event listener.|' \
-			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch" || die
-		sed -i 's|// promise too\.|DispatchEvent(*OfflineAudioCompletionEvent::Create(rendered_buffer));|' \
-			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch" || die
-
-		# 157 moved kLiveCaption/kLiveCaptionWebAudio into the media:: namespace;
-		# the speech-synthesis flag .inc must use the namespaced setter.
-		sed -i 's|SET_CROMITE_FEATURE_DISABLED(kLiveCaptionWebAudio)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kLiveCaptionWebAudio)|' \
-			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch" || die
-		sed -i 's|SET_CROMITE_FEATURE_DISABLED(kLiveCaption)|SET_CROMITE_FEATURE_DISABLED_W_NAMESPACE(media, kLiveCaption)|' \
-			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch" || die
-
-		filterdiff -p1 "${BR_PA_PATH}/JIT-site-settings.patch" --exclude="content/browser/renderer_host/render_process_host_impl.cc" \
-			> "${BR_PA_PATH}/JIT-site-settings.patch1"
-		mv -f "${BR_PA_PATH}/JIT-site-settings.patch1" "${BR_PA_PATH}/JIT-site-settings.patch"
-
-		# 158 rewrote the kExcludeAdsFromOriginIsolation comment in
-		# NavigationRequest::GetUrlInfo(); match its first line in the
-		# navigation_request.cc hunk context.
-		sed -i 's|    // When excluding ads from origin isolation, an ad navigation is treated as|    // After the final response, use the decision from|' \
-			"${BR_PA_PATH}/JIT-site-settings.patch" || die
-
-		#TODO remove after cromite update
-		filterdiff -p1 "${BR_PA_PATH}/Viewport-Protection-flag.patch" --exclude="third_party/blink/public/common/widget/device_emulation_params.h" \
-			> "${BR_PA_PATH}/Viewport-Protection-flag.patch1"
-		mv -f "${BR_PA_PATH}/Viewport-Protection-flag.patch1" "${BR_PA_PATH}/Viewport-Protection-flag.patch"
-		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-fix-r1.patch"
-		#TODO remove after cromite update
-
-		#TODO remove after cromite update
-		# 157 removed static_library("ui") from chrome/browser/ui/BUILD.gn, so this
-		# patch's deps hunk fuzz-misapplies at end-of-file. Drop it; the content_settings
-		# dep is re-added to the browser_commands_impl target below.
-		filterdiff -p1 "${BR_PA_PATH}/Content-settings-infrastructure.patch" --exclude="chrome/browser/ui/BUILD.gn" \
-			> "${BR_PA_PATH}/Content-settings-infrastructure.patch1"
-		mv -f "${BR_PA_PATH}/Content-settings-infrastructure.patch1" "${BR_PA_PATH}/Content-settings-infrastructure.patch"
-
-		#TODO remove after cromite update
-		# 157 split the webui "configs" target into public/sources lists and dropped
-		# the "configs +=" line, so this hunk fuzz-misapplies into the public list
-		# and proxy_config_ui.cc is never compiled (undefined ProxyConfigUI ctor).
-		# Drop the hunk; the sources and deps are re-added below.
-		filterdiff -p1 "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch" --exclude="chrome/browser/ui/webui/BUILD.gn" \
-			> "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1"
-		mv -f "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch1" "${BR_PA_PATH}/Add-a-proxy-configuration-page.patch"
-
-		# 158 turned the site-settings preference dispatch into a switch statement
-		# and gave PermissionSetting a source argument (createDefaultPermissionSetting),
-		# so this patch's SingleWebsiteSettings.java hunks can no longer apply
-		# (one of them even fuzz-misapplies). Drop the file; the re-based hunks are
-		# applied after the loop.
-		filterdiff -p1 "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch" \
-			--exclude="components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SingleWebsiteSettings.java" \
-			> "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch1"
-		mv -f "${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch1" \
-			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
-
-		# 158 removed the Quota.TotalDiskSpaceIsZero histogram from
-		# quota_device_info_helper.cc, so the hunk's context no longer matches.
-		# Drop the file; the re-based hunk is applied after the loop.
-		filterdiff -p1 "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch" \
-			--exclude="storage/browser/quota/quota_device_info_helper.cc" \
-			> "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch1"
-		mv -f "${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch1" \
-			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
-
-		# 158 dropped v8's kTemplatesWithMismatchedArguments list from
-		# MessageFormatter::TryFormat (and NewJSMessageObject now maps a null
-		# argument to the hole, so no list entry is needed anymore), so the
-		# messages.cc hunk is obsolete and fuzz-misapplies; drop the file.
-		filterdiff -p1 "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch" \
-			--exclude="v8/src/execution/messages.cc" \
-			> "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch1"
-		mv -f "${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch1" \
-			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
-
+		# Curated subset of the 158 set (fingerprinting/privacy), in the
+		# set's canonical application order. The re-based set supersedes
+		# the former per-patch 157/158 context seds and the files/
+		# companion patches (debugger setting registration, proxy
+		# extensions, viewport fixes, site-settings re-bases), which are
+		# now baked into the set's patches.
 		BROMITE_PATCHES=(
 			"${BR_PA_PATH}/bromite-build-utils.patch"
+			"${BR_PA_PATH}/Add-cromite-flags-support.patch"
 			"${BR_PA_PATH}/Battery-API-return-nothing.patch"
 			"${BR_PA_PATH}/Multiple-fingerprinting-mitigations.patch"
 			"${BR_PA_PATH}/Add-flag-to-configure-maximum-connections-per-host.patch"
@@ -1247,7 +1160,6 @@ src_prepare() {
 			"${BR_PA_PATH}/Disable-idle-detection.patch"
 			"${BR_PA_PATH}/Disable-TLS-resumption.patch"
 			"${BR_PA_PATH}/Remove-navigator.connection-info.patch"
-
 			"${BR_PA_PATH}/AudioBuffer-AnalyserNode-fp-mitigations.patch"
 			"${BR_PA_PATH}/Fonts-fingerprinting-mitigation.patch"
 			"${BR_PA_PATH}/Content-settings-infrastructure.patch"
@@ -1258,61 +1170,19 @@ src_prepare() {
 			"${BR_PA_PATH}/Add-webRTC-site-settings.patch"
 			"${BR_PA_PATH}/Show-site-settings-for-cookies-javascript-and-ads.patch"
 			"${BR_PA_PATH}/Viewport-Protection-flag.patch"
-			"${BR_PA_PATH}/Protect-keyboard-geometry-on-Android.patch"
 			"${BR_PA_PATH}/Revert-remove-allowscript-content-setting-secondary-url.patch"
 			"${BR_PA_PATH}/Timezone-customization.patch"
 			"${BR_PA_PATH}/Disable-speechSynthesis-getVoices-API.patch"
 			"${BR_PA_PATH}/Remove-support-for-device-memory-and-cpu-recovery.patch"
 			"${BR_PA_PATH}/Disable-Feeback-Collector.patch"
 			"${BR_PA_PATH}/Disable-remote-altsvc-for-h3-connections.patch"
-			"${BR_PA_PATH}/Add-cromite-flags-support.patch"
 			"${BR_PA_PATH}/Enables-deactivation-of-the-js-debugger-statement.patch"
+			"${BR_PA_PATH}/Protect-keyboard-geometry-on-Android.patch"
 		)
 		for i in "${BROMITE_PATCHES[@]}"; do
-			if [[ "$i" =~ "Add-autoplay-site-setting.patch" ]] ||
-				[[ "$i" =~ "JIT-site-settings.patch" ]] ||
-				[[ "$i" =~ "Site-setting-for-images.patch" ]]; then
-				einfo "Git binary patch: ${i##*/}"
-				git_wrapper apply -p1 "$i"
-			else
-				filter_wrapper "$i" --exclude="chrome/android/*"
-			fi
+			einfo "$i"
+			git_wrapper apply "${excludes[@]}" -p1 "$i"
 		done
-
-		# 158's devtools settings registry is strict: moduleSetting() throws
-		# for unregistered names (the 2024 patch relied on the removed
-		# auto-creation), so every devtools load logged "No setting
-		# registered: disableDebuggerStatement". Register the setting (and
-		# surface it in the settings UI) after the loop.
-		eapply_wrapper "${FILESDIR}/cromite-debugger-statement-setting.patch"
-
-		# Re-add the content_settings dep dropped above (157 restructured the ui target).
-		sed -i 's|^      "//components/commerce/core:utils",|      "//components/commerce/core:utils",\n      "//components/content_settings/core/browser:browser",|' \
-			chrome/browser/ui/BUILD.gn || die
-
-		# Re-add the proxy config UI sources and their strict-include deps to the
-		# webui configs target (the patch's BUILD.gn hunk is dropped above).
-		sed -i '/^source_set("configs") {/,/^}/ s|^    "chrome_web_ui_configs.cc",|    "chrome_web_ui_configs.cc",\n    "proxy_config_ui.cc",\n    "proxy_config_ui.h",|' \
-			chrome/browser/ui/webui/BUILD.gn || die
-		sed -i '/^source_set("configs") {/,/^}/ s|^  deps = \[$|  deps = [\n    "//base",\n    "//chrome/browser:browser_process",\n    "//chrome/browser:primitives",\n    "//chrome/browser/net",\n    "//chrome/browser/policy:policy",\n    "//chrome/browser/profiles:profile",\n    "//chrome/common",\n    "//chrome:resources",\n    "//components/prefs",\n    "//components/proxy_config",\n    "//components/resources:components_resources",\n    "//content/public/browser",\n    "//url",|' \
-			chrome/browser/ui/webui/BUILD.gn || die
-
-		# The cromite proxy patch moves the profile's proxy tracking to the global
-		# Local State, which the chrome.proxy extension API never writes to, so
-		# extensions (SwitchyOmega, FoxyProxy, ...) silently stop working. Track
-		# both stores: the profile's proxy pref takes precedence while explicitly
-		# set, the Local State (chrome://proxy) setting is the fallback.
-		eapply_wrapper "${FILESDIR}/chromium-157-proxy-extensions.patch"
-
-		#* Viewport Protection's screen emulation misplaces page-anchored native
-		#* popups (select/date/color pickers); round the screen de-emulation so
-		#* the emulated->screen->emulated round-trip is a fixed point and the
-		#* popup stops drifting toward the top-left corner
-		eapply_wrapper "${FILESDIR}/cromite-viewport-protection-popup-rounding.patch"
-
-		# 158 re-bases for the files excluded from the loop patches above
-		eapply_wrapper "${FILESDIR}/chromium-158-cookies-js-site-settings.patch"
-		eapply_wrapper "${FILESDIR}/chromium-158-quota-device-info-approximation.patch"
 
 		#! conflicting patches
 		sed -i '/browser_features.cc/,+17d' \
