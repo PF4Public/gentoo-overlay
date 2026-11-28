@@ -25,6 +25,7 @@ RDEPEND="
 	net-misc/curl[ssl]
 	sys-apps/dbus:=
 	media-libs/flac:=
+	media-libs/lcms:=
 	sys-libs/zlib:=[minizip]
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	media-libs/mesa:=[X,gbm(+)]
