@@ -3,6 +3,15 @@ on:
   push:
     tags:
     - 'ungoogled-chromium/*'
+    # a "www-client/ungoogled-chromium: build" commit on master tags the changed
+    # ebuild and dispatches this workflow (the release job at the bottom); the
+    # paths filter keeps unrelated master pushes out (tag pushes ignore paths
+    # filters)
+    branches:
+    - master
+    paths:
+    - 'www-client/ungoogled-chromium/*.ebuild'
+    - 'www-client/ungoogled-chromium/files/**'
   # the build workflow pushes tags via GITHUB_TOKEN, which does not auto-trigger
   # other workflows, so it also dispatches this run explicitly (gh workflow run
   # --ref <tag>); without a tag the newest ebuild is used (deps-only runs)
@@ -59,7 +68,9 @@ env:
 
 jobs:
   resolve:
-    if: github.repository == 'PF4Public/gentoo-overlay'
+    if: >-
+      github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     outputs:
       pv: ${{ steps.env.outputs.pv }}
@@ -457,11 +468,664 @@ jobs:
           build-timeout: ${{ env.BUILD_TIMEOUT }}
           job: 7
 
+  # USE-variant builds, moved here from the deleted ungoogled-chromium test
+  # workflow: they start after the default build finished (its saved deps set
+  # is the warm start) and run in parallel with publish, without gating it.
+  # Each variant is a self-contained build (no state restore/save); its Save
+  # deps feeds the next variant and the next release run.
+  use-wayland:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="wayland" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-headless-x-wayland:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="headless -X -wayland" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-cromite:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="cromite" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-official:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="-official" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-libcxx:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="-libcxx" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-system-libvpx-system-av1:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="system-libvpx system-av1" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-system-jsoncpp-system-abseil-cpp:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="system-jsoncpp system-abseil-cpp" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-bundled-toolchain:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="bundled-toolchain" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-pgo:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="pgo" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-thinlto-optimize-thinlto:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="thinlto optimize-thinlto" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+  use-cfi-thinlto:
+    needs: [resolve, build-7]
+    if: >-
+      always() && github.repository == 'PF4Public/gentoo-overlay' &&
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Free space
+        uses: ./.github/actions/free-space
+
+      - name: Restore deps
+        uses: ./.github/actions/deps-restore
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
+      - name: Gentoo setup
+        uses: ./.github/actions/gentoo-setup
+        with:
+          accept-keywords: ${{ env.ACCEPT_KEYWORDS_LIST }}
+
+      - name: Apply USE flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          # package.use may be a directory of drop-ins; append to a drop-in in that case
+          docker exec -e ATOM="${{ needs.resolve.outputs.atom }}" -e USE="cfi thinlto" gentoo \
+            bash -c 'f=/etc/portage/package.use; [[ -d "$f" ]] && f="$f/ci-build.conf"; printf "%s %s\n" "$ATOM" "$USE" >> "$f"; tail -1 "$f"'
+
+      - name: Build
+        shell: bash
+        run: |
+          set -uo pipefail
+          rc=0
+          docker exec gentoo \
+            emerge --getbinpkg --buildpkg --buildpkg-exclude "${{ needs.resolve.outputs.atom }}" \
+            --autounmask --autounmask-write --autounmask-continue -v1 \
+            ${{ needs.resolve.outputs.atom }} 2>&1 | tee -a build.log || rc=${PIPESTATUS[0]}
+          if [[ $rc -ne 0 ]]; then
+            echo "build failed (rc=${rc})" >&2
+            tail -80 build.log
+            exit 1
+          fi
+          echo "build succeeded"
+
+      - name: Save deps
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/deps-save
+        with:
+          prefix: ${{ env.DEPS_PREFIX }}
+
   publish:
     needs: [resolve, build-1, build-2, build-3, build-4, build-5, build-6, build-7]
     if: >-
       always() && github.repository == 'PF4Public/gentoo-overlay' &&
-      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true')
+      !(github.event_name == 'workflow_dispatch' && github.event.inputs.deps-only == 'true') &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -705,3 +1369,78 @@ jobs:
           name: failure-log
           path: dump.log
           retention-days: 30
+
+  release:
+    # When a commit requests a test build (its message is "<cat>/<pn>: build",
+    # e.g. "www-client/ungoogled-chromium: build"), create the
+    # ungoogled-chromium/<pv> tag the ungoogled-chromium-release workflow is
+    # triggered by - the version is taken from the changed ebuild file - so the
+    # build can be verified before it is stabilised.
+    # Moved here from the deleted ungoogled-chromium test workflow; the push
+    # trigger in the on: block fires this job on master ebuild changes.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'PF4Public/gentoo-overlay'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Tag build ebuilds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          PN: ungoogled-chromium
+          PKGDIR: www-client/ungoogled-chromium
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          if [[ "${before}" =~ ^0+$ ]] || ! git cat-file -e "${before}" 2>/dev/null; then
+            commits=("${after}")
+          else
+            mapfile -t commits < <(git rev-list "${before}..${after}")
+            [[ ${#commits[@]} -gt 0 ]] || commits=("${after}")
+          fi
+
+          for sha in "${commits[@]}"; do
+            # build commits are exactly "<cat>/<pn>: build"; the version is
+            # extracted from the changed ebuild file below, not from the
+            # message. Match only the first line (with our blank-line-free
+            # messages %s returns the whole message) and require "build" to
+            # be the only word after the colon, so titles like "fix the
+            # system-openjpeg build" do not fire this
+            if ! git log -1 --format=%B "${sha}" | head -n 1 | grep -qiE '^[^:]+: build$'; then
+              continue
+            fi
+            while IFS= read -r file; do
+              [[ -n "${file}" ]] || continue
+              # skip ebuilds that don't exist at this commit (e.g. deleted older versions)
+              git cat-file -e "${sha}:${file}" 2>/dev/null || continue
+              pv="$(basename "${file}" .ebuild)"
+              pv="${pv##*-}"
+              if [[ "${pv}" == *9999* ]]; then
+                echo "skipping live version ${pv}"
+                continue
+              fi
+              tag="${PN}/${pv}"
+              if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+                echo "tag ${tag} already exists, skipping"
+                continue
+              fi
+              git tag -a "${tag}" "${sha}" -m "${PN} ${pv} release (build in ${sha})"
+              git push origin "${tag}"
+              # GITHUB_TOKEN pushes do not trigger other workflows, so dispatch
+              # the release explicitly; --ref checks out the tag so the release
+              # resolves this version
+              gh workflow run ungoogled-chromium-release.yml --ref "${tag}"
+              echo "created tag ${tag} at ${sha}"
+            done < <(git show --name-only --format= "${sha}" -- "${PKGDIR}" | grep '\.ebuild$' || true)
+          done
