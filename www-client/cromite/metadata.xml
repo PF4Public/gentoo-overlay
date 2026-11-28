@@ -5,8 +5,8 @@
 		<email>PF4Public@users.noreply.github.com</email>
 	</maintainer>
 	<upstream>
-		<remote-id type="github">uazo/cromite</remote-id>
-		<bugs-to>https://github.com/uazo/cromite/issues</bugs-to>
+		<remote-id type="github">PF4Public/cromite</remote-id>
+		<bugs-to>https://github.com/PF4Public/cromite/issues</bugs-to>
 	</upstream>
 	<longdescription>
 		Cromite a Bromite fork with ad blocking and privacy enhancements; take back your browser!
